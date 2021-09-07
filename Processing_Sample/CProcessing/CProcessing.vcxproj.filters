@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="NanoVG">
+      <UniqueIdentifier>{81cc42bc-6c55-4f02-bb72-4d40f8553eb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Internal Headers">
+      <UniqueIdentifier>{75887fa6-25b3-4b41-b261-66badf909de2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="nanovg\src\fontstash.h">
+      <Filter>NanoVG</Filter>
+    </ClInclude>
+    <ClInclude Include="nanovg\src\nanovg.h">
+      <Filter>NanoVG</Filter>
+    </ClInclude>
+    <ClInclude Include="nanovg\src\nanovg_gl.h">
+      <Filter>NanoVG</Filter>
+    </ClInclude>
+    <ClInclude Include="nanovg\src\nanovg_gl_utils.h">
+      <Filter>NanoVG</Filter>
+    </ClInclude>
+    <ClInclude Include="nanovg\src\stb_image.h">
+      <Filter>NanoVG</Filter>
+    </ClInclude>
+    <ClInclude Include="nanovg\src\stb_truetype.h">
+      <Filter>NanoVG</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Internal_Random.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Internal_Image.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Internal_File.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Internal_Input.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Internal_Math.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Internal_Text.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Internal_Sound.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Internal_Noise.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\cprocessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\vect.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\tinycthread.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Internal_System.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\cprocessing_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLAD\glad.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Internal_Resources.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CP_Random.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nanovg\src\nanovg.c">
+      <Filter>NanoVG</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CP_Graphics.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CP_Setting.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CP_Input.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CP_Color.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CP_Math.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CP_Noise.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CP_Text.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CP_File.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CP_Image.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CP_Sound.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\vect.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\tinycthread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CP_System.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLAD\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="nanovg\src\nanovg.h.gch">
+      <Filter>NanoVG</Filter>
+    </None>
+    <None Include="nanovg\src\nanovg_gl.h.gch">
+      <Filter>NanoVG</Filter>
+    </None>
+    <None Include="nanovg\src\nanovg_gl_utils.h.gch">
+      <Filter>NanoVG</Filter>
+    </None>
+    <None Include="nanovg\src\stb_image.h.gch">
+      <Filter>NanoVG</Filter>
+    </None>
+    <None Include="nanovg\src\stb_truetype.h.gch">
+      <Filter>NanoVG</Filter>
+    </None>
+  </ItemGroup>
+</Project>
