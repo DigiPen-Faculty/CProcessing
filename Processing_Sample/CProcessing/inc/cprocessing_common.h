@@ -1,40 +1,9 @@
 //---------------------------------------------------------
 // CProcessing
-// A functional programming library focusing on game development
 //
-// author:			Justin Chambers
-// contributors:	Daniel Hamilton, Zachary Logsdon,
-//					Andrea Ellinger, Jason Thiel
-//
-// documentation link:
-// https://inside.digipen.edu/main/GSDP:GAM100/CProcessing
-//
-//---------------------------------------------------------
-// Copyright (c) 2020 DigiPen Institute of Technology
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
+// Copyright(c) 2021 DigiPen Institute of Technology
 // 
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1.	The origin of this software must not be misrepresented; you must not
-//		claim that you wrote the original software.If you use this software
-//		in a product, an acknowledgment in the product documentation would
-//		be appreciated but is not required.
-// 
-// 2.	Altered source versions must be plainly marked as such, and must not
-//		be misrepresented as being the original software.
-// 
-// 3.	This notice may not be removed or altered from any source
-//		distribution.
-//---------------------------------------------------------
-// Library usage and acknowledgment:
-//
-// NanoVG by Mikko Mononen
-// FMOD Studio by Firelight Technologies Pty Ltd.
+// https://github.com/DigiPen-Faculty/CProcessing
 //---------------------------------------------------------
 
 #pragma once
