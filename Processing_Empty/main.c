@@ -7,7 +7,7 @@
 //			of the CProcessing library
 //
 // documentation link:
-// https://inside.digipen.edu/main/GSDP:GAM100/CProcessing
+// https://github.com/DigiPen-Faculty/CProcessing/wiki
 //
 // Copyright © 2020 DigiPen, All rights reserved.
 //---------------------------------------------------------
