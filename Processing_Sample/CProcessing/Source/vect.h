@@ -37,8 +37,8 @@ unsigned int vect_ins(vect_t *v, unsigned int pos);
 #define VECT_GENERATE_TYPE(TYPE) VECT_GENERATE_NAME(TYPE, TYPE)
 #define VECT_GENERATE_NAME(TYPE, NAME)											\
 typedef struct {																\
-	int size;																	\
-	int capacity;																\
+	size_t size;																	\
+	size_t capacity;																\
 	size_t data_size;															\
 	TYPE *data;																	\
 } vect_##NAME;																	\

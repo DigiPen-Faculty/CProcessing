@@ -1550,7 +1550,7 @@ void update(void)
 
 // variable to track fullscreen or not, set it to initialize in either windowed or fullscreen mode
 bool full = false;
-int frameTimer = -1;
+unsigned frameTimer = (unsigned int)-1;
 
 void EngineInit(void)
 {
@@ -2497,10 +2497,10 @@ void JUSTIN_DEMO_UPDATE_GetFrameCount(void)
     CP_Graphics_ClearBackground(CP_Color_Create(200, 200, 200, 255));
     CP_Settings_Fill(CP_Color_Create(100, 20, 100, 255));
     
-    int currentFrameCount = CP_System_GetFrameCount();
+    unsigned currentFrameCount = CP_System_GetFrameCount();
     
     char buffer[16] = { 0 };
-    sprintf_s(buffer, _countof(buffer), "%i", currentFrameCount);
+    sprintf_s(buffer, _countof(buffer), "%u", currentFrameCount);
     CP_Font_DrawText(buffer, 200, 200);
 }
 

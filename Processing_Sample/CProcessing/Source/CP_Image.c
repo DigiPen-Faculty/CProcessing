@@ -22,8 +22,8 @@
 #define CP_INITIAL_IMAGE_COUNT 100
 
 static CP_Image* images = NULL;
-static int       image_num = 0;
-static int       image_max = CP_INITIAL_IMAGE_COUNT;
+static unsigned  image_num = 0;
+static unsigned  image_max = CP_INITIAL_IMAGE_COUNT;
 
 //------------------------------------------------------------------------------
 // Internal Functions:
@@ -31,7 +31,7 @@ static int       image_max = CP_INITIAL_IMAGE_COUNT;
 
 static CP_Image CP_CheckIfImageIsLoaded(const char* filepath)
 {
-	for (int i = 0; i < image_num; ++i)
+	for (unsigned i = 0; i < image_num; ++i)
 	{
 		if (images[i] && !strcmp(filepath, images[i]->filepath))
 		{
@@ -56,7 +56,7 @@ static void CP_AddImageHandle(CP_Image img)
 	if (image_num == image_max)
 	{
 		// store the current array
-		CP_Image* temp = images;
+		CP_Image * const temp = images;
 		// allocate an array twice the size
 		images = (CP_Image*)calloc(image_max * 2, sizeof(CP_Image));
 		// copy over the old data
@@ -72,7 +72,7 @@ void CP_ImageShutdown(void)
 {
 	CP_CorePtr CORE = GetCPCore();
 	if (!CORE || !CORE->nvg) return;
-	for (int i = 0; i < image_num; ++i)
+	for (unsigned i = 0; i < image_num; ++i)
 	{
 		if (images[i]) // check if its null
 		{
@@ -109,16 +109,16 @@ static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float
 		break;
 	}
 
-	float a = CP_Math_ClampInt(alpha, 0, 255) / 255.0f;
+	float const a = CP_Math_ClampInt(alpha, 0, 255) / 255.0f;
 
 	// translate and scale image pattern for subimages
 	NVGpaint image = { 0 };
 	if (s0 != s1 && t0 != t1)
 	{
-		float posRatioX = (w / (s1 - s0));
-		float posRatioY = (h / (t1 - t0));
-		float scaleRatioX = (img->w / w) * posRatioX;
-		float scaleRatioY = (img->h / h) * posRatioY;
+		float const posRatioX = (w / (s1 - s0));
+		float const posRatioY = (h / (t1 - t0));
+		float const scaleRatioX = (img->w / w) * posRatioX;
+		float const scaleRatioY = (img->h / h) * posRatioY;
 
 		image = nvgImagePattern(CORE->nvg, x - s0 * posRatioX, y - t0 * posRatioY, w * scaleRatioX, h * scaleRatioY, 0, img->handle, a);
 	}
@@ -207,7 +207,7 @@ CP_API void CP_Image_Free(CP_Image* img)
 	CP_CorePtr CORE = GetCPCore();
 	if (!CORE || !CORE->nvg) return;
 
-	for (int i = 0; i < image_num; ++i)
+	for (unsigned i = 0; i < image_num; ++i)
 	{
 		if (images[i] && images[i] == *img)
 		{

@@ -36,7 +36,7 @@ static const uint32_t MAX_RAND_INT = RAND_MAX;
 void xorshiftSeed(int seed)
 {
 	srand(seed);
-	for (int index = 0; index < 4; ++index)
+	for (unsigned index = 0; index < 4; ++index)
 	{
 		state[index] = rand() << 16;
 		state[index] |= rand();
