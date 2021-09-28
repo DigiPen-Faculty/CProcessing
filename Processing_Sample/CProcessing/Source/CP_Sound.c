@@ -1,10 +1,35 @@
 //------------------------------------------------------------------------------
-// file:	CP_Sound.c
-// author:	Daniel Hamilton, Andrea Ellinger
-// brief:	Load, play and manipulate sound files 
+// File:	CP_Sound.c
+// Author:	Daniel Hamilton, Andrea Ellinger
+// Brief:	Load, play and manipulate sound files
 //
-// Copyright © 2019 DigiPen, All rights reserved.
-//------------------------------------------------------------------------------
+// GitHub Repository:
+// https://github.com/DigiPen-Faculty/CProcessing
+//
+//---------------------------------------------------------
+// MIT License
+//
+// Copyright (C) 2021 DigiPen Institute of Technology
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+//---------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Include Files:
@@ -47,9 +72,7 @@ static CP_Sound CP_CheckIfSoundIsLoaded(const char* filepath)
 	{
 		CP_Sound snd = vect_at_CP_Sound(sound_vector, i);
 		if (snd && !strcmp(filepath, snd->filepath))
-		{
 			return snd;
-		}
 	}
 
 	return NULL;
@@ -81,15 +104,12 @@ void CP_Sound_Init(void)
 
 	// Create the channel groups (for stopping/pausing and controlling pitch and volume on a per group basis)
 	for (int index = 0; index < CP_SOUND_GROUP_MAX && result == FMOD_OK; ++index)
-	{
 		result = FMOD_System_CreateChannelGroup(_fmod_system, NULL, &channel_groups[index]);
-	}
+
 	if (result != FMOD_OK)
-	{
+
 		// TODO: handle error - FMOD_ErrorString(result)
 		CP_Sound_Shutdown();
-		return;
-	}
 }
 
 void CP_Sound_Update(void)
@@ -98,13 +118,10 @@ void CP_Sound_Update(void)
 	{
 		result = FMOD_System_Update(_fmod_system);
 		if (result != FMOD_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
 
+			// TODO: handle error - FMOD_ErrorString(result)
 			// Assume this is a fatal problem and shut down FMOD
 			CP_Sound_Shutdown();
-			return;
-		}
 	}
 }
 
@@ -115,12 +132,14 @@ void CP_Sound_Shutdown(void)
 		// Stop all current sounds
 		CP_Sound_StopAll();
 
-		// Free sounds 
+		// Free sounds
 		for (int i = 0; i < sound_vector->size; ++i)
 		{
 			CP_Sound sound = vect_at_CP_Sound(sound_vector, (unsigned int)i);
+
 			// Release the sound from FMOD
 			FMOD_Sound_Release(sound->sound);
+
 			// Free the struct's memory
 			free(sound);
 		}
@@ -144,28 +163,21 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 	// Check if the sound is already loaded
 	sound = CP_CheckIfSoundIsLoaded(filepath);
 	if (sound)
-	{
 		return sound;
-	}
 
 	// Allocate memory for the struct
 	sound = (CP_Sound)malloc(sizeof(CP_Sound_Struct));
 	if (!sound)
-	{
-		// TODO handle error 
+
+		// TODO handle error
 		return NULL;
-	}
 
 	// Create the FMOD sound
 	if (streamFromDisc)
-	{
 		result = FMOD_System_CreateStream(_fmod_system, filepath, FMOD_DEFAULT, NULL, &(sound->sound));
 
-	}
-	else
-	{
-		result = FMOD_System_CreateSound(_fmod_system, filepath, FMOD_DEFAULT, NULL, &(sound->sound));
-	}
+	result = FMOD_System_CreateSound(_fmod_system, filepath, FMOD_DEFAULT, NULL, &(sound->sound));
+
 	if (result != FMOD_OK)
 	{
 		// TODO: handle error - FMOD_ErrorString(result)
@@ -199,9 +211,7 @@ CP_API CP_Sound CP_Sound_LoadMusic(const char* filepath)
 CP_API void CP_Sound_Free(CP_Sound* sound)
 {
 	if (sound == NULL || *sound == NULL)
-	{
 		return;
-	}
 
 	// Find the sound in the list
 	for (int i = 0; i < sound_vector->size; ++i)
@@ -211,8 +221,10 @@ CP_API void CP_Sound_Free(CP_Sound* sound)
 		{
 			// Remove the sound from the list
 			vect_rem_CP_Sound(sound_vector, (unsigned int)i);
+
 			// Release the sound from FMOD
 			FMOD_Sound_Release((*sound)->sound);
+
 			// Free the struct's memory
 			free(*sound);
 			*sound = NULL;
@@ -236,9 +248,7 @@ CP_API void CP_Sound_PlayMusic(CP_Sound sound)
 CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_BOOL looping, CP_SOUND_GROUP group)
 {
 	if (!CP_IsValidSoundGroup(group) || sound == NULL)
-	{
 		return;
-	}
 
 	// Only need to save the channel value temporarily since there is no channel-specific functionality
 	FMOD_CHANNEL* channel;
@@ -246,10 +256,9 @@ CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_
 	// Start the sound paused so we can set parameters on it
 	result = FMOD_System_PlaySound(_fmod_system, sound->sound, channel_groups[group], FMOD_TRUE, &channel);
 	if (result != FMOD_OK)
-	{
+
 		// TODO: handle error - FMOD_ErrorString(result)
 		return;
-	}
 
 	// Set the volume if it is not 1.0
 	// (2.0 is double volume, 0.0 is silent)
@@ -259,6 +268,7 @@ CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_
 			volume = 0.0f;
 
 		result = FMOD_Channel_SetVolume(channel, volume);
+
 		// TODO: handle error - FMOD_ErrorString(result)
 	}
 
@@ -270,6 +280,7 @@ CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_
 			pitch = 0.0f;
 
 		result = FMOD_Channel_SetPitch(channel, pitch);
+
 		// TODO: handle error - FMOD_ErrorString(result)
 	}
 
@@ -278,13 +289,16 @@ CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_
 	if (looping)
 	{
 		result = FMOD_Channel_SetMode(channel, FMOD_LOOP_NORMAL);
+
 		// TODO: handle error - FMOD_ErrorString(result)
 		result = FMOD_Channel_SetLoopCount(channel, -1);
+
 		// TODO: handle error - FMOD_ErrorString(result)
 	}
 
 	// Resume playing the sound
 	result = FMOD_Channel_SetPaused(channel, FMOD_FALSE);
+
 	// TODO: handle error - FMOD_ErrorString(result)
 }
 
@@ -293,22 +307,24 @@ CP_API void CP_Sound_PauseAll(void)
 	for (int index = 0; index < CP_SOUND_GROUP_MAX; ++index)
 	{
 		result = FMOD_ChannelGroup_SetPaused(channel_groups[index], FMOD_TRUE);
-		if (result != FMOD_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+
+		//if (result != FMOD_OK)
+		//{
+		//	// TODO: handle error - FMOD_ErrorString(result)
+		//}
 	}
 }
 
 CP_API void CP_Sound_PauseGroup(CP_SOUND_GROUP group)
 {
-	if(CP_IsValidSoundGroup(group))
+	if (CP_IsValidSoundGroup(group))
 	{
 		result = FMOD_ChannelGroup_SetPaused(channel_groups[group], FMOD_TRUE);
-		if (result != FMOD_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+
+		//if (result != FMOD_OK)
+		//{
+		//	// TODO: handle error - FMOD_ErrorString(result)
+		//}
 	}
 }
 
@@ -317,10 +333,11 @@ CP_API void CP_Sound_ResumeAll(void)
 	for (int index = 0; index < CP_SOUND_GROUP_MAX; ++index)
 	{
 		result = FMOD_ChannelGroup_SetPaused(channel_groups[index], FMOD_FALSE);
-		if (result != FMOD_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+
+		//if (result != FMOD_OK)
+		//{
+		//	// TODO: handle error - FMOD_ErrorString(result)
+		//}
 	}
 }
 
@@ -329,10 +346,11 @@ CP_API void CP_Sound_ResumeGroup(CP_SOUND_GROUP group)
 	if (CP_IsValidSoundGroup(group))
 	{
 		result = FMOD_ChannelGroup_SetPaused(channel_groups[group], FMOD_FALSE);
-		if (result != FMOD_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+
+		//if (result != FMOD_OK)
+		//{
+		//	// TODO: handle error - FMOD_ErrorString(result)
+		//}
 	}
 }
 
@@ -341,10 +359,11 @@ CP_API void CP_Sound_StopAll(void)
 	for (int index = 0; index < CP_SOUND_GROUP_MAX; ++index)
 	{
 		result = FMOD_ChannelGroup_Stop(channel_groups[index]);
-		if (result != FMOD_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+
+		//if (result != FMOD_OK)
+		//{
+		//	// TODO: handle error - FMOD_ErrorString(result)
+		//}
 	}
 }
 
@@ -353,10 +372,11 @@ CP_API void CP_Sound_StopGroup(CP_SOUND_GROUP group)
 	if (CP_IsValidSoundGroup(group))
 	{
 		result = FMOD_ChannelGroup_Stop(channel_groups[group]);
-		if (result != FMOD_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+
+		//if (result != FMOD_OK)
+		//{
+		//	// TODO: handle error - FMOD_ErrorString(result)
+		//}
 	}
 }
 
@@ -365,10 +385,11 @@ CP_API void CP_Sound_SetGroupVolume(CP_SOUND_GROUP group, float volume)
 	if (CP_IsValidSoundGroup(group))
 	{
 		result = FMOD_ChannelGroup_SetVolume(channel_groups[group], volume);
-		if (result != FMOD_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+
+		//if (result != FMOD_OK)
+		//{
+		//	// TODO: handle error - FMOD_ErrorString(result)
+		//}
 	}
 }
 
@@ -378,10 +399,11 @@ CP_API float CP_Sound_GetGroupVolume(CP_SOUND_GROUP group)
 	if (CP_IsValidSoundGroup(group))
 	{
 		result = FMOD_ChannelGroup_GetVolume(channel_groups[group], &volume);
-		if (result != FMOD_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+
+		//if (result != FMOD_OK)
+		//{
+		//	// TODO: handle error - FMOD_ErrorString(result)
+		//}
 	}
 	return volume;
 }
@@ -391,10 +413,11 @@ CP_API void CP_Sound_SetGroupPitch(CP_SOUND_GROUP group, float pitch)
 	if (CP_IsValidSoundGroup(group))
 	{
 		result = FMOD_ChannelGroup_SetPitch(channel_groups[group], pitch);
-		if (result != FMOD_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+
+		//if (result != FMOD_OK)
+		//{
+		//	// TODO: handle error - FMOD_ErrorString(result)
+		//}
 	}
 }
 
@@ -404,10 +427,11 @@ CP_API float CP_Sound_GetGroupPitch(CP_SOUND_GROUP group)
 	if (CP_IsValidSoundGroup(group))
 	{
 		result = FMOD_ChannelGroup_GetPitch(channel_groups[group], &pitch);
-		if (result != FMOD_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+
+		//if (result != FMOD_OK)
+		//{
+		//	// TODO: handle error - FMOD_ErrorString(result)
+		//}
 	}
 	return pitch;
 }

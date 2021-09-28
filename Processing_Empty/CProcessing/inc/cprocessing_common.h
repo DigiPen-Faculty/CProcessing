@@ -1,9 +1,43 @@
 //---------------------------------------------------------
-// CProcessing
+//	CProcessing
+//	A functional programming library focusing on game development.
 //
-// Copyright(c) 2021 DigiPen Institute of Technology
-// 
-// https://github.com/DigiPen-Faculty/CProcessing
+//	Author:			Justin Chambers
+//	Contributors:	Daniel Hamilton, Zachary Logsdon,
+//					Andrea Ellinger, Jason Thiel, Kenny Mecham.
+//
+//	GitHub Repository:
+//	https://github.com/DigiPen-Faculty/CProcessing
+//
+//---------------------------------------------------------
+//	MIT License
+//
+//	Copyright (C) 2021 DigiPen Institute of Technology
+//
+//	Permission is hereby granted, free of charge, to any person obtaining a copy
+//	of this software and associated documentation files(the "Software"), to deal
+//	in the Software without restriction, including without limitation the rights
+//	to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+//	copies of the Software, and to permit persons to whom the Software is
+//	furnished to do so, subject to the following conditions :
+//
+//	The above copyright notice and this permission notice shall be included in all
+//	copies or substantial portions of the Software.
+//
+//	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//	SOFTWARE.
+//
+//---------------------------------------------------------
+//	Acknowledgments:
+//
+//	NanoVG by Mikko Mononen
+//	FMOD Studio by Firelight Technologies Pty Ltd.
+//
 //---------------------------------------------------------
 
 #pragma once
@@ -14,24 +48,24 @@ extern "C"
 #endif
 
 //---------------------------------------------------------
-// Cleanup Warnings 
+//	Cleanup Warnings 
 
 #ifdef _MSC_VER
-#pragma warning(disable: 4201)  // nonstandard extension used : nameless struct/union
-#pragma warning(disable: 4204)  // nonstandard extension used : non-constant aggregate initializer
-#pragma warning(disable: 4090)  // different '__unaligned' qualifiers (this only shows up in x64)
+#pragma warning(disable: 4201)  //	nonstandard extension used : nameless struct/union
+#pragma warning(disable: 4204)  //	nonstandard extension used : non-constant aggregate initializer
+#pragma warning(disable: 4090)  //	different '__unaligned' qualifiers (this only shows up in x64)
 #endif
 
 
 //---------------------------------------------------------
-// Windows Defines
+//	Windows Defines
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 
 //---------------------------------------------------------
-// Eports for DLL functions
+//	Exports for DLL functions
 
 #ifdef CPROCESSING_EXPORTS
 	#define DLL_EXPORT __declspec(dllexport)
@@ -42,43 +76,42 @@ extern "C"
 
 
 //---------------------------------------------------------
-// CProcessing Types
-
-typedef unsigned int	CP_BOOL;
+//	CProcessing Types
+typedef unsigned char	CP_BOOL;
 typedef struct			CP_Image_Struct* CP_Image;
 typedef struct			CP_Sound_Struct* CP_Sound;
 typedef struct			CP_Font_Struct* CP_Font;
 
 
 //---------------------------------------------------------
-// Function Pointer
+//	Function Pointer
 typedef					void(*FunctionPtr)(void);
 
 
 //---------------------------------------------------------
-// COLOR:
+//	COLOR:
 //		Structures describing the four properties of color in both RGB and HSL color space
 //		Create and change colors as an array or by accessing parameters individually
 typedef union CP_Color
 {
 	unsigned char rgba[4];
-	struct { unsigned char r, g, b, a; };
+	struct { unsigned char red, green, blue, alpha; };
 } CP_Color;
 
 typedef union CP_ColorHSL
 {
 	int hsla[4];
-	struct { int h, s, l, a; };
+	struct { unsigned short h, s, l; unsigned char alpha; };
 } CP_ColorHSL;
 
 
 //---------------------------------------------------------
-// LINE CAP and JOINT MODE:
+//	LINE CAP and JOINT MODE:
 //		Cap controls how the end of the line is drawn
 //		Joint controls how sharp corners are drawn
 typedef enum CP_LINE_CAP_MODE
 {
-	CP_LINE_CAP_BUTT = 0,		// Default
+	CP_LINE_CAP_BUTT = 0,		//	Default
 	CP_LINE_CAP_ROUND = 1,
 	CP_LINE_CAP_SQUARE = 2
 } CP_LINE_CAP_MODE;
@@ -86,38 +119,38 @@ typedef enum CP_LINE_CAP_MODE
 typedef enum CP_LINE_JOINT_MODE
 {
 	CP_LINE_JOINT_ROUND = 1,
-	CP_LINE_JOINT_BEVEL = 3,	// Default
+	CP_LINE_JOINT_BEVEL = 3,	//	Default
 	CP_LINE_JOINT_MITER = 4
 } CP_LINE_JOINT_MODE;
 
 
 //---------------------------------------------------------
-// POSITION MODE:
+//	POSITION MODE:
 //		Change the local origin for draw functions
 //		Shape and Image positions are calculated from their center or top left corner
 typedef enum CP_POSITION_MODE
 {
 	CP_POSITION_CENTER,
-	CP_POSITION_CORNER	// Top Left
+	CP_POSITION_CORNER	//	Top Left
 } CP_POSITION_MODE;
 
 
 //---------------------------------------------------------
-// BLEND MODE:
+//	BLEND MODE:
 //		Change the math applied to colors when drawn on top of each other
 typedef enum CP_BLEND_MODE
 {
-	CP_BLEND_ALPHA,		// BLEND
-	CP_BLEND_ADD,		// ADD
-	CP_BLEND_SUBTRACT,	// DIFFERENCE
-	CP_BLEND_MULTIPLY,	// MULTIPLY
-	CP_BLEND_MIN,		// DARKEST
-	CP_BLEND_MAX		// LIGHTEST
+	CP_BLEND_ALPHA,		//	BLEND
+	CP_BLEND_ADD,		//	ADD
+	CP_BLEND_SUBTRACT,	//	DIFFERENCE
+	CP_BLEND_MULTIPLY,	//	MULTIPLY
+	CP_BLEND_MIN,		//	DARKEST
+	CP_BLEND_MAX		//	LIGHTEST
 } CP_BLEND_MODE;
 
 
 //---------------------------------------------------------
-// IMAGE FILTER MODE:
+//	IMAGE FILTER MODE:
 //		Nearest - pixel perfect is good for retro games and pixel art
 //		Linear - applies bilinear filtering to images and smooths things out
 typedef enum CP_IMAGE_FILTER_MODE
@@ -128,7 +161,7 @@ typedef enum CP_IMAGE_FILTER_MODE
 
 
 //---------------------------------------------------------
-// IMAGE WRAP MODE:
+//	IMAGE WRAP MODE:
 //		Controls what happens to the edge colors of textures
 typedef enum CP_IMAGE_WRAP_MODE
 {
@@ -140,26 +173,26 @@ typedef enum CP_IMAGE_WRAP_MODE
 
 
 //---------------------------------------------------------
-// TEXT ALIGN:
+//	TEXT ALIGN:
 //		Horizontal and vertical text alignment settings
 typedef enum CP_TEXT_ALIGN_HORIZONTAL
 {
-	CP_TEXT_ALIGN_H_LEFT		= 1 << 0,	// Default, align text horizontally to left.
-	CP_TEXT_ALIGN_H_CENTER		= 1 << 1,	// Align text horizontally to center.
-	CP_TEXT_ALIGN_H_RIGHT		= 1 << 2	// Align text horizontally to right.
+	CP_TEXT_ALIGN_H_LEFT		= 1 << 0,	//	Default, align text horizontally to left.
+	CP_TEXT_ALIGN_H_CENTER		= 1 << 1,	//	Align text horizontally to center.
+	CP_TEXT_ALIGN_H_RIGHT		= 1 << 2	//	Align text horizontally to right.
 } CP_TEXT_ALIGN_HORIZONTAL;
 
 typedef enum CP_TEXT_ALIGN_VERTICAL
 {
-	CP_TEXT_ALIGN_V_TOP			= 1 << 3,	// Align text vertically to top.
-	CP_TEXT_ALIGN_V_MIDDLE		= 1 << 4,	// Align text vertically to middle.
-	CP_TEXT_ALIGN_V_BOTTOM		= 1 << 5,	// Align text vertically to bottom.
-	CP_TEXT_ALIGN_V_BASELINE	= 1 << 6	// Default, align text vertically to baseline.
+	CP_TEXT_ALIGN_V_TOP			= 1 << 3,	//	Align text vertically to top.
+	CP_TEXT_ALIGN_V_MIDDLE		= 1 << 4,	//	Align text vertically to middle.
+	CP_TEXT_ALIGN_V_BOTTOM		= 1 << 5,	//	Align text vertically to bottom.
+	CP_TEXT_ALIGN_V_BASELINE	= 1 << 6	//	Default, align text vertically to baseline.
 } CP_TEXT_ALIGN_VERTICAL;
 
 
 //---------------------------------------------------------
-// SOUND GROUP:
+//	SOUND GROUP:
 //		Organize sounds into separate groups to play/pause and control pitch and volume separately
 typedef enum CP_SOUND_GROUP
 {
@@ -180,13 +213,15 @@ typedef enum CP_SOUND_GROUP
 
 
 //---------------------------------------------------------
-// MATH:
+//	MATH:
 //		2D vector (x, y) and 3x3 matrix useful for basic linear algebra
-typedef union CP_Vector
+typedef union CP_Vector2D
 {
 	float v[2];
 	struct { float x, y; };
-} CP_Vector;
+} CP_Vector2D;
+
+//	Wouldn't hurt to add a 3D vector type
 
 typedef union CP_Matrix
 {
@@ -200,18 +235,18 @@ typedef union CP_Matrix
 
 
 //---------------------------------------------------------
-// INPUT:
+//	INPUT:
 //		Keyboard and mouse values match GLFW
 //		Gamepad uses a mapping to XINPUT
 typedef enum CP_KEY
 {
-	KEY_ANY = 0,			// Special value for checking any key
+	KEY_ANY = 0,			//	Special value for checking any key
 	KEY_SPACE = 32,
-	KEY_APOSTROPHE = 39,	// '''
-	KEY_COMMA = 44,			// ','
-	KEY_MINUS = 45,			// '-'
-	KEY_PERIOD = 46,		// '.'
-	KEY_SLASH = 47,			// '/'
+	KEY_APOSTROPHE = 39,	//	'''
+	KEY_COMMA = 44,			//	','
+	KEY_MINUS = 45,			//	'-'
+	KEY_PERIOD = 46,		//	'.'
+	KEY_SLASH = 47,			//	'/'
 	KEY_0 = 48,
 	KEY_1 = 49,
 	KEY_2 = 50,
@@ -222,8 +257,8 @@ typedef enum CP_KEY
 	KEY_7 = 55,
 	KEY_8 = 56,
 	KEY_9 = 57,
-	KEY_SEMICOLON = 59,		// ';'
-	KEY_EQUAL = 61,			// '='
+	KEY_SEMICOLON = 59,		//	';'
+	KEY_EQUAL = 61,			//	'='
 	KEY_A = 65,
 	KEY_B = 66,
 	KEY_C = 67,
@@ -250,12 +285,12 @@ typedef enum CP_KEY
 	KEY_X = 88,
 	KEY_Y = 89,
 	KEY_Z = 90,
-	KEY_LEFT_BRACKET = 91,	// '['
-	KEY_BACKSLASH = 92,		// '\'
-	KEY_RIGHT_BRACKET = 93,	// ']'
-	KEY_GRAVE_ACCENT = 96,	// '`'
-	KEY_WORLD_1 = 161,		// non-US #1
-	KEY_WORLD_2 = 162,		// non-US #2
+	KEY_LEFT_BRACKET = 91,	//	'['
+	KEY_BACKSLASH = 92,		//	'\'
+	KEY_RIGHT_BRACKET = 93,	//	']'
+	KEY_GRAVE_ACCENT = 96,	//	'`'
+	KEY_WORLD_1 = 161,		//	non-US #1
+	KEY_WORLD_2 = 162,		//	non-US #2
 	KEY_ESCAPE = 256,
 	KEY_ENTER = 257,
 	KEY_TAB = 258,
@@ -321,10 +356,12 @@ typedef enum CP_KEY
 	KEY_LEFT_CONTROL = 341,
 	KEY_LEFT_ALT = 342,
 	KEY_LEFT_SUPER = 343,
+	KEY_LEFT_WIN = KEY_LEFT_SUPER,
 	KEY_RIGHT_SHIFT = 344,
 	KEY_RIGHT_CONTROL = 345,
 	KEY_RIGHT_ALT = 346,
 	KEY_RIGHT_SUPER = 347,
+	KEY_RIGHT_WIN = KEY_RIGHT_SUPER,
 	KEY_MENU = 348
 } CP_KEY;
 

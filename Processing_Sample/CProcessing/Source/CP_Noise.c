@@ -1,9 +1,34 @@
 //---------------------------------------------------------
-// file:	CP_Noise.c
-// author:	Justin Chambers
-// brief:	Noise implementation based on Ken Perlin's work with some improvements
+// File:	CP_Noise.c
+// Author:	Justin Chambers
+// Brief:	Noise implementation based on Ken Perlin's work with some improvements
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// GitHub Repository:
+// https://github.com/DigiPen-Faculty/CProcessing
+//
+//---------------------------------------------------------
+// MIT License
+//
+// Copyright (C) 2021 DigiPen Institute of Technology
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
 //---------------------------------------------------------
 
 #include <stdlib.h>
@@ -19,21 +44,21 @@ int p[permutationArraySize * 2];  // Doubled permutation to avoid overflow
 
 //double OctavePerlin(double x, double y, double z, int octaves, double persistence)
 //{
-//	double total = 0;
-//	double frequency = 1;
-//	double amplitude = 1;
-//	double maxValue = 0;			// Used for normalizing result to 0.0 - 1.0
-//	for (int i = 0; i < octaves; i++) {
-//		total += noise(x * frequency, y * frequency, z * frequency) * amplitude;
+// double total = 0;
+// double frequency = 1;
+// double amplitude = 1;
+// double maxValue = 0;			// Used for normalizing result to 0.0 - 1.0
+// for (int i = 0; i < octaves; i++) {
+// 	total += noise(x * frequency, y * frequency, z * frequency) * amplitude;
 //
-//		maxValue += amplitude;
+// 	maxValue += amplitude;
 //
-//		amplitude *= persistence;
-//		frequency *= 2;
-//	}
+// 	amplitude *= persistence;
+// 	frequency *= 2;
+// }
 //
-//	return total / maxValue;
-//}													
+// return total / maxValue;
+//}
 
 // Sets the seed value for noise().
 // By default, noise() produces different results each time the program is run.
@@ -47,20 +72,16 @@ CP_API void CP_Random_NoiseSeed(int seed)
 	{
 		int steps = -1;
 		int randSteps = rand() % (permutationArraySize - val);
-		int index = 0;
-		for (; index < permutationArraySize; ++index)
+		int i = 0;
+		for (; i < permutationArraySize; ++i)
 		{
-			if (permutation[index] < 0)
-			{
+			if (permutation[i] < 0)
 				++steps;
-			}
 
 			if (steps >= randSteps)
-			{
 				break;
-			}
 		}
-		permutation[index] = val;
+		permutation[i] = val;
 	}
 
 	memset(p, -1, sizeof(p));
@@ -71,13 +92,14 @@ CP_API void CP_Random_NoiseSeed(int seed)
 
 void CP_NoiseInit(void)
 {
-  CP_Random_NoiseSeed((int)time(NULL));
+	CP_Random_NoiseSeed((int)time(NULL));
 }
 
 static int inc(int num)
 {
-	num++;
-	if (repeatNoise > 0) num %= repeatNoise;
+	++num;
+	if (repeatNoise > 0)
+		num %= repeatNoise;
 
 	return num;
 }
@@ -86,23 +108,23 @@ static double grad(int hash, double x, double y, double z)
 {
 	switch (hash & 0xF)
 	{
-		case 0x0: return  x + y;
-		case 0x1: return -x + y;
-		case 0x2: return  x - y;
-		case 0x3: return -x - y;
-		case 0x4: return  x + z;
-		case 0x5: return -x + z;
-		case 0x6: return  x - z;
-		case 0x7: return -x - z;
-		case 0x8: return  y + z;
-		case 0x9: return -y + z;
-		case 0xA: return  y - z;
-		case 0xB: return -y - z;
-		case 0xC: return  y + x;
-		case 0xD: return -y + z;
-		case 0xE: return  y - x;
-		case 0xF: return -y - z;
-		default: return 0; // never happens
+	case 0x0: return  x + y;
+	case 0x1: return -x + y;
+	case 0x2: return  x - y;
+	case 0x3: return -x - y;
+	case 0x4: return  x + z;
+	case 0x5: return -x + z;
+	case 0x6: return  x - z;
+	case 0x7: return -x - z;
+	case 0x8: return  y + z;
+	case 0x9: return -y + z;
+	case 0xA: return  y - z;
+	case 0xB: return -y - z;
+	case 0xC: return  y + x;
+	case 0xD: return -y + z;
+	case 0xE: return  y - x;
+	case 0xF: return -y - z;
+	default: return 0; // never happens
 	}
 }
 
@@ -119,7 +141,7 @@ static double lerp(double a, double b, double x)
 	return a + x * (b - a);
 }
 
-//		Noise returns a value in the range [0, 1.0] based on three dimensional input values
+// 	Noise returns a value in the range [0, 1.0] based on three dimensional input values
 CP_API float CP_Random_Noise(float x, float y, float z)
 {
 	double xD = (double)x;

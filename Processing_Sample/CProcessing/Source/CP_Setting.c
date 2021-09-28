@@ -1,10 +1,35 @@
 //------------------------------------------------------------------------------
-// file:	CP_Setting.c
-// author:	Daniel Hamilton
-// brief:	Basic settings for frame time and various rendering states 
+// File:	CP_Setting.c
+// Author:	Daniel Hamilton
+// Brief:	Basic settings for frame time and various rendering states
 //
-// Copyright © 2019 DigiPen, All rights reserved.
-//------------------------------------------------------------------------------
+// GitHub Repository:
+// https://github.com/DigiPen-Faculty/CProcessing
+//
+//---------------------------------------------------------
+// MIT License
+//
+// Copyright (C) 2021 DigiPen Institute of Technology
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+//---------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Include Files:
@@ -13,26 +38,6 @@
 #include "cprocessing.h"
 #include "Internal_System.h"
 #include <stdbool.h>
-
-//------------------------------------------------------------------------------
-// Defines:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Private Consts:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Private Structures:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Public Variables:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Private Variables:
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Private Function Declarations:
@@ -49,7 +54,7 @@ int isValidPositionMode(CP_POSITION_MODE mode)
 
 CP_API void CP_Settings_Fill(CP_Color c)
 {
-	nvgFillColor(GetCPCore()->nvg, nvgRGBA(c.r, c.g, c.b, c.a));
+	nvgFillColor(GetCPCore()->nvg, nvgRGBA(c.red, c.green, c.blue, c.alpha));
 
 	// Enable fill
 	GetDrawInfo()->fill = TRUE;
@@ -62,7 +67,7 @@ CP_API void CP_Settings_NoFill(void)
 
 CP_API void CP_Settings_Stroke(CP_Color c)
 {
-	nvgStrokeColor(GetCPCore()->nvg, nvgRGBA(c.r, c.g, c.b, c.a));
+	nvgStrokeColor(GetCPCore()->nvg, nvgRGBA(c.red, c.green, c.blue, c.alpha));
 
 	// Enable stroke
 	GetDrawInfo()->stroke = TRUE;
@@ -80,7 +85,7 @@ CP_API void CP_Settings_StrokeWeight(float weight)
 
 CP_API void CP_Settings_Tint(CP_Color c)
 {
-	nvgTintColor(GetCPCore()->nvg, nvgRGBA(c.r, c.g, c.b, c.a));
+	nvgTintColor(GetCPCore()->nvg, nvgRGBA(c.red, c.green, c.blue, c.alpha));
 }
 
 CP_API void CP_Settings_NoTint(void)
@@ -98,9 +103,7 @@ CP_API void CP_Settings_LineCapMode(CP_LINE_CAP_MODE capMode)
 	if (capMode == CP_LINE_CAP_BUTT ||
 		capMode == CP_LINE_CAP_ROUND ||
 		capMode == CP_LINE_CAP_SQUARE)
-	{
 		nvgLineCap(GetCPCore()->nvg, capMode);
-	}
 }
 
 CP_API void CP_Settings_LineJointMode(CP_LINE_JOINT_MODE jointMode)
@@ -108,9 +111,7 @@ CP_API void CP_Settings_LineJointMode(CP_LINE_JOINT_MODE jointMode)
 	if (jointMode == CP_LINE_JOINT_ROUND ||
 		jointMode == CP_LINE_JOINT_BEVEL ||
 		jointMode == CP_LINE_JOINT_MITER)
-	{
 		nvgLineJoin(GetCPCore()->nvg, jointMode);
-	}
 }
 
 CP_API void CP_Settings_RectMode(CP_POSITION_MODE mode)
@@ -174,7 +175,8 @@ CP_API void CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_MODE wrapMode)
 CP_API void CP_Settings_TextSize(float size)
 {
 	CP_CorePtr CORE = GetCPCore();
-	if (!CORE || !CORE->nvg) return;
+	if (!CORE || !CORE->nvg)
+		return;
 	nvgFontSize(CORE->nvg, size);
 }
 
@@ -182,7 +184,8 @@ CP_API void CP_Settings_TextAlignment(CP_TEXT_ALIGN_HORIZONTAL h, CP_TEXT_ALIGN_
 {
 	int flags = h | v;
 	CP_CorePtr CORE = GetCPCore();
-	if (!CORE || !CORE->nvg) return;
+	if (!CORE || !CORE->nvg)
+		return;
 	nvgTextAlign(CORE->nvg, flags);
 }
 
@@ -239,7 +242,7 @@ CP_API void CP_Settings_Save(void)
 		return;
 	if (CORE->nstates > 0)
 		memcpy(&CORE->states[CORE->nstates], &CORE->states[CORE->nstates - 1], sizeof(CP_DrawInfo));
-	CORE->nstates++;
+	++(CORE->nstates);
 }
 
 CP_API void CP_Settings_Restore(void)
@@ -253,5 +256,5 @@ CP_API void CP_Settings_Restore(void)
 	// also restore the DrawInfo details
 	if (CORE->nstates <= 1)
 		return;
-	CORE->nstates--;
+	--(CORE->nstates);
 }

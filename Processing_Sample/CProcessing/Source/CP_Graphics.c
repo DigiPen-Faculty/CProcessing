@@ -1,10 +1,35 @@
 //------------------------------------------------------------------------------
-// file:	CP_Graphics.c
-// author:	Daniel Hamilton
-// brief:	Manipulate and draw basic vector shapes 
+// File:	CP_Graphics.c
+// Author:	Daniel Hamilton
+// Brief:	Manipulate and draw basic vector shapes
 //
-// Copyright © 2019 DigiPen, All rights reserved.
-//------------------------------------------------------------------------------
+// GitHub Repository:
+// https://github.com/DigiPen-Faculty/CProcessing
+//
+//---------------------------------------------------------
+// MIT License
+//
+// Copyright (C) 2021 DigiPen Institute of Technology
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+//---------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Include Files:
@@ -45,6 +70,7 @@ static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, flo
 		y -= h * 0.5f;
 		break;
 	case CP_POSITION_CORNER:
+
 		// default for NanoVG
 	default:
 		break;
@@ -62,27 +88,17 @@ static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, flo
 	// Rectangle path
 	nvgBeginPath(CORE->nvg);
 	if (cornerRadius < 0.1f)
-	{
 		nvgRect(CORE->nvg, x, y, w, h);
-	}
 	else
-	{
 		nvgRoundedRect(CORE->nvg, x, y, w, h, cornerRadius);
-	}
 
 	if (DI->fill)
-	{
 		nvgFill(CORE->nvg);
-	}
 	if (DI->stroke)
-	{
 		nvgStroke(CORE->nvg);
-	}
 
 	if (degrees != 0)
-	{
 		nvgRestore(CORE->nvg);
-	}
 }
 
 //------------------------------------------------------------------------------
@@ -179,6 +195,7 @@ CP_API void CP_Graphics_DrawEllipse(float x, float y, float w, float h)
 		y += rh;
 		break;
 	case CP_POSITION_CENTER:
+
 		// this is the default of NanoVG
 	default:
 		break;
@@ -189,13 +206,9 @@ CP_API void CP_Graphics_DrawEllipse(float x, float y, float w, float h)
 	nvgEllipse(CORE->nvg, x, y, rw, rh);
 
 	if (DI->fill)
-	{
 		nvgFill(CORE->nvg);
-	}
 	if (DI->stroke)
-	{
 		nvgStroke(CORE->nvg);
-	}
 }
 
 CP_API void CP_Graphics_DrawEllipseAdvanced(float x, float y, float w, float h, float degrees)
@@ -229,13 +242,9 @@ CP_API void CP_Graphics_DrawTriangle(float x1, float y1, float x2, float y2, flo
 	nvgClosePath(CORE->nvg);
 
 	if (DI->fill)
-	{
 		nvgFill(CORE->nvg);
-	}
 	if (DI->stroke)
-	{
 		nvgStroke(CORE->nvg);
-	}
 }
 
 CP_API void CP_Graphics_DrawTriangleAdvanced(float x1, float y1, float x2, float y2, float x3, float y3, float degrees)

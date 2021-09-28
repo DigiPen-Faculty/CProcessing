@@ -1,10 +1,35 @@
 //------------------------------------------------------------------------------
-// file:	CP_Color.c
-// author:	Daniel Hamilton
-// brief:	Create and edit colors
+// File:	CP_Color.c
+// Author:	Daniel Hamilton
+// Brief:	Create and edit colors
 //
-// Copyright © 2019 DigiPen, All rights reserved.
-//------------------------------------------------------------------------------
+// GitHub Repository:
+// https://github.com/DigiPen-Faculty/CProcessing
+//
+//---------------------------------------------------------
+// MIT License
+//
+// Copyright (C) 2021 DigiPen Institute of Technology
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+//---------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Include Files:
@@ -15,38 +40,18 @@
 #include "Internal_System.h"
 
 //------------------------------------------------------------------------------
-// Defines:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Private Consts:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Private Structures:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Public Variables:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Private Variables:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
 // Private Function Declarations:
 //------------------------------------------------------------------------------
 
-int clampRGBA(int value)
+unsigned char clampRGBA(unsigned char value)
 {
-	return CP_Math_ClampInt(value, 0, 255);
+	return (unsigned char)CP_Math_ClampInt(value, 0, 255);
 }
 
-int clampH(int value)
+unsigned short clampH(unsigned short value)
 {
 	// special clamp to allow for continual wrapping of hue values
-	int hue = value % 360;
+	unsigned short hue = value % 360;
 	return (hue < 0) ? hue + 360 : hue;
 }
 
@@ -59,14 +64,14 @@ int clampSL(int value)
 // Public Functions:
 //------------------------------------------------------------------------------
 
-CP_API CP_Color CP_Color_Create(int r, int g, int b, int a)
+CP_API CP_Color CP_Color_Create(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha)
 {
 	CP_Color c = {
 		(unsigned char)clampRGBA(r),
 		(unsigned char)clampRGBA(g),
 		(unsigned char)clampRGBA(b),
 		(unsigned char)clampRGBA(a) };
-    return c;
+	return c;
 }
 
 CP_API CP_Color CP_Color_CreateHex(int hexCode)
@@ -83,11 +88,11 @@ CP_API CP_Color CP_Color_Lerp(CP_Color a, CP_Color b, float lerp_factor)
 {
 	lerp_factor = CP_Math_ClampFloat(lerp_factor, 0, 1.0f);
 	CP_Color result = {
-		(unsigned char)((1.0f - lerp_factor) * a.r + lerp_factor * b.r),
-		(unsigned char)((1.0f - lerp_factor) * a.g + lerp_factor * b.g),
-		(unsigned char)((1.0f - lerp_factor) * a.b + lerp_factor * b.b),
-		(unsigned char)((1.0f - lerp_factor) * a.a + lerp_factor * b.a) };
-    return result;
+		(unsigned char)((1.0f - lerp_factor) * a.red + lerp_factor * b.red),
+		(unsigned char)((1.0f - lerp_factor) * a.green + lerp_factor * b.green),
+		(unsigned char)((1.0f - lerp_factor) * a.blue + lerp_factor * b.blue),
+		(unsigned char)((1.0f - lerp_factor) * a.alpha + lerp_factor * b.alpha) };
+	return result;
 }
 
 CP_API CP_Color CP_Color_FromColorHSL(CP_ColorHSL hsl)
@@ -97,16 +102,16 @@ CP_API CP_Color CP_Color_FromColorHSL(CP_ColorHSL hsl)
 	hsl.l = clampSL(hsl.l);
 	hsl.a = clampRGBA(hsl.a);
 
-	NVGcolor c1 = nvgHSLA(hsl.h / 360.0f, hsl.s / 100.0f, hsl.l / 100.0f, (unsigned char)hsl.a);
+	NVGcolor c1 = nvgHSLA(hsl.hue / 360.0f, hsl.s / 100.0f, hsl.l / 100.0f, (unsigned char)hsl.alpha);
 	CP_Color c = {
-		(unsigned char)(c1.r * 255.0f),
-		(unsigned char)(c1.g * 255.0f),
-		(unsigned char)(c1.b * 255.0f),
-		(unsigned char)hsl.a };
+		(unsigned char)(c1.red * 255.0f),
+		(unsigned char)(c1.green * 255.0f),
+		(unsigned char)(c1.blue * 255.0f),
+		hsl.alpha };
 	return c;
 }
 
-CP_API CP_ColorHSL CP_ColorHSL_Create(int h, int s, int l, int a)
+CP_API CP_ColorHSL CP_ColorHSL_Create(unsigned short hue, int saturation, int luminance, unsigned char alpha)
 {
 	CP_ColorHSL c = {
 		clampH(h),
@@ -132,52 +137,42 @@ CP_API CP_ColorHSL CP_ColorHSL_Lerp(CP_ColorHSL a, CP_ColorHSL b, float lerp_fac
 //
 CP_API CP_ColorHSL CP_ColorHSL_FromColor(CP_Color rgb)
 {
-	int CmaxI = max(max(rgb.r, rgb.g), rgb.b);
-	int CminI = min(min(rgb.r, rgb.g), rgb.b);
+	int CmaxI = max(max(rgb.red, rgb.green), rgb.blue);
+	int CminI = min(min(rgb.red, rgb.green), rgb.blue);
 	int deltaI = CmaxI - CminI;
 
-	float r = rgb.r / 255.0f;
-	float g = rgb.g / 255.0f;
-	float b = rgb.b / 255.0f;
+	float red = rgb.red / 255.0f;
+	float green = rgb.green / 255.0f;
+	float blue = rgb.blue / 255.0f;
 
 	float Cmax = (float)CmaxI / 255.0f;
 	float Cmin = (float)CminI / 255.0f;
 	float delta = Cmax - Cmin;
 
-	float h = 0;
-	float s = 0;
-	float l = ((Cmax + Cmin) * 0.5f);
+	float hue = 0;
+	float saturation = 0;
+	float luminance = ((Cmax + Cmin) * 0.5f);
 
-	if(deltaI != 0)
+	if (deltaI != 0)
 	{
-		s = delta / (1.0f - fabsf(2.0f * l - 1.0f));
+		saturation = delta / (1.0f - fabsf(2.0f * l - 1.0f));
 
-		if (rgb.r == CmaxI)
-		{
-			h = ((g - b) / delta);
-		}
-		else if (rgb.g == CmaxI)
-		{
-			h = ((b - r) / delta + 2.0f);
-		}
-		else if (rgb.b == CmaxI)
-		{
-			h = ((r - g) / delta + 4.0f);
-		}
+		if (rgb.red == CmaxI)
+			hue = ((green - blue) / delta);
+		else if (rgb.green == CmaxI)
+			hue = ((blue - red) / delta + 2.0f);
+		else if (rgb.blue == CmaxI)
+			hue = ((red - green) / delta + 4.0f);
 
 		// correct hue
-		if (h < 0) h += 6.0f;
-		else if (h > 6.0f) h -= 6.0f;
+		if (hue < 0) hue += 6.0f;
+		else if (hue > 6.0f) hue -= 6.0f;
 	}
 
 	CP_ColorHSL c = {
-		(int)(h * 60.0f),
-		(int)(s * 100.0f),
-		(int)(l * 100.0f),
-		(int)rgb.a };
+		(unsigned short)(h * 60.0f),
+		(int)(saturation * 100.0f),
+		(int)(luminance * 100.0f),
+		rgb.alpha };
 	return c;
 }
-
-//------------------------------------------------------------------------------
-// Private Functions:
-//------------------------------------------------------------------------------

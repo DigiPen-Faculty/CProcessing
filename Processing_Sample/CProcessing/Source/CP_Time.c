@@ -1,36 +1,20 @@
 //------------------------------------------------------------------------------
-// file:	CP_Time.c
-// author:	Justin Chambers
-// brief:	Timing file to manage frames and fps
+// File:	CP_Time.c
+// Author:	Justin Chambers
+// Brief:	Timing file to manage frames and fps
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// Copyright (C) 2021 DigiPen Institute of Technology, All rights reserved.
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Include Files:
 //------------------------------------------------------------------------------
 
-#include "stdafx.h" // Must be first
+#include "stdafx.h" // This must be first
 #include "cprocessing.h"
 #include "Internal_System.h"
 #include <stdbool.h>
 #include "tinycthread.h"
-
-//------------------------------------------------------------------------------
-// Defines:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Private Consts:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Private Structures:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Public Variables:
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Private Variables:
@@ -38,20 +22,15 @@
 
 // FrameRate Control
 static double StartingTime, EndingTime, ElapsedSeconds;
-static double _frametimeTarget = 0.033333;
-static double _frametime = 0.033333;
+static double _frametimeTarget = 0.033333; // 30 FPS
+static double _frametime = _frametimeTarget;
 
 // Frames since the start of the program
-static int _frameCount;
-
-//------------------------------------------------------------------------------
-// Private Function Declarations:
-//------------------------------------------------------------------------------
+static unsigned long _frameCount;
 
 //------------------------------------------------------------------------------
 // Public Functions:
 //------------------------------------------------------------------------------
-
 
 void CP_IncFrameCount()
 {
@@ -66,23 +45,23 @@ void CP_FrameRate_Init()
 
 void CP_FrameRate_FrameStart()
 {
-    StartingTime = glfwGetTime();
+	StartingTime = glfwGetTime();
 
 	// Update frame count
 	CP_IncFrameCount();
 }
 
 double averageSleepCycles = 0.002;
-double additionalBuffer = 0.001;	// Sleep() isn't very accurate and we want to make sure we don't over sleep
+double additionalBuffer = 0.001;	// Sleep() isn't very accurate and we want to make sure we don't over-sleep
 
 void CP_FrameRate_FrameEnd()
 {
 	double prevSeconds = 0;
 	double currSeconds = 0;
 
-    do
-    { 
-        CP_UpdateFrameTime();
+	do
+	{
+		CP_UpdateFrameTime();
 
 		// compute remaining microseconds in the frame
 		currSeconds = _frametimeTarget - ElapsedSeconds;
@@ -106,19 +85,19 @@ void CP_FrameRate_FrameEnd()
 			averageSleepCycles = ((averageSleepCycles * 15.0) + (prevSeconds - currSeconds)) / 16.0;	// multiply by 15, add new sample, divide by 16
 		}
 
-    } while (ElapsedSeconds < _frametimeTarget);
+	} while (ElapsedSeconds < _frametimeTarget);
 
-    // Update time of the last frame
-    _frametime = ElapsedSeconds;
+	// Update time of the last frame
+	_frametime = ElapsedSeconds;
 }
 
 void CP_UpdateFrameTime()
 {
 	EndingTime = glfwGetTime();
-    ElapsedSeconds = EndingTime - StartingTime;
+	ElapsedSeconds = EndingTime - StartingTime;
 }
 
-DLL_EXPORT int getframeCount()
+DLL_EXPORT unsigned long getframeCount()
 {
 	return _frameCount;
 }

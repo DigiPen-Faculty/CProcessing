@@ -1,9 +1,34 @@
 //---------------------------------------------------------
-// file:	CP_Random.c
-// author:	Justin Chambers
-// brief:	Header used to manage the DLL export/import declarations
+// File:	CP_Random.c
+// Author:	Justin Chambers
+// Brief:	Header used to manage the DLL export/import declarations
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// GitHub Repository:
+// https://github.com/DigiPen-Faculty/CProcessing
+//
+//---------------------------------------------------------
+// MIT License
+//
+// Copyright (C) 2021 DigiPen Institute of Technology
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
 //---------------------------------------------------------
 
 #include "cprocessing.h"
@@ -22,6 +47,7 @@
 
 #ifdef USE_XORSHIFT
 static const uint32_t MAX_RAND_INT = UINT32_MAX;
+
 // The state array must be initialized to not be all zero
 uint32_t state[4];
 #else
@@ -121,16 +147,16 @@ CP_API void CP_Random_Seed(int seed)
 #endif
 }
 
-//		Gaussian returns a normally distributed value where the mean is 0 and the standard deviation is 1.0
+// 	Gaussian returns a normally distributed value where the mean is 0 and the standard deviation is 1.0
 CP_API float CP_Random_Gaussian(void)
 {
 	double mean = 0;
 	double stddev = 1.0;
 	double U1, U2, W, mult;
 	static double X1, X2;
-	static int recompute = 1;
+	static unsigned char recompute = 1;
 
-	if (recompute == 0)
+	if (!recompute)
 	{
 		recompute = !recompute;
 		return (float)(mean + stddev * X2);
@@ -152,9 +178,8 @@ CP_API float CP_Random_Gaussian(void)
 	return (float)(mean + stddev * X1);
 }
 
-
 // --------------------------
-// TODO:  Move these tests to a test framework 
+// TODO:  Move these tests to a test framework
 
 /*
 
@@ -183,7 +208,7 @@ CP_API void test_random(void)
 {
 	perfTest_RAND();
 	perfTest_SHIFT();
-	
+
 	LONGLONG counter = 0;
 	uint32_t itest = randomInt();
 	while (STRESS_INT)
@@ -260,4 +285,3 @@ CP_API void test_random(void)
 	faverage = faverage;
 }
 */
-

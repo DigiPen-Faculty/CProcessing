@@ -1,10 +1,35 @@
 //------------------------------------------------------------------------------
-// file:	CP_Text.c
-// author:	Daniel Hamilton, Justin Chambers
-// brief:	Text functions for loading fonts and drawing text
+// File:	CP_Text.c
+// Author:	Daniel Hamilton, Justin Chambers
+// Brief:	Text functions for loading fonts and drawing text
 //
-// Copyright © 2019 DigiPen, All rights reserved.
-//------------------------------------------------------------------------------
+// GitHub Repository:
+// https://github.com/DigiPen-Faculty/CProcessing
+//
+//---------------------------------------------------------
+// MIT License
+//
+// Copyright (C) 2021 DigiPen Institute of Technology
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+//---------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Include Files:
@@ -39,9 +64,7 @@ static CP_Font CP_Font_IsLoaded(const char* filepath)
 	{
 		CP_Font font = vect_at_CP_Font(font_vector, i);
 		if (font && !strcmp(filepath, font->filepath))
-		{
 			return font;
-		}
 	}
 
 	return NULL;
@@ -60,16 +83,12 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 	// Check if the font is already loaded
 	new_font = CP_Font_IsLoaded(filepath);
 	if (new_font)
-	{
 		return new_font;
-	}
 
 	// Allocate the struct
 	new_font = (CP_Font)malloc(sizeof(CP_Font_Struct));
 	if (!new_font)
-	{
 		return NULL;
-	}
 
 	new_font->load_error = FALSE;
 	new_font->handle = -1;
@@ -83,13 +102,9 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 	}
 
 	if (fromMemory)
-	{
 		new_font->handle = nvgCreateFontMem(CORE->nvg, filepath, data, ndata, freeData);
-	}
-	else
-	{
-		new_font->handle = nvgCreateFont(CORE->nvg, filepath, filepath);
-	}
+
+	new_font->handle = nvgCreateFont(CORE->nvg, filepath, filepath);
 
 	if (new_font->handle == FONT_LOAD_ERROR)
 	{
@@ -119,17 +134,13 @@ void CP_Text_Shutdown(void)
 {
 	CP_CorePtr CORE = GetCPCore();
 	if (!CORE || !CORE->nvg)
-	{
 		return;
-	}
 
 	for (int i = 0; i < font_vector->size; ++i)
 	{
 		CP_Font font = vect_at_CP_Font(font_vector, i);
 		if (font)
-		{
 			free(font);
-		}
 	}
 
 	vect_free_CP_Font(font_vector);
@@ -154,9 +165,7 @@ CP_API void CP_Font_Set(CP_Font font)
 	CP_CorePtr CORE = GetCPCore();
 
 	if (font == NULL || !CORE || !CORE->nvg)
-	{
 		return;
-	}
 
 	nvgFontFaceId(CORE->nvg, font->handle);
 }
@@ -166,9 +175,7 @@ CP_API void CP_Font_DrawText(const char* text, float x, float y)
 	CP_CorePtr CORE = GetCPCore();
 
 	if (!CORE || !CORE->nvg)
-	{
 		return;
-	}
 
 	nvgText(CORE->nvg, x, y, text, NULL);
 }
@@ -178,9 +185,7 @@ CP_API void CP_Font_DrawTextBox(const char* text, float x, float y, float rowWid
 	CP_CorePtr CORE = GetCPCore();
 
 	if (!CORE || !CORE->nvg)
-	{
 		return;
-	}
 
 	nvgTextBox(CORE->nvg, x, y, rowWidth, text, NULL);
 }
