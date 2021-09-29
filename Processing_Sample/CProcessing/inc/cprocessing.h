@@ -117,7 +117,7 @@ extern "C"
 	CP_API CP_Color			CP_Color_CreateHex(unsigned int hexCode);
 	CP_API CP_Color			CP_Color_Lerp(CP_Color a, CP_Color b, float t);
 	CP_API CP_Color			CP_Color_FromColorHSL(CP_ColorHSL hsl);
-	CP_API CP_ColorHSL		CP_ColorHSL_Create(int hue, int saturation, int luminance, unsigned char a);
+	CP_API CP_ColorHSL		CP_ColorHSL_Create(unsigned short hue, unsigned char saturation, unsigned char luminance, unsigned char a);
 	CP_API CP_ColorHSL		CP_ColorHSL_Lerp(CP_ColorHSL a, CP_ColorHSL b, float t);
 	CP_API CP_ColorHSL		CP_ColorHSL_FromColor(CP_Color rgb);
 
@@ -214,7 +214,7 @@ extern "C"
 	CP_API CP_BOOL			CP_Input_GamepadDown(CP_GAMEPAD button);
 	CP_API CP_BOOL			CP_Input_GamepadDownAdvanced(CP_GAMEPAD button, unsigned char gamepadIndex);
 	CP_API float			CP_Input_GamepadRightTrigger(void);
-	CP_API float			CP_Input_GamepadRightTriggerAdvanced(int gamepadIndex);
+	CP_API float			CP_Input_GamepadRightTriggerAdvanced(unsigned char gamepadIndex);
 	CP_API float			CP_Input_GamepadLeftTrigger(void);
 	CP_API float			CP_Input_GamepadLeftTriggerAdvanced(unsigned char gamepadIndex);
 	CP_API CP_Vector		CP_Input_GamepadRightStick(void);
@@ -262,6 +262,7 @@ extern "C"
 		float m10, float m11, float m12,
 		float m20, float m21, float m22);
 	CP_API CP_Matrix		CP_Matrix_Identity(void);
+	CP_API CP_Matrix		CP_Matrix_Zero(void);
 	CP_API CP_Matrix		CP_Matrix_FromVector(CP_Vector col1, CP_Vector col2, CP_Vector col3);
 	CP_API CP_Matrix		CP_Matrix_Scale(CP_Vector scale);
 	CP_API CP_Matrix		CP_Matrix_Translate(CP_Vector offset);

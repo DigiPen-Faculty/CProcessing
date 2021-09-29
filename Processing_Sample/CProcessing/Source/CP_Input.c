@@ -118,7 +118,7 @@ static XINPUT_STATE gamepad_prev_states[XUSER_MAX_COUNT] = { 0 };
 static CP_GAMEPAD_ANALOG_STATE gamepad_curr_analog_states[XUSER_MAX_COUNT] = { 0 };
 static CP_GAMEPAD_ANALOG_STATE gamepad_prev_analog_states[XUSER_MAX_COUNT] = { 0 };
 static bool gamepad_connected[XUSER_MAX_COUNT] = { false };
-static short _defaultGamepadId = -1;
+static unsigned char _defaultGamepadId = 0;
 static const float _deadzone = CP_GAMEPAD_THUMB_DEADZONE / CP_GAMEPAD_THUMB_RANGE;
 
 //------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ void CP_Input_KeyboardCallback(GLFWwindow* window, int key, int scancode, int ac
 	}
 }
 
-void CP_Input_MouseCallback(GLFWwindow* window, unsigned char button, int action, int mods)
+void CP_Input_MouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
 	UNREFERENCED_PARAMETER(mods);
 	UNREFERENCED_PARAMETER(window);
@@ -276,10 +276,10 @@ void CP_Input_MouseUpdate(void)
 
 void CP_Input_GamepadUpdate(void)
 {
-	_defaultGamepadId = -1;
+	_defaultGamepadId = 0;
 	memset(gamepad_connected, 0, sizeof(bool) * XUSER_MAX_COUNT);
 
-	for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i)
+	for (unsigned char i = 0; i < XUSER_MAX_COUNT; ++i)
 	{
 		// copy to previous structures
 		memcpy(&gamepad_prev_states[i], &gamepad_curr_states[i], sizeof(XINPUT_STATE));
@@ -346,7 +346,7 @@ void CP_Input_SetWorldMouseDirty(void)
 	_worldMouseIsDirty = TRUE;
 }
 
-int CP_Input_IsValidKey(CP_KEY key)
+unsigned char CP_Input_IsValidKey(CP_KEY key)
 {
 	if (key < 0 || key >= CP_NUM_KEYS)
 		return FALSE;
@@ -354,17 +354,17 @@ int CP_Input_IsValidKey(CP_KEY key)
 	return valid_keys_sparse[key];
 }
 
-int CP_Input_IsValidMouse(CP_MOUSE button)
+unsigned char CP_Input_IsValidMouse(CP_MOUSE button)
 {
 	return (button >= 0 && button <= MOUSE_BUTTON_LAST);
 }
 
-int CP_Input_IsValidGamepad(CP_GAMEPAD button)
+unsigned char CP_Input_IsValidGamepad(CP_GAMEPAD button)
 {
 	return (button >= 0 && button <= GAMEPAD_Y);
 }
 
-int CP_Input_IsValidGamepadIndex(int index)
+unsigned char CP_Input_IsValidGamepadIndex(unsigned char index)
 {
 	return index >= 0 && index < 4;
 }
@@ -430,7 +430,7 @@ CP_API CP_BOOL CP_Input_KeyDown(CP_KEY keyCode)
 	if (CP_Input_IsValidKey(keyCode))
 
 		// Is the key down?
-		return key_states_current[keyCode];
+		return (CP_BOOL)key_states_current[keyCode];
 
 	return FALSE;
 }
@@ -549,7 +549,7 @@ CP_API CP_BOOL CP_Input_GamepadTriggeredAdvanced(CP_GAMEPAD button, unsigned cha
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		// Wasn't pressed last frame and is pressed this frame
-		unsigned char convertedButton = CP_Input_ConvertGamepadToXInput(button);
+		unsigned char convertedButton = (unsigned char)CP_Input_ConvertGamepadToXInput(button);
 		return (gamepad_curr_states[gamepadIndex].Gamepad.wButtons & convertedButton) != 0 && (gamepad_prev_states[gamepadIndex].Gamepad.wButtons & convertedButton) == 0;
 	}
 
@@ -566,7 +566,7 @@ CP_API CP_BOOL CP_Input_GamepadReleasedAdvanced(CP_GAMEPAD button, unsigned char
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		// Was pressed last frame and isn't pressed this frame
-		unsigned char convertedButton = CP_Input_ConvertGamepadToXInput(button);
+		unsigned char convertedButton = (unsigned char)CP_Input_ConvertGamepadToXInput(button);
 		return (gamepad_curr_states[gamepadIndex].Gamepad.wButtons & convertedButton) == 0 && (gamepad_prev_states[gamepadIndex].Gamepad.wButtons & convertedButton) != 0;
 	}
 
@@ -583,7 +583,7 @@ CP_API CP_BOOL CP_Input_GamepadDownAdvanced(CP_GAMEPAD button, unsigned char gam
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		// Is the button down?
-		unsigned char convertedButton = CP_Input_ConvertGamepadToXInput(button);
+		unsigned char convertedButton = (unsigned char)CP_Input_ConvertGamepadToXInput(button);
 		return (gamepad_curr_states[gamepadIndex].Gamepad.wButtons & convertedButton) != 0;
 	}
 

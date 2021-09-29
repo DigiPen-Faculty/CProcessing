@@ -194,7 +194,7 @@ CP_API CP_Image CP_Image_Load(const char* filepath)
 	}
 
 	// populate width/height
-	nvgImageSize(CORE->nvg, img->handle, &img->w, &img->h);
+	nvgImageSize(CORE->nvg, img->handle, (int*)(&img->w), (int*)(&img->h));
 
 	img->load_error = FALSE;
 
@@ -251,7 +251,7 @@ CP_API void CP_Image_DrawSubImage(CP_Image img, float x, float y, float w, float
 	CP_Image_DrawInternal(img, x, y, w, h, u0, v0, u1, v1, alpha, 0);
 }
 
-CP_API CP_Image CP_Image_CreateFromData(int w, int h, unsigned char* pixelDataInput)
+CP_API CP_Image CP_Image_CreateFromData(unsigned short w, unsigned short h, unsigned char* pixelDataInput)
 {
 	if (!pixelDataInput)
 		return NULL;

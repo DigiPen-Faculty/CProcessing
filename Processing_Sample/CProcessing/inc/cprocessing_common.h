@@ -96,7 +96,7 @@ extern "C"
 	typedef union CP_ColorHSL
 	{
 		int hsla[4];
-		struct { unsigned short h, s, l; unsigned char alpha; };
+		struct { unsigned short hue, saturation, luminance; unsigned char alpha; };
 	} CP_ColorHSL;
 
 	//---------------------------------------------------------

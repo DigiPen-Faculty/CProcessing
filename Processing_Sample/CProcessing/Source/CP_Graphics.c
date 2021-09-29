@@ -108,7 +108,7 @@ static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, flo
 CP_API void CP_Graphics_ClearBackground(CP_Color c)
 {
 	// Set the background color
-	glClearColor(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
+	glClearColor(c.red / 255.0f, c.green / 255.0f, c.blue / 255.0f, c.alpha / 255.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 

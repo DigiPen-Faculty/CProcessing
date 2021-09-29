@@ -176,6 +176,15 @@ CP_API CP_Matrix CP_Matrix_Identity(void)
 	};
 }
 
+CP_API CP_Matrix CP_Matrix_Zero(void)
+{
+	return (CP_Matrix) {
+		0, 0, 0,
+			0, 0, 0,
+			0, 0, 0
+	};
+}
+
 CP_API CP_Matrix CP_Matrix_FromVector(CP_Vector col1, CP_Vector col2, CP_Vector col3)
 {
 	return (CP_Matrix) {
@@ -223,8 +232,8 @@ CP_API CP_Matrix CP_Matrix_Transpose(CP_Matrix original)
 {
 	CP_Matrix result = CP_Matrix_Identity();
 	unsigned char i, j;
-	for (i = 0; i < 3; i++)
-		for (j = 0; j < 3; j++)
+	for (i = 0; i < 3; ++i)
+		for (j = 0; j < 3; ++j)
 			result.m[j][i] = original.m[i][j];
 
 	return result;
@@ -232,16 +241,16 @@ CP_API CP_Matrix CP_Matrix_Transpose(CP_Matrix original)
 
 CP_API CP_Matrix CP_Matrix_Inverse(CP_Matrix m)
 {
-	CP_Matrix result;
+	CP_Matrix result = CP_Matrix_Zero();
 	unsigned char i, j;
 	float determinant = 0;
 
 	//finding determinant
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < 3; ++i)
 		determinant += (m.m[0][i] * (m.m[1][(i + 1) % 3] * m.m[2][(i + 2) % 3] - m.m[1][(i + 2) % 3] * m.m[2][(i + 1) % 3]));
 
-	for (i = 0; i < 3; i++)
-		for (j = 0; j < 3; j++)
+	for (i = 0; i < 3; ++i)
+		for (j = 0; j < 3; ++j)
 			result.m[i][j] = ((m.m[(j + 1) % 3][(i + 1) % 3] * m.m[(j + 2) % 3][(i + 2) % 3]) - (m.m[(j + 1) % 3][(i + 2) % 3] * m.m[(j + 2) % 3][(i + 1) % 3])) / determinant;
 
 	return result;
@@ -251,15 +260,16 @@ CP_API CP_Matrix CP_Matrix_Multiply(CP_Matrix a, CP_Matrix b)
 {
 	CP_Matrix result = CP_Matrix_Identity();
 	unsigned char i, j, k;
-	for (i = 0; i < 3; i++)
-		for (j = 0; j < 3; j++)
+	for (i = 0; i < 3; ++i)
+		for (j = 0; j < 3; ++j)
 		{
 			float current_value = 0.0f;
 
-			for (k = 0; k < 3; k++)
+			for (k = 0; k < 3; ++k)
 				current_value += a.m[i][k] * b.m[k][j];
 
 			result.m[i][j] = current_value;
 		}
+
 	return result;
 }
