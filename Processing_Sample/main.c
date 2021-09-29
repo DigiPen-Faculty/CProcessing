@@ -28,9 +28,8 @@ int red1[2500][2500] = { 0 };
 int startup = 1;
 CP_Font font;
 
-const char * lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-const char * lorem_short = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";//Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-
+const char* lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+const char* lorem_short = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";//Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
 // Pre Update Function with master settings switches
 
@@ -64,9 +63,6 @@ void PreUpdateSettingsToggle(void)
 	}
 }
 
-
-
-
 CP_Image img, imgt;
 CP_Image justin1;
 CP_Image justin2;
@@ -75,6 +71,7 @@ int iw, ih;
 void image_test_setup(void)
 {
 	CP_System_SetWindowSize(1000, 1000);
+
 	//CP_System_Fullscreen();
 	// set flags to store pixel data so we can sample them and do cool things.
 	img = CP_Image_Load("./Assets/image.png");
@@ -90,54 +87,56 @@ void image_test_setup(void)
 void image_test(void)
 {
 	CP_Settings_ImageMode(CP_POSITION_CORNER);
-    //CP_Image_Draw(img, 0, 0, (float)iw, (float)ih);
 
-    CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
-    CP_Font_DrawText("Right Click to ZOOM", 50, 20);
-    CP_Font_DrawText("Left Click to view pixel color", 50, 40);
+	//CP_Image_Draw(img, 0, 0, (float)iw, (float)ih);
 
-    if (CP_Input_MouseDown(MOUSE_BUTTON_MIDDLE))
-    {
+	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
+	CP_Font_DrawText("Right Click to ZOOM", 50, 20);
+	CP_Font_DrawText("Left Click to view pixel color", 50, 40);
+
+	if (CP_Input_MouseDown(MOUSE_BUTTON_MIDDLE))
+	{
 		CP_Image_DrawSubImage(img, CP_Input_GetMouseX(), CP_Input_GetMouseY(), 100, 100, CP_Input_GetMouseX(), CP_Input_GetMouseY(), 200, 200, 255);
 		CP_Image_DrawSubImage(img, CP_Input_GetMouseX() - 100, CP_Input_GetMouseY(), 100, 100, CP_Input_GetMouseX(), CP_Input_GetMouseY(), 200, 200, 255);
-    }
-    if (CP_Input_MouseDown(MOUSE_BUTTON_RIGHT))
-    {
+	}
+	if (CP_Input_MouseDown(MOUSE_BUTTON_RIGHT))
+	{
 		static CP_Image shot = NULL;
 		CP_Image_Free(&shot);
-        shot = CP_Image_Screenshot(0, 0, CP_System_GetWindowWidth(), CP_System_GetWindowHeight());
+		shot = CP_Image_Screenshot(0, 0, CP_System_GetWindowWidth(), CP_System_GetWindowHeight());
 		CP_Image_Draw(shot, CP_Input_GetMouseX(), CP_Input_GetMouseY(), 100, 100, 255);
-    }
+	}
 
-    if (CP_Input_MouseDown(MOUSE_BUTTON_LEFT))
-    {
+	if (CP_Input_MouseDown(MOUSE_BUTTON_LEFT))
+	{
 		CP_Color mycol = { 255, 255, 255, 255 }; //  GET PIXEL WAS DEPRECATED CP_Image_GetPixel(img, (int)CP_Input_GetMouseX(), (int)CP_Input_GetMouseY());
-        CP_Settings_Fill(mycol);
-        CP_Settings_RectMode(CP_POSITION_CORNER);
-        CP_Settings_NoStroke();
+		CP_Settings_Fill(mycol);
+		CP_Settings_RectMode(CP_POSITION_CORNER);
+		CP_Settings_NoStroke();
 
 		// set tint color
 		CP_Settings_Tint(mycol);
 		CP_Image_Draw(img, 0, 0, (float)CP_System_GetWindowWidth(), (float)CP_System_GetWindowHeight(), 255);
+
 		// restore the tint color
 		CP_Settings_NoTint();
-        
+
 		CP_Graphics_DrawRect(CP_Input_GetMouseX(), CP_Input_GetMouseY(), 50, 50);
-    }
+	}
 	CP_Settings_ImageMode(CP_POSITION_CENTER);
 	if (CP_Input_MouseDown(MOUSE_BUTTON_LEFT))
 	{
-        //CP_Image_Draw(justin1, CP_Input_GetMouseX(), CP_Input_GetMouseY(), 323.f, 547.f, 255);
+		//CP_Image_Draw(justin1, CP_Input_GetMouseX(), CP_Input_GetMouseY(), 323.f, 547.f, 255);
 	}
 	else
 	{
-        //CP_Image_Draw(justin2, CP_Input_GetMouseX(), CP_Input_GetMouseY(), -323.f, 547.f, 255);
+		//CP_Image_Draw(justin2, CP_Input_GetMouseX(), CP_Input_GetMouseY(), -323.f, 547.f, 255);
 	}
 }
 
 void random_background_rectangles(void)
 {
-  CP_System_SetWindowSize(1200, 800);
+	CP_System_SetWindowSize(1200, 800);
 	if (startup)
 	{
 		startup = 0;
@@ -150,7 +149,7 @@ void random_background_rectangles(void)
 		}
 	}
 	CP_Settings_RectMode(CP_POSITION_CORNER);
-  CP_Settings_NoStroke();
+	CP_Settings_NoStroke();
 	for (int y = 0; y < CP_System_GetWindowHeight(); y += CP_System_GetWindowHeight() / rectangles)
 	{
 		for (int x = 0; x < CP_System_GetWindowWidth(); x += CP_System_GetWindowWidth() / rectangles)
@@ -159,8 +158,6 @@ void random_background_rectangles(void)
 			CP_Graphics_DrawRect((float)x, (float)y + 1, (float)CP_System_GetWindowWidth() / (float)rectangles, 1 + (float)CP_System_GetWindowHeight() / (float)rectangles);
 		}
 	}
-
-
 }
 
 int gaussianData[100] = { 0 };
@@ -179,7 +176,7 @@ void gaussian_background_rectangles(void)
 		}
 	}
 	CP_Settings_RectMode(CP_POSITION_CENTER);
-  CP_Settings_NoStroke();
+	CP_Settings_NoStroke();
 	int index = 0;
 	for (int x = 0; x < CP_System_GetWindowWidth(); x += CP_System_GetWindowWidth() / 100)
 	{
@@ -192,19 +189,19 @@ const int Rectangles = 100;
 void noise_example(void)
 {
 	CP_Settings_RectMode(CP_POSITION_CORNER);
-  CP_Settings_NoStroke();
+	CP_Settings_NoStroke();
 	for (int y = 0; y < CP_System_GetWindowHeight(); y += CP_System_GetWindowHeight() / Rectangles)
 	{
 		for (int x = 0; x < CP_System_GetWindowWidth(); x += CP_System_GetWindowWidth() / Rectangles)
 		{
-      // get a value between 0 and 255 for our color 
-      // (the smaller the x and the y, the smoother the noise will be)
-      int grayscale_val = (int)(CP_Random_Noise((float)x*0.01f, (float)y*0.01f, CP_System_GetFrameCount() * 0.1f) * 255);
+			// get a value between 0 and 255 for our color
+			// (the smaller the x and the y, the smoother the noise will be)
+			int grayscale_val = (int)(CP_Random_Noise((float)x * 0.01f, (float)y * 0.01f, CP_System_GetFrameCount() * 0.1f) * 255);
 
-      // fill the color our noise generated
-      CP_Settings_Fill(CP_Color_Create(grayscale_val, grayscale_val, grayscale_val, 255));
+			// fill the color our noise generated
+			CP_Settings_Fill(CP_Color_Create(grayscale_val, grayscale_val, grayscale_val, 255));
 
-      // draw the rectangle at the position
+			// draw the rectangle at the position
 			CP_Graphics_DrawRect((float)x, (float)y + 1, (float)CP_System_GetWindowWidth() / (float)Rectangles, 1 + (float)CP_System_GetWindowHeight() / (float)Rectangles);
 		}
 	}
@@ -223,22 +220,22 @@ void mouse_tracking_circle_rect(void)
 	CP_Settings_RectMode(CP_POSITION_CORNER);
 	CP_Settings_EllipseMode(CP_POSITION_CORNER);
 	CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255));
+
 	//strokeWeight(
 	//    (float)(
 	//        (float)abs((int)(CP_Input_GetMouseX() - x3)) / (float)abs((int)(CP_Input_GetMouseY() - y3))
 	//        )
 	//);
-	//CP_Graphics_DrawRect(x3/* + size / 2*/, y3/* + size / 2*/, -size/* / 2*/, size/* / 2*/); 
-  CP_Settings_NoStroke();
+	//CP_Graphics_DrawRect(x3/* + size / 2*/, y3/* + size / 2*/, -size/* / 2*/, size/* / 2*/);
+	CP_Settings_NoStroke();
 	CP_Graphics_DrawEllipse(x3, y3, CP_Input_GetMouseX() - x3, CP_Input_GetMouseY() - y3);
 
-
-  CP_Settings_Fill(CP_Color_Create(0, 0, 255, 10));
-  CP_Settings_Stroke(CP_Color_Create(255, 0, 0, 255));
+	CP_Settings_Fill(CP_Color_Create(0, 0, 255, 10));
+	CP_Settings_Stroke(CP_Color_Create(255, 0, 0, 255));
 	CP_Graphics_DrawRect(x3, y3, CP_Input_GetMouseX() - x3, CP_Input_GetMouseY() - y3);
 
-  CP_Settings_Stroke(CP_Color_Create(0, 255, 255, 255));
-  CP_Settings_Fill(CP_Color_Create(0, 255, 255, 255));
+	CP_Settings_Stroke(CP_Color_Create(0, 255, 255, 255));
+	CP_Settings_Fill(CP_Color_Create(0, 255, 255, 255));
 	CP_Graphics_DrawPoint(x3, y3);
 	CP_Graphics_DrawPoint(CP_Input_GetMouseX(), CP_Input_GetMouseY());
 	x3 = x2;
@@ -254,34 +251,35 @@ int h = 0;
 
 void mouse_following_polygon(void)
 {
-  CP_Settings_StrokeWeight(1.0f);
+	CP_Settings_StrokeWeight(1.0f);
+
 	// alpha1 = 5;
 	// random_background_rectangles();
 
-  CP_Settings_Fill(CP_Color_Create(180, 0, 180, 1));
+	CP_Settings_Fill(CP_Color_Create(180, 0, 180, 1));
 	CP_Graphics_DrawRect(0.0f, 0.0f, 1.0f * CP_System_GetWindowWidth(), 1.0f * CP_System_GetWindowHeight());
 	x2 = x3;
 	y2 = y3;
 
-	x3 = (float)((CP_System_GetWindowWidth() / 3.0)  * cos((double)CP_System_GetFrameCount() / 100.0)) + (CP_System_GetWindowWidth() / 2.0f) + (float)((CP_System_GetWindowHeight() / 6.0) * cos((double)CP_System_GetFrameCount() / 240.0)) - (float)((CP_System_GetWindowHeight() / 2.0) * sin((double)CP_System_GetFrameCount() / 330.0));
+	x3 = (float)((CP_System_GetWindowWidth() / 3.0) * cos((double)CP_System_GetFrameCount() / 100.0)) + (CP_System_GetWindowWidth() / 2.0f) + (float)((CP_System_GetWindowHeight() / 6.0) * cos((double)CP_System_GetFrameCount() / 240.0)) - (float)((CP_System_GetWindowHeight() / 2.0) * sin((double)CP_System_GetFrameCount() / 330.0));
 	y3 = (float)((CP_System_GetWindowHeight() / 3.0) * sin((double)CP_System_GetFrameCount() / 100.0)) + (CP_System_GetWindowHeight() / 2.0f) - (float)((CP_System_GetWindowHeight() / 10.0) * cos((double)CP_System_GetFrameCount() / 120.0)) + (float)((CP_System_GetWindowHeight() / 5.0) * sin((double)CP_System_GetFrameCount() / 96.0));
 
 	++h;
 	if (h >= 255) h = 0;
+
 	//noStroke();
 	CP_Graphics_BeginShape();
 	CP_Graphics_AddVertex(x3, y3);
 	CP_Graphics_AddVertex(x2, y2);
+
 	//CP_Graphics_AddShapeVertex(CP_System_GetCanvasWidth / 2.0f, canvasHeight / 2.0f);
 	CP_Graphics_AddVertex(CP_Input_GetMousePreviousX(), CP_Input_GetMousePreviousY());
 	CP_Graphics_AddVertex(CP_Input_GetMouseX(), CP_Input_GetMouseY());
-  CP_Settings_Stroke(CP_Color_Create(255, 255, 255, 255));
-  CP_Settings_Fill(CP_Color_Create(h, 0, 180, 255));
+	CP_Settings_Stroke(CP_Color_Create(255, 255, 255, 255));
+	CP_Settings_Fill(CP_Color_Create(h, 0, 180, 255));
 	CP_Graphics_EndShape();
 
-
 	//CP_Graphics_DrawLine(x3, y3, x2, y2);
-
 }
 
 void printWASDStates(void)
@@ -316,9 +314,10 @@ void mouse_demo(void)
 	if (CP_Input_MouseDoubleClicked())
 	{
 		//int color = irand_min_max(180, 220);
-    CP_Settings_Fill(CP_Color_Create(CP_Random_RangeInt(180, 220), CP_Random_RangeInt(0, 220), CP_Random_RangeInt(100, 220), 255));
+		CP_Settings_Fill(CP_Color_Create(CP_Random_RangeInt(180, 220), CP_Random_RangeInt(0, 220), CP_Random_RangeInt(100, 220), 255));
 		CP_Graphics_DrawRect(0, 0, (float)CP_System_GetWindowWidth(), (float)CP_System_GetWindowHeight());
 	}
+
 	//if (CP_Input_MouseDragged(MOUSE_BUTTON_1))
 	//{
 	//    int color = 0;
@@ -328,28 +327,28 @@ void mouse_demo(void)
 	if (CP_Input_MouseTriggered(MOUSE_BUTTON_1))
 	{
 		int c = 0;
-    CP_Settings_Fill(CP_Color_Create(255, c, c, 255));
+		CP_Settings_Fill(CP_Color_Create(255, c, c, 255));
 		CP_Graphics_DrawEllipse(CP_Input_GetMouseX(), CP_Input_GetMouseY(), 30, 30);
 	}
 	if (CP_Input_MouseReleased(MOUSE_BUTTON_1))
 	{
 		int c = 0;
-    CP_Settings_Fill(CP_Color_Create(c, c, 255, 255));
+		CP_Settings_Fill(CP_Color_Create(c, c, 255, 255));
 		CP_Graphics_DrawEllipse(CP_Input_GetMouseX(), CP_Input_GetMouseY(), 30, 30);
 	}
 	if (CP_Input_MouseDragged(MOUSE_BUTTON_1))
 	{
 		//int color = irand_min_max(180, 220);
-    CP_Settings_Fill(CP_Color_Create(CP_Random_RangeInt(0, 250), CP_Random_RangeInt(0, 250), CP_Random_RangeInt(0, 250), 255));
+		CP_Settings_Fill(CP_Color_Create(CP_Random_RangeInt(0, 250), CP_Random_RangeInt(0, 250), CP_Random_RangeInt(0, 250), 255));
 		CP_Graphics_DrawEllipse(CP_Random_RangeFloat(0, (float)CP_System_GetWindowWidth()), CP_Random_RangeFloat(0, (float)CP_System_GetWindowHeight()), 50, 50);
 	}
+
 	// else if (CP_Input_MouseMoved())
 	// {
 	//     //int color = irand_min_max(180, 220);
 	//     fill(irand_min_max(0, 250), irand_min_max(0, 250), irand_min_max(0, 250), 255);
 	//     CP_Graphics_DrawRect(frand_min_max(0.0f, (float)canvasWidth), frand_min_max(0.0f, (float)canvasHeight), 100.0f, 100.0f);
 	// }
-
 }
 
 void text_demo(void)
@@ -358,21 +357,24 @@ void text_demo(void)
 	// 	fullscreen();
 	// else if (CP_Input_MouseTriggered(MOUSE_BUTTON_RIGHT))
 	// 	size(500, 500);
-	// 
+	//
 	int button_pressed = FALSE;
+
 	// CP_Graphics_SetEllipseMode(CP_POSITION_CORNER);
 	// CP_Graphics_DrawCircle(CP_Input_GetMouseX(), CP_Input_GetMouseY(), 50);
-	// 
+	//
 	 //translate(CP_Input_GetMouseX(), CP_Input_GetMouseY());
-  CP_Settings_Translate(50.0f + 50.0f*(float)sin(CP_System_GetFrameCount() / 300.0), 0);
+	CP_Settings_Translate(50.0f + 50.0f * (float)sin(CP_System_GetFrameCount() / 300.0), 0);
+
 	//translate(canvasWidth / 2.0f, canvasHeight / 2.0f - 400.0f);
 	//rotate(frameCount / 10.0f);
-  float scale = 1.0f * (float)sin(CP_System_GetFrameCount() / 300.0) + 0.5f;
-  CP_Settings_Scale(scale, scale);
+	float scale = 1.0f * (float)sin(CP_System_GetFrameCount() / 300.0) + 0.5f;
+	CP_Settings_Scale(scale, scale);
+
 	//scaleY((float)sin(frameCount / 150.0f) * 0.5f);
 	//scaleX((float)cos(frameCount / 300.0) * 0.5f);
 
-  CP_Settings_Fill(CP_Color_Create(100, 40, 40, 20));
+	CP_Settings_Fill(CP_Color_Create(100, 40, 40, 20));
 	CP_Graphics_DrawRect(0, 0, (float)CP_System_GetWindowWidth(), (float)CP_System_GetWindowHeight());
 	if (!font)
 	{
@@ -381,16 +383,17 @@ void text_demo(void)
 			font = CP_Font_Load("./Assets/Exo2-LightItalic.ttf");
 	}
 
-  CP_Font_Set(CP_Font_GetDefault());
-  CP_Settings_TextSize(140.0f);
-  CP_Settings_Fill(CP_Color_Create(160, 0, 0, 255));
-  CP_Font_DrawText("HELLO WORLD", 100, 120);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(140.0f);
+	CP_Settings_Fill(CP_Color_Create(160, 0, 0, 255));
+	CP_Font_DrawText("HELLO WORLD", 100, 120);
 
 	// side lines
 	float line_y_offset = 20.0f;
 	float line_X = 40;
 	float line_spacing = 4;
-  CP_Settings_Stroke(CP_Color_Create(160, 0, 0, 255));
+	CP_Settings_Stroke(CP_Color_Create(160, 0, 0, 255));
+
 	// vertical lines on the sides
 	for (int i = 0; i < 3; ++i)
 	{
@@ -398,24 +401,25 @@ void text_demo(void)
 		CP_Graphics_DrawLine((float)(CP_System_GetWindowWidth() - line_X), line_y_offset, (float)(CP_System_GetWindowWidth() - line_X), (float)(CP_System_GetWindowHeight() - line_y_offset));
 		line_X += line_spacing;
 	}
-  CP_Settings_StrokeWeight(1.0f);
+	CP_Settings_StrokeWeight(1.0f);
 
 	// main text block
-  CP_Settings_TextSize(50.0f);
-  CP_Settings_Fill(CP_Color_Create(200, 0, 0, 255));
-  CP_Font_DrawTextBox(lorem, 100, 200, (float)(CP_System_GetWindowWidth() - 200));
+	CP_Settings_TextSize(50.0f);
+	CP_Settings_Fill(CP_Color_Create(200, 0, 0, 255));
+	CP_Font_DrawTextBox(lorem, 100, 200, (float)(CP_System_GetWindowWidth() - 200));
 
 	// put a box around the text
-  CP_Settings_Stroke(CP_Color_Create(255, 0, 0, 255));
-  CP_Settings_NoFill();
+	CP_Settings_Stroke(CP_Color_Create(255, 0, 0, 255));
+	CP_Settings_NoFill();
+
 	//              height                       arbirary
 	CP_Graphics_DrawRect(90, 200 - 50.0f, (float)(CP_System_GetWindowWidth() - 190), 52.0f * 8);
 
 	// subtitle below box
-  CP_Font_Set(font);
-  CP_Settings_TextSize(32.0f);
-  CP_Settings_Fill(CP_Color_Create(160, 80, 80, 255));
-  CP_Font_DrawTextBox(lorem_short, 120.0f, 620.0f, (float)(CP_System_GetWindowWidth() - 220));
+	CP_Font_Set(font);
+	CP_Settings_TextSize(32.0f);
+	CP_Settings_Fill(CP_Color_Create(160, 80, 80, 255));
+	CP_Font_DrawTextBox(lorem_short, 120.0f, 620.0f, (float)(CP_System_GetWindowWidth() - 220));
 
 	// button 1
 	float x_offset = 100.0f;
@@ -441,17 +445,17 @@ void text_demo(void)
 		float x = (x_offset)+(button_w * (num - 1)) + (button_spacing_x * (num - 1));
 
 		if ((CP_Input_GetMouseWorldX() > x && CP_Input_GetMouseWorldX() < (x + button_w)) && (CP_Input_GetMouseWorldY() > button_y && CP_Input_GetMouseWorldY() < (button_y + button_h)))
-      CP_Settings_NoFill();
+			CP_Settings_NoFill();
 		else
-      CP_Settings_Fill(CP_Color_Create(255, 120, 120, 120));
+			CP_Settings_Fill(CP_Color_Create(255, 120, 120, 120));
 
 		CP_Graphics_DrawRectAdvanced(x, button_y, button_w, button_h, 0, button_r);
 		CP_Graphics_DrawRectAdvanced(x, button_y, button_w, button_h, 0, button_r);
 
 		if ((CP_Input_GetMouseWorldX() > x && CP_Input_GetMouseWorldX() < (x + button_w)) && (CP_Input_GetMouseWorldY() > button_y && CP_Input_GetMouseWorldY() < (button_y + button_h)))
 		{
-      CP_Settings_TextSize(32.0f + 20.0f);
-      CP_Settings_Fill(CP_Color_Create(255, 120, 120, 120));
+			CP_Settings_TextSize(32.0f + 20.0f);
+			CP_Settings_Fill(CP_Color_Create(255, 120, 120, 120));
 			button_text_offset_x = (button_w / 2.0f) - 84.0f;
 			button_text_offset_y = (button_h / 2.0f) + 16.0f;
 			button_pressed = TRUE;
@@ -460,10 +464,10 @@ void text_demo(void)
 		{
 			button_text_offset_x = (button_w / 2.0f) - 50.0f;
 			button_text_offset_y = (button_h / 2.0f) + 10.0f;
-      CP_Settings_TextSize(32.0f + 0.0f);
-      CP_Settings_Fill(CP_Color_Create(60, 0, 0, 255));
+			CP_Settings_TextSize(32.0f + 0.0f);
+			CP_Settings_Fill(CP_Color_Create(60, 0, 0, 255));
 		}
-    CP_Font_DrawText(button_text, x + button_text_offset_x, button_y + button_text_offset_y);
+		CP_Font_DrawText(button_text, x + button_text_offset_x, button_y + button_text_offset_y);
 		++button_text[7];
 	}
 
@@ -472,6 +476,7 @@ void text_demo(void)
 	int spacing = 8;
 	int tall = 20;
 	int y = CP_System_GetWindowHeight() - 100;
+
 	// bottom diagonal line row
 	for (int i = offset; i < CP_System_GetWindowWidth() - offset - spacing; i += spacing)
 	{
@@ -482,61 +487,62 @@ void text_demo(void)
 	if (button_pressed)
 	{
 		float button_x = 150.0f;
+
 		//float button_offset = 200.0f;
 		// hover
-    CP_Settings_TextSize(30.0f);
-    CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
-    CP_Font_DrawText("HOVER", 300.0f, CP_System_GetWindowHeight() - 30.0f);
+		CP_Settings_TextSize(30.0f);
+		CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
+		CP_Font_DrawText("HOVER", 300.0f, CP_System_GetWindowHeight() - 30.0f);
 		if (CP_Input_MouseDown(MOUSE_BUTTON_1))
 		{
-      CP_Settings_TextSize(30.0f);
-      CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
-      CP_Font_DrawText("HELD", button_x, CP_System_GetWindowHeight() - 30.0f);
+			CP_Settings_TextSize(30.0f);
+			CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
+			CP_Font_DrawText("HELD", button_x, CP_System_GetWindowHeight() - 30.0f);
 		}
 		if (CP_Input_MouseTriggered(MOUSE_BUTTON_1))
 		{
-      CP_Settings_TextSize(30.0f);
-      CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
-      CP_Font_DrawText("PRESSED", 450.0f, CP_System_GetWindowHeight() - 30.0f);
+			CP_Settings_TextSize(30.0f);
+			CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
+			CP_Font_DrawText("PRESSED", 450.0f, CP_System_GetWindowHeight() - 30.0f);
 		}
 		if (CP_Input_MouseReleased(MOUSE_BUTTON_1))
 		{
-      CP_Settings_TextSize(30.0f);
-      CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
-      CP_Font_DrawText("RELEASED", 600.0f, CP_System_GetWindowHeight() - 30.0f);
+			CP_Settings_TextSize(30.0f);
+			CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
+			CP_Font_DrawText("RELEASED", 600.0f, CP_System_GetWindowHeight() - 30.0f);
 		}
 		if (CP_Input_MouseReleased(MOUSE_BUTTON_1))
 		{
-      CP_Settings_TextSize(30.0f);
-      CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
-      CP_Font_DrawText("CLICK", 750.0f, CP_System_GetWindowHeight() - 30.0f);
+			CP_Settings_TextSize(30.0f);
+			CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
+			CP_Font_DrawText("CLICK", 750.0f, CP_System_GetWindowHeight() - 30.0f);
 		}
 		if (CP_Input_MouseDragged(MOUSE_BUTTON_1))
 		{
-      CP_Settings_TextSize(30.0f);
-      CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
-      CP_Font_DrawText("DRAGGED", 900.0f, CP_System_GetWindowHeight() - 30.0f);
+			CP_Settings_TextSize(30.0f);
+			CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
+			CP_Font_DrawText("DRAGGED", 900.0f, CP_System_GetWindowHeight() - 30.0f);
 		}
 		if (CP_Input_MouseDoubleClicked())
 		{
-      CP_Settings_TextSize(30.0f);
-      CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
-      CP_Font_DrawText("DOUBLE CLICK", 1050.0f, CP_System_GetWindowHeight() - 30.0f);
+			CP_Settings_TextSize(30.0f);
+			CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
+			CP_Font_DrawText("DOUBLE CLICK", 1050.0f, CP_System_GetWindowHeight() - 30.0f);
 		}
 	}
 }
 
 void transform_test(void)
 {
-    // Variables to pass into the conversion functions
+	// Variables to pass into the conversion functions
 	float x = (float)M_PI;
 	float y = (float)M_PI;
 
 	// Run back and forth 100 times
 	for (int i = 0; i < 100; ++i)
 	{
-    CP_Math_ScreenToWorld(x, y, &x, &y);
-    CP_Math_WorldToScreen(x, y, &x, &y);
+		CP_Math_ScreenToWorld(x, y, &x, &y);
+		CP_Math_WorldToScreen(x, y, &x, &y);
 	}
 
 	// Should still be PI
@@ -546,13 +552,12 @@ void transform_test(void)
 void time_test(void)
 {
 	CP_System_SetFrameRate(1.f);
-  CP_System_SetWindowSize(100, 100);
+	CP_System_SetWindowSize(100, 100);
 	system("cls");
 	printf("    DT:\t%f\n", CP_System_GetDt());
 	printf("Millis:\t%f\n", CP_System_GetMillis());
 	printf("Second:\t%f\n", CP_System_GetSeconds());
 }
-
 
 static int boolean_ = 0;
 static CP_Sound sound1 = NULL;
@@ -564,6 +569,7 @@ static int playmusicforme = FALSE;
 void audio_test(void)
 {
 	++index50;
+
 	//setFrameRate(1.f);
 	if (!boolean_) {
 		sound1 = CP_Sound_Load("./Assets/808cowbell.wav");
@@ -594,8 +600,8 @@ void audio_test(void)
 		drums[3] = CP_Sound_Load("./Assets/HiHat.wav");
 
 		CP_Settings_RectMode(CP_POSITION_CENTER);
-    CP_System_SetWindowSize(800, 400);
-    CP_Graphics_ClearBackground(CP_Color_Create(10, 50, 140, 255));
+		CP_System_SetWindowSize(800, 400);
+		CP_Graphics_ClearBackground(CP_Color_Create(10, 50, 140, 255));
 	}
 
 #if 0
@@ -606,20 +612,21 @@ void audio_test(void)
 	Sleep(400);
 #else
 	if (index50 == 3)
-    CP_Graphics_ClearBackground(CP_Color_Create(10, 50, 140, 255));
+		CP_Graphics_ClearBackground(CP_Color_Create(10, 50, 140, 255));
+
 	//background(10, 50, 140);
 	//setReverb(channel, 10.0f);
 
-  CP_Settings_TextSize(32);
-  CP_Font_DrawText("FANCY NOTES", 20, 60);
-  CP_Font_DrawText("PIANO NOTES", 20, 160);
-  CP_Font_DrawText("DRUMS", 20, 260);
+	CP_Settings_TextSize(32);
+	CP_Font_DrawText("FANCY NOTES", 20, 60);
+	CP_Font_DrawText("PIANO NOTES", 20, 160);
+	CP_Font_DrawText("DRUMS", 20, 260);
 
-  CP_Settings_NoFill();
+	CP_Settings_NoFill();
 	CP_Graphics_DrawRect(CP_System_GetWindowWidth() / 2.0f, 100, CP_System_GetWindowWidth() - 40.0f, 60.0f);
 	CP_Graphics_DrawRect(CP_System_GetWindowWidth() / 2.0f, 200, CP_System_GetWindowWidth() - 40.0f, 60.0f);
 	CP_Graphics_DrawRect(CP_System_GetWindowWidth() / 2.0f, 300, CP_System_GetWindowWidth() - 40.0f, 60.0f);
-  CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
+	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
 
 	if (playmusicforme)
 	{
@@ -638,10 +645,10 @@ void audio_test(void)
 		}
 	}
 	if (playmusicforme)
-    CP_Settings_Fill(CP_Color_Create(255, 0, 0, 20));
+		CP_Settings_Fill(CP_Color_Create(255, 0, 0, 20));
 	CP_Graphics_DrawRect(CP_System_GetWindowWidth() / 2.0f, 50.0f, 40.0f, 20.0f);
 	if (playmusicforme)
-    CP_Settings_Fill(CP_Color_Create(255, 255, 255, 10));
+		CP_Settings_Fill(CP_Color_Create(255, 255, 255, 10));
 
 	for (int i = 0; i < 7; ++i)
 	{
@@ -652,12 +659,12 @@ void audio_test(void)
 				if (CP_Input_MouseTriggered(MOUSE_BUTTON_1))
 				{
 					CP_Sound_Play(notes[1][i]);
-          CP_Settings_Fill(CP_Color_Create(255, 0, 0, 10));
+					CP_Settings_Fill(CP_Color_Create(255, 0, 0, 10));
 				}
 			}
 		}
 		CP_Graphics_DrawRectAdvanced((float)i * (CP_System_GetWindowWidth() / 7) + (CP_System_GetWindowWidth() / 14), (float)100, (float)(CP_System_GetWindowWidth() / 14), (float)(CP_System_GetWindowHeight() / 14), 0, 5.0f);
-    CP_Settings_Fill(CP_Color_Create(255, 255, 255, 10));
+		CP_Settings_Fill(CP_Color_Create(255, 255, 255, 10));
 	}
 
 	for (int i = 0; i < 7; ++i)
@@ -669,14 +676,13 @@ void audio_test(void)
 				if (CP_Input_MouseTriggered(MOUSE_BUTTON_1))
 				{
 					CP_Sound_Play(notes[0][i]);
-          CP_Settings_Fill(CP_Color_Create(255, 0, 0, 10));
+					CP_Settings_Fill(CP_Color_Create(255, 0, 0, 10));
 				}
 			}
 		}
 		CP_Graphics_DrawRectAdvanced((float)i * (CP_System_GetWindowWidth() / 7) + (CP_System_GetWindowWidth() / 14), (float)200, (float)(CP_System_GetWindowWidth() / 14), (float)(CP_System_GetWindowHeight() / 14), 0, 5.0f);
-    CP_Settings_Fill(CP_Color_Create(255, 255, 255, 10));
+		CP_Settings_Fill(CP_Color_Create(255, 255, 255, 10));
 	}
-
 
 	for (int i = 0; i < 4; ++i)
 	{
@@ -687,12 +693,12 @@ void audio_test(void)
 				if (CP_Input_MouseTriggered(MOUSE_BUTTON_1))
 				{
 					CP_Sound_Play(drums[i]);
-          CP_Settings_Fill(CP_Color_Create(255, 0, 0, 10));
+					CP_Settings_Fill(CP_Color_Create(255, 0, 0, 10));
 				}
 			}
 		}
 		CP_Graphics_DrawRectAdvanced((float)i * (CP_System_GetWindowWidth() / 4) + (CP_System_GetWindowWidth() / 8), (float)300, (float)(CP_System_GetWindowWidth() / 8), (float)(CP_System_GetWindowHeight() / 8), 0, 5.0f);
-    CP_Settings_Fill(CP_Color_Create(255, 255, 255, 10));
+		CP_Settings_Fill(CP_Color_Create(255, 255, 255, 10));
 	}
 
 	//noCursor();
@@ -713,7 +719,6 @@ void audio_test(void)
 #endif
 }
 
-
 static float x5, y5;
 CP_Vector dist;
 CP_Vector vel2;
@@ -728,13 +733,14 @@ void mouse_setup(void)
 }
 void mouse_follower(void)
 {
-  CP_System_SetFrameRate(24);
-  CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 255));
+	CP_System_SetFrameRate(24);
+	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 255));
 	dist.x = CP_Input_GetMouseX() - x5;
 	dist.y = CP_Input_GetMouseY() - y5;
 
 	float mass = 100;// kg;
 	float constant = 0.0000000000667f;
+
 	//float r = CP_Vector_length(vel);
 
 	// calculate force
@@ -788,7 +794,6 @@ void mouse_follower(void)
 		y5 += CP_System_GetWindowHeight();
 	}
 
-
 	// apply velocity to position
 	x5 += vel2.x;
 	y5 += vel2.x;
@@ -807,7 +812,7 @@ void selector(void)
 	{
 		i++;
 		setup = 0;
-    CP_System_SetWindowSize(1820, 900);
+		CP_System_SetWindowSize(1820, 900);
 	}
 
 	switch (i)
@@ -838,6 +843,7 @@ void selector(void)
 		image_test();
 		break;
 	case 5:
+
 		//noise_background_rectangles();
 		break;
 	case 6:
@@ -846,11 +852,10 @@ void selector(void)
 	}
 }
 
-
 CP_Vector a, b, c, d;
 void racecar_setup(void)
 {
-  CP_System_SetWindowSize(800, 600);
+	CP_System_SetWindowSize(800, 600);
 	float pos = CP_System_GetWindowHeight() / 8.0f;
 	a.y = pos * 1;
 	b.y = pos * 2;
@@ -860,7 +865,7 @@ void racecar_setup(void)
 	a.x = b.x = c.x = d.x = 100;
 
 	// black lines
-  CP_Settings_Stroke(CP_Color_Create(0, 0, 0, 255));
+	CP_Settings_Stroke(CP_Color_Create(0, 0, 0, 255));
 
 	CP_Settings_RectMode(CP_POSITION_CENTER);
 }
@@ -868,12 +873,12 @@ void racecar_setup(void)
 void racecar_draw(void)
 {
 	// white background
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
 	// start/finish line, probably too advanced
 	CP_Graphics_DrawLine(100, 0, 100, (float)CP_System_GetWindowHeight());
 	CP_Graphics_DrawLine(120, 0, 120, (float)CP_System_GetWindowHeight());
-  CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
+	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
 	int i = 0;
 	for (i = 0; i < CP_System_GetWindowHeight(); i += (CP_System_GetWindowHeight() / 60))
 	{
@@ -900,16 +905,19 @@ void racecar_draw(void)
 		d.x = 0;
 
 	//a
-  CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255)); // red
+	CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255)); // red
 	CP_Graphics_DrawRect(a.x, a.y, 50, 20);
+
 	//b
-  CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255)); // green
+	CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255)); // green
 	CP_Graphics_DrawRect(b.x, b.y, 50, 20);
+
 	//c
-  CP_Settings_Fill(CP_Color_Create(0, 0, 255, 255)); // blue
+	CP_Settings_Fill(CP_Color_Create(0, 0, 255, 255)); // blue
 	CP_Graphics_DrawRect(c.x, c.y, 50, 20);
+
 	//d
-  CP_Settings_Fill(CP_Color_Create(255, 0, 255, 255)); // purple
+	CP_Settings_Fill(CP_Color_Create(255, 0, 255, 255)); // purple
 	CP_Graphics_DrawRect(d.x, d.y, 50, 20);
 }
 
@@ -925,18 +933,21 @@ const int count = 100;
 square squares[100];
 void bounce_setup(void)
 {
-  CP_Settings_BlendMode(CP_BLEND_ADD);
+	CP_Settings_BlendMode(CP_BLEND_ADD);
+
 	//size(800, 600);
-  CP_System_Fullscreen();
+	CP_System_Fullscreen();
 	int i = 0;
 	for (; i < count; ++i)
 	{
 		// pos
 		squares[i].pos.x = CP_Random_RangeFloat(30, (float)CP_System_GetWindowWidth() - 30);
 		squares[i].pos.y = CP_Random_RangeFloat(30, (float)CP_System_GetWindowHeight() - 30);
+
 		// vel
 		squares[i].vel.x = CP_Random_RangeFloat(-5, 5);
 		squares[i].vel.y = CP_Random_RangeFloat(-5, 5);
+
 		// size
 		squares[i].size.x = CP_Random_RangeFloat(5, 30);
 		squares[i].size.y = CP_Random_RangeFloat(5, 30);
@@ -976,7 +987,7 @@ void bounce_draw(void)
 		}
 
 		// draw
-    CP_Settings_Fill(squares[i].color);
+		CP_Settings_Fill(squares[i].color);
 		CP_Graphics_DrawRect(squares[i].pos.x, squares[i].pos.y, squares[i].size.x, squares[i].size.y);
 	}
 }
@@ -1059,7 +1070,6 @@ void ParticleUpdate(Particle* part)
 		// resolve collisions
 		if ((collisionX == true) || (collisionY == true))
 		{
-
 			// take the nearest time
 			if (timeX < timeY)
 			{
@@ -1136,14 +1146,14 @@ void DancingLinesInit(void)
 
 void DancingLinesUpdate(void)
 {
-  CP_Settings_BlendMode(CP_BLEND_ALPHA);
-  CP_Graphics_ClearBackground(CP_Color_Create(51, 51, 51, 255));
+	CP_Settings_BlendMode(CP_BLEND_ALPHA);
+	CP_Graphics_ClearBackground(CP_Color_Create(51, 51, 51, 255));
 
 	//background(CP_Color_Create((int)(CP_Input_GetMouseX() / canvasWidth * 255.0f), 0, 0, 255));
 	//CP_Graphics_Background(CP_CreateColor((int)(CP_Input_GetMouseX() / CP_Graphics_GetCanvasWidth() * 255.0f), 0, 0, 255));
 
-  CP_Settings_NoStroke();
-  CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
 
 	for (int i = 0; i < numParticles; ++i)
 	{
@@ -1151,8 +1161,8 @@ void DancingLinesUpdate(void)
 		ParticleDisplay(&particles[i]);
 	}
 
-  CP_Settings_BlendMode(CP_BLEND_ADD);
-  CP_Settings_StrokeWeight(3);
+	CP_Settings_BlendMode(CP_BLEND_ADD);
+	CP_Settings_StrokeWeight(3);
 	CP_Color lineColor;
 
 	for (int i = 0; i < numParticles; ++i)
@@ -1166,7 +1176,7 @@ void DancingLinesUpdate(void)
 			lineColor.g = 127;
 			lineColor.b = 127;
 			lineColor.a = (unsigned char)(255.0f * min(1.0f, (mouseProximityDistance - max(distXMouse, distYMouse)) / (mouseProximityDistance * 0.3f)));
-      CP_Settings_Stroke(lineColor);
+			CP_Settings_Stroke(lineColor);
 			CP_Graphics_DrawLine(particles[i].pos.x, particles[i].pos.y, CP_Input_GetMouseX(), CP_Input_GetMouseY());
 		}
 
@@ -1185,7 +1195,7 @@ void DancingLinesUpdate(void)
 				lineColor.g = particles[i].color->g + particles[j].color->g;
 				lineColor.b = particles[i].color->b + particles[j].color->b;
 				lineColor.a = (unsigned char)(255.0f * min(1.0f, (lineProximityDistance - max(distX, distY)) / (lineProximityDistance * 0.3f)));
-        CP_Settings_Stroke(lineColor);
+				CP_Settings_Stroke(lineColor);
 				CP_Graphics_DrawLine(particles[i].pos.x, particles[i].pos.y, particles[j].pos.x, particles[j].pos.y);
 			}
 		}
@@ -1199,80 +1209,80 @@ void DancingLinesUpdate(void)
 	// Profiling info and frameRate testing
 	if (drawFPS)
 	{
-    CP_Settings_TextSize(20);
-    CP_Settings_BlendMode(CP_BLEND_ALPHA);
-    CP_Settings_Fill(CP_Color_Create(0, 0, 0, 128));
-    CP_Settings_NoStroke();
+		CP_Settings_TextSize(20);
+		CP_Settings_BlendMode(CP_BLEND_ALPHA);
+		CP_Settings_Fill(CP_Color_Create(0, 0, 0, 128));
+		CP_Settings_NoStroke();
 		CP_Graphics_DrawRect(0, 0, 150, 30);
-    CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
+		CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
 		char buffer[100];
 		sprintf_s(buffer, 100, "FPS: %f", CP_System_GetFrameRate());
-    CP_Font_DrawText(buffer, 20, 20);
+		CP_Font_DrawText(buffer, 20, 20);
 	}
 }
+
 //
 // end DANCING LINES
 //----------------------------------------------
 
 void demo14init(void)
 {
-  CP_System_SetWindowSize(1280, 720);
+	CP_System_SetWindowSize(1280, 720);
 	CP_System_SetFrameRate(2);
 	float fontSize = 60.0f;
-  CP_Settings_TextSize(fontSize);
+	CP_Settings_TextSize(fontSize);
 }
 
 void demo14(void)
 {
-
 	// clear the screen every frame (black)
-  CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 255));
 
-  CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_TOP);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_TOP);
 
 	if (CP_System_GetFrameCount() % 2 == 0)
-    CP_Settings_Fill(CP_Color_Create(255, 40, 120, 255));
+		CP_Settings_Fill(CP_Color_Create(255, 40, 120, 255));
 	else
-    CP_Settings_Fill(CP_Color_Create(0, 215, 135, 255));
+		CP_Settings_Fill(CP_Color_Create(0, 215, 135, 255));
 
 	// set the font to be the default font
-  CP_Font_Set(CP_Font_GetDefault());
+	CP_Font_Set(CP_Font_GetDefault());
 
 	// write "Hello, World!" in the center of the screen
-  CP_Font_DrawText("Hello, World!", 100, 100);
+	CP_Font_DrawText("Hello, World!", 100, 100);
 
 	// Load the font Exo2 Light Italic and store it in my PFont variable
 	CP_Font font1 = CP_Font_Load("./Assets/Exo2-LightItalic.ttf");
 
 	// set the new font
-  CP_Font_Set(font1);
+	CP_Font_Set(font1);
 
 	// write "Hello, World!" in the center of the screen
-  CP_Font_DrawText("Hello, World!", 100, 150);
+	CP_Font_DrawText("Hello, World!", 100, 150);
 
 	// set the font to be the default font
-  CP_Font_Set(CP_Font_GetDefault());
+	CP_Font_Set(CP_Font_GetDefault());
+
 	// write "Hello, World!" in the center of the screen
-  CP_Font_DrawText("Hello, World!", 100, 200);
+	CP_Font_DrawText("Hello, World!", 100, 200);
 
 	// set the new font
-  CP_Font_Set(font1);
+	CP_Font_Set(font1);
+
 	// write "Hello, World!" in the center of the screen
-  CP_Font_DrawText("Hello, World!", 100, 250);
+	CP_Font_DrawText("Hello, World!", 100, 250);
 
-
-
-  CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255));
+	CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255));
 
 	// set the font to be the default font
-  CP_Font_Set(CP_Font_GetDefault());
-  CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_RIGHT, CP_TEXT_ALIGN_V_TOP);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_RIGHT, CP_TEXT_ALIGN_V_TOP);
+
 	// write "Hello, World!" in the center of the screen
-  CP_Font_DrawTextBox("Hello, World! THIS is a test of the text alignment functions. \
+	CP_Font_DrawTextBox("Hello, World! THIS is a test of the text alignment functions. \
 This is only a test and should not be reproduced, copied or distributed \
 for personal, educational or commercial gain.  :)", 100, 300, 800);
 }
-
 
 static float rotation = 0.0f;
 static int value = 0;
@@ -1318,7 +1328,6 @@ void rotated_shapes_update(void)
 	//1, 5
 	CP_Graphics_DrawQuadAdvanced(910, 100, 960, 100, 940, 150, 890, 150, rotation);
 	CP_Graphics_DrawPoint(925, 125);
-
 
 	//2, 1
 	CP_Settings_RectMode(CP_POSITION_CORNER);
@@ -1397,7 +1406,6 @@ void rotated_shapes_update(void)
 	// apply that matrix to the point and store it in the position
 	position = CP_Vector_MatrixMultiply(transform, position);
 
-
 	//CP_Color myColor = CP_Color_Create(20, 39, 67, 255);
 
 	//backgroundColor(myColor);
@@ -1460,20 +1468,20 @@ void line_func(void)
 
 	// set the fill color to red
 	// fill(255, 0, 0, 255);
-	// 
+	//
 	// // draw a triangle with three points
 	// CP_Graphics_DrawTriangle(100.0f, 100.0f,  // point 1
 	//          200.0f, 100.0f,  // point 2
 	//          200.0f, 200.0f); // point 3
-	// 
+	//
 	// // set the fill color to dark blue
 	// fill(0, 0, 160, 255);
-	// 
+	//
 	// // draw a triangle with three points
 	// CP_Graphics_DrawTriangle(0.0f, 0.0f,        // point 1
 	//          CP_Input_GetMouseX(), CP_Input_GetMouseY(),    // point 2
 	//          CP_Input_GetMousePreviousX(), CP_Input_GetMousePreviousY()); // point 3
-	// 
+	//
 	// fill(255, 0, 0, 255);
 	// CP_Graphics_DrawCircle(CP_Input_GetMouseX(), CP_Input_GetMouseY(), 50.0f);
 	// fill(0, 255, 0, 255);
@@ -1484,8 +1492,6 @@ void line_func(void)
 	// noCursor();
 	// fill(0, 0, 0, 255);
 	// CP_Graphics_DrawPoint(CP_Input_GetMouseX(), CP_Input_GetMouseY());
-
-
 }
 
 CP_Vector a, b, c, d;
@@ -1507,27 +1513,27 @@ void init(void)
 	CP_Graphics_DrawRect(CP_Input_GetMouseX(), CP_Input_GetMouseY(), 100, 100);
 }
 
-
 void update(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 255));
 	a.x = CP_Input_GetMouseX();
 	a.y = CP_Input_GetMouseY();
 
 	float factor = 0.2f;
-	b.x = CP_Math_LerpFloat(b.x, CP_Input_GetMouseX() + 100.0f, CP_Math_ClampFloat(factor*2.0f, 0.0f, 1.0f));
-	b.y = CP_Math_LerpFloat(b.y, CP_Input_GetMouseY(), CP_Math_ClampFloat(factor*2.0f, 0.0f, 1.0f));
+	b.x = CP_Math_LerpFloat(b.x, CP_Input_GetMouseX() + 100.0f, CP_Math_ClampFloat(factor * 2.0f, 0.0f, 1.0f));
+	b.y = CP_Math_LerpFloat(b.y, CP_Input_GetMouseY(), CP_Math_ClampFloat(factor * 2.0f, 0.0f, 1.0f));
 
 	c.x = CP_Math_LerpFloat(c.x, CP_Input_GetMouseX() + 100.0f, CP_Math_ClampFloat(factor, 0.0f, 1.0f));
 	c.y = CP_Math_LerpFloat(c.y, CP_Input_GetMouseY() + 50.0f, CP_Math_ClampFloat(factor, 0.0f, 1.0f));
 
-	d.x = CP_Math_LerpFloat(d.x, CP_Input_GetMouseX(), CP_Math_ClampFloat(factor*2.0f, 0.0f, 1.0f));
-	d.y = CP_Math_LerpFloat(d.y, CP_Input_GetMouseY() + 50.0f, CP_Math_ClampFloat(factor*2.0f, 0.0f, 1.0f));
+	d.x = CP_Math_LerpFloat(d.x, CP_Input_GetMouseX(), CP_Math_ClampFloat(factor * 2.0f, 0.0f, 1.0f));
+	d.y = CP_Math_LerpFloat(d.y, CP_Input_GetMouseY() + 50.0f, CP_Math_ClampFloat(factor * 2.0f, 0.0f, 1.0f));
 
 	//CP_Graphics_DrawQuad(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y);
 
 	//CP_Image i = CP_Image_Load("./Assets/image.png");
-  CP_Settings_Fill(CP_Color_Create(0, 255, 255, 255));
+	CP_Settings_Fill(CP_Color_Create(0, 255, 255, 255));
+
 	//CP_Image_Draw(i, CP_Input_GetMouseX(), CP_Input_GetMouseY(), 100, 100);
 
 	//CP_Graphics_DrawCircle(100, 100, 50);
@@ -1556,13 +1562,13 @@ void EngineInit(void)
 {
 	if (full)
 	{
-    CP_System_Fullscreen();
+		CP_System_Fullscreen();
 	}
 }
 
 void EngineUpdate(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(100, 100, 100, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(100, 100, 100, 255));
 
 	// delayed break for soft lock testing
 	if (CP_System_GetFrameCount() == frameTimer)
@@ -1572,8 +1578,9 @@ void EngineUpdate(void)
 	}
 	if (CP_Input_KeyTriggered(KEY_B))
 	{
-    CP_Engine_Terminate();
-//		frameTimer = frameCount + 60;
+		CP_Engine_Terminate();
+
+		//		frameTimer = frameCount + 60;
 	}
 
 	// toggle fullscreen
@@ -1581,11 +1588,11 @@ void EngineUpdate(void)
 	{
 		if (full)
 		{
-      CP_System_SetWindowSize(400, 400);
+			CP_System_SetWindowSize(400, 400);
 		}
 		else
 		{
-      CP_System_Fullscreen();
+			CP_System_Fullscreen();
 		}
 		full = !full;
 	}
@@ -1593,48 +1600,40 @@ void EngineUpdate(void)
 	CP_Graphics_DrawRect(10, 10, 10, 10);
 	char buffer[128] = { 0 };
 	sprintf_s(buffer, 128, "( %d , %d )", CP_System_GetWindowWidth(), CP_System_GetWindowHeight());
-  CP_Font_DrawText(buffer, 30, 30);
+	CP_Font_DrawText(buffer, 30, 30);
 }
-
-
-
-
-
 
 int mycounter = 0;
 void image_stress(void)
 {
-    unsigned char* data = calloc(256 * 256 * 4, sizeof(char));
-    for (int i = 0; i < 256 * 256 * 4; i += 4)
-    {
-        data[i]     = 255;
-        data[i + 1] = 200;
-        data[i + 2] = 100;
-        data[i + 3] = 255;
-    }
-    CP_Image myimg = CP_Image_CreateFromData(256, 256, data);
-    if (++mycounter >= 100 && myimg)
-    {
-        mycounter = 0;
-    }
+	unsigned char* data = calloc(256 * 256 * 4, sizeof(char));
+	for (int i = 0; i < 256 * 256 * 4; i += 4)
+	{
+		data[i] = 255;
+		data[i + 1] = 200;
+		data[i + 2] = 100;
+		data[i + 3] = 255;
+	}
+	CP_Image myimg = CP_Image_CreateFromData(256, 256, data);
+	if (++mycounter >= 100 && myimg)
+	{
+		mycounter = 0;
+	}
 	free(data);
 }
-
 
 CP_Sound s;
 void test_sound_rev(void)
 {
-    s = CP_Sound_Load("./Assets/beep.wav");
-    Sleep(1000);
+	s = CP_Sound_Load("./Assets/beep.wav");
+	Sleep(1000);
 
-    CP_Sound_Play(s);
-    Sleep(1000);
+	CP_Sound_Play(s);
+	Sleep(1000);
 }
-
 
 void lerp_test_init(void)
 {
-
 }
 
 void lerp_test_update(void)
@@ -1674,7 +1673,7 @@ void dt_example(void)
 {
 	CP_Color Red = CP_Color_Create(255, 0, 0, 255);
 	CP_Color Blue = CP_Color_Create(0, 0, 255, 255);
-	
+
 	if (Up)
 	{
 		Count += CP_System_GetDt();
@@ -1695,7 +1694,7 @@ void dt_example(void)
 	}
 
 	CP_Color lerp = CP_Color_Lerp(Red, Blue, Count);
-  CP_Graphics_ClearBackground(lerp);
+	CP_Graphics_ClearBackground(lerp);
 }
 
 void save_restore_test_init(void)
@@ -1706,54 +1705,54 @@ void save_restore_test_init(void)
 void save_restore_test_update(void)
 {
 	// Draw a white background
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
 	// Draw a red square in the top left corner
-  CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
-  CP_Settings_Stroke(CP_Color_Create(0, 0, 255, 255));
+	CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
+	CP_Settings_Stroke(CP_Color_Create(0, 0, 255, 255));
 	CP_Graphics_DrawRect(CP_System_GetWindowWidth() * 0.25f, CP_System_GetWindowHeight() * 0.20f, 100.0f, 100.0f);
 
 	// Save the settings of the first square
-  CP_Settings_Save();
+	CP_Settings_Save();
 
 	// Draw a blue square in the top middle
-  CP_Settings_Fill(CP_Color_Create(0, 0, 255, 255));
-  CP_Settings_Stroke(CP_Color_Create(255, 0, 0, 255));
-  CP_Settings_StrokeWeight(5);
+	CP_Settings_Fill(CP_Color_Create(0, 0, 255, 255));
+	CP_Settings_Stroke(CP_Color_Create(255, 0, 0, 255));
+	CP_Settings_StrokeWeight(5);
 	CP_Graphics_DrawRect(CP_System_GetWindowWidth() * 0.5f, CP_System_GetWindowHeight() * 0.35f, 100.0f, 100.0f);
 
 	// Save the settings of the second square
-  CP_Settings_Save();
+	CP_Settings_Save();
 
-  CP_Settings_Translate(CP_System_GetWindowWidth() * 0.75f, CP_System_GetWindowHeight() * 0.5f);
-  CP_Settings_Rotate(CP_System_GetFrameCount() * 2.5f);
+	CP_Settings_Translate(CP_System_GetWindowWidth() * 0.75f, CP_System_GetWindowHeight() * 0.5f);
+	CP_Settings_Rotate(CP_System_GetFrameCount() * 2.5f);
 
 	// Now draw a pink and green square on the right side of the screen
-  CP_Settings_Fill(CP_Color_Create(200, 0, 200, 255));
-  CP_Settings_Stroke(CP_Color_Create(0, 255, 0, 255));
-  CP_Settings_StrokeWeight(10);
+	CP_Settings_Fill(CP_Color_Create(200, 0, 200, 255));
+	CP_Settings_Stroke(CP_Color_Create(0, 255, 0, 255));
+	CP_Settings_StrokeWeight(10);
 	CP_Graphics_DrawRect(-50.0f, 50.0f, 100.0f, 100.0f);
 
 	// Restore the blue settings and draw a blue square in the bottom middle
-  CP_Settings_Restore();
+	CP_Settings_Restore();
 
 	CP_Graphics_DrawRect(CP_System_GetWindowWidth() * 0.5f, CP_System_GetWindowHeight() * 0.65f, 100.0f, 100.0f);
 
 	// Restore the red settings and draw a red square in the bottom left
-  CP_Settings_Restore();
-	
+	CP_Settings_Restore();
+
 	CP_Graphics_DrawRect(CP_System_GetWindowWidth() * 0.25f, CP_System_GetWindowHeight() * 0.80f, 100.0f, 100.0f);
 }
 
 void matrix_test_init(void)
 {
 	CP_Settings_RectMode(CP_POSITION_CENTER);
-  CP_Settings_NoStroke();
+	CP_Settings_NoStroke();
 }
 void matrix_test_update(void)
 {
 	// White background
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
 	CP_Vector position = CP_Vector_Set(CP_System_GetWindowWidth() * 0.5f, CP_System_GetWindowHeight() * 0.5f);
 
@@ -1767,17 +1766,17 @@ void matrix_test_update(void)
 	CP_Matrix transform = CP_Matrix_Multiply(translate, CP_Matrix_Multiply(rotate, scale));
 
 	// Set the camera transfrom to the created matrix
-  CP_Settings_ApplyMatrix(transform);
+	CP_Settings_ApplyMatrix(transform);
 
 	// Draw a blue cube at the "center" of the screen
-  CP_Settings_Fill(CP_Color_Create(0, 0, 255, 255));
+	CP_Settings_Fill(CP_Color_Create(0, 0, 255, 255));
 	CP_Graphics_DrawRect(0, 0, 1, 1);
 
 	// Reset the matrix to the identity matrix
-  CP_Settings_ResetMatrix();
+	CP_Settings_ResetMatrix();
 
 	// Draw a red cube in the center of the screen
-  CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
+	CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
 	CP_Graphics_DrawRect(position.x, position.y, 50, 50);
 }
 
@@ -1789,7 +1788,7 @@ void matrix_test_init2(void)
 
 void matrix_test_update2(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
 	// Create transformation matrices
 	CP_Matrix trans = CP_Matrix_FromVector(CP_Vector_Set(1.0f, 0.0f), CP_Vector_Set(0.0f, 1.0f), CP_Vector_Set(CP_System_GetWindowWidth() / 2.0f, CP_System_GetWindowHeight() / 2.0f));
@@ -1811,23 +1810,23 @@ void matrix_test_update2(void)
 CP_Vector random_v;
 void transpose_init(void)
 {
-  CP_Font_Set(CP_Font_GetDefault());
-  CP_Settings_TextSize(30.0f);
-  CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(30.0f);
+	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
 
 	random_v = CP_Vector_Set(CP_Random_RangeFloat(0, 50), CP_Random_RangeFloat(0, 50));
 }
 
 void transpose_test(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
 	// Print out the default vector
-  CP_Font_DrawText("Random: ", 0, 30);
+	CP_Font_DrawText("Random: ", 0, 30);
 	char matrix[128] = { 0 };
 	sprintf_s(matrix, 128, "[%.0f]\n[%.0f]\n",
 		random_v.x, random_v.y);
-  CP_Font_DrawTextBox(matrix, 175, 30, 200);
+	CP_Font_DrawTextBox(matrix, 175, 30, 200);
 }
 
 CP_Vector position;
@@ -1843,13 +1842,13 @@ void vector_init(void)
 	norm = CP_Vector_Normalize(speed);
 
 	CP_Settings_EllipseMode(CP_POSITION_CENTER);
-  CP_Font_Set(CP_Font_GetDefault());
-  CP_Settings_TextSize(20.0f);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(20.0f);
 }
 
 void vector_update(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
 	// Check if direction should be inverted
 	if (position.x > CP_System_GetWindowWidth())
@@ -1870,16 +1869,16 @@ void vector_update(void)
 	position2 = CP_Vector_Add(position2, norm);
 
 	// Draw the circles
-  CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
+	CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
 	CP_Graphics_DrawCircle(position.x, position.y, 40);
-  CP_Settings_Fill(CP_Color_Create(0, 0, 255, 255));
+	CP_Settings_Fill(CP_Color_Create(0, 0, 255, 255));
 	CP_Graphics_DrawCircle(position2.x, position2.y, 40);
 
 	// Draw the speed and normzlied speed
-	char speed_text[128] = {0};
+	char speed_text[128] = { 0 };
 	sprintf_s(speed_text, 128, "Speed: [%.2f,%.2f] Normalized: [%.2f,%.2f]", speed.x, speed.y, norm.x, norm.y);
-  CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
-  CP_Font_DrawText(speed_text, CP_System_GetWindowWidth() * 0.5f - 160, CP_System_GetWindowHeight() * 0.5f);
+	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
+	CP_Font_DrawText(speed_text, CP_System_GetWindowWidth() * 0.5f - 160, CP_System_GetWindowHeight() * 0.5f);
 }
 
 CP_Vector vector1;
@@ -1895,9 +1894,9 @@ void vector2_init(void)
 	cross1 = CP_Vector_CrossProduct(vector1, vector2);
 	cross2 = CP_Vector_CrossProduct(vector2, vector1);
 
-  CP_Font_Set(CP_Font_GetDefault());
-  CP_Settings_TextSize(30.0f);
-  CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(30.0f);
+	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
 }
 
 void vector2_update(void)
@@ -1905,17 +1904,17 @@ void vector2_update(void)
 	// Print out the randomly generated vectors
 	char vec_text[128] = { 0 };
 	sprintf_s(vec_text, 128, "1st Vector: [%.2f, %.2f]", vector1.x, vector1.y);
-  CP_Font_DrawText(vec_text, 0, 50);
+	CP_Font_DrawText(vec_text, 0, 50);
 	sprintf_s(vec_text, 128, "2st Vector: [%.2f, %.2f]", vector2.x, vector2.y);
-  CP_Font_DrawText(vec_text, 0, 100);
+	CP_Font_DrawText(vec_text, 0, 100);
 
 	// Print out the first cross product
 	sprintf_s(vec_text, 128, "Cross AxB: %.2f", cross1);
-  CP_Font_DrawText(vec_text, 0, 150);
+	CP_Font_DrawText(vec_text, 0, 150);
 
 	// Print out the second cross product
 	sprintf_s(vec_text, 128, "Cross BxA: %.2f", cross2);
-  CP_Font_DrawText(vec_text, 0, 200);
+	CP_Font_DrawText(vec_text, 0, 200);
 }
 
 CP_Image justin_face;
@@ -1934,10 +1933,11 @@ void i_update(void)
 
 	// Lerp rotation and draw image
 	float rot = CP_Math_LerpFloat(0.0f, 360.0f, rot_counter);
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
 	CP_Settings_Tint(CP_Color_Create(CP_System_GetFrameCount(), 0, 0, 255));
 	CP_Image_DrawAdvanced(justin_face, CP_Input_GetMouseX(), CP_Input_GetMouseY(), 100, 150, 255, rot);
+
 	// restore the tint color
 	CP_Settings_NoTint();
 }
@@ -1945,16 +1945,16 @@ void i_update(void)
 void deg_rad_init(void)
 {
 	CP_Settings_EllipseMode(CP_POSITION_CENTER);
-  CP_Font_Set(CP_Font_GetDefault());
-  CP_Settings_TextSize(30.0f);
-  CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(30.0f);
+	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
 }
 
 float r_degrees;
 float counter = 2.0f;
 void deg_rad_update(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
 	// Change degrees every few seconds
 	if (counter >= 2.0f)
@@ -1968,22 +1968,22 @@ void deg_rad_update(void)
 	// Print out number of degrees and convert to radians
 	char buffer[128] = { 0 };
 	sprintf_s(buffer, 128, "Degrees: %.3f\nis equal to\nRadians: %.3f", r_degrees, CP_Math_Radians(r_degrees));
-  CP_Font_DrawTextBox(buffer, 100, 150, 200);
+	CP_Font_DrawTextBox(buffer, 100, 150, 200);
 }
 
 void square_init(void)
 {
-  CP_Font_Set(CP_Font_GetDefault());
-  CP_Settings_TextSize(50.0f);
-  CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
-  CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_BOTTOM);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(50.0f);
+	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_BOTTOM);
 }
 
 float random_value = 0.0f;
 float time_elapsed = 1.5;
 void square_update(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
 	if (time_elapsed >= 1.5f)
 	{
@@ -1995,27 +1995,27 @@ void square_update(void)
 
 	char num_string[128] = { 0 };
 	sprintf_s(num_string, 128, "The square of %.2f is %.2f", random_value, CP_Math_Square(random_value));
-  CP_Font_DrawTextBox(num_string, 0, CP_System_GetWindowHeight() * 0.5f, (float)CP_System_GetWindowWidth());
+	CP_Font_DrawTextBox(num_string, 0, CP_System_GetWindowHeight() * 0.5f, (float)CP_System_GetWindowWidth());
 }
 
 void align_test_init(void)
 {
 	CP_System_SetWindowSize(900, 400);
-  CP_Settings_TextSize(35);
+	CP_Settings_TextSize(35);
 }
 
 int h_choice = 0;
 int v_choice = 2;
 
 const char* h_text[] = { "LEFT ", "CENTER ", "RIGHT " };
-const char* v_text[] = { "TOP ", "MIDDLE ", "BASELINE ", "BOTTOM "};
+const char* v_text[] = { "TOP ", "MIDDLE ", "BASELINE ", "BOTTOM " };
 const char* sample_text = "Sample";
 void align_text_update(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
 	// Draw the crosshairs
-  CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
+	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
 	CP_Graphics_DrawLine(CP_System_GetWindowWidth() * 0.5f - 75, CP_System_GetWindowHeight() * 0.5f, CP_System_GetWindowWidth() * 0.5f + 75, CP_System_GetWindowHeight() * 0.5f);
 	CP_Graphics_DrawLine(CP_System_GetWindowWidth() * 0.5f, CP_System_GetWindowHeight() * 0.5f - 75, CP_System_GetWindowWidth() * 0.5f, CP_System_GetWindowHeight() * 0.5f + 75);
 
@@ -2038,10 +2038,10 @@ void align_text_update(void)
 	CP_TEXT_ALIGN_HORIZONTAL h_alignment = CP_TEXT_ALIGN_H_LEFT;
 	switch (h_choice)
 	{
-	case 0 :
+	case 0:
 		h_alignment = CP_TEXT_ALIGN_H_LEFT;
 		break;
-	case 1 :
+	case 1:
 		h_alignment = CP_TEXT_ALIGN_H_CENTER;
 		break;
 	case 2:
@@ -2066,7 +2066,7 @@ void align_text_update(void)
 		break;
 	}
 
-  CP_Settings_TextAlignment(h_alignment, v_alignment);
+	CP_Settings_TextAlignment(h_alignment, v_alignment);
 
 	// Create text to draw based on choices
 	char align_text[32] = { 0 };
@@ -2075,25 +2075,25 @@ void align_text_update(void)
 	strcat_s(align_text, 32, sample_text);
 
 	// Draw the text to the screen
-  CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
-  CP_Font_DrawText(align_text, CP_System_GetWindowWidth() * 0.5f, CP_System_GetWindowHeight() * 0.5f);
+	CP_Settings_Fill(CP_Color_Create(255, 0, 0, 255));
+	CP_Font_DrawText(align_text, CP_System_GetWindowWidth() * 0.5f, CP_System_GetWindowHeight() * 0.5f);
 
 	// Draw text telling user what to do
-  CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_TOP);
-  CP_Font_DrawTextBox("Use arrow keys to cycle through text alignments.", 0, 0, (float)CP_System_GetWindowWidth());
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_TOP);
+	CP_Font_DrawTextBox("Use arrow keys to cycle through text alignments.", 0, 0, (float)CP_System_GetWindowWidth());
 }
 
 void initRedRects(void)
 {
 	// test stuff
-  CP_System_SetWindowSize(800, 800);
+	CP_System_SetWindowSize(800, 800);
 
 	printf("this is a TEST (%i, %i)", CP_System_GetWindowWidth(), CP_System_GetWindowHeight());
 }
 
 void updateRedRects(void)
 {
-  CP_Settings_Fill(CP_Color_Create(CP_Random_RangeInt(0, 255), 0, 0, 255));
+	CP_Settings_Fill(CP_Color_Create(CP_Random_RangeInt(0, 255), 0, 0, 255));
 	float randW = CP_Random_RangeFloat(20, 200);
 	float randH = CP_Random_RangeFloat(20, 200);
 	float randX = CP_Random_RangeFloat(20, CP_System_GetWindowWidth() - 20 - randW);
@@ -2104,8 +2104,8 @@ void updateRedRects(void)
 void initCircleTests(void)
 {
 	// test stuff
-  CP_System_SetWindowSize(400, 400);
-  CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_System_SetWindowSize(400, 400);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
 }
 
 void updateCircleTests(void)
@@ -2117,33 +2117,33 @@ void updateCircleTests(void)
 void initHSVTests(void)
 {
 	// test stuff
-  CP_System_SetWindowSize(400, 400);
+	CP_System_SetWindowSize(400, 400);
 	CP_Settings_RectMode(CP_POSITION_CORNER);
 }
 
 void updateHSVTests(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 255));
 	CP_ColorHSL hsl = CP_ColorHSL_Create((CP_System_GetFrameCount() * 3) % 360, 100, 50, 255);
-  CP_Settings_Fill(CP_Color_FromColorHSL(hsl));
-  CP_Graphics_DrawRectAdvanced(10, 10, 380, 190, 0, 20);
+	CP_Settings_Fill(CP_Color_FromColorHSL(hsl));
+	CP_Graphics_DrawRectAdvanced(10, 10, 380, 190, 0, 20);
 
 	CP_Color rgb = CP_Color_Create((int)((sinf(CP_System_GetFrameCount() * 0.05f) + 1.0f) * 128.0f) % 256,
-					   (int)((sinf(CP_System_GetFrameCount() * 0.05f + 2.0f * (float)M_PI / 3.0f) + 1.0f) * 128.0f) % 256,
-					   (int)((sinf(CP_System_GetFrameCount() * 0.05f + 4.0f * (float)M_PI / 3.0f) + 1.0f) * 128.0f) % 256, 255);
-	
+		(int)((sinf(CP_System_GetFrameCount() * 0.05f + 2.0f * (float)M_PI / 3.0f) + 1.0f) * 128.0f) % 256,
+		(int)((sinf(CP_System_GetFrameCount() * 0.05f + 4.0f * (float)M_PI / 3.0f) + 1.0f) * 128.0f) % 256, 255);
+
 	//printf("rgb: %d, %d, %d\n", rgb.r, rgb.g, rgb.b);
 
-  CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_FromColor(rgb)));
-  CP_Graphics_DrawRectAdvanced(10, 210, 380, 190, 0, 20);
+	CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_FromColor(rgb)));
+	CP_Graphics_DrawRectAdvanced(10, 210, 380, 190, 0, 20);
 
 	CP_ColorHSL testColor1 = CP_ColorHSL_FromColor(CP_Color_Create(180, 0, 179, 255));
 	CP_ColorHSL testColor2 = CP_ColorHSL_FromColor(CP_Color_Create(179, 0, 180, 255));
 
-  CP_Settings_Fill(CP_Color_FromColorHSL(testColor1));
+	CP_Settings_Fill(CP_Color_FromColorHSL(testColor1));
 	CP_Graphics_DrawCircle(50, 50, 100);
 
-  CP_Settings_Fill(CP_Color_FromColorHSL(testColor2));
+	CP_Settings_Fill(CP_Color_FromColorHSL(testColor2));
 	CP_Graphics_DrawCircle(150, 150, 100);
 }
 
@@ -2154,35 +2154,35 @@ void updateHSVTests(void)
 float x_pos;
 void ForcedInit(void)
 {
-  // Start the square at the left of the screen
-  x_pos = 0;
+	// Start the square at the left of the screen
+	x_pos = 0;
 
-  // Set the square to draw yellow
-  CP_Settings_Fill(CP_Color_Create(255, 255, 0, 255));
+	// Set the square to draw yellow
+	CP_Settings_Fill(CP_Color_Create(255, 255, 0, 255));
 }
 
 void ForcedUpdate(void)
 {
-  // Set background to black
-  CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 255));
+	// Set background to black
+	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 255));
 
-  // Draw the square
-  CP_Graphics_DrawRect(x_pos, (float)CP_System_GetWindowHeight() / 2.0f, 100, 100);
-  x_pos += 2;
+	// Draw the square
+	CP_Graphics_DrawRect(x_pos, (float)CP_System_GetWindowHeight() / 2.0f, 100, 100);
+	x_pos += 2;
 
-  // If space pressed, reset the state 
-  if (CP_Input_KeyTriggered(KEY_SPACE))
-    CP_Engine_SetNextGameStateForced(ForcedInit, ForcedUpdate, NULL);
-  else if (CP_Input_KeyTriggered(KEY_Q))
-    CP_Engine_Terminate();
+	// If space pressed, reset the state
+	if (CP_Input_KeyTriggered(KEY_SPACE))
+		CP_Engine_SetNextGameStateForced(ForcedInit, ForcedUpdate, NULL);
+	else if (CP_Input_KeyTriggered(KEY_Q))
+		CP_Engine_Terminate();
 }
 
 void titleupdate(void)
 {
-  // Set the window title to the number of frames that have passed.
-  char buffer[256] = { 0 };
-  sprintf_s(buffer, 256, "%d frames have passed", CP_System_GetFrameCount());
-  CP_System_SetWindowTitle(buffer);
+	// Set the window title to the number of frames that have passed.
+	char buffer[256] = { 0 };
+	sprintf_s(buffer, 256, "%d frames have passed", CP_System_GetFrameCount());
+	CP_System_SetWindowTitle(buffer);
 }
 
 //*
@@ -2195,95 +2195,94 @@ void initsub(void)
 	CP_System_SetWindowSize(600, 600);
 	CP_Settings_ImageMode(CP_POSITION_CORNER);
 	CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_REPEAT);
-  whole = CP_Image_Load("./Assets/justin1.png");
+	whole = CP_Image_Load("./Assets/justin1.png");
 
-  x_size = CP_Image_GetWidth(whole) * 0.5f;
-  y_size = CP_Image_GetHeight(whole) * 0.5f;
+	x_size = CP_Image_GetWidth(whole) * 0.5f;
+	y_size = CP_Image_GetHeight(whole) * 0.5f;
 }
 
 void updatesub(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
-  float mx = CP_Input_GetMouseX();
-  float my = CP_Input_GetMouseY();
+	float mx = CP_Input_GetMouseX();
+	float my = CP_Input_GetMouseY();
 
-  float offset = (float)CP_System_GetFrameCount();
+	float offset = (float)CP_System_GetFrameCount();
 
-  // Draws the image with each quarter tinted a different color
-  CP_Settings_Tint(CP_Color_Create(255, 0, 0, 255));
-  CP_Image_DrawSubImage(whole, mx - x_size, my - y_size, x_size, y_size, 0 + offset, 0, x_size + offset, y_size, 255);
-  CP_Settings_Tint(CP_Color_Create(255, 255, 0, 255));
-  CP_Image_DrawSubImage(whole, mx, my - y_size, x_size, y_size, x_size + offset, 0, x_size * 2.0f + offset, y_size, 255);
-  CP_Settings_Tint(CP_Color_Create(0, 255, 0, 255));
-  CP_Image_DrawSubImage(whole, mx - x_size, my, x_size, y_size, 0 + offset, y_size, x_size + offset, y_size * 2.0f, 255);
-  CP_Settings_Tint(CP_Color_Create(0, 0, 255, 255));
-  CP_Image_DrawSubImage(whole, mx, my, x_size, y_size, x_size + offset, y_size, x_size * 2.0f + offset, y_size * 2.0f, 255);
+	// Draws the image with each quarter tinted a different color
+	CP_Settings_Tint(CP_Color_Create(255, 0, 0, 255));
+	CP_Image_DrawSubImage(whole, mx - x_size, my - y_size, x_size, y_size, 0 + offset, 0, x_size + offset, y_size, 255);
+	CP_Settings_Tint(CP_Color_Create(255, 255, 0, 255));
+	CP_Image_DrawSubImage(whole, mx, my - y_size, x_size, y_size, x_size + offset, 0, x_size * 2.0f + offset, y_size, 255);
+	CP_Settings_Tint(CP_Color_Create(0, 255, 0, 255));
+	CP_Image_DrawSubImage(whole, mx - x_size, my, x_size, y_size, 0 + offset, y_size, x_size + offset, y_size * 2.0f, 255);
+	CP_Settings_Tint(CP_Color_Create(0, 0, 255, 255));
+	CP_Image_DrawSubImage(whole, mx, my, x_size, y_size, x_size + offset, y_size, x_size * 2.0f + offset, y_size * 2.0f, 255);
 }
-
 
 CP_Image jImage;
 float x_size, y_size;
 
 void initbuff(void)
 {
-  jImage = CP_Image_Load("./Assets/image.png");
+	jImage = CP_Image_Load("./Assets/image.png");
 
-  x_size = (float)CP_Image_GetWidth(jImage);
-  y_size = (float)CP_Image_GetHeight(jImage);
+	x_size = (float)CP_Image_GetWidth(jImage);
+	y_size = (float)CP_Image_GetHeight(jImage);
 
-  CP_Settings_Fill(CP_Color_Create(230, 220, 220, 255));
-  CP_Settings_Stroke(CP_Color_Create(170, 180, 180, 255));
-  CP_Settings_StrokeWeight(20);
-  CP_Settings_TextSize(100);
-  CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Settings_Fill(CP_Color_Create(230, 220, 220, 255));
+	CP_Settings_Stroke(CP_Color_Create(170, 180, 180, 255));
+	CP_Settings_StrokeWeight(20);
+	CP_Settings_TextSize(100);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
 }
 
 CP_Image frameBuffer;
 
 void updatebuff(void)
 {
-  if(frameBuffer)
-    CP_Image_Free(&frameBuffer);
+	if (frameBuffer)
+		CP_Image_Free(&frameBuffer);
 
-  // Read in the frame buffer
-  frameBuffer = CP_Image_Screenshot(0, 0, CP_System_GetWindowWidth(), CP_System_GetWindowHeight());
-  
-  // Choose a random tint color
-  // WARNING: Causes flashing colors
-  CP_Color rTint = CP_Color_Create(100, 100, 100, 255);// CP_Color_Create(CP_Random_RangeInt(0, 255), CP_Random_RangeInt(0, 255), CP_Random_RangeInt(0, 255), CP_System_GetFrameCount() % 255);
+	// Read in the frame buffer
+	frameBuffer = CP_Image_Screenshot(0, 0, CP_System_GetWindowWidth(), CP_System_GetWindowHeight());
 
-  // Draw to the screen
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
-  CP_Settings_Tint(rTint);
-  CP_Graphics_DrawCircle(0, 0, 200);
-  CP_Image_Draw(jImage, CP_Input_GetMouseX(), CP_Input_GetMouseY(), (float)CP_System_GetWindowWidth() / 2.0f, (float)CP_System_GetWindowHeight() / 2.0f, 255);
-  CP_Font_DrawText("DEMO TINT", 50, 350);
-  CP_Settings_NoTint();
-  CP_Image_DrawSubImage(jImage, (float)CP_System_GetWindowWidth() / 2.0f, (float)CP_System_GetWindowHeight() / 2.0f, x_size * 0.5f, y_size * 0.5f, 100, 100, 300, 300, 255);
+	// Choose a random tint color
+	// WARNING: Causes flashing colors
+	CP_Color rTint = CP_Color_Create(100, 100, 100, 255);// CP_Color_Create(CP_Random_RangeInt(0, 255), CP_Random_RangeInt(0, 255), CP_Random_RangeInt(0, 255), CP_System_GetFrameCount() % 255);
+
+	// Draw to the screen
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Settings_Tint(rTint);
+	CP_Graphics_DrawCircle(0, 0, 200);
+	CP_Image_Draw(jImage, CP_Input_GetMouseX(), CP_Input_GetMouseY(), (float)CP_System_GetWindowWidth() / 2.0f, (float)CP_System_GetWindowHeight() / 2.0f, 255);
+	CP_Font_DrawText("DEMO TINT", 50, 350);
+	CP_Settings_NoTint();
+	CP_Image_DrawSubImage(jImage, (float)CP_System_GetWindowWidth() / 2.0f, (float)CP_System_GetWindowHeight() / 2.0f, x_size * 0.5f, y_size * 0.5f, 100, 100, 300, 300, 255);
 }
 
 void initfr(void)
 {
-  // Set frame rate to two frame a second
-  CP_System_SetFrameRate(2.0f);
+	// Set frame rate to two frame a second
+	CP_System_SetFrameRate(2.0f);
 
-  // Set parameters of the text
-  CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
-  CP_Settings_TextSize(64);
-  CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+	// Set parameters of the text
+	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));
+	CP_Settings_TextSize(64);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
 }
 
 void updatefr(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
-  // Create a string with the frame rate 
-  char buffer[128] = { 0 };
-  sprintf_s(buffer, 128, "%d frames have elapsed", CP_System_GetFrameCount());
+	// Create a string with the frame rate
+	char buffer[128] = { 0 };
+	sprintf_s(buffer, 128, "%d frames have elapsed", CP_System_GetFrameCount());
 
-  // Draw to the screen
-  CP_Font_DrawText(buffer, (float)CP_System_GetWindowWidth() / 2.0f, (float)CP_System_GetWindowHeight() / 2.0f);
+	// Draw to the screen
+	CP_Font_DrawText(buffer, (float)CP_System_GetWindowWidth() / 2.0f, (float)CP_System_GetWindowHeight() / 2.0f);
 }
 
 CP_Sound snare;
@@ -2292,61 +2291,61 @@ CP_Sound hiHat;
 
 void initS(void)
 {
-  snare = CP_Sound_Load("./Assets/Snare.wav");
-  cowbell = CP_Sound_Load("./Assets/Cowbell.wav");
-  hiHat = CP_Sound_Load("./Assets/HiHat.wav");
+	snare = CP_Sound_Load("./Assets/Snare.wav");
+	cowbell = CP_Sound_Load("./Assets/Cowbell.wav");
+	hiHat = CP_Sound_Load("./Assets/HiHat.wav");
 
-  CP_Sound_PlayAdvanced(snare, 1.0, 1.0, TRUE, CP_SOUND_GROUP_SFX);
-  CP_Sound_PlayAdvanced(hiHat, 1.0, 1.0, TRUE, CP_SOUND_GROUP_SFX);
+	CP_Sound_PlayAdvanced(snare, 1.0, 1.0, TRUE, CP_SOUND_GROUP_SFX);
+	CP_Sound_PlayAdvanced(hiHat, 1.0, 1.0, TRUE, CP_SOUND_GROUP_SFX);
 }
 
 bool isPaused = false;
 
 void updateS(void)
 {
-  // If the left mouse is clicked, play the sound
-  if (CP_Input_MouseClicked())
-    CP_Sound_PlayAdvanced(cowbell, 2.0, 0.5, FALSE, CP_SOUND_GROUP_SFX);
+	// If the left mouse is clicked, play the sound
+	if (CP_Input_MouseClicked())
+		CP_Sound_PlayAdvanced(cowbell, 2.0, 0.5, FALSE, CP_SOUND_GROUP_SFX);
 
-  // If space is pressed pause/unpause sounds
-  if (CP_Input_KeyTriggered(KEY_SPACE))
-  {
-    if (isPaused)
-    {
-      CP_Sound_PlayAdvanced(snare, 1.0, 1.0, TRUE, CP_SOUND_GROUP_SFX);
-      CP_Sound_PlayAdvanced(hiHat, 1.0, 1.0, TRUE, CP_SOUND_GROUP_SFX);
-    }
-    else
-      CP_Sound_StopAll();
+	// If space is pressed pause/unpause sounds
+	if (CP_Input_KeyTriggered(KEY_SPACE))
+	{
+		if (isPaused)
+		{
+			CP_Sound_PlayAdvanced(snare, 1.0, 1.0, TRUE, CP_SOUND_GROUP_SFX);
+			CP_Sound_PlayAdvanced(hiHat, 1.0, 1.0, TRUE, CP_SOUND_GROUP_SFX);
+		}
+		else
+			CP_Sound_StopAll();
 
-    // Invert the paused bool
-    isPaused = !isPaused;
-  }
+		// Invert the paused bool
+		isPaused = !isPaused;
+	}
 }
 
 CP_Image created;
 
 void inittint(void)
 {
-  unsigned char colors[] = { 255,0,0,255,   // Red
-                            255,255,0,255, // Yellow
-                            0,0,255,255,   // Blue
-                            0,255,0,255 };  // Green
+	unsigned char colors[] = { 255,0,0,255,   // Red
+							  255,255,0,255, // Yellow
+							  0,0,255,255,   // Blue
+							  0,255,0,255 };  // Green
 
-  created = CP_Image_CreateFromData(2, 2, colors);
-  CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_LINEAR);
+	created = CP_Image_CreateFromData(2, 2, colors);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_LINEAR);
 }
 
 void updatetint(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
-  CP_Settings_ImageFilterMode(CP_System_GetFrameCount() % 2);
-  CP_Image_Draw(created, (float)CP_System_GetWindowWidth() / 2.0f - 100, (float)CP_System_GetWindowHeight() / 2.0f, 100, 100, 255);
-  CP_Settings_ImageFilterMode((1 + CP_System_GetFrameCount()) % 2);
-  CP_Settings_Tint(CP_Color_Create(CP_Random_RangeInt(0, 255), 127, CP_Random_RangeInt(0, 255), 255));
-  CP_Image_Draw(created, (float)CP_System_GetWindowWidth() / 2.0f + 100, (float)CP_System_GetWindowHeight() / 2.0f, 100, 100, 255);
-  CP_Settings_NoTint();
+	CP_Settings_ImageFilterMode(CP_System_GetFrameCount() % 2);
+	CP_Image_Draw(created, (float)CP_System_GetWindowWidth() / 2.0f - 100, (float)CP_System_GetWindowHeight() / 2.0f, 100, 100, 255);
+	CP_Settings_ImageFilterMode((1 + CP_System_GetFrameCount()) % 2);
+	CP_Settings_Tint(CP_Color_Create(CP_Random_RangeInt(0, 255), 127, CP_Random_RangeInt(0, 255), 255));
+	CP_Image_Draw(created, (float)CP_System_GetWindowWidth() / 2.0f + 100, (float)CP_System_GetWindowHeight() / 2.0f, 100, 100, 255);
+	CP_Settings_NoTint();
 }
 
 void DrawGamepadData(float posX, float posY, int i)
@@ -2357,8 +2356,8 @@ void DrawGamepadData(float posX, float posY, int i)
 		return;
 	}
 
-  CP_Settings_Save();
-  CP_Settings_Translate(posX, posY);
+	CP_Settings_Save();
+	CP_Settings_Translate(posX, posY);
 
 	// find default gamepad
 	int defaultId = -1;
@@ -2374,14 +2373,14 @@ void DrawGamepadData(float posX, float posY, int i)
 	// INDEX and DEFAULT
 	char buffer[16] = { 0 };
 	sprintf_s(buffer, _countof(buffer), "Gamepad: %d", i + 1);
-  CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
-  CP_Font_DrawText(buffer, 10, 25);
+	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
+	CP_Font_DrawText(buffer, 10, 25);
 	if (defaultId == i)
 	{
-    CP_Font_DrawText("Default", 10, 45);
+		CP_Font_DrawText("Default", 10, 45);
 	}
 
-  CP_Settings_Translate(0, -5.0f);
+	CP_Settings_Translate(0, -5.0f);
 
 	// STICKS
 	float circleDiameter = 60.0f;
@@ -2389,64 +2388,64 @@ void DrawGamepadData(float posX, float posY, int i)
 	CP_Vector rightVec = CP_Vector_Zero(); rightVec.x = 1.0f;
 	CP_Vector stick = CP_Input_GamepadLeftStickAdvanced(i);
 	int stickClick = CP_Input_GamepadDownAdvanced(GAMEPAD_LEFT_THUMB, i) ? 80 : 50;
-  CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_Create(stick.y < 0 ? (int)CP_Vector_Angle(stick, rightVec) : 360 - (int)CP_Vector_Angle(stick, rightVec), (int)(CP_Vector_Length(stick) * 100), stickClick, (int)(CP_Vector_Length(stick) * 255) + (CP_Input_GamepadDownAdvanced(GAMEPAD_LEFT_THUMB, i) ? 255 : 0))));
+	CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_Create(stick.y < 0 ? (int)CP_Vector_Angle(stick, rightVec) : 360 - (int)CP_Vector_Angle(stick, rightVec), (int)(CP_Vector_Length(stick) * 100), stickClick, (int)(CP_Vector_Length(stick) * 255) + (CP_Input_GamepadDownAdvanced(GAMEPAD_LEFT_THUMB, i) ? 255 : 0))));
 	CP_Graphics_DrawCircle(100.0f + (stick.x * movementOffset), 180.0f + (-stick.y * movementOffset), circleDiameter);
 	stick = CP_Input_GamepadRightStickAdvanced(i);
 	stickClick = CP_Input_GamepadDownAdvanced(GAMEPAD_RIGHT_THUMB, i) ? 80 : 50;
-  CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_Create(stick.y < 0 ? (int)CP_Vector_Angle(stick, rightVec) : 360 - (int)CP_Vector_Angle(stick, rightVec), (int)(CP_Vector_Length(stick) * 100), stickClick, (int)(CP_Vector_Length(stick) * 255) + (CP_Input_GamepadDownAdvanced(GAMEPAD_RIGHT_THUMB, i) ? 255 : 0))));
+	CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_Create(stick.y < 0 ? (int)CP_Vector_Angle(stick, rightVec) : 360 - (int)CP_Vector_Angle(stick, rightVec), (int)(CP_Vector_Length(stick) * 100), stickClick, (int)(CP_Vector_Length(stick) * 255) + (CP_Input_GamepadDownAdvanced(GAMEPAD_RIGHT_THUMB, i) ? 255 : 0))));
 	CP_Graphics_DrawCircle(300.0f + (stick.x * movementOffset), 180.0f + (-stick.y * movementOffset), circleDiameter);
 
 	// TRIGGERS
 	float rectWidth = 80.0f;
-  CP_Input_GamepadDownAdvanced(GAMEPAD_LEFT_SHOULDER, i) ? CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255)) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(GAMEPAD_LEFT_SHOULDER, i) ? CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255)) : CP_Settings_NoFill();
 	CP_Graphics_DrawRect(60.0f, 80.0f, rectWidth, 20.0f);
-  CP_Input_GamepadDownAdvanced(GAMEPAD_RIGHT_SHOULDER, i) ? CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255)) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(GAMEPAD_RIGHT_SHOULDER, i) ? CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255)) : CP_Settings_NoFill();
 	CP_Graphics_DrawRect(260.0f, 80.0f, rectWidth, 20.0f);
 	float trigger = CP_Input_GamepadLeftTriggerAdvanced(i);
-  CP_Settings_Fill(CP_Color_Create(255 - (int)(trigger * 255), 0, (int)(trigger * 255), 255));
+	CP_Settings_Fill(CP_Color_Create(255 - (int)(trigger * 255), 0, (int)(trigger * 255), 255));
 	CP_Graphics_DrawRect(60.0f, 80.0f, trigger * rectWidth, 20.0f);
 	trigger = CP_Input_GamepadRightTriggerAdvanced(i);
-  CP_Settings_Fill(CP_Color_Create((int)(trigger * 255), 255, 0, 255));
+	CP_Settings_Fill(CP_Color_Create((int)(trigger * 255), 255, 0, 255));
 	CP_Graphics_DrawRect(260.0f, 80.0f, trigger * rectWidth, 20.0f);
 
 	// DPAD
 	CP_Settings_RectMode(CP_POSITION_CENTER);
 	float buttonSize = 30.0f;
 	CP_Color fillcolor = CP_Color_FromColorHSL(CP_ColorHSL_Create((int)(CP_System_GetSeconds() * 60.0f) % 360, 100, 50, 255));
-  CP_Input_GamepadDownAdvanced(GAMEPAD_DPAD_UP, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(GAMEPAD_DPAD_UP, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawRect(100.0f, 280.0f, buttonSize, buttonSize);
-  CP_Input_GamepadDownAdvanced(GAMEPAD_DPAD_LEFT, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(GAMEPAD_DPAD_LEFT, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawRect(60.0f, 320.0f, buttonSize, buttonSize);
-  CP_Input_GamepadDownAdvanced(GAMEPAD_DPAD_RIGHT, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(GAMEPAD_DPAD_RIGHT, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawRect(140.0f, 320.0f, buttonSize, buttonSize);
-  CP_Input_GamepadDownAdvanced(GAMEPAD_DPAD_DOWN, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(GAMEPAD_DPAD_DOWN, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawRect(100.0f, 360.0f, buttonSize, buttonSize);
 
 	// ABXY
-  CP_Input_GamepadDownAdvanced(GAMEPAD_Y, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(GAMEPAD_Y, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawCircle(300.0f, 280.0f, buttonSize);
-  CP_Input_GamepadDownAdvanced(GAMEPAD_X, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(GAMEPAD_X, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawCircle(260.0f, 320.0f, buttonSize);
-  CP_Input_GamepadDownAdvanced(GAMEPAD_B, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(GAMEPAD_B, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawCircle(340.0f, 320.0f, buttonSize);
-  CP_Input_GamepadDownAdvanced(GAMEPAD_A, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(GAMEPAD_A, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawCircle(300.0f, 360.0f, buttonSize);
 
-  CP_Settings_Restore();
+	CP_Settings_Restore();
 }
 
 void GamepadDemoInit(void)
 {
-  CP_System_SetWindowSize(800, 800);
+	CP_System_SetWindowSize(800, 800);
 	CP_System_SetFrameRate(60);
-  CP_Settings_TextSize(25);
-  CP_Settings_Stroke(CP_Color_Create(255, 255, 255, 255));
-  CP_Settings_StrokeWeight(3);
+	CP_Settings_TextSize(25);
+	CP_Settings_Stroke(CP_Color_Create(255, 255, 255, 255));
+	CP_Settings_StrokeWeight(3);
 }
 
 void GamepadDemoUpdate(void)
 {
-  CP_Graphics_ClearBackground(CP_Color_Create(40, 40, 40, 255));
+	CP_Graphics_ClearBackground(CP_Color_Create(40, 40, 40, 255));
 	CP_Graphics_DrawLine(CP_System_GetWindowWidth() * 0.5f, 0, CP_System_GetWindowWidth() * 0.5f, (float)CP_System_GetWindowHeight());
 	CP_Graphics_DrawLine(0, CP_System_GetWindowHeight() * 0.5f, (float)CP_System_GetWindowWidth(), CP_System_GetWindowHeight() * 0.5f);
 	DrawGamepadData(0, 0, 0);
@@ -2454,7 +2453,6 @@ void GamepadDemoUpdate(void)
 	DrawGamepadData(0, 400, 2);
 	DrawGamepadData(400, 400, 3);
 }
-
 
 void JUSTIN_DEMO_INIT(void)
 {
@@ -2491,23 +2489,22 @@ void JUSTIN_DEMO_UPDATE/*_GetFrameCount*/(void)
 
 void JUSTIN_DEMO_UPDATE_GetFrameCount(void)
 {
-    // print the current frame count to the center of the window
-    CP_Settings_TextSize(200);
-    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
-    CP_Graphics_ClearBackground(CP_Color_Create(200, 200, 200, 255));
-    CP_Settings_Fill(CP_Color_Create(100, 20, 100, 255));
-    
-    int currentFrameCount = CP_System_GetFrameCount();
-    
-    char buffer[16] = { 0 };
-    sprintf_s(buffer, _countof(buffer), "%i", currentFrameCount);
-    CP_Font_DrawText(buffer, 200, 200);
+	// print the current frame count to the center of the window
+	CP_Settings_TextSize(200);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+	CP_Graphics_ClearBackground(CP_Color_Create(200, 200, 200, 255));
+	CP_Settings_Fill(CP_Color_Create(100, 20, 100, 255));
+
+	int currentFrameCount = CP_System_GetFrameCount();
+
+	char buffer[16] = { 0 };
+	sprintf_s(buffer, _countof(buffer), "%i", currentFrameCount);
+	CP_Font_DrawText(buffer, 200, 200);
 }
 
 CP_Font fontSizeDemoFont = NULL;
 void JUSTIN_DEMO_UPDATE_FontSizeTest(void)
 {
-
 	//CP_Settings_TextSize(20);
 	//fontSizeDemoFont = CP_Font_Load("./Assets/Exo2-LightItalic.ttf");
 
@@ -2605,7 +2602,6 @@ void JUSTIN_DEMO_UPDATE_CAPandJOINT(void)
 			}
 		}
 	}
-
 }
 
 void JUSTIN_DEMO_UPDATE_DRAWLINES(void)	//NOT IMPLEMENTED - just uses AddVertex
@@ -2663,18 +2659,18 @@ void JUSTIN_DEMO_UPDATE_GETBOOL(void)
 
 void JUSTIN_DEMO_UPDATE_COLORHSV_FROMCOLOR(void)
 {
-    // Get the frameCount and create a starting color
-    int frameCount = CP_System_GetFrameCount();
-    CP_Color rgb = CP_Color_Create(255, 0, 0, 255);
-    
-    // Convert the starting color to HSV
-    CP_ColorHSL hsl = CP_ColorHSL_FromColor(rgb);
-    
-    // Shift the hue of the starting color based on the frameCount
-    hsl.h += frameCount * 3;
-    
-    // Convert back to RBG and set the background color
-    CP_Graphics_ClearBackground(CP_Color_FromColorHSL(hsl));
+	// Get the frameCount and create a starting color
+	int frameCount = CP_System_GetFrameCount();
+	CP_Color rgb = CP_Color_Create(255, 0, 0, 255);
+
+	// Convert the starting color to HSV
+	CP_ColorHSL hsl = CP_ColorHSL_FromColor(rgb);
+
+	// Shift the hue of the starting color based on the frameCount
+	hsl.h += frameCount * 3;
+
+	// Convert back to RBG and set the background color
+	CP_Graphics_ClearBackground(CP_Color_FromColorHSL(hsl));
 }
 
 void JUSTIN_DEMO_UPDATE_COLOR_FROMCOLORHSV(void)
@@ -2693,67 +2689,67 @@ void JUSTIN_DEMO_UPDATE_COLOR_FROMCOLORHSV(void)
 
 void JUSTIN_DEMO_UPDATE_COLORHSV_LERP(void)
 {
-    // Create colors for the four corners of the screen
-    CP_ColorHSL start = CP_ColorHSL_Create(0, 100, 50, 255);
-    CP_ColorHSL end = CP_ColorHSL_Create(359, 100, 50, 255);
-    
-    // Get the mouse position relative to the canvas
-    float mx = (float)CP_Input_GetMouseWorldX() / (float)CP_System_GetWindowWidth();
-    
-    // Clamp the values
-    mx = CP_Math_ClampFloat(mx, 0.0f, 1.0f);
-    
-    // Lerp the colors based on mouse position along the x-axis
-    CP_ColorHSL lerp = CP_ColorHSL_Lerp(start, end, mx);
-    
-    // Set the background based on the lerp
-    CP_Graphics_ClearBackground(CP_Color_FromColorHSL(lerp));
+	// Create colors for the four corners of the screen
+	CP_ColorHSL start = CP_ColorHSL_Create(0, 100, 50, 255);
+	CP_ColorHSL end = CP_ColorHSL_Create(359, 100, 50, 255);
+
+	// Get the mouse position relative to the canvas
+	float mx = (float)CP_Input_GetMouseWorldX() / (float)CP_System_GetWindowWidth();
+
+	// Clamp the values
+	mx = CP_Math_ClampFloat(mx, 0.0f, 1.0f);
+
+	// Lerp the colors based on mouse position along the x-axis
+	CP_ColorHSL lerp = CP_ColorHSL_Lerp(start, end, mx);
+
+	// Set the background based on the lerp
+	CP_Graphics_ClearBackground(CP_Color_FromColorHSL(lerp));
 }
 
 void JUSTIN_DEMO_UPDATE_COLOR_LERP(void)
 {
-    // Create colors for the four corners of the screen
-    CP_Color Red = CP_Color_Create(255, 0, 0, 255);
-    CP_Color Green = CP_Color_Create(0, 255, 0, 255);
-    CP_Color Blue = CP_Color_Create(0, 0, 255, 255);
-    CP_Color White = CP_Color_Create(255, 255, 255, 255);
-    
-    // Get the mouse position relative to the canvas
-    float mx = (float)CP_Input_GetMouseWorldX() / (float)CP_System_GetWindowWidth();
-    float my = (float)CP_Input_GetMouseWorldY() / (float)CP_System_GetWindowHeight();
-    
-    // Clamp the values
-    mx = CP_Math_ClampFloat(mx, 0.0f, 1.0f);
-    my = CP_Math_ClampFloat(my, 0.0f, 1.0f);
-    
-    // Lerp the colors based on position along the x-axis
-    CP_Color lerpx1 = CP_Color_Lerp(Red, Blue, mx);
-    CP_Color lerpx2 = CP_Color_Lerp(Green, White, mx);
-    
-    // Lerp the two previous colors based on y-axis position
-    CP_Color lerp = CP_Color_Lerp(lerpx1, lerpx2, my);
-    
-    // Set the background based on the lerp
-    CP_Graphics_ClearBackground(lerp);
+	// Create colors for the four corners of the screen
+	CP_Color Red = CP_Color_Create(255, 0, 0, 255);
+	CP_Color Green = CP_Color_Create(0, 255, 0, 255);
+	CP_Color Blue = CP_Color_Create(0, 0, 255, 255);
+	CP_Color White = CP_Color_Create(255, 255, 255, 255);
+
+	// Get the mouse position relative to the canvas
+	float mx = (float)CP_Input_GetMouseWorldX() / (float)CP_System_GetWindowWidth();
+	float my = (float)CP_Input_GetMouseWorldY() / (float)CP_System_GetWindowHeight();
+
+	// Clamp the values
+	mx = CP_Math_ClampFloat(mx, 0.0f, 1.0f);
+	my = CP_Math_ClampFloat(my, 0.0f, 1.0f);
+
+	// Lerp the colors based on position along the x-axis
+	CP_Color lerpx1 = CP_Color_Lerp(Red, Blue, mx);
+	CP_Color lerpx2 = CP_Color_Lerp(Green, White, mx);
+
+	// Lerp the two previous colors based on y-axis position
+	CP_Color lerp = CP_Color_Lerp(lerpx1, lerpx2, my);
+
+	// Set the background based on the lerp
+	CP_Graphics_ClearBackground(lerp);
 }
 
 void JUSTIN_DEMO_UPDATE_CP_COLORHSV(void)
 {
-    // Get the current framecount and set the background to black
-    int frameCount = CP_System_GetFrameCount();
-    CP_Graphics_ClearBackground(CP_Color_CreateHex(0x000000FF));
-    
-    // Use framecount to slowly change the HSV color through all colors of the rainbow
-    CP_ColorHSL hsl = CP_ColorHSL_Create(360 - (frameCount * 3), 100, 50, 255);
-    CP_Settings_Fill(CP_Color_FromColorHSL(hsl));
-    CP_Graphics_DrawRectAdvanced(10, 10, 380, 185, 0, 20);
-    
-    // Do some similar color math on RBG (less convenient)
-    CP_Color rgb = CP_Color_Create((int)((sinf(frameCount * 0.05f) + 1.0f) * 128.0f) % 256,
-        (int)((sinf(frameCount * 0.05f + 2.0f * (float)M_PI / 3.0f) + 1.0f) * 128.0f) % 256,
-        (int)((sinf(frameCount * 0.05f + 4.0f * (float)M_PI / 3.0f) + 1.0f) * 128.0f) % 256, 255);
-    CP_Settings_Fill(rgb);
-    CP_Graphics_DrawRectAdvanced(10, 205, 190, 185, 0, 20);
+	// Get the current framecount and set the background to black
+	int frameCount = CP_System_GetFrameCount();
+	CP_Graphics_ClearBackground(CP_Color_CreateHex(0x000000FF));
+
+	// Use framecount to slowly change the HSV color through all colors of the rainbow
+	CP_ColorHSL hsl = CP_ColorHSL_Create(360 - (frameCount * 3), 100, 50, 255);
+	CP_Settings_Fill(CP_Color_FromColorHSL(hsl));
+	CP_Graphics_DrawRectAdvanced(10, 10, 380, 185, 0, 20);
+
+	// Do some similar color math on RBG (less convenient)
+	CP_Color rgb = CP_Color_Create((int)((sinf(frameCount * 0.05f) + 1.0f) * 128.0f) % 256,
+		(int)((sinf(frameCount * 0.05f + 2.0f * (float)M_PI / 3.0f) + 1.0f) * 128.0f) % 256,
+		(int)((sinf(frameCount * 0.05f + 4.0f * (float)M_PI / 3.0f) + 1.0f) * 128.0f) % 256, 255);
+	CP_Settings_Fill(rgb);
+	CP_Graphics_DrawRectAdvanced(10, 205, 190, 185, 0, 20);
 
 	int hex = 0;
 	hex |= rgb.r << 24;
@@ -2767,36 +2763,35 @@ void JUSTIN_DEMO_UPDATE_CP_COLORHSV(void)
 
 void JUSTIN_DEMO_UPDATE_CP_COLOR(void)
 {
-    // Use the CP_Color_Create function to create a variable
-    CP_Color color1 = CP_Color_Create(255, 40, 100, 255);
-    
-    // Set the background with color1 (berry red)
-    CP_Graphics_ClearBackground(color1);
-    
-    // Create a color and pass it directly as a function parameter
-    CP_Settings_Fill(CP_Color_Create(0, 200, 255, 255));
-    
-    // Draw a rectangle at the top left of the screen (blue)
-    float rectWidth = CP_System_GetWindowWidth() * 0.5f;
-    float rectHeight = CP_System_GetWindowHeight() * 0.5f;
-    CP_Graphics_DrawRect(0, 0, rectWidth, rectHeight);
-    
-    // Create a third CP_Color and set the values by accessing the array
-    CP_Color color3;
-    color3.rgba[0] = 150;	// Red
-    color3.rgba[1] = 255;	// Green
-    color3.rgba[2] = 40;	// Blue
-    color3.rgba[3] = 255;	// Alpha (transparency)
-    
-    // Set the fill color for the final shape
-    CP_Settings_Fill(color3);
-    
-    // Draw another smaller rectange (green)
-    rectWidth = CP_System_GetWindowWidth() * 0.4f;
-    rectHeight = CP_System_GetWindowHeight() * 0.4f;
-    CP_Graphics_DrawRect(0, 0, rectWidth, rectHeight);
-}
+	// Use the CP_Color_Create function to create a variable
+	CP_Color color1 = CP_Color_Create(255, 40, 100, 255);
 
+	// Set the background with color1 (berry red)
+	CP_Graphics_ClearBackground(color1);
+
+	// Create a color and pass it directly as a function parameter
+	CP_Settings_Fill(CP_Color_Create(0, 200, 255, 255));
+
+	// Draw a rectangle at the top left of the screen (blue)
+	float rectWidth = CP_System_GetWindowWidth() * 0.5f;
+	float rectHeight = CP_System_GetWindowHeight() * 0.5f;
+	CP_Graphics_DrawRect(0, 0, rectWidth, rectHeight);
+
+	// Create a third CP_Color and set the values by accessing the array
+	CP_Color color3;
+	color3.rgba[0] = 150;	// Red
+	color3.rgba[1] = 255;	// Green
+	color3.rgba[2] = 40;	// Blue
+	color3.rgba[3] = 255;	// Alpha (transparency)
+
+	// Set the fill color for the final shape
+	CP_Settings_Fill(color3);
+
+	// Draw another smaller rectange (green)
+	rectWidth = CP_System_GetWindowWidth() * 0.4f;
+	rectHeight = CP_System_GetWindowHeight() * 0.4f;
+	CP_Graphics_DrawRect(0, 0, rectWidth, rectHeight);
+}
 
 // main() the starting point for the program
 // Run() is used to tell the program which init and update functions to use.
@@ -2810,7 +2805,6 @@ int main(void)
 	// setKeyboardInputCallback(callback_key);
 	// setMouseInputCallback(callback_mouse);
 	// setMouseWheelCallback(callback_wheel);
-
 
 	// Currently allows any void(*)(void) function
 	//  Setup (called once)           Draw (looped)
@@ -3000,16 +2994,12 @@ int main(void)
 
 	//fullscreen();
 	//SetNextGameState(init0, update0, NULL);
-	
+
 	Run();
 	return 0;
 }
 
 //*/
-
-
-
-
 
 /*
 
@@ -3050,9 +3040,11 @@ void DrawCircles()
 	// red circle
 	fill(CP_Color_Create(255, bonusColor, 0, A));
 	CP_Graphics_DrawCircle(centerX - offset, centerY - offset, circleRadius);
+
 	// green circle
 	fill(CP_Color_Create(0, 255, bonusColor, A));
 	CP_Graphics_DrawCircle(centerX + offset, centerY - offset, circleRadius);
+
 	// blue circle
 	fill(CP_Color_Create(bonusColor, 0, 255, A));
 	CP_Graphics_DrawCircle(centerX, centerY + offset, circleRadius);
@@ -3081,16 +3073,19 @@ void HandleInput()
 	{
 		IsCMY = !IsCMY;
 	}
+
 	// Press "A" to toggle alpha value to draw semi-transparent circles
 	if (CP_Input_KeyReleased(KEY_A))
 	{
 		IsAlpha = !IsAlpha;
 	}
+
 	// Press "]" to switch blend mode
 	if (CP_Input_KeyReleased(KEY_RIGHT_BRACKET))
 	{
 		++currBlendMode;
 	}
+
 	// Press "[" to switch blend mode
 	else if (CP_Input_KeyReleased(KEY_LEFT_BRACKET))
 	{
@@ -3123,10 +3118,6 @@ void blendModeExampleUpdate()
 	debugInputChecks();
 }
 
-
-
-
-
 int noiseExampleFrameCount = 0;
 
 void noiseExampleInit()
@@ -3146,8 +3137,6 @@ void noiseExampleUpdate()
 	debugInputChecks();
 }
 
-
-
 void ___init()
 {
 	save();
@@ -3164,8 +3153,6 @@ void ___update()
 	fullscreenAdvanced(1280, 720);
 	SetNextGameState(blendModeExampleInit, blendModeExampleUpdate, ___restoreSave);
 }
-
-
 
 static int gameStateIndex = 1;
 static const int gsIndexMax = 2;
@@ -3215,9 +3202,6 @@ void debugInputChecks()
 	}
 }
 
-
-
-
 // main() the starting point for the program
 // Run() is used to tell the program which init and update functions to use.
 int main(void)
@@ -3229,6 +3213,5 @@ int main(void)
 	Run();
 	return 0;
 }
-
 
 */

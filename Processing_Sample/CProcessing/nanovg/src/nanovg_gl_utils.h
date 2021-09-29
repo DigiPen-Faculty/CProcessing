@@ -37,9 +37,11 @@ void nvgluDeleteFramebuffer(NVGLUframebuffer* fb);
 #ifdef NANOVG_GL_IMPLEMENTATION
 
 #if defined(NANOVG_GL3) || defined(NANOVG_GLES2) || defined(NANOVG_GLES3)
+
 // FBO is core in OpenGL 3>.
 #	define NANOVG_FBO_VALID 1
 #elif defined(NANOVG_GL2)
+
 // On OS X including glext defines FBO on GL2 too.
 #	ifdef __APPLE__
 #		include <OpenGL/glext.h>
@@ -92,6 +94,7 @@ NVGLUframebuffer* nvgluCreateFramebuffer(NVGcontext* ctx, int w, int h, int imag
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 #ifdef GL_DEPTH24_STENCIL8
+
 		// If GL_STENCIL_INDEX8 is not supported, try GL_DEPTH24_STENCIL8 as a fallback.
 		// Some graphics cards require a depth buffer along with a stencil.
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w, h);

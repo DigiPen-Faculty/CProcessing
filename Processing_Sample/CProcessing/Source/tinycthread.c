@@ -708,7 +708,7 @@ extern "C" {
 		}
 		else {
 			return -2;
-	}
+		}
 #else
 		struct timespec start;
 		DWORD t;
@@ -816,7 +816,7 @@ extern "C" {
 #else
 		return pthread_getspecific(key);
 #endif
-		}
+	}
 
 	int tss_set(tss_t key, void* val)
 	{
@@ -929,5 +929,5 @@ extern "C" {
 #endif /* defined(_TTHREAD_WIN32_) */
 
 #ifdef __cplusplus
-	}
+}
 #endif
