@@ -56,7 +56,7 @@ static void CP_AddImageHandle(CP_Image img)
 	if (image_num == image_max)
 	{
 		// store the current array
-		CP_Image * const temp = images;
+		CP_Image * temp = images;
 		// allocate an array twice the size
 		images = (CP_Image*)calloc(image_max * 2, sizeof(CP_Image));
 		// copy over the old data
@@ -109,16 +109,16 @@ static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float
 		break;
 	}
 
-	float const a = CP_Math_ClampInt(alpha, 0, 255) / 255.0f;
+	const float a = CP_Math_ClampInt(alpha, 0, 255) / 255.0f;
 
 	// translate and scale image pattern for subimages
 	NVGpaint image = { 0 };
 	if (s0 != s1 && t0 != t1)
 	{
-		float const posRatioX = (w / (s1 - s0));
-		float const posRatioY = (h / (t1 - t0));
-		float const scaleRatioX = (img->w / w) * posRatioX;
-		float const scaleRatioY = (img->h / h) * posRatioY;
+		const float posRatioX = (w / (s1 - s0));
+		const float posRatioY = (h / (t1 - t0));
+		const float scaleRatioX = (img->w / w) * posRatioX;
+		const float scaleRatioY = (img->h / h) * posRatioY;
 
 		image = nvgImagePattern(CORE->nvg, x - s0 * posRatioX, y - t0 * posRatioY, w * scaleRatioX, h * scaleRatioY, 0, img->handle, a);
 	}
