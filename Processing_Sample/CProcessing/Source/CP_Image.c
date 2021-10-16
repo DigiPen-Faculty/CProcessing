@@ -306,12 +306,23 @@ CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 	{
 		return NULL;
 	}
+	CP_CorePtr CORE = GetCPCore();
+
+	// glReadPixles uses x,y as the lower left, so lets convert that
+	// to the top right for the sake of consistency
+	y = (CORE->window_height - h) - y;
+
+	// flush nanovg so image can be captured
+	nvgEndFrame(CORE->nvg);
 
 	glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
+	nvgBeginFrame(CORE->nvg, CORE->window_width, CORE->window_height, CORE->pixel_ratio);
+
 	int rowWidth = w * 4;
 	int size = h;
-	for (int rowIndex = 0; rowIndex < size / 2; ++rowIndex) // loop through each row
+	
+	for (int rowIndex = 0; rowIndex < (size / 2); ++rowIndex) // loop through each row
 	{
 		unsigned char* rowFront = &buffer[rowIndex * rowWidth];
 		unsigned char* rowBack = &buffer[(h - rowIndex - 1) * rowWidth];
