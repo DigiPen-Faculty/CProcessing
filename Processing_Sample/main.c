@@ -1918,11 +1918,19 @@ void vector2_update(void)
   CP_Font_DrawText(vec_text, 0, 200);
 }
 
-CP_Image justin_face;
+static CP_Image justin_face;
+static CP_Image quad_justin_face;
+static float x_size, y_size;
+
 void i_init(void)
 {
 	justin_face = CP_Image_Load("./Assets/justin1.png");
+	quad_justin_face = CP_Image_Load("./Assets/quad-justin.png");
+
+	x_size = CP_Image_GetWidth(quad_justin_face) * 0.5f;
+	y_size = CP_Image_GetHeight(quad_justin_face) * 0.5f;
 }
+
 float rot_counter = 0;
 void i_update(void)
 {
@@ -1937,7 +1945,20 @@ void i_update(void)
   CP_Graphics_ClearBackground(CP_Color_Create(255, 255, 255, 255));
 
 	CP_Settings_Tint(CP_Color_Create(CP_System_GetFrameCount(), 0, 0, 255));
-	CP_Image_DrawAdvanced(justin_face, CP_Input_GetMouseX(), CP_Input_GetMouseY(), 100, 150, 255, rot);
+
+	static CP_BOOL DrawSubImage = false;
+	if (CP_Input_KeyTriggered(KEY_SPACE))
+	{
+		DrawSubImage = !DrawSubImage;
+	}
+	if (DrawSubImage == false)
+	{
+		CP_Image_DrawAdvanced(justin_face, CP_Input_GetMouseX(), CP_Input_GetMouseY(), 100, 150, 255, rot);
+	}
+	else
+	{
+		CP_Image_DrawSubImageAdvanced(quad_justin_face, CP_Input_GetMouseX(), CP_Input_GetMouseY(), 100, 150, 0.0F, 0.0F, x_size, y_size, 255, rot);
+	}
 	// restore the tint color
 	CP_Settings_NoTint();
 }
@@ -2843,7 +2864,7 @@ int main(void)
 	//CP_Engine_SetNextGameState(dt_init, dt_example, NULL);
 	//CP_Engine_SetNextGameState(save_restore_test_init, save_restore_test_update, NULL);
 	//CP_Engine_SetNextGameState(matrix_test_init2, matrix_test_update2, NULL);
-	//CP_Engine_SetNextGameState(i_init, i_update, NULL);
+	CP_Engine_SetNextGameState(i_init, i_update, NULL);
 	//CP_Engine_SetNextGameState(transpose_init, transpose_test, NULL);
 	//CP_Engine_SetNextGameState(vector_init, vector_update, NULL);
 	//CP_Engine_SetNextGameState(vector_init, vector_update, NULL);
@@ -2867,7 +2888,7 @@ int main(void)
 	//CP_Engine_SetNextGameState(initfr, updatefr, NULL);
 	//CP_Engine_SetNextGameState(inittint, updatetint, NULL);
 
-	CP_Engine_SetNextGameState(JUSTIN_DEMO_INIT, JUSTIN_DEMO_UPDATE_CP_COLORHSV, NULL);
+	// CP_Engine_SetNextGameState(JUSTIN_DEMO_INIT, JUSTIN_DEMO_UPDATE_CP_COLORHSV, NULL);
 
 	CP_Engine_Run();
 	return 0;
