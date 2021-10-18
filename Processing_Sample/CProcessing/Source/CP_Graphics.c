@@ -158,6 +158,32 @@ CP_API void CP_Graphics_DrawRectAdvanced(float x, float y, float w, float h, flo
 	CP_Graphics_DrawRectInternal(x, y, w, h, degrees, cornerRadius);
 }
 
+static CP_Vector GetDimensions(float x0, float y0, float x1, float y1)
+{
+	static const float Multipliers[] =
+	{
+		/* CP_POSITION_CENTER */ 2.0F,
+		/* CP_POSITION_CORNER */ 1.0F,
+	};
+	CP_DrawInfoPtr DI = GetDrawInfo();
+	const float w = (x1 - x0) * Multipliers[DI->rect_mode];
+	const float h = (y1 - y0) * Multipliers[DI->rect_mode];
+	const CP_Vector data = {w, h};
+	return data;
+}
+
+CP_API void CP_Graphics_DrawRectPoints(float x0, float y0, float x1, float y1)
+{
+	CP_Vector d = GetDimensions(x0, y0, x1, y1);
+	CP_Graphics_DrawRectInternal(x0, y0, d.x, d.y, 0, 0);
+}
+
+CP_API void CP_Graphics_DrawRectPointsAdvanced(float x0, float y0, float x1, float y1, float degrees, float cornerRadius)
+{
+	CP_Vector d = GetDimensions(x0, y0, x1, y1);
+	CP_Graphics_DrawRectInternal(x0, y0, d.x, d.y, degrees, cornerRadius);
+}
+
 CP_API void CP_Graphics_DrawCircle(float x, float y, float d)
 {
 	CP_Graphics_DrawEllipse(x, y, d, d);

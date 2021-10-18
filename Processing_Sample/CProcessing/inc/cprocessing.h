@@ -135,6 +135,8 @@ CP_API void				CP_Graphics_DrawLine				(float x1, float y1, float x2, float y2);
 CP_API void				CP_Graphics_DrawLineAdvanced		(float x1, float y1, float x2, float y2, float degrees);
 CP_API void				CP_Graphics_DrawRect				(float x, float y, float w, float h);
 CP_API void				CP_Graphics_DrawRectAdvanced		(float x, float y, float w, float h, float degrees, float cornerRadius);
+CP_API void				CP_Graphics_DrawRectPoints			(float x0, float y0, float x1, float y1);
+CP_API void				CP_Graphics_DrawRectPointsAdvanced	(float x0, float y0, float x1, float y1, float degrees, float cornerRadius);
 CP_API void				CP_Graphics_DrawCircle				(float x, float y, float d);
 CP_API void				CP_Graphics_DrawEllipse				(float x, float y, float w, float h);
 CP_API void				CP_Graphics_DrawEllipseAdvanced		(float x, float y, float w, float h, float degrees);
