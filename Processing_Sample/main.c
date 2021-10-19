@@ -2476,6 +2476,81 @@ void GamepadDemoUpdate(void)
 	DrawGamepadData(400, 400, 3);
 }
 
+static float rectangle_width = 40.0F;
+static float rectangle_height = 20.0F;
+static CP_POSITION_MODE position_mode;
+static CP_BOOL from_points = false;
+static CP_BOOL rotating_rectangle = false;
+static CP_BOOL corner_radii = false;
+void RectangleOptionsTestInit(void)
+{
+	rectangle_width = 40.0F;
+	rectangle_height = 20.0F;
+	position_mode = CP_POSITION_CORNER;
+	from_points = false;
+	rotating_rectangle = false;
+}
+
+void RectangleOptionsTestUpdate(void)
+{
+	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 255));
+	/// Toggle position mode
+	if (CP_Input_KeyTriggered(KEY_1)) position_mode = !position_mode;
+	/// Toggle drawing from points
+	if (CP_Input_KeyTriggered(KEY_2)) from_points = !from_points;
+	/// Toggle drawing the rectangle as a rotating object
+	if (CP_Input_KeyTriggered(KEY_3)) rotating_rectangle = !rotating_rectangle;
+	/// Toggle drawing the corner radii
+	if (CP_Input_KeyTriggered(KEY_4)) corner_radii = !corner_radii;
+
+	float mouse_x = CP_Input_GetMouseX();
+	float mouse_y = CP_Input_GetMouseY();
+
+	float width = rectangle_width;
+	float height = rectangle_height;
+
+	CP_Settings_RectMode(position_mode);
+
+	if (CP_Input_MouseClicked())
+	{
+		DebugBreak();
+	}
+
+	const float corner_radius = corner_radii ? rectangle_height / 4.0F : 0.0F;
+	const float degrees = rotating_rectangle ? CP_System_GetSeconds() * 360.0F : 0.0F;
+
+	if (from_points)
+	{
+		float x1 = mouse_x + rectangle_width;
+		float y1 = mouse_y + rectangle_height;
+
+		if (corner_radii || rotating_rectangle)
+		{
+			CP_Graphics_DrawRectPointsAdvanced(mouse_x, mouse_y, x1, y1, degrees, corner_radius);
+		}
+		else
+		{
+			CP_Graphics_DrawRectPoints(mouse_x, mouse_y, x1, y1);
+		}
+	}
+	else
+	{
+		if (position_mode == CP_POSITION_CENTER)
+		{
+			mouse_x += rectangle_width / 2.0F;
+			mouse_y += rectangle_height / 2.0F;
+		}
+
+		if (corner_radii || rotating_rectangle)
+		{
+			CP_Graphics_DrawRectAdvanced(mouse_x, mouse_y, width, height, degrees, corner_radius);
+		}
+		else
+		{
+			CP_Graphics_DrawRect(mouse_x, mouse_y, width, height);
+		}
+	}
+}
 
 void JUSTIN_DEMO_INIT(void)
 {
@@ -2864,13 +2939,13 @@ int main(void)
 	//CP_Engine_SetNextGameState(dt_init, dt_example, NULL);
 	//CP_Engine_SetNextGameState(save_restore_test_init, save_restore_test_update, NULL);
 	//CP_Engine_SetNextGameState(matrix_test_init2, matrix_test_update2, NULL);
-	CP_Engine_SetNextGameState(i_init, i_update, NULL);
+	// CP_Engine_SetNextGameState(i_init, i_update, NULL);
 	//CP_Engine_SetNextGameState(transpose_init, transpose_test, NULL);
 	//CP_Engine_SetNextGameState(vector_init, vector_update, NULL);
 	//CP_Engine_SetNextGameState(vector_init, vector_update, NULL);
 	//CP_Engine_SetNextGameState(deg_rad_init, deg_rad_update, NULL);
 	//CP_Engine_SetNextGameState(init, update, NULL);
-	//CP_Engine_SetNextGameState(square_init, square_update, NULL);
+	// CP_Engine_SetNextGameState(square_init, square_update, NULL);
 	//CP_Engine_SetNextGameState(align_test_init, align_text_update, NULL);
 	//CP_Engine_SetNextGameState(matrix_test_init, matrix_test_update, NULL);
 	//CP_Engine_SetNextGameState(DancingLinesInit, DancingLinesUpdate, NULL);
@@ -2888,7 +2963,8 @@ int main(void)
 	//CP_Engine_SetNextGameState(initfr, updatefr, NULL);
 	//CP_Engine_SetNextGameState(inittint, updatetint, NULL);
 
-	// CP_Engine_SetNextGameState(JUSTIN_DEMO_INIT, JUSTIN_DEMO_UPDATE_CP_COLORHSV, NULL);
+	CP_Engine_SetNextGameState(JUSTIN_DEMO_INIT, JUSTIN_DEMO_UPDATE_CP_COLORHSV, NULL);
+	CP_Engine_SetNextGameState(RectangleOptionsTestInit , RectangleOptionsTestUpdate, NULL);
 
 	CP_Engine_Run();
 	return 0;

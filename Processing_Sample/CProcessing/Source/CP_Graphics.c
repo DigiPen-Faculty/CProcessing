@@ -174,14 +174,18 @@ static CP_Vector GetDimensions(float x0, float y0, float x1, float y1)
 
 CP_API void CP_Graphics_DrawRectPoints(float x0, float y0, float x1, float y1)
 {
-	CP_Vector d = GetDimensions(x0, y0, x1, y1);
-	CP_Graphics_DrawRectInternal(x0, y0, d.x, d.y, 0, 0);
+	const CP_POSITION_MODE position_mode = GetDrawInfo()->rect_mode;
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Graphics_DrawRectInternal(x0, y0, x1-x0, y1-y0, 0, 0);
+	CP_Settings_RectMode(position_mode);
 }
 
 CP_API void CP_Graphics_DrawRectPointsAdvanced(float x0, float y0, float x1, float y1, float degrees, float cornerRadius)
 {
-	CP_Vector d = GetDimensions(x0, y0, x1, y1);
-	CP_Graphics_DrawRectInternal(x0, y0, d.x, d.y, degrees, cornerRadius);
+	const CP_POSITION_MODE position_mode = GetDrawInfo()->rect_mode;
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Graphics_DrawRectInternal(x0, y0, x1-x0, y1-y0, degrees, cornerRadius);
+	CP_Settings_RectMode(position_mode);
 }
 
 CP_API void CP_Graphics_DrawCircle(float x, float y, float d)
