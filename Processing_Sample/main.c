@@ -2552,6 +2552,46 @@ void RectangleOptionsTestUpdate(void)
 	}
 }
 
+static CP_Vector mouse_positions[2];
+static CP_BOOL generate_new_box = false;
+static CP_POSITION_MODE position_mode = CP_POSITION_CORNER;
+void RectangleBoxMakingInit(void)
+{
+	generate_new_box = false;
+	position_mode = CP_POSITION_CORNER;
+}
+
+void RectangleBoxMakingUpdate(void)
+{
+	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 255));
+
+	float x = CP_Input_GetMouseX();
+	float y = CP_Input_GetMouseY();
+	
+	if (CP_Input_KeyTriggered(KEY_SPACE))
+	{
+		position_mode = !position_mode;
+	}
+
+	CP_Settings_RectMode(position_mode);
+
+	if (CP_Input_MouseClicked())
+	{
+		generate_new_box = !generate_new_box;
+		if (generate_new_box)
+		{
+			mouse_positions[0].x = x;
+			mouse_positions[0].y = y;
+		}
+	}
+	if (generate_new_box)
+	{
+		mouse_positions[1].x = x;
+		mouse_positions[1].y = y;
+	}
+	CP_Graphics_DrawRectPoints(mouse_positions[0].x, mouse_positions[0].y, mouse_positions[1].x, mouse_positions[1].y);
+}
+
 void JUSTIN_DEMO_INIT(void)
 {
 	CP_System_SetFrameRate(10);
@@ -2965,6 +3005,7 @@ int main(void)
 
 	CP_Engine_SetNextGameState(JUSTIN_DEMO_INIT, JUSTIN_DEMO_UPDATE_CP_COLORHSV, NULL);
 	CP_Engine_SetNextGameState(RectangleOptionsTestInit , RectangleOptionsTestUpdate, NULL);
+	CP_Engine_SetNextGameState(RectangleBoxMakingInit, RectangleBoxMakingUpdate, NULL);
 
 	CP_Engine_Run();
 	return 0;
