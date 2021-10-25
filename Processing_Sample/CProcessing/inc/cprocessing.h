@@ -70,6 +70,7 @@ CP_API void				CP_System_Fullscreen				(void);
 CP_API void				CP_System_FullscreenAdvanced		(int targetWidth, int targetHeight);
 CP_API int				CP_System_GetWindowWidth			(void);
 CP_API int				CP_System_GetWindowHeight			(void);
+CP_API float			CP_System_GetWindowRefreshRate		(void);
 CP_API int				CP_System_GetDisplayWidth			(void);
 CP_API int				CP_System_GetDisplayHeight			(void);
 CP_API HWND				CP_System_GetWindowHandle			(void);
