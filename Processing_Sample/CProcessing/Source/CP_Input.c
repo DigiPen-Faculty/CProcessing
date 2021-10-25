@@ -168,7 +168,7 @@ void CP_Input_MouseWheelCallback(GLFWwindow * window, double xoffset, double yof
 void CP_Input_Init(void)
 {
 	// setup sparse vector for keyboard valid keys
-	for (int i = 0; i < CP_VALID_KEY_MAX; ++i)
+	for (unsigned i = 0; i < CP_VALID_KEY_MAX; ++i)
 	{
 		valid_keys_sparse[valid_keys[i]] = true;
 	}
@@ -191,14 +191,14 @@ void CP_Input_KeyboardUpdate(void)
 {
 	// Move current  -> previous
 	//      realtime -> current
-	int size = sizeof(key_states_previous[0]) * CP_NUM_KEYS;
+	unsigned size = sizeof(key_states_previous[0]) * CP_NUM_KEYS;
 	memcpy_s(key_states_previous, size, key_states_current, size);
 	memcpy_s(key_states_current, size, key_states_realtime, size);
 	// track values for ANY key
 	key_any_triggered = false;
 	key_any_down = false;
 	key_any_released = false;
-	for (int keyCode = 0; keyCode < CP_NUM_KEYS; ++keyCode)
+	for (unsigned keyCode = 0; keyCode < CP_NUM_KEYS; ++keyCode)
 	{
 		if (!key_any_triggered && key_states_current[keyCode] && !key_states_previous[keyCode])
 		{
@@ -328,7 +328,7 @@ void CP_Input_SetWorldMouseDirty(void)
 	_worldMouseIsDirty = TRUE;
 }
 
-int CP_Input_IsValidKey(CP_KEY key)
+CP_BOOL CP_Input_IsValidKey(CP_KEY key)
 {
 	if (key < 0 || key >= CP_NUM_KEYS)
 	{
@@ -338,17 +338,17 @@ int CP_Input_IsValidKey(CP_KEY key)
 	return valid_keys_sparse[key];
 }
 
-int CP_Input_IsValidMouse(CP_MOUSE button)
+CP_BOOL CP_Input_IsValidMouse(CP_MOUSE button)
 {
     return (button >= 0 && button <= MOUSE_BUTTON_LAST);
 }
 
-int CP_Input_IsValidGamepad(CP_GAMEPAD button)
+CP_BOOL CP_Input_IsValidGamepad(CP_GAMEPAD button)
 {
 	return (button >= 0 && button <= GAMEPAD_Y);
 }
 
-int CP_Input_IsValidGamepadIndex(int index)
+CP_BOOL CP_Input_IsValidGamepadIndex(unsigned index)
 {
 	return index >= 0 && index < 4;
 }
@@ -546,7 +546,7 @@ CP_API CP_BOOL CP_Input_GamepadTriggered(CP_GAMEPAD button)
 	return CP_Input_GamepadTriggeredAdvanced(button, _defaultGamepadId);
 }
 
-CP_API CP_BOOL CP_Input_GamepadTriggeredAdvanced(CP_GAMEPAD button, int gamepadIndex)
+CP_API CP_BOOL CP_Input_GamepadTriggeredAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
 {
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
@@ -563,7 +563,7 @@ CP_API CP_BOOL CP_Input_GamepadReleased(CP_GAMEPAD button)
 	return CP_Input_GamepadReleasedAdvanced(button, _defaultGamepadId);
 }
 
-CP_API CP_BOOL CP_Input_GamepadReleasedAdvanced(CP_GAMEPAD button, int gamepadIndex)
+CP_API CP_BOOL CP_Input_GamepadReleasedAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
 {
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
@@ -580,7 +580,7 @@ CP_API CP_BOOL CP_Input_GamepadDown(CP_GAMEPAD button)
 	return CP_Input_GamepadDownAdvanced(button, _defaultGamepadId);
 }
 
-CP_API CP_BOOL CP_Input_GamepadDownAdvanced(CP_GAMEPAD button, int gamepadIndex)
+CP_API CP_BOOL CP_Input_GamepadDownAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
 {
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
@@ -597,7 +597,7 @@ CP_API float CP_Input_GamepadRightTrigger(void)
 	return CP_Input_GamepadRightTriggerAdvanced(_defaultGamepadId);
 }
 
-CP_API float CP_Input_GamepadRightTriggerAdvanced(int gamepadIndex)
+CP_API float CP_Input_GamepadRightTriggerAdvanced(unsigned gamepadIndex)
 {
 	if (CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
@@ -612,7 +612,7 @@ CP_API float CP_Input_GamepadLeftTrigger(void)
 	return CP_Input_GamepadLeftTriggerAdvanced(_defaultGamepadId);
 }
 
-CP_API float CP_Input_GamepadLeftTriggerAdvanced(int gamepadIndex)
+CP_API float CP_Input_GamepadLeftTriggerAdvanced(unsigned gamepadIndex)
 {
 	if (CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
@@ -627,7 +627,7 @@ CP_API CP_Vector CP_Input_GamepadRightStick(void)
 	return CP_Input_GamepadRightStickAdvanced(_defaultGamepadId);
 }
 
-CP_API CP_Vector CP_Input_GamepadRightStickAdvanced(int gamepadIndex)
+CP_API CP_Vector CP_Input_GamepadRightStickAdvanced(unsigned gamepadIndex)
 {
 	if (CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
@@ -642,7 +642,7 @@ CP_API CP_Vector CP_Input_GamepadLeftStick(void)
 	return CP_Input_GamepadLeftStickAdvanced(_defaultGamepadId);
 }
 
-CP_API CP_Vector CP_Input_GamepadLeftStickAdvanced(int gamepadIndex)
+CP_API CP_Vector CP_Input_GamepadLeftStickAdvanced(unsigned gamepadIndex)
 {
 	if (CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
@@ -657,7 +657,7 @@ CP_API CP_BOOL CP_Input_GamepadConnected(void)
 	return _defaultGamepadId >= 0;
 }
 
-CP_API CP_BOOL CP_Input_GamepadConnectedAdvanced(int gamepadIndex)
+CP_API CP_BOOL CP_Input_GamepadConnectedAdvanced(unsigned gamepadIndex)
 {
 	return CP_Input_IsValidGamepadIndex(gamepadIndex) && gamepad_connected[gamepadIndex];
 }

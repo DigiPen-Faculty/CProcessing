@@ -43,7 +43,7 @@ static BOOL CP_IsValidSoundGroup(CP_SOUND_GROUP group)
 
 static CP_Sound CP_CheckIfSoundIsLoaded(const char* filepath)
 {
-	for (int i = 0; i < sound_vector->size; ++i)
+	for (unsigned i = 0; i < sound_vector->size; ++i)
 	{
 		CP_Sound snd = vect_at_CP_Sound(sound_vector, i);
 		if (snd && !strcmp(filepath, snd->filepath))
@@ -80,7 +80,7 @@ void CP_Sound_Init(void)
 	}
 
 	// Create the channel groups (for stopping/pausing and controlling pitch and volume on a per group basis)
-	for (int index = 0; index < CP_SOUND_GROUP_MAX && result == FMOD_OK; ++index)
+	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX && result == FMOD_OK; ++index)
 	{
 		result = FMOD_System_CreateChannelGroup(_fmod_system, NULL, &channel_groups[index]);
 	}
@@ -116,9 +116,9 @@ void CP_Sound_Shutdown(void)
 		CP_Sound_StopAll();
 
 		// Free sounds 
-		for (int i = 0; i < sound_vector->size; ++i)
+		for (unsigned i = 0; i < sound_vector->size; ++i)
 		{
-			CP_Sound sound = vect_at_CP_Sound(sound_vector, (unsigned int)i);
+			CP_Sound sound = vect_at_CP_Sound(sound_vector, i);
 			// Release the sound from FMOD
 			FMOD_Sound_Release(sound->sound);
 			// Free the struct's memory
@@ -204,13 +204,13 @@ CP_API void CP_Sound_Free(CP_Sound* sound)
 	}
 
 	// Find the sound in the list
-	for (int i = 0; i < sound_vector->size; ++i)
+	for (unsigned i = 0; i < sound_vector->size; ++i)
 	{
 		// Check if this pointer is the same as the one we're looking for
-		if (vect_at_CP_Sound(sound_vector, (unsigned int)i) == *sound)
+		if (vect_at_CP_Sound(sound_vector, i) == *sound)
 		{
 			// Remove the sound from the list
-			vect_rem_CP_Sound(sound_vector, (unsigned int)i);
+			vect_rem_CP_Sound(sound_vector, i);
 			// Release the sound from FMOD
 			FMOD_Sound_Release((*sound)->sound);
 			// Free the struct's memory
@@ -290,7 +290,7 @@ CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_
 
 CP_API void CP_Sound_PauseAll(void)
 {
-	for (int index = 0; index < CP_SOUND_GROUP_MAX; ++index)
+	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX; ++index)
 	{
 		result = FMOD_ChannelGroup_SetPaused(channel_groups[index], FMOD_TRUE);
 		if (result != FMOD_OK)
@@ -314,7 +314,7 @@ CP_API void CP_Sound_PauseGroup(CP_SOUND_GROUP group)
 
 CP_API void CP_Sound_ResumeAll(void)
 {
-	for (int index = 0; index < CP_SOUND_GROUP_MAX; ++index)
+	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX; ++index)
 	{
 		result = FMOD_ChannelGroup_SetPaused(channel_groups[index], FMOD_FALSE);
 		if (result != FMOD_OK)
@@ -338,7 +338,7 @@ CP_API void CP_Sound_ResumeGroup(CP_SOUND_GROUP group)
 
 CP_API void CP_Sound_StopAll(void)
 {
-	for (int index = 0; index < CP_SOUND_GROUP_MAX; ++index)
+	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX; ++index)
 	{
 		result = FMOD_ChannelGroup_Stop(channel_groups[index]);
 		if (result != FMOD_OK)

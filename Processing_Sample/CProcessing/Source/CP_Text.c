@@ -35,7 +35,7 @@ static vect_CP_Font* font_vector;
 
 static CP_Font CP_Font_IsLoaded(const char* filepath)
 {
-	for (int i = 0; i < font_vector->size; ++i)
+	for (unsigned i = 0; i < font_vector->size; ++i)
 	{
 		CP_Font font = vect_at_CP_Font(font_vector, i);
 		if (font && !strcmp(filepath, font->filepath))
@@ -123,7 +123,7 @@ void CP_Text_Shutdown(void)
 		return;
 	}
 
-	for (int i = 0; i < font_vector->size; ++i)
+	for (unsigned i = 0; i < font_vector->size; ++i)
 	{
 		CP_Font font = vect_at_CP_Font(font_vector, i);
 		if (font)

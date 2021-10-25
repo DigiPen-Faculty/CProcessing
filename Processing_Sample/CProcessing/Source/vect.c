@@ -11,8 +11,8 @@
 #define VECT_CAPACITY 256
 
 typedef struct vect_t {
-    int size;
-    int capacity;
+    size_t size;
+    size_t capacity;
     size_t data_size;
     void *data;
 } vect_t;
@@ -23,7 +23,7 @@ void vect_err(const char *error)
     exit(1);
 }
 
-vect_t* vect_init(size_t data_size, unsigned int capacity)
+vect_t* vect_init(size_t data_size, size_t capacity)
 {
     vect_t* v = malloc(sizeof(vect_t));
     if (v == NULL)
@@ -59,39 +59,39 @@ void vect_resize(vect_t *v)
     }
 }
 
-unsigned int vect_chk_bounds(vect_t *v, unsigned int pos) {
+size_t vect_chk_bounds(vect_t *v, size_t pos) {
     return ((int)pos < v->size);
 }
 
-unsigned int vect_at(vect_t *v, unsigned int pos)
+size_t vect_at(vect_t *v, size_t pos)
 {
     if (!vect_chk_bounds((vect_t*)v, pos))
         vect_err("vect_at: out of bounds.");
     return pos;
 }
 
-unsigned int vect_set(vect_t *v, unsigned int pos)
+size_t vect_set(vect_t *v, size_t pos)
 {
     if (!vect_chk_bounds((vect_t*)v, pos))
         vect_err("vect_set: out of bounds.");
     return pos;
 }
 
-unsigned int vect_push(vect_t *v)
+size_t vect_push(vect_t *v)
 {
     if (v->size == v->capacity)
         vect_resize(v);
     return v->size++;	
 }
 
-unsigned int vect_pop(vect_t *v)
+size_t vect_pop(vect_t *v)
 {
     if (v->size == 0)
         vect_err("vect_pop: underflow.");
     return --v->size;
 }
 
-unsigned int vect_rem(vect_t *v, unsigned int pos)
+size_t vect_rem(vect_t *v, size_t pos)
 {
     if (!vect_chk_bounds((vect_t*)v, pos))
         vect_err("vect_rem: out of bounds.");
@@ -103,7 +103,7 @@ unsigned int vect_rem(vect_t *v, unsigned int pos)
     return pos;
 }
 
-unsigned int vect_ins(vect_t *v, unsigned int pos)
+size_t vect_ins(vect_t *v, size_t pos)
 {
     if (!vect_chk_bounds((vect_t*)v, pos))
         vect_err("vect_rem: out of bounds.");

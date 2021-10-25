@@ -75,7 +75,7 @@ CP_API int				CP_System_GetDisplayHeight			(void);
 CP_API HWND				CP_System_GetWindowHandle			(void);
 CP_API void				CP_System_SetWindowTitle			(const char* title);
 CP_API void				CP_System_ShowCursor				(CP_BOOL show);
-CP_API int				CP_System_GetFrameCount				(void);
+CP_API unsigned 		CP_System_GetFrameCount				(void);
 CP_API float			CP_System_GetFrameRate				(void);
 CP_API void				CP_System_SetFrameRate				(float fps);
 CP_API float			CP_System_GetDt						(void);
@@ -217,21 +217,21 @@ CP_API float			CP_Input_GetMouseDeltaY				(void);
 CP_API float			CP_Input_GetMouseWorldX				(void);
 CP_API float			CP_Input_GetMouseWorldY				(void);
 CP_API CP_BOOL			CP_Input_GamepadTriggered			(CP_GAMEPAD button);
-CP_API CP_BOOL			CP_Input_GamepadTriggeredAdvanced	(CP_GAMEPAD button, int gamepadIndex);
+CP_API CP_BOOL			CP_Input_GamepadTriggeredAdvanced	(CP_GAMEPAD button, unsigned gamepadIndex);
 CP_API CP_BOOL			CP_Input_GamepadReleased			(CP_GAMEPAD button);
-CP_API CP_BOOL			CP_Input_GamepadReleasedAdvanced	(CP_GAMEPAD button, int gamepadIndex);
+CP_API CP_BOOL			CP_Input_GamepadReleasedAdvanced	(CP_GAMEPAD button, unsigned gamepadIndex);
 CP_API CP_BOOL			CP_Input_GamepadDown				(CP_GAMEPAD button);
-CP_API CP_BOOL			CP_Input_GamepadDownAdvanced		(CP_GAMEPAD button, int gamepadIndex);
+CP_API CP_BOOL			CP_Input_GamepadDownAdvanced		(CP_GAMEPAD button, unsigned gamepadIndex);
 CP_API float			CP_Input_GamepadRightTrigger		(void);
-CP_API float			CP_Input_GamepadRightTriggerAdvanced(int gamepadIndex);
+CP_API float			CP_Input_GamepadRightTriggerAdvanced(unsigned gamepadIndex);
 CP_API float			CP_Input_GamepadLeftTrigger			(void);
-CP_API float			CP_Input_GamepadLeftTriggerAdvanced	(int gamepadIndex);
+CP_API float			CP_Input_GamepadLeftTriggerAdvanced	(unsigned gamepadIndex);
 CP_API CP_Vector		CP_Input_GamepadRightStick			(void);
-CP_API CP_Vector		CP_Input_GamepadRightStickAdvanced	(int gamepadIndex);
+CP_API CP_Vector		CP_Input_GamepadRightStickAdvanced	(unsigned gamepadIndex);
 CP_API CP_Vector		CP_Input_GamepadLeftStick			(void);
-CP_API CP_Vector		CP_Input_GamepadLeftStickAdvanced	(int gamepadIndex);
+CP_API CP_Vector		CP_Input_GamepadLeftStickAdvanced	(unsigned gamepadIndex);
 CP_API CP_BOOL			CP_Input_GamepadConnected			(void);
-CP_API CP_BOOL			CP_Input_GamepadConnectedAdvanced	(int gamepadIndex);
+CP_API CP_BOOL			CP_Input_GamepadConnectedAdvanced	(unsigned gamepadIndex);
 
 
 //---------------------------------------------------------

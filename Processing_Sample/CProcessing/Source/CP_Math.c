@@ -210,7 +210,7 @@ CP_API CP_Matrix CP_Matrix_RotateRadians(float radians)
 CP_API CP_Matrix CP_Matrix_Transpose(CP_Matrix original)
 {
 	CP_Matrix result = CP_Matrix_Identity();
-	int i, j;
+	unsigned i, j;
 	for (i = 0; i < 3; i++)
 	{
 		for (j = 0; j < 3; j++)
@@ -225,7 +225,7 @@ CP_API CP_Matrix CP_Matrix_Transpose(CP_Matrix original)
 CP_API CP_Matrix CP_Matrix_Inverse(CP_Matrix m)
 {
 	CP_Matrix result;
-	int i, j;
+	unsigned i, j;
 	float determinant = 0;
 
 	//finding determinant
@@ -247,7 +247,7 @@ CP_API CP_Matrix CP_Matrix_Inverse(CP_Matrix m)
 CP_API CP_Matrix CP_Matrix_Multiply(CP_Matrix a, CP_Matrix b)
 {
 	CP_Matrix result = CP_Matrix_Identity();
-	int i, j, k;
+	unsigned i, j, k;
 	for (i = 0; i < 3; i++)
 	{
 		for (j = 0; j < 3; j++)
