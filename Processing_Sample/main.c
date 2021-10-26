@@ -20,7 +20,7 @@
 // #define height 1500
 // #endif
 
-//void debugInputChecks(); 
+///void debugInputChecks();
 
 int alpha1 = 255;
 const int rectangles = 100;
