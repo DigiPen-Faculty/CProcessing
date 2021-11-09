@@ -58,6 +58,9 @@ void CP_Image_Init(void);
 // INTERNAL USE
 void CP_ImageShutdown(void);
 
+// This was implemented because of some screenshot melarchy
+void CP_Image_ClearQueue_Free();
+
 #ifdef __cplusplus
 }
 #endif

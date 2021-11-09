@@ -37,23 +37,23 @@ size_t vect_ins(vect_t *v, size_t pos);
 #define VECT_GENERATE_TYPE(TYPE) VECT_GENERATE_NAME(TYPE, TYPE)
 #define VECT_GENERATE_NAME(TYPE, NAME)											\
 typedef struct {																\
-	size_t size;																	\
-	size_t capacity;																\
+	size_t size;																\
+	size_t capacity;															\
 	size_t data_size;															\
 	TYPE *data;																	\
 } vect_##NAME;																	\
 vect_##NAME *																	\
-vect_init_##NAME(unsigned int capacity)											\
+vect_init_##NAME(size_t capacity)											    \
 {																				\
 	return (vect_##NAME *) vect_init(sizeof(TYPE), capacity);					\
 }																				\
 TYPE *																			\
-vect_ptr_##NAME(vect_##NAME *v, unsigned int pos)								\
+vect_ptr_##NAME(vect_##NAME *v, size_t pos)										\
 {																				\
 	return v->data + vect_at((vect_t *)v, pos);									\
 }																				\
 TYPE																			\
-vect_at_##NAME(vect_##NAME *v, unsigned int pos)								\
+vect_at_##NAME(vect_##NAME *v, size_t pos)										\
 {																				\
 	return v->data[vect_at((vect_t *)v, pos)];									\
 }																				\
@@ -63,7 +63,7 @@ vect_push_##NAME(vect_##NAME *v, TYPE value)									\
 	v->data[vect_push((vect_t *)v)] = value;									\
 }																				\
 void																			\
-vect_set_##NAME(vect_##NAME *v, unsigned int pos, TYPE value)					\
+vect_set_##NAME(vect_##NAME *v, size_t pos, TYPE value)							\
 {																				\
 	v->data[vect_set((vect_t *)v, pos)] = value;								\
 }																				\
@@ -73,12 +73,12 @@ vect_pop_##NAME(vect_##NAME *v)													\
 	return v->data[vect_pop((vect_t *) v)];										\
 }																				\
 void																			\
-vect_rem_##NAME(vect_##NAME *v, unsigned int pos)								\
+vect_rem_##NAME(vect_##NAME *v, size_t pos)										\
 {																				\
 	vect_rem((vect_t *) v, pos);												\
 }																				\
 void																			\
-vect_ins_##NAME(vect_##NAME *v, unsigned int pos, TYPE value)					\
+vect_ins_##NAME(vect_##NAME *v, size_t pos, TYPE value)							\
 {																				\
 	v->data[vect_ins((vect_t *) v, pos)] = value;								\
 }																				\

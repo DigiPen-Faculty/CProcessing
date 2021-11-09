@@ -2825,10 +2825,10 @@ static void PrescreenshotDrawing()
 
 static void ScreenshotTesting()
 {
-	CP_Image_Free(&buffer); // Goal is to make this work with the free queue
 	buffer = CP_Image_Screenshot(0, 0, 200, 200);
 	//CP_Image_Draw(Image, 512.0f, 512.0f, 512.0f, 512.0f, 255);
 	CP_Image_DrawAdvanced(buffer, 512.0f, 512.0f, 512.0f, 512.0f, 255, rot);
+	CP_Image_Free(&buffer); // Goal is to make this work with the free queue
 
 	/*
 	CP_Image_Free(&buffer);
@@ -2862,9 +2862,6 @@ void ScreenshotTestUpdate(void)
 	CP_Graphics_ClearBackground(CP_Color_Create(255, 100, 100, 255));
 
 	PrescreenshotDrawing();
-
-	// float start_time = CP_System_GetSeconds();
-	// while (start_time + 1 > CP_System_GetSeconds());
 
 	ScreenshotTesting();
 

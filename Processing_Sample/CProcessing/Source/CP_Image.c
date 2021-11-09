@@ -25,6 +25,8 @@
 VECT_GENERATE_TYPE(CP_Image)
 
 static vect_CP_Image* active_images = NULL;
+// This part is for later.
+static vect_CP_Image* free_image_queue = NULL;
 
 //------------------------------------------------------------------------------
 // Internal Functions:
@@ -56,6 +58,10 @@ void CP_Image_Init(void)
 	{
 		active_images = vect_init_CP_Image(CP_INITIAL_IMAGE_COUNT);
 	}
+	if (free_image_queue == NULL)
+	{
+		free_image_queue = vect_init_CP_Image(CP_INITIAL_IMAGE_COUNT);
+	}
 }
 
 void CP_ImageShutdown(void)
@@ -73,7 +79,11 @@ void CP_ImageShutdown(void)
 			free(image); // free the image struct
 		}
 	}
+	// Also gotta clear the image queue just to make sure.
+	CP_Image_ClearQueue_Free();
+
 	vect_free_CP_Image(active_images);
+	vect_free_CP_Image(free_image_queue);
 	return;
 }
 
@@ -142,8 +152,13 @@ static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float
 
 CP_API CP_Image CP_Image_Load(const char* filepath)
 {
-	// In case people load before running c processing
+	// In case people load before running c processing (it already handles stuff being null)
 	CP_Image_Init();
+
+	if (active_images == NULL)
+	{
+		active_images = vect_init_CP_Image(CP_INITIAL_IMAGE_COUNT);
+	}
 
 	if (!filepath)
 	{
@@ -209,11 +224,8 @@ CP_API void CP_Image_Free(CP_Image* img)
 		CP_Image* image = vect_ptr_CP_Image(active_images, i);
 		if (*image && *image == *img)
 		{
-			nvgDeleteImage(CORE->nvg, (*image)->handle); // free nanoVG's data
-			free(*image);
+			vect_push_CP_Image(free_image_queue, *image);
 			*image = NULL;
-			*img = NULL;
-			return;
 		}
 	}
 }
@@ -366,3 +378,21 @@ CP_API void CP_Image_UpdatePixelData(CP_Image img, CP_Color* pixelDataInput)
 	nvgUpdateImage(CORE->nvg, img->handle, (unsigned char*)pixelDataInput);
 }
 
+void CP_Image_ClearQueue_Free()
+{
+	CP_CorePtr CORE = GetCPCore();
+	if (!CORE || !CORE->nvg) return;
+
+	// We want to free every image
+	while(free_image_queue->size)
+	{
+		// Grab the image at the end
+		CP_Image* image = vect_ptr_CP_Image(free_image_queue, free_image_queue->size - 1);
+
+		// Deletion of image
+		nvgDeleteImage(CORE->nvg, (*image)->handle); // free nanoVG's data
+		free(*image);
+
+		vect_pop_CP_Image(free_image_queue);
+	}
+}
