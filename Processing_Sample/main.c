@@ -2797,6 +2797,86 @@ void JUSTIN_DEMO_UPDATE_CP_COLOR(void)
     CP_Graphics_DrawRect(0, 0, rectWidth, rectHeight);
 }
 
+#include "cprocessing.h"
+#include <stdlib.h>
+#include <gl/GL.h>
+
+static CP_Color colorBuffer[40000];
+static CP_Image buffer;
+static CP_Image justin;
+static int drawback;
+static float rot = 0;
+
+// use CP_Engine_SetNextGameState to specify this function as the initialization function
+// this function will be called once at the beginning of the program
+void ScreenshotTestInit(void)
+{
+	CP_System_SetWindowSize(800, 800);
+	justin = CP_Image_Load("./Assets/justin1.png");
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 100, 100, 255));
+	CP_Graphics_DrawCircle(100.0f, 100.0f, 200.0f);
+	CP_Image_Draw(justin, 25, 25, 50, 50, 255);
+
+	CP_System_SetFrameRate(60.0F);
+}
+
+static void PrescreenshotDrawing()
+{
+	CP_Graphics_DrawCircle(100.0f, 100.0f, 200.0f);
+	CP_Image_Draw(justin, 25, 25, 50, 50, 255);
+	CP_Graphics_DrawCircle(CP_Input_GetMouseX(), CP_Input_GetMouseY(), 100.0f);
+}
+
+static void ScreenshotTesting()
+{
+	CP_Image_Free(&buffer);
+	buffer = CP_Image_Screenshot(0, 0, 200, 200);
+	//CP_Image_Draw(Image, 512.0f, 512.0f, 512.0f, 512.0f, 255);
+	CP_Image_DrawAdvanced(buffer, 512.0f, 512.0f, 512.0f, 512.0f, 255, rot);
+
+	/*
+	CP_Image_Free(&buffer);
+		This cannot be moved down here because it's still in the nanovg queue, 
+		so destroying it early would cause a problem?
+	*/
+}
+
+static void PostscreenshotDrawing()
+{
+	static CP_Vector circle_placement = { -200, -200 };
+
+	if (CP_Input_MouseClicked())
+	{
+		circle_placement.x = CP_Input_GetMouseX();
+		circle_placement.y = CP_Input_GetMouseY();
+	}
+
+	CP_Image_Draw(justin, circle_placement.x, circle_placement.y, 100, 100, 255);
+}
+
+// use CP_Engine_SetNextGameState to specify this function as the update function
+// this function will be called repeatedly every frame
+void ScreenshotTestUpdate(void)
+{
+	CP_BOOL is_even = CP_System_GetFrameCount() % 2;
+	CP_Settings_Fill(CP_Color_Create(is_even * 255, !is_even * 255, 0, 255));
+	rot++;
+
+
+	CP_Graphics_ClearBackground(CP_Color_Create(255, 100, 100, 255));
+
+	PrescreenshotDrawing();
+
+	// float start_time = CP_System_GetSeconds();
+	// while (start_time + 1 > CP_System_GetSeconds());
+
+	ScreenshotTesting();
+
+	PostscreenshotDrawing();
+}
+
+
+
 
 // main() the starting point for the program
 // Run() is used to tell the program which init and update functions to use.
@@ -2815,18 +2895,14 @@ int main(void)
 	// Currently allows any void(*)(void) function
 	//  Setup (called once)           Draw (looped)
 	//CP_Engine_SetNextGameState(random_background_rectangles, mouse_following_polygon, NULL);
-
 	//CP_Engine_SetNextGameState(NULL, selector);
 	//CP_Engine_SetNextGameState(racecar_setup, racecar_draw, NULL);
 	//CP_Engine_SetNextGameState(bounce_setup, bounce_draw, NULL);
-
 	//CP_Engine_SetNextGameState(NULL, text_demo, NULL);
 	//CP_Engine_SetNextGameState(NULL, time_test, NULL);
 	//CP_Engine_SetNextGameState(NULL, audio_test, NULL);
 	//CP_Engine_SetNextGameState(mouse_setup, mouse_follower, NULL);
-
 	//CP_Engine_SetNextGameState(image_test_setup, image_test, NULL);
-
 	//CP_Engine_SetNextGameState(gaussian_background_rectangles, NULL, NULL);
 	//CP_Engine_SetNextGameState(NULL, noise_example, NULL);
 	//CP_Engine_SetNextGameState(NULL, transform_test, NULL);
@@ -2838,7 +2914,6 @@ int main(void)
 	//CP_Engine_SetNextGameState(0, line_func, NULL);
 	//CP_Engine_SetNextGameState(EngineInit, EngineUpdate, NULL);
 	//CP_Engine_SetNextGameState(SceneTestInit, SceneTestUpdate, NULL);
-
 	//CP_Engine_SetNextGameState(lerp_test_init, lerp_test_update, NULL);
 	//CP_Engine_SetNextGameState(dt_init, dt_example, NULL);
 	//CP_Engine_SetNextGameState(save_restore_test_init, save_restore_test_update, NULL);
@@ -2854,12 +2929,9 @@ int main(void)
 	//CP_Engine_SetNextGameState(matrix_test_init, matrix_test_update, NULL);
 	//CP_Engine_SetNextGameState(DancingLinesInit, DancingLinesUpdate, NULL);
 	//CP_Engine_SetNextGameState(GamepadDemoInit, GamepadDemoUpdate, NULL);
-
 	//CP_Engine_SetNextGameState(initRedRects, updateRedRects, NULL);
-
 	//CP_Engine_SetNextGameState(initCircleTests, updateCircleTests, NULL);
 	//CP_Engine_SetNextGameState(initHSVTests, updateHSVTests, NULL);
-
 	//CP_Engine_SetNextGameState(ForcedInit, ForcedUpdate, NULL);
 //	CP_Engine_SetNextGameState(initsub, updatesub, NULL);
 //	CP_Engine_SetNextGameState(initbuff, updatebuff, NULL);
@@ -2867,7 +2939,7 @@ int main(void)
 	//CP_Engine_SetNextGameState(initfr, updatefr, NULL);
 	//CP_Engine_SetNextGameState(inittint, updatetint, NULL);
 
-	CP_Engine_SetNextGameState(JUSTIN_DEMO_INIT, JUSTIN_DEMO_UPDATE_CP_COLORHSV, NULL);
+	CP_Engine_SetNextGameState(ScreenshotTestInit, ScreenshotTestUpdate, NULL);
 
 	CP_Engine_Run();
 	return 0;

@@ -14,12 +14,20 @@
 #include "cprocessing.h"
 #include "Internal_Image.h"
 #include "Internal_System.h"
+#include "vect.h"
 
 //------------------------------------------------------------------------------
 // Defines and Internal Variables:
 //------------------------------------------------------------------------------
 
 #define CP_INITIAL_IMAGE_COUNT 100
+
+VECT_GENERATE_TYPE(CP_Image)
+
+vect_CP_Image* active_images = NULL;
+// This part is for later.
+vect_CP_Image* free_image_queue = NULL;
+
 
 static CP_Image* images = NULL;
 static unsigned  image_num = 0;
@@ -306,6 +314,7 @@ CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 	{
 		return NULL;
 	}
+
 	CP_CorePtr CORE = GetCPCore();
 
 	// glReadPixles uses x,y as the lower left, so lets convert that
@@ -365,4 +374,9 @@ CP_API void CP_Image_UpdatePixelData(CP_Image img, CP_Color* pixelDataInput)
 	}
 
 	nvgUpdateImage(CORE->nvg, img->handle, (unsigned char*)pixelDataInput);
+}
+
+void CP_ClearQueue_FreeImage()
+{
+
 }
