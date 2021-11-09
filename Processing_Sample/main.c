@@ -2813,11 +2813,7 @@ void ScreenshotTestInit(void)
 {
 	CP_System_SetWindowSize(800, 800);
 	justin = CP_Image_Load("./Assets/justin1.png");
-	CP_Graphics_ClearBackground(CP_Color_Create(255, 100, 100, 255));
-	CP_Graphics_DrawCircle(100.0f, 100.0f, 200.0f);
-	CP_Image_Draw(justin, 25, 25, 50, 50, 255);
-
-	CP_System_SetFrameRate(60.0F);
+	CP_System_SetFrameRate(6);
 }
 
 static void PrescreenshotDrawing()
@@ -2829,7 +2825,7 @@ static void PrescreenshotDrawing()
 
 static void ScreenshotTesting()
 {
-	CP_Image_Free(&buffer);
+	CP_Image_Free(&buffer); // Goal is to make this work with the free queue
 	buffer = CP_Image_Screenshot(0, 0, 200, 200);
 	//CP_Image_Draw(Image, 512.0f, 512.0f, 512.0f, 512.0f, 255);
 	CP_Image_DrawAdvanced(buffer, 512.0f, 512.0f, 512.0f, 512.0f, 255, rot);

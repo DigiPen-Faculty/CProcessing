@@ -51,8 +51,9 @@ typedef struct CP_Image_Struct
 // Public Functions:
 //------------------------------------------------------------------------------
 
-// This was implemented because of some screenshot melarchy
-void CP_ClearQueue_FreeImage();
+
+// INTERNAL USE
+void CP_Image_Init(void);
 
 // INTERNAL USE
 void CP_ImageShutdown(void);
