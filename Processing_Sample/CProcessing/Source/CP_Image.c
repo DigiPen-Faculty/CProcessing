@@ -48,7 +48,21 @@ static CP_Image CP_CheckIfImageIsLoaded(const char* filepath)
 
 static void CP_AddImageHandle(CP_Image img)
 {
+	// Try to add it to an empty position
+	for(size_t i = 0; i < active_images->size; ++i)
+	{
+		CP_Image* image = vect_ptr_CP_Image(active_images, i);
+		if (*image == NULL)
+		{
+			// If an empty image was found then we can simply write there
+			*image = img;
+			return;
+		}
+	}
+	
+	// Otherwise we must add a new image to the vect
 	vect_push_CP_Image(active_images, img);
+	// A further unnecessary optimization is to keep track of how many empty position we have.
 	return;
 }
 

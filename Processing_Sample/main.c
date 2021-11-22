@@ -2813,7 +2813,7 @@ void ScreenshotTestInit(void)
 {
 	CP_System_SetWindowSize(800, 800);
 	justin = CP_Image_Load("./Assets/justin1.png");
-	CP_System_SetFrameRate(6);
+	CP_System_SetFrameRate(60);
 }
 
 static void PrescreenshotDrawing()
@@ -2858,6 +2858,10 @@ void ScreenshotTestUpdate(void)
 	CP_Settings_Fill(CP_Color_Create(is_even * 255, !is_even * 255, 0, 255));
 	rot++;
 
+	{
+		CP_Image i = CP_Image_Load("./Assets/justin2.png");
+		CP_Image_Free(&i);
+	}
 
 	CP_Graphics_ClearBackground(CP_Color_Create(255, 100, 100, 255));
 
