@@ -157,5 +157,6 @@
     <None Include="nanovg\src\stb_truetype.h.gch">
       <Filter>NanoVG</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>
