@@ -596,6 +596,8 @@ void audio_test(void)
 		CP_Settings_RectMode(CP_POSITION_CENTER);
     CP_System_SetWindowSize(800, 400);
     CP_Graphics_ClearBackground(CP_Color_Create(10, 50, 140, 255));
+
+	//CP_Sound_SetGroupPitch(CP_SOUND_GROUP_0, 2.0f);
 	}
 
 #if 0

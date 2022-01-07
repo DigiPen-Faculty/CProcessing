@@ -24,46 +24,10 @@
     <ClCompile Include="source\WASAPI.cpp">
       <Filter>Source Files\Output</Filter>
     </ClCompile>
-    <ClCompile Include="source\Atomics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ChannelTranslation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\FileDecoder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Interpolator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Math.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\PitchChange.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\PositionalAudio.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Resampler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\RingBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ogg\stb_vorbis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\VolumeModifier.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\AudioEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Definitions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Effects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\Mixer.cpp">
@@ -75,57 +39,51 @@
     <ClCompile Include="source\SoundInstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\ogg\stb_vorbis.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Atomics.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ChannelTranslation.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Effects.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\FileDecoder.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Interpolator.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Math.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\PitchChange.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\PositionalAudio.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Resampler.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\RingBuffer.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\VolumeModifier.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\WASAPI.h">
       <Filter>Source Files\Output</Filter>
     </ClInclude>
-    <ClInclude Include="source\Atomics.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\ChannelTranslation.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\FileDecoder.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Functor.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\InList.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Interpolator.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\AEMath.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\PitchChange.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\PositionalAudio.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Resampler.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\RingBuffer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\ogg\stb_vorbis.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\VolumeModifier.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\AudioEngine.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Definitions.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Effects.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="source\Mixer.h">
@@ -136,6 +94,48 @@
     </ClInclude>
     <ClInclude Include="source\SoundInstance.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ogg\stb_vorbis.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\AEMath.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Atomics.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ChannelTranslation.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Effects.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\FileDecoder.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Functor.hpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\InList.hpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Interpolator.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\PitchChange.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\PositionalAudio.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Resampler.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\RingBuffer.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\VolumeModifier.h">
+      <Filter>Source Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

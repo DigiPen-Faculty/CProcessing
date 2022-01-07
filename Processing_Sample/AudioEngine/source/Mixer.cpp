@@ -35,16 +35,7 @@ namespace AudioEngine
     //----------------------------------------------------------------------------------------------------------- Mixer
 
     //*****************************************************************************************************************
-    Mixer::Mixer() :
-        mNextInstanceID(1),
-        mChannels(0),
-        mSampleRate(0),
-        mMixTasksReadIndex(0),
-        mMixTasksWriteIndex(1),
-        mMainTasksReadIndex(0),
-        mMainTasksWriteIndex(1),
-        Mixing(false),
-        mListenerPosition(0.0f, 0.0f, 0.0f)
+    Mixer::Mixer()
     {
         gMixer = this;
 
@@ -54,13 +45,13 @@ namespace AudioEngine
             Events[i] = CreateEvent(nullptr, false, false, nullptr);
 
         // Set up the ring buffer
-        OutputRingBuffer.Initialize(sizeof(float), BufferSize, (void*)RingBuffer);
+        OutputRingBuffer.Initialize(sizeof(float), cBufferSize, (void*)RingBuffer);
     }
 
     //*****************************************************************************************************************
     Mixer::~Mixer()
     {
-        if (Mixing)
+        if (mMixing)
             ShutDown();
 
         for (int i = 0; i < MAX_GROUPS; ++i)
@@ -93,8 +84,8 @@ namespace AudioEngine
     //*****************************************************************************************************************
     AE_RESULT Mixer::Initialize()
     {
-        Mixing = AudioOutput.Initialize(&AudioCallback, this);
-        if (Mixing)
+        mMixing = AudioOutput.Initialize(&AudioCallback, this);
+        if (mMixing)
         {
             mChannels = AudioOutput.GetChannels();
             mSampleRate = AudioOutput.GetSampleRate();
@@ -108,14 +99,14 @@ namespace AudioEngine
     //*****************************************************************************************************************
     void Mixer::ShutDown()
     {
-        if (!Mixing)
+        if (!mMixing)
             return;
 
         SignalObjectAndWait(Events[MixEventTypes::StopMixing], Events[MixEventTypes::MixThreadExit],
             INFINITE, false);
         AudioOutput.StopOutput();
 
-        Mixing = false;
+        mMixing = false;
     }
 
     //*****************************************************************************************************************
@@ -153,7 +144,12 @@ namespace AudioEngine
     void Mixer::MixLoopThreaded()
     {
         // Buffer to get data from sound instances
-        float instanceBuffer[BufferSize];
+        BufferType instanceBuffer(cBufferSize);
+        // Buffer to accumulate mixed data
+        BufferType mixingBuffer(cBufferSize);
+        // Buffer to accumulate data for a group
+        BufferType groupBuffer(cBufferSize);
+
 
         while (true)
         {
@@ -180,11 +176,13 @@ namespace AudioEngine
 
             // Find out how many samples can be written to the ring buffer
             unsigned samplesToWrite = OutputRingBuffer.GetWriteAvailable();
-            // Store the number of frames
-            unsigned frameCount = samplesToWrite / mChannels;
 
-            // Buffer to accumulate mixed data
-            float mixingBuffer[BufferSize] = { 0 };
+            if (samplesToWrite == 0)
+                continue;
+
+            // Reset data in mixing buffer
+            mixingBuffer.clear();
+            mixingBuffer.resize(samplesToWrite, 0.0f);
 
             // Walk through the list of sound instances
             for (int group = 0; group < MAX_GROUPS; ++group)
@@ -193,19 +191,31 @@ namespace AudioEngine
                     continue;
 
                 InstanceGroupData& data = DataPerGroup[group];
+                unsigned groupSamples = samplesToWrite;
 
-                // Buffer for this group
-                float groupBuffer[BufferSize] = { 0 };
+                // Check if we are pitch shifting the group
+                if (data.mPitchShifting_Thr)
+                {
+                    data.PitchHandler_Thr.CalculateBufferSize(samplesToWrite, mChannels);
+                    groupSamples = data.PitchHandler_Thr.GetInputSampleCount();
+                }
+
+                // Reset data in group buffer
+                groupBuffer.clear();
+                groupBuffer.resize(groupSamples, 0.0f);
+
+                // Store the number of frames
+                unsigned frameCount = groupSamples / mChannels;
 
                 for (InList<ThreadedSoundInstance>::iterator it = InstancesByGroup_Thr[group].begin();
                     it != InstancesByGroup_Thr[group].end(); )
                 {
                     // Get the data from the sound instance
-                    bool stillPlaying = it->GetNextSamples(instanceBuffer, frameCount, mChannels);
+                    bool stillPlaying = it->GetNextSamples(instanceBuffer.data(), frameCount, mChannels);
 
                     // Add all samples to the mixing buffer
-                    for (unsigned i = 0; i < samplesToWrite; ++i)
-                        groupBuffer[i] += instanceBuffer[i] * BaseVolume;
+                    for (unsigned i = 0; i < groupSamples; ++i)
+                        groupBuffer[i] += instanceBuffer[i] * cBaseVolume;
 
                     // If the instance is still playing, move to the next in the list
                     if (stillPlaying)
@@ -224,7 +234,13 @@ namespace AudioEngine
                     }
                 }
 
-                // Apply pitch
+                // Apply pitch change if needed
+                if (data.mPitchShifting_Thr)
+                {
+                    BufferType adjustedSamples(samplesToWrite);
+                    data.PitchHandler_Thr.ProcessBuffer(&groupBuffer, &adjustedSamples);
+                    groupBuffer.swap(adjustedSamples);
+                }
 
                 // Check if we need to apply a volume change
                 if (!data.VolumeInterpolator_Thr.Finished() || !AudioConstants::IsWithinLimit(data.mVolume_Thr, 1.0f, 0.01f))
@@ -232,13 +248,13 @@ namespace AudioEngine
                     // If not interpolating, apply the volume as is
                     if (data.VolumeInterpolator_Thr.Finished())
                     {
-                        for (unsigned i = 0; i < BufferSize; ++i)
+                        for (unsigned i = 0; i < cBufferSize; ++i)
                             groupBuffer[i] *= data.mVolume_Thr;
                     }
                     // Otherwise, apply volume to each frame
                     else
                     {
-                        for (unsigned i = 0; i < BufferSize; i += mChannels)
+                        for (unsigned i = 0; i < cBufferSize; i += mChannels)
                         {
                             data.mVolume_Thr = data.VolumeInterpolator_Thr.NextValue();
                             for (unsigned j = 0; j < mChannels; ++j)
@@ -248,12 +264,12 @@ namespace AudioEngine
                 }
 
                 // Add group samples to the mixed buffer
-                for (unsigned i = 0; i < BufferSize; ++i)
+                for (unsigned i = 0; i < samplesToWrite; ++i)
                     mixingBuffer[i] += groupBuffer[i];
             }
 
             // Write mixed data to the ring buffer
-            OutputRingBuffer.Write(mixingBuffer, samplesToWrite);
+            OutputRingBuffer.Write(mixingBuffer.data(), samplesToWrite);
         }
 
         SetEvent(Events[MixEventTypes::MixThreadExit]);

@@ -83,5 +83,3 @@ const char* AE_GetErrorText(AE_RESULT result);
 }
 #endif
 
-// TODO
-// When releasing a sound, stop any instances currently playing

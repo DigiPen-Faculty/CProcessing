@@ -27,6 +27,7 @@ namespace AudioEngine
         enum Enum { MixSemaphore, StopMixing, MixThreadExit, Count };
     }
 
+    class SoundAsset;
     class SoundInstance;
     class ThreadedSoundInstance;
     class Functor;
@@ -75,25 +76,25 @@ namespace AudioEngine
         RingBuffer OutputRingBuffer;
 
     private:
-        static const unsigned BufferSize = 4096;
-        const float BaseVolume = 0.8f;
+        static const unsigned cBufferSize = 4096;
+        const float cBaseVolume = 0.8f;
 
-        float RingBuffer[BufferSize];
+        float RingBuffer[cBufferSize];
         InstanceMapType InstanceMap;
-        InstanceIDType mNextInstanceID;
-        bool Mixing;
+        InstanceIDType mNextInstanceID = 1;
+        bool mMixing = false;
         Vec3 mListenerPosition;
-        unsigned mChannels;
-        unsigned mSampleRate;
+        unsigned mChannels = 0;
+        unsigned mSampleRate = 0;
         InList<ThreadedSoundInstance> InstancesByGroup_Thr[MAX_GROUPS];
         InstanceGroupData DataPerGroup[MAX_GROUPS];
 
         std::vector<Functor*> TasksForMixThread[2];
-        AtomicType mMixTasksReadIndex;
-        AtomicType mMixTasksWriteIndex;
+        AtomicType mMixTasksReadIndex = 0;
+        AtomicType mMixTasksWriteIndex = 1;
         std::vector<Functor*> TasksForMainThread[2];
-        AtomicType mMainTasksReadIndex;
-        AtomicType mMainTasksWriteIndex;
+        AtomicType mMainTasksReadIndex = 0;
+        AtomicType mMainTasksWriteIndex = 1;
 
         WasapiOutput AudioOutput;
 

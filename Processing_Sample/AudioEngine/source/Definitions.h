@@ -16,6 +16,7 @@ using std::vector;
 
 namespace AudioEngine
 {
+    typedef unsigned AssetIDType;
     typedef unsigned InstanceIDType;
     typedef unsigned GroupIDType;
     typedef intptr_t AtomicType;
