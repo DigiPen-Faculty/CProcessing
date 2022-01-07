@@ -82,6 +82,7 @@ void CP_Sound_Init(void)
 	{
 		CP_PrintAudioError(result);
 		CP_Sound_Shutdown();
+		_audio_system = NULL;
 		return;
 	}
 }
@@ -96,36 +97,34 @@ void CP_Sound_Update(void)
 
 void CP_Sound_Shutdown(void)
 {
-	if (_audio_system != NULL)
+	if (_audio_system == NULL)
+		return;
+	
+	// Stop all current sounds
+	CP_Sound_StopAll();
+
+	// Free sounds 
+	for (unsigned i = 0; i < sound_vector->size; ++i)
 	{
-		// Stop all current sounds
-		CP_Sound_StopAll();
-
-		// Free sounds 
-		for (unsigned i = 0; i < sound_vector->size; ++i)
-		{
-			CP_Sound sound = vect_at_CP_Sound(sound_vector, i);
-			// Release the sound 
-			AE_Sounds_ReleaseSound(_audio_system, sound->sound);
-			// Free the struct's memory
-			free(sound);
-		}
-
-		// Free lists
-		vect_free(sound_vector);
-
-		// Release system
-		AE_System_ShutDown(_audio_system);
-		AE_System_Release(&_audio_system);
-		_audio_system = NULL;
+		CP_Sound sound = vect_at_CP_Sound(sound_vector, i);
+		// Release the sound 
+		AE_Sounds_ReleaseSound(_audio_system, sound->sound);
+		// Free the struct's memory
+		free(sound);
 	}
+
+	// Free lists
+	vect_free(sound_vector);
+
+	// Release system
+	AE_System_ShutDown(_audio_system);
+	AE_System_Release(&_audio_system);
+	_audio_system = NULL;
 }
 
 CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 {
-	UNREFERENCED_PARAMETER(streamFromDisc);
-
-	if (!filepath)
+	if (!filepath || _audio_system == NULL)
 		return NULL;
 
 	CP_Sound sound = NULL;
@@ -185,7 +184,7 @@ CP_API CP_Sound CP_Sound_LoadMusic(const char* filepath)
 
 CP_API void CP_Sound_Free(CP_Sound* sound)
 {
-	if (sound == NULL || *sound == NULL)
+	if (_audio_system == NULL || sound == NULL || *sound == NULL)
 	{
 		return;
 	}
@@ -272,6 +271,9 @@ CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_
 
 CP_API void CP_Sound_PauseAll(void)
 {
+	if (_audio_system == NULL)
+		return;
+
 	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX; ++index)
 	{
 		result = AE_Group_SetPaused(_audio_system, sound_groups[index], 1);
@@ -282,6 +284,9 @@ CP_API void CP_Sound_PauseAll(void)
 
 CP_API void CP_Sound_PauseGroup(CP_SOUND_GROUP group)
 {
+	if (_audio_system == NULL)
+		return;
+
 	if(CP_IsValidSoundGroup(group))
 	{
 		result = AE_Group_SetPaused(_audio_system, sound_groups[group], 1);
@@ -292,6 +297,9 @@ CP_API void CP_Sound_PauseGroup(CP_SOUND_GROUP group)
 
 CP_API void CP_Sound_ResumeAll(void)
 {
+	if (_audio_system == NULL)
+		return;
+
 	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX; ++index)
 	{
 		result = AE_Group_SetPaused(_audio_system, sound_groups[index], 0);
@@ -302,6 +310,9 @@ CP_API void CP_Sound_ResumeAll(void)
 
 CP_API void CP_Sound_ResumeGroup(CP_SOUND_GROUP group)
 {
+	if (_audio_system == NULL)
+		return;
+
 	if (CP_IsValidSoundGroup(group))
 	{
 		result = AE_Group_SetPaused(_audio_system, sound_groups[group], 0);
@@ -312,6 +323,9 @@ CP_API void CP_Sound_ResumeGroup(CP_SOUND_GROUP group)
 
 CP_API void CP_Sound_StopAll(void)
 {
+	if (_audio_system == NULL)
+		return;
+
 	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX; ++index)
 	{
 		result = AE_Group_Stop(_audio_system, sound_groups[index]);
@@ -322,6 +336,9 @@ CP_API void CP_Sound_StopAll(void)
 
 CP_API void CP_Sound_StopGroup(CP_SOUND_GROUP group)
 {
+	if (_audio_system == NULL)
+		return;
+
 	if (CP_IsValidSoundGroup(group))
 	{
 		result = AE_Group_Stop(_audio_system, sound_groups[group]);
@@ -332,6 +349,9 @@ CP_API void CP_Sound_StopGroup(CP_SOUND_GROUP group)
 
 CP_API void CP_Sound_SetGroupVolume(CP_SOUND_GROUP group, float volume)
 {
+	if (_audio_system == NULL)
+		return;
+
 	if (CP_IsValidSoundGroup(group))
 	{
 		result = AE_Group_SetVolume(_audio_system, sound_groups[group], volume);
@@ -342,6 +362,9 @@ CP_API void CP_Sound_SetGroupVolume(CP_SOUND_GROUP group, float volume)
 
 CP_API float CP_Sound_GetGroupVolume(CP_SOUND_GROUP group)
 {
+	if (_audio_system == NULL)
+		return 0.0f;
+
 	float volume = 0;
 	if (CP_IsValidSoundGroup(group))
 	{
@@ -354,6 +377,9 @@ CP_API float CP_Sound_GetGroupVolume(CP_SOUND_GROUP group)
 
 CP_API void CP_Sound_SetGroupPitch(CP_SOUND_GROUP group, float pitch)
 {
+	if (_audio_system == NULL)
+		return;
+
 	if (CP_IsValidSoundGroup(group))
 	{
 		result = AE_Group_SetPitch(_audio_system, sound_groups[group], pitch);
@@ -364,6 +390,9 @@ CP_API void CP_Sound_SetGroupPitch(CP_SOUND_GROUP group, float pitch)
 
 CP_API float CP_Sound_GetGroupPitch(CP_SOUND_GROUP group)
 {
+	if (_audio_system == NULL)
+		return 0.0f;
+
 	float pitch = 0;
 	if (CP_IsValidSoundGroup(group))
 	{
