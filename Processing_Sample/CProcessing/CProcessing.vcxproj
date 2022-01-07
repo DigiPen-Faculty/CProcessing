@@ -74,28 +74,28 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x86\</OutDir>
-    <IncludePath>$(SolutionDir)AudioEngine\Audio Engine;$(ProjectDir)FMOD/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)FMOD/lib/x86;$(ProjectDir)GLFW/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>$(SolutionDir)AudioEngine\source;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)GLFW/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <TargetName>$(ProjectName)d</TargetName>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x86\</OutDir>
-    <IncludePath>$(SolutionDir)AudioEngine\Audio Engine;$(ProjectDir)FMOD/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)FMOD/lib/x86;$(ProjectDir)GLFW/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>$(SolutionDir)AudioEngine\source;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)GLFW/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)AudioEngine\Audio Engine;$(ProjectDir)FMOD/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)FMOD/lib/x64;$(ProjectDir)GLFW/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>$(SolutionDir)AudioEngine\source;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)GLFW/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x64\</OutDir>
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)AudioEngine\Audio Engine;$(ProjectDir)FMOD/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)FMOD/lib/x64;$(ProjectDir)GLFW/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>$(SolutionDir)AudioEngine\source;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)GLFW/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x64\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -116,12 +116,12 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Xinput9_1_0.lib;winmm.lib;opengl32.lib;glfw3.lib;fmodL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Xinput9_1_0.lib;winmm.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/NODEFAULTLIB:MSVCRT</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>if exist "$(SolutionDir)$(Configuration)\*.exe" del "$(SolutionDir)$(Configuration)\*.exe"
-xcopy "$(ProjectDir)FMOD\lib\x86\fmodL.dll" "$(ProjectDir)lib\x86\*" /s /r /y /q /i</Command>
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -144,11 +144,10 @@ xcopy "$(ProjectDir)FMOD\lib\x86\fmodL.dll" "$(ProjectDir)lib\x86\*" /s /r /y /q
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Xinput9_1_0.lib;winmm.lib;opengl32.lib;glfw3.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Xinput9_1_0.lib;winmm.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>if exist "$(SolutionDir)$(Configuration)\*.exe" del "$(SolutionDir)$(Configuration)\*.exe"
-xcopy "$(ProjectDir)FMOD\lib\x86\fmod.dll" "$(ProjectDir)lib\x86\*" /s /r /y /q /i</Command>
+      <Command>if exist "$(SolutionDir)$(Configuration)\*.exe" del "$(SolutionDir)$(Configuration)\*.exe"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -168,12 +167,12 @@ xcopy "$(ProjectDir)FMOD\lib\x86\fmod.dll" "$(ProjectDir)lib\x86\*" /s /r /y /q 
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Xinput9_1_0.lib;winmm.lib;opengl32.lib;glfw3.lib;fmodL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Xinput9_1_0.lib;winmm.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/NODEFAULTLIB:MSVCRT</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>if exist "$(SolutionDir)$(Configuration)\*.exe" del "$(SolutionDir)$(Configuration)\*.exe"
-xcopy "$(ProjectDir)FMOD\lib\x64\fmodL.dll" "$(ProjectDir)lib\x64\*" /s /r /y /q /i</Command>
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -196,11 +195,10 @@ xcopy "$(ProjectDir)FMOD\lib\x64\fmodL.dll" "$(ProjectDir)lib\x64\*" /s /r /y /q
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Xinput9_1_0.lib;winmm.lib;opengl32.lib;glfw3.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Xinput9_1_0.lib;winmm.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>if exist "$(SolutionDir)$(Configuration)\*.exe" del "$(SolutionDir)$(Configuration)\*.exe"
-xcopy "$(ProjectDir)FMOD\lib\x64\fmod.dll" "$(ProjectDir)lib\x64\*" /s /r /y /q /i</Command>
+      <Command>if exist "$(SolutionDir)$(Configuration)\*.exe" del "$(SolutionDir)$(Configuration)\*.exe"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -282,7 +282,7 @@ namespace AudioEngine
     {
         for (unsigned i = 1; i < MAX_GROUPS; ++i)
         {
-            if (!DataPerGroup->mInUse)
+            if (!DataPerGroup[i].mInUse)
             {
                 DataPerGroup->mInUse = true;
                 *id = i;

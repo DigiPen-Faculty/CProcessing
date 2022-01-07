@@ -56,30 +56,30 @@ static CP_Sound CP_CheckIfSoundIsLoaded(const char* filepath)
 
 void CP_Sound_Init(void)
 {
-	//// Allocate the initial vector size for loaded sounds
-	//sound_vector = vect_init_CP_Sound(CP_INITIAL_SOUND_CAPACITY);
+	// Allocate the initial vector size for loaded sounds
+	sound_vector = vect_init_CP_Sound(CP_INITIAL_SOUND_CAPACITY); 
 
-	//// Create the audio system
-	//result = AE_System_Initialize(&_audio_system);
-	//if (result != AE_OK)
-	//{
-	//	// TODO: handle error - FMOD_ErrorString(result)
-	//	printf("audio error");
-	//	_audio_system = NULL;
-	//	return;
-	//}
+	// Create the audio system
+	result = AE_System_Initialize(&_audio_system);
+	if (result != AE_OK)
+	{
+		// TODO: handle error - FMOD_ErrorString(result)
+		printf("audio error");
+		_audio_system = NULL;
+		return;
+	}
 
-	//// Create the groups (for stopping/pausing and controlling pitch and volume on a per group basis)
-	//for (unsigned index = 0; index < CP_SOUND_GROUP_MAX && result == AE_OK; ++index)
-	//{
-	//	result = AE_Group_CreateGroup(_audio_system, &channel_groups[index]);
-	//}
-	//if (result != AE_OK)
-	//{
-	//	// TODO: handle error - FMOD_ErrorString(result)
-	//	CP_Sound_Shutdown();
-	//	return;
-	//}
+	// Create the groups (for stopping/pausing and controlling pitch and volume on a per group basis)
+	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX && result == AE_OK; ++index)
+	{
+		result = AE_Group_CreateGroup(_audio_system, &channel_groups[index]);
+	}
+	if (result != AE_OK)
+	{
+		// TODO: handle error - FMOD_ErrorString(result)
+		CP_Sound_Shutdown();
+		return;
+	}
 }
 
 void CP_Sound_Update(void)
@@ -126,42 +126,42 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 
 	CP_Sound sound = NULL;
 
-	//// Check if the sound is already loaded
-	//sound = CP_CheckIfSoundIsLoaded(filepath);
-	//if (sound)
-	//{
-	//	return sound;
-	//}
+	// Check if the sound is already loaded
+	sound = CP_CheckIfSoundIsLoaded(filepath);
+	if (sound)
+	{
+		return sound;
+	}
 
-	//// Allocate memory for the struct
-	//sound = (CP_Sound)malloc(sizeof(CP_Sound_Struct));
-	//if (!sound)
-	//{
-	//	// TODO handle error 
-	//	return NULL;
-	//}
+	// Allocate memory for the struct
+	sound = (CP_Sound)malloc(sizeof(CP_Sound_Struct));
+	if (!sound)
+	{
+		// TODO handle error 
+		return NULL;
+	}
 
-	//// Create the sound
-	//if (streamFromDisc)
-	//{
-	//	result = AE_Sounds_LoadSound(_audio_system, &(sound->sound), filepath, 1);
-	//}
-	//else
-	//{
-	//	result = AE_Sounds_LoadSound(_audio_system, &(sound->sound), filepath, 0);
-	//}
-	//if (result != AE_OK)
-	//{
-	//	// TODO: handle error - FMOD_ErrorString(result)
-	//	free(sound);
-	//	return NULL;
-	//}
+	// Create the sound
+	if (streamFromDisc)
+	{
+		result = AE_Sounds_LoadSound(_audio_system, &(sound->sound), filepath, 1);
+	}
+	else
+	{
+		result = AE_Sounds_LoadSound(_audio_system, &(sound->sound), filepath, 0);
+	}
+	if (result != AE_OK)
+	{
+		// TODO: handle error - FMOD_ErrorString(result)
+		free(sound);
+		return NULL;
+	}
 
-	//// Set filepath string for cache checking
-	//strcpy_s(sound->filepath, MAX_PATH, filepath);
+	// Set filepath string for cache checking
+	strcpy_s(sound->filepath, MAX_PATH, filepath);
 
-	//// Add it to the list
-	//vect_push_CP_Sound(sound_vector, sound);
+	// Add it to the list
+	vect_push_CP_Sound(sound_vector, sound);
 
 	return sound;
 }
