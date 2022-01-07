@@ -9,6 +9,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Processing_Sample", "Proces
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CProcessing", "CProcessing\CProcessing.vcxproj", "{096F3A60-23A6-4A26-A2E9-158F167627F8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{280ADA70-CB24-4BF5-89DB-B1707E40E4BE} = {280ADA70-CB24-4BF5-89DB-B1707E40E4BE}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic Audio Engine", "AudioEngine\Basic Audio Engine.vcxproj", "{280ADA70-CB24-4BF5-89DB-B1707E40E4BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +39,14 @@ Global
 		{096F3A60-23A6-4A26-A2E9-158F167627F8}.Release|x64.Build.0 = Release|x64
 		{096F3A60-23A6-4A26-A2E9-158F167627F8}.Release|x86.ActiveCfg = Release|Win32
 		{096F3A60-23A6-4A26-A2E9-158F167627F8}.Release|x86.Build.0 = Release|Win32
+		{280ADA70-CB24-4BF5-89DB-B1707E40E4BE}.Debug|x64.ActiveCfg = Debug|x64
+		{280ADA70-CB24-4BF5-89DB-B1707E40E4BE}.Debug|x64.Build.0 = Debug|x64
+		{280ADA70-CB24-4BF5-89DB-B1707E40E4BE}.Debug|x86.ActiveCfg = Debug|Win32
+		{280ADA70-CB24-4BF5-89DB-B1707E40E4BE}.Debug|x86.Build.0 = Debug|Win32
+		{280ADA70-CB24-4BF5-89DB-B1707E40E4BE}.Release|x64.ActiveCfg = Release|x64
+		{280ADA70-CB24-4BF5-89DB-B1707E40E4BE}.Release|x64.Build.0 = Release|x64
+		{280ADA70-CB24-4BF5-89DB-B1707E40E4BE}.Release|x86.ActiveCfg = Release|Win32
+		{280ADA70-CB24-4BF5-89DB-B1707E40E4BE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

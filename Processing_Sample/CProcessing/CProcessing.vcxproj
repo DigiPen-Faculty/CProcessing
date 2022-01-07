@@ -74,7 +74,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x86\</OutDir>
-    <IncludePath>$(ProjectDir)FMOD/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)AudioEngine\Audio Engine;$(ProjectDir)FMOD/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)FMOD/lib/x86;$(ProjectDir)GLFW/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <TargetName>$(ProjectName)d</TargetName>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
@@ -82,19 +82,19 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x86\</OutDir>
-    <IncludePath>$(ProjectDir)FMOD/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)AudioEngine\Audio Engine;$(ProjectDir)FMOD/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)FMOD/lib/x86;$(ProjectDir)GLFW/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)FMOD/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)AudioEngine\Audio Engine;$(ProjectDir)FMOD/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)FMOD/lib/x64;$(ProjectDir)GLFW/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x64\</OutDir>
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)FMOD/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)AudioEngine\Audio Engine;$(ProjectDir)FMOD/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)FMOD/lib/x64;$(ProjectDir)GLFW/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x64\</OutDir>
@@ -252,6 +252,11 @@ xcopy "$(ProjectDir)FMOD\lib\x64\fmod.dll" "$(ProjectDir)lib\x64\*" /s /r /y /q 
     <None Include="nanovg\src\nanovg_gl_utils.h.gch" />
     <None Include="nanovg\src\stb_image.h.gch" />
     <None Include="nanovg\src\stb_truetype.h.gch" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AudioEngine\Basic Audio Engine.vcxproj">
+      <Project>{280ada70-cb24-4bf5-89db-b1707e40e4be}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

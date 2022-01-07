@@ -2822,7 +2822,7 @@ int main(void)
 
 	//CP_Engine_SetNextGameState(NULL, text_demo, NULL);
 	//CP_Engine_SetNextGameState(NULL, time_test, NULL);
-	//CP_Engine_SetNextGameState(NULL, audio_test, NULL);
+	CP_Engine_SetNextGameState(NULL, audio_test, NULL);
 	//CP_Engine_SetNextGameState(mouse_setup, mouse_follower, NULL);
 
 	//CP_Engine_SetNextGameState(image_test_setup, image_test, NULL);
@@ -2867,7 +2867,7 @@ int main(void)
 	//CP_Engine_SetNextGameState(initfr, updatefr, NULL);
 	//CP_Engine_SetNextGameState(inittint, updatetint, NULL);
 
-	CP_Engine_SetNextGameState(JUSTIN_DEMO_INIT, JUSTIN_DEMO_UPDATE_CP_COLORHSV, NULL);
+	//CP_Engine_SetNextGameState(JUSTIN_DEMO_INIT, JUSTIN_DEMO_UPDATE_CP_COLORHSV, NULL);
 
 	CP_Engine_Run();
 	return 0;
