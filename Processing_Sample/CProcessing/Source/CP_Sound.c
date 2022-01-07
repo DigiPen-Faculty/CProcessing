@@ -29,11 +29,16 @@ static AE_System* _audio_system = NULL;
 
 static vect_CP_Sound* sound_vector = NULL;
 
-static AE_SoundGroup* channel_groups[CP_SOUND_GROUP_MAX] = { NULL };
+static AE_SoundGroup* sound_groups[CP_SOUND_GROUP_MAX] = { NULL };
 
 //------------------------------------------------------------------------------
 // Internal Functions:
 //------------------------------------------------------------------------------
+
+static void CP_PrintAudioError(AE_RESULT error)
+{
+	printf("Audio error: %s\n", AE_GetErrorText(error));
+}
 
 static BOOL CP_IsValidSoundGroup(CP_SOUND_GROUP group)
 {
@@ -63,8 +68,7 @@ void CP_Sound_Init(void)
 	result = AE_System_Initialize(&_audio_system);
 	if (result != AE_OK)
 	{
-		// TODO: handle error - FMOD_ErrorString(result)
-		printf("audio error");
+		CP_PrintAudioError(result);
 		_audio_system = NULL;
 		return;
 	}
@@ -72,11 +76,11 @@ void CP_Sound_Init(void)
 	// Create the groups (for stopping/pausing and controlling pitch and volume on a per group basis)
 	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX && result == AE_OK; ++index)
 	{
-		result = AE_Group_CreateGroup(_audio_system, &channel_groups[index]);
+		result = AE_Group_CreateGroup(_audio_system, &sound_groups[index]);
 	}
 	if (result != AE_OK)
 	{
-		// TODO: handle error - FMOD_ErrorString(result)
+		CP_PrintAudioError(result);
 		CP_Sound_Shutdown();
 		return;
 	}
@@ -137,7 +141,6 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 	sound = (CP_Sound)malloc(sizeof(CP_Sound_Struct));
 	if (!sound)
 	{
-		// TODO handle error 
 		return NULL;
 	}
 
@@ -152,7 +155,7 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 	}
 	if (result != AE_OK)
 	{
-		// TODO: handle error - FMOD_ErrorString(result)
+		CP_PrintAudioError(result);
 		free(sound);
 		return NULL;
 	}
@@ -195,9 +198,10 @@ CP_API void CP_Sound_Free(CP_Sound* sound)
 		{
 			// Remove the sound from the list
 			vect_rem_CP_Sound(sound_vector, i);
-			// Release the sound from FMOD
+			// Release the sound 
 			result = AE_Sounds_ReleaseSound(_audio_system, (*sound)->sound);
-			// TODO handle error
+			if (result != AE_OK)
+				CP_PrintAudioError(result);
 			// Free the struct's memory
 			free(*sound);
 			*sound = NULL;
@@ -229,10 +233,10 @@ CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_
 	AE_SoundInstance* instance;
 
 	// Start the sound paused so we can set parameters on it
-	result = AE_Sounds_PlaySound(_audio_system, sound->sound, &instance, looping, 1, channel_groups[group]);
+	result = AE_Sounds_PlaySound(_audio_system, sound->sound, &instance, looping, 1, sound_groups[group]);
 	if (result != AE_OK)
 	{
-		// TODO: handle error - FMOD_ErrorString(result)
+		CP_PrintAudioError(result);
 		return;
 	}
 
@@ -244,7 +248,8 @@ CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_
 			volume = 0.0f;
 
 		result = AE_Instance_SetVolume(_audio_system, instance, volume);
-		// TODO: handle error - FMOD_ErrorString(result)
+		if (result != AE_OK)
+			CP_PrintAudioError(result);
 	}
 
 	// Set the pitch if it is not 1.0
@@ -255,23 +260,23 @@ CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_
 			pitch = 0.0f;
 
 		result = AE_Instance_SetPitch(_audio_system, instance, pitch);
-		// TODO: handle error - FMOD_ErrorString(result)
+		if (result != AE_OK)
+			CP_PrintAudioError(result);
 	}
 
 	// Resume playing the sound
 	result = AE_Instance_SetPaused(_audio_system, instance, 0);
-	// TODO: handle error - FMOD_ErrorString(result)
+	if (result != AE_OK)
+		CP_PrintAudioError(result);
 }
 
 CP_API void CP_Sound_PauseAll(void)
 {
 	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX; ++index)
 	{
-		result = AE_Group_SetPaused(_audio_system, channel_groups[index], 1);
+		result = AE_Group_SetPaused(_audio_system, sound_groups[index], 1);
 		if (result != AE_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+			CP_PrintAudioError(result);
 	}
 }
 
@@ -279,11 +284,9 @@ CP_API void CP_Sound_PauseGroup(CP_SOUND_GROUP group)
 {
 	if(CP_IsValidSoundGroup(group))
 	{
-		result = AE_Group_SetPaused(_audio_system, channel_groups[group], 1);
+		result = AE_Group_SetPaused(_audio_system, sound_groups[group], 1);
 		if (result != AE_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+			CP_PrintAudioError(result);
 	}
 }
 
@@ -291,11 +294,9 @@ CP_API void CP_Sound_ResumeAll(void)
 {
 	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX; ++index)
 	{
-		result = AE_Group_SetPaused(_audio_system, channel_groups[index], 0);
+		result = AE_Group_SetPaused(_audio_system, sound_groups[index], 0);
 		if (result != AE_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+			CP_PrintAudioError(result);
 	}
 }
 
@@ -303,11 +304,9 @@ CP_API void CP_Sound_ResumeGroup(CP_SOUND_GROUP group)
 {
 	if (CP_IsValidSoundGroup(group))
 	{
-		result = AE_Group_SetPaused(_audio_system, channel_groups[group], 0);
+		result = AE_Group_SetPaused(_audio_system, sound_groups[group], 0);
 		if (result != AE_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+			CP_PrintAudioError(result);
 	}
 }
 
@@ -315,11 +314,9 @@ CP_API void CP_Sound_StopAll(void)
 {
 	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX; ++index)
 	{
-		result = AE_Group_Stop(_audio_system, channel_groups[index]);
+		result = AE_Group_Stop(_audio_system, sound_groups[index]);
 		if (result != AE_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+			CP_PrintAudioError(result);
 	}
 }
 
@@ -327,11 +324,9 @@ CP_API void CP_Sound_StopGroup(CP_SOUND_GROUP group)
 {
 	if (CP_IsValidSoundGroup(group))
 	{
-		result = AE_Group_Stop(_audio_system, channel_groups[group]);
+		result = AE_Group_Stop(_audio_system, sound_groups[group]);
 		if (result != AE_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+			CP_PrintAudioError(result);
 	}
 }
 
@@ -339,11 +334,9 @@ CP_API void CP_Sound_SetGroupVolume(CP_SOUND_GROUP group, float volume)
 {
 	if (CP_IsValidSoundGroup(group))
 	{
-		result = AE_Group_SetVolume(_audio_system, channel_groups[group], volume);
+		result = AE_Group_SetVolume(_audio_system, sound_groups[group], volume);
 		if (result != AE_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+			CP_PrintAudioError(result);
 	}
 }
 
@@ -352,11 +345,9 @@ CP_API float CP_Sound_GetGroupVolume(CP_SOUND_GROUP group)
 	float volume = 0;
 	if (CP_IsValidSoundGroup(group))
 	{
-		result = AE_Group_GetVolume(_audio_system, channel_groups[group], &volume);
+		result = AE_Group_GetVolume(_audio_system, sound_groups[group], &volume);
 		if (result != AE_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+			CP_PrintAudioError(result);
 	}
 	return volume;
 }
@@ -365,11 +356,9 @@ CP_API void CP_Sound_SetGroupPitch(CP_SOUND_GROUP group, float pitch)
 {
 	if (CP_IsValidSoundGroup(group))
 	{
-		result = AE_Group_SetPitch(_audio_system, channel_groups[group], pitch);
+		result = AE_Group_SetPitch(_audio_system, sound_groups[group], pitch);
 		if (result != AE_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+			CP_PrintAudioError(result);
 	}
 }
 
@@ -378,11 +367,9 @@ CP_API float CP_Sound_GetGroupPitch(CP_SOUND_GROUP group)
 	float pitch = 0;
 	if (CP_IsValidSoundGroup(group))
 	{
-		result = AE_Group_GetPitch(_audio_system, channel_groups[group], &pitch);
+		result = AE_Group_GetPitch(_audio_system, sound_groups[group], &pitch);
 		if (result != AE_OK)
-		{
-			// TODO: handle error - FMOD_ErrorString(result)
-		}
+			CP_PrintAudioError(result);
 	}
 	return pitch;
 }

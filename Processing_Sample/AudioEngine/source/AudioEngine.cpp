@@ -319,3 +319,38 @@ AE_RESULT AE_Group_SetPitch(AE_System* system, AE_SoundGroup* group, float pitch
 
     return system->Mixer.SetGroupPitch(group->GroupID, pitch);
 }
+
+//*********************************************************************************************************************
+const char* AE_GetErrorText(AE_RESULT result)
+{
+    switch (result)
+    {
+    case AE_OK:
+        return "No errors";
+    case AE_POINTER_NOT_VALID:
+        return "Pointer was not valid";
+    case AE_SOUND_STILL_PLAYING:
+        return "Sound is still playing";
+    case AE_STREAMING_SOUND_ALREADY_PLAYING:
+        return "Streaming sound is already playing, can't play again";
+    case AE_ERROR_OPENING_FILE:
+        return "Error opening file";
+    case AE_ERROR_UNSUPPORTED_FILE_TYPE:
+        return "Unsupported file type";
+    case AE_ERROR_READING_AUDIO_FILE:
+        return "Problem reading audio file";
+    case AE_SOUND_NOT_LOADED:
+        return "Sound not loaded";
+    case AE_ERROR_STARTING_AUDIO_OUTPUT:
+        return "Problem starting audio output";
+    case AE_INSTANCE_DOES_NOT_EXIST:
+        return "Sound instance does not exist";
+    case AE_MAXIMUM_GROUPS_REACHED:
+        return "Maximum number of sound groups reached";
+    case AE_INVALID_GROUP_ID:
+        return "Invalid sound group ID";
+
+    default:
+        return "No error text available";
+    }
+}

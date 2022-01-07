@@ -77,6 +77,8 @@ AE_RESULT AE_Group_GetPitch(AE_System* system, AE_SoundGroup* group, float* pitc
 
 AE_RESULT AE_Group_SetPitch(AE_System* system, AE_SoundGroup* group, float pitch);
 
+const char* AE_GetErrorText(AE_RESULT result);
+
 #ifdef __cplusplus
 }
 #endif
