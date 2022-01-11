@@ -120,7 +120,7 @@ namespace AudioEngine
     //*****************************************************************************************************************
     void SoundAsset::DecodingCallback(DecodedPacket* packet)
     {
-        int samplesCopied = (int)packet->mSamples.size();
+        unsigned samplesCopied = (int)packet->mSamples.size();
         if (samplesCopied > mSamples.size() - mSamplesAvailable_Shared)
             samplesCopied = (int)mSamples.size() - (int)mSamplesAvailable_Shared;
 

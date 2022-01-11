@@ -184,7 +184,7 @@ namespace AudioEngine
         if (!VolumeInterpolator.Finished() || !AudioConstants::IsWithinLimit(mVolume, 1.0f, 0.01f))
         {
             float volume = mVolume;
-            for (int i = 0; i < samples.size(); i += outputChannels)
+            for (unsigned i = 0; i < samples.size(); i += outputChannels)
             {
                 // If interpolating volume, get new value
                 if (!VolumeInterpolator.Finished())

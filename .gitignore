@@ -65,3 +65,7 @@ Processing_Sample/CProcessingPackage/
 
 x64/
 *.user
+/Processing_Sample/AudioEngine/Debug
+/Processing_Sample/AudioEngine/Release
+/Processing_Sample/Debug
+/Processing_Sample/Release
