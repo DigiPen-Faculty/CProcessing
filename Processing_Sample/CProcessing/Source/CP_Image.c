@@ -14,6 +14,7 @@
 #include "cprocessing.h"
 #include "Internal_Image.h"
 #include "Internal_System.h"
+#include "vect.h"
 
 //------------------------------------------------------------------------------
 // Defines and Internal Variables:
@@ -21,9 +22,11 @@
 
 #define CP_INITIAL_IMAGE_COUNT 100
 
-static CP_Image* images = NULL;
-static unsigned  image_num = 0;
-static unsigned  image_max = CP_INITIAL_IMAGE_COUNT;
+VECT_GENERATE_TYPE(CP_Image)
+
+static vect_CP_Image* active_images = NULL;
+// This part is for later.
+static vect_CP_Image* free_image_queue = NULL;
 
 //------------------------------------------------------------------------------
 // Internal Functions:
@@ -31,11 +34,12 @@ static unsigned  image_max = CP_INITIAL_IMAGE_COUNT;
 
 static CP_Image CP_CheckIfImageIsLoaded(const char* filepath)
 {
-	for (unsigned i = 0; i < image_num; ++i)
+	for (unsigned i = 0; i < active_images->size; ++i)
 	{
-		if (images[i] && !strcmp(filepath, images[i]->filepath))
+		CP_Image const image = vect_at_CP_Image(active_images, i);
+		if (image && !strcmp(filepath, image->filepath))
 		{
-			return images[i];
+			return image;
 		}
 	}
 
@@ -44,27 +48,33 @@ static CP_Image CP_CheckIfImageIsLoaded(const char* filepath)
 
 static void CP_AddImageHandle(CP_Image img)
 {
-	// allocate the array if it doesnt exist
-	if (images == NULL)
+	// Try to add it to an empty position
+	for(size_t i = 0; i < active_images->size; ++i)
 	{
-		images = (CP_Image*)calloc(CP_INITIAL_IMAGE_COUNT, sizeof(CP_Image));
+		CP_Image* image = vect_ptr_CP_Image(active_images, i);
+		if (*image == NULL)
+		{
+			// If an empty image was found then we can simply write there
+			*image = img;
+			return;
+		}
 	}
+	
+	// Otherwise we must add a new image to the vect
+	vect_push_CP_Image(active_images, img);
+	// A further unnecessary optimization is to keep track of how many empty position we have.
+	return;
+}
 
-	// track the image handle for unloading
-	images[image_num++] = img;
-
-	if (image_num == image_max)
+void CP_Image_Init(void)
+{
+	if (active_images == NULL)
 	{
-		// store the current array
-		CP_Image * temp = images;
-		// allocate an array twice the size
-		images = (CP_Image*)calloc(image_max * 2, sizeof(CP_Image));
-		// copy over the old data
-		memcpy_s(images, image_max * 2 * sizeof(CP_Image), temp, image_max * sizeof(CP_Image));
-		// double the size
-		image_max *= 2;
-		// free the old array
-		free(temp);
+		active_images = vect_init_CP_Image(CP_INITIAL_IMAGE_COUNT);
+	}
+	if (free_image_queue == NULL)
+	{
+		free_image_queue = vect_init_CP_Image(CP_INITIAL_IMAGE_COUNT);
 	}
 }
 
@@ -72,14 +82,23 @@ void CP_ImageShutdown(void)
 {
 	CP_CorePtr CORE = GetCPCore();
 	if (!CORE || !CORE->nvg) return;
-	for (unsigned i = 0; i < image_num; ++i)
+
+	// Free all images.
+	for (unsigned i = 0; i < active_images->size; ++i)
 	{
-		if (images[i]) // check if its null
+		CP_Image const image = vect_at_CP_Image(active_images, i);
+		if (image) // check if its null
 		{
-			nvgDeleteImage(CORE->nvg, images[i]->handle); // free nanoVG's data
-			free(images[i]); // free the image struct
+			nvgDeleteImage(CORE->nvg, image->handle); // free nanoVG's data
+			free(image); // free the image struct
 		}
 	}
+	// Also gotta clear the image queue just to make sure.
+	CP_Image_ClearQueue_Free();
+
+	vect_free_CP_Image(active_images);
+	vect_free_CP_Image(free_image_queue);
+	return;
 }
 
 static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float h, float s0, float t0, float s1, float t1, int alpha, float degrees)
@@ -147,6 +166,14 @@ static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float
 
 CP_API CP_Image CP_Image_Load(const char* filepath)
 {
+	// In case people load before running c processing (it already handles stuff being null)
+	CP_Image_Init();
+
+	if (active_images == NULL)
+	{
+		active_images = vect_init_CP_Image(CP_INITIAL_IMAGE_COUNT);
+	}
+
 	if (!filepath)
 	{
 		return NULL;
@@ -189,7 +216,6 @@ CP_API CP_Image CP_Image_Load(const char* filepath)
 
 	// populate width/height
 	nvgImageSize(CORE->nvg, img->handle, &img->w, &img->h);
-
 	img->load_error = FALSE;
 
 	CP_AddImageHandle(img);
@@ -207,15 +233,13 @@ CP_API void CP_Image_Free(CP_Image* img)
 	CP_CorePtr CORE = GetCPCore();
 	if (!CORE || !CORE->nvg) return;
 
-	for (unsigned i = 0; i < image_num; ++i)
+	for (unsigned i = 0; i < active_images->size; ++i)
 	{
-		if (images[i] && images[i] == *img)
+		CP_Image* image = vect_ptr_CP_Image(active_images, i);
+		if (*image && *image == *img)
 		{
-			nvgDeleteImage(CORE->nvg, images[i]->handle); // free nanoVG's data
-			free(images[i]);
-			images[i] = NULL;
-			*img = NULL;
-			return;
+			vect_push_CP_Image(free_image_queue, *image);
+			*image = NULL;
 		}
 	}
 }
@@ -306,6 +330,7 @@ CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 	{
 		return NULL;
 	}
+
 	CP_CorePtr CORE = GetCPCore();
 
 	// glReadPixles uses x,y as the lower left, so lets convert that
@@ -365,4 +390,23 @@ CP_API void CP_Image_UpdatePixelData(CP_Image img, CP_Color* pixelDataInput)
 	}
 
 	nvgUpdateImage(CORE->nvg, img->handle, (unsigned char*)pixelDataInput);
+}
+
+void CP_Image_ClearQueue_Free()
+{
+	CP_CorePtr CORE = GetCPCore();
+	if (!CORE || !CORE->nvg) return;
+
+	// We want to free every image
+	while(free_image_queue->size)
+	{
+		// Grab the image at the end
+		CP_Image* image = vect_ptr_CP_Image(free_image_queue, free_image_queue->size - 1);
+
+		// Deletion of image
+		nvgDeleteImage(CORE->nvg, (*image)->handle); // free nanoVG's data
+		free(*image);
+
+		vect_pop_CP_Image(free_image_queue);
+	}
 }
