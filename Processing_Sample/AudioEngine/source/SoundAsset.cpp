@@ -40,8 +40,8 @@ namespace AudioEngine
 
         mChannels = mDecoder.mFileData.mNumberOfChannels;
         if (mDecoder.mFileData.mSampleRate != gMixer->GetSampleRate())
-            mFrames = (unsigned)(mDecoder.mFileData.mNumberOfFrames * (double)mDecoder.mFileData.mSampleRate
-                / (double)gMixer->GetSampleRate());
+            mFrames = (unsigned)(mDecoder.mFileData.mNumberOfFrames / ((double)mDecoder.mFileData.mSampleRate
+                / (double)gMixer->GetSampleRate()));
         else
             mFrames = mDecoder.mFileData.mNumberOfFrames;
 
