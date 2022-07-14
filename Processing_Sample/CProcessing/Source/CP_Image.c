@@ -80,6 +80,11 @@ void CP_ImageShutdown(void)
 			free(images[i]); // free the image struct
 		}
 	}
+
+	
+	if (images) {
+		free(images);
+	}
 }
 
 static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float h, float s0, float t0, float s1, float t1, int alpha, float degrees)
