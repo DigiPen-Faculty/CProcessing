@@ -45,5 +45,5 @@ xcopy .\CProcessing\inc\cprocessing_common.h .\CProcessingPackage\CProcessing\in
 rem --- Zipping phase --- 
 rem I hope you are on Powershell v5 or above...
 pushd .\CProcessingPackage
-powershell Compress-Archive -LiteralPath "CProcessing" -DestinationPath "CProcessing.zip"
+powershell Compress-Archive -LiteralPath "CProcessing" -DestinationPath "CProcessingSG.zip"
 popd
