@@ -258,6 +258,11 @@ CP_API void CP_Image_DrawSubImage(CP_Image img, float x, float y, float w, float
 	CP_Image_DrawInternal(img, x, y, w, h, u0, v0, u1, v1, alpha, 0);
 }
 
+CP_API void CP_Image_DrawSubImageAdvanced(CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha, float degrees)
+{
+	CP_Image_DrawInternal(img, x, y, w, h, u0, v0, u1, v1, alpha, degrees);
+}
+
 CP_API CP_Image CP_Image_CreateFromData(int w, int h, unsigned char* pixelDataInput)
 {
 	if (!pixelDataInput)

@@ -157,6 +157,7 @@ CP_API int				CP_Image_GetHeight					(CP_Image img);
 CP_API void				CP_Image_Draw						(CP_Image img, float x, float y, float w, float h, int alpha);
 CP_API void				CP_Image_DrawAdvanced				(CP_Image img, float x, float y, float w, float h, int alpha, float degrees);
 CP_API void				CP_Image_DrawSubImage				(CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha);
+CP_API void				CP_Image_DrawSubImageAdvanced       (CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha, float degrees);
 CP_API CP_Image			CP_Image_CreateFromData				(int w, int h, unsigned char* pixelDataInput);
 CP_API CP_Image			CP_Image_Screenshot					(int x, int y, int w, int h);
 CP_API void				CP_Image_GetPixelData				(CP_Image img, CP_Color* pixelDataOutput);
