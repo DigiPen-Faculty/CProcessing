@@ -31,12 +31,12 @@ xcopy .\CProcessing\lib\x64\fmod.dll .\CProcessingPackageSG\CProcessing\lib\x64 
 xcopy .\CProcessing\lib\x64\fmodL.dll .\CProcessingPackageSG\CProcessing\lib\x64 /s /r /y /q
 
 rem x86
-xcopy .\CProcessing\lib\Win32\CProcessing.lib .\CProcessingPackageSG\CProcessing\lib\x86 /s /r /y /q
-xcopy .\CProcessing\lib\Win32\CProcessing.dll .\CProcessingPackageSG\CProcessing\lib\x86 /s /r /y /q
-xcopy .\CProcessing\lib\Win32\CProcessingd.lib .\CProcessingPackageSG\CProcessing\lib\x86 /s /r /y /q
-xcopy .\CProcessing\lib\Win32\CProcessingd.dll .\CProcessingPackageSG\CProcessing\lib\x86 /s /r /y /q
-xcopy .\CProcessing\lib\Win32\fmod.dll .\CProcessingPackageSG\CProcessing\lib\x86 /s /r /y /q
-xcopy .\CProcessing\lib\Win32\fmodL.dll .\CProcessingPackageSG\CProcessing\lib\x86 /s /r /y /q
+xcopy .\CProcessing\lib\x86\CProcessing.lib .\CProcessingPackageSG\CProcessing\lib\x86 /s /r /y /q
+xcopy .\CProcessing\lib\x86\CProcessing.dll .\CProcessingPackageSG\CProcessing\lib\x86 /s /r /y /q
+xcopy .\CProcessing\lib\x86\CProcessingd.lib .\CProcessingPackageSG\CProcessing\lib\x86 /s /r /y /q
+xcopy .\CProcessing\lib\x86\CProcessingd.dll .\CProcessingPackageSG\CProcessing\lib\x86 /s /r /y /q
+xcopy .\CProcessing\lib\x86\fmod.dll .\CProcessingPackageSG\CProcessing\lib\x86 /s /r /y /q
+xcopy .\CProcessing\lib\x86\fmodL.dll .\CProcessingPackageSG\CProcessing\lib\x86 /s /r /y /q
 
 rem inc
 xcopy .\CProcessing\inc\cprocessing.h .\CProcessingPackageSG\CProcessing\inc /s /r /y /q
