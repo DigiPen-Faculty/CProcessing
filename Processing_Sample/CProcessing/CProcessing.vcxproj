@@ -247,6 +247,7 @@ xcopy "$(ProjectDir)FMOD\lib\x64\fmod.dll" "$(ProjectDir)lib\x64\*" /s /r /y /q 
     <ClCompile Include="Source\vect.c" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="nanovg\src\nanovg.h.gch" />
     <None Include="nanovg\src\nanovg_gl.h.gch" />
     <None Include="nanovg\src\nanovg_gl_utils.h.gch" />
