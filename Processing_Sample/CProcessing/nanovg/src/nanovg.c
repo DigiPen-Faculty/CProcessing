@@ -398,9 +398,9 @@ void nvgBeginFrame(NVGcontext* ctx, int windowWidth, int windowHeight, float dev
 		ctx->drawCallCount, ctx->fillTriCount, ctx->strokeTriCount, ctx->textTriCount,
 		ctx->fillTriCount+ctx->strokeTriCount+ctx->textTriCount);*/
 
-	ctx->nstates = 0;
-	nvgSave(ctx);
-	//nvgReset(ctx);	// TODO: remove this line to maintain graphics state settings across frames (blend, stroke, fill, etc.)
+	//ctx->nstates = 0;
+	//nvgSave(ctx);
+	//nvgReset(ctx);	// TODO: remove these lines to maintain graphics state settings across frames (blend, stroke, fill, etc.)
 
 	nvg__setDevicePixelRatio(ctx, devicePixelRatio);
 
