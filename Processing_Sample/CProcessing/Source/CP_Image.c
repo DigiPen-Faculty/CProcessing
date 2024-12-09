@@ -60,7 +60,7 @@ void CP_Image_Clear_Vect(vect_CP_Image* vector)
 	while (vector->size)
 	{
 		// start at the end
-		CP_Image const image = vect_at_CP_Image(vector, (unsigned)vector->size - 1);
+		CP_Image const image = vect_at_CP_Image(vector, vector->size - 1);
 
 		nvgDeleteImage(CORE->nvg, image->handle); // free nanoVG's data
 		free(image);
