@@ -409,6 +409,9 @@ void CP_Initialize(void)
 	// Sound Init
 	CP_Sound_Init();
 
+	// Image Init
+	CP_Image_Init();
+
 	// once everything is setup, show the window
 	glfwShowWindow(_CORE.window);
 
@@ -426,13 +429,16 @@ void CP_Update(void)
 
 	// Audio Update
 	CP_Sound_Update();
+
+	// Image Update
+	CP_Image_Update();
 }
 
 void CP_Shutdown(void)
 {
-	CP_ImageShutdown();
 	CP_Text_Shutdown();
 	CP_Sound_Shutdown();
+	CP_Image_Shutdown();
 
 	// Clean up glfw and nvg
 	glfwTerminate();

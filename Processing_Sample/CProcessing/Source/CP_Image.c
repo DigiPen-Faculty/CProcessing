@@ -14,16 +14,18 @@
 #include "cprocessing.h"
 #include "Internal_Image.h"
 #include "Internal_System.h"
+#include "vect.h"
 
 //------------------------------------------------------------------------------
 // Defines and Internal Variables:
 //------------------------------------------------------------------------------
 
-#define CP_INITIAL_IMAGE_COUNT 100
+#define CP_INITIAL_IMAGE_COUNT 12
 
-static CP_Image* images = NULL;
-static unsigned  image_num = 0;
-static unsigned  image_max = CP_INITIAL_IMAGE_COUNT;
+VECT_GENERATE_TYPE(CP_Image)
+
+static vect_CP_Image* image_vector = NULL;
+static vect_CP_Image* free_image_queue = NULL; // free image in the same frame can result in the image not being drawn
 
 //------------------------------------------------------------------------------
 // Internal Functions:
@@ -31,11 +33,12 @@ static unsigned  image_max = CP_INITIAL_IMAGE_COUNT;
 
 static CP_Image CP_CheckIfImageIsLoaded(const char* filepath)
 {
-	for (unsigned i = 0; i < image_num; ++i)
+	for (unsigned i = 0; i < image_vector->size; ++i)
 	{
-		if (images[i] && !strcmp(filepath, images[i]->filepath))
+		CP_Image const image = vect_at_CP_Image(image_vector, i);
+		if (image && !strcmp(filepath, image->filepath))
 		{
-			return images[i];
+			return image;
 		}
 	}
 
@@ -44,47 +47,56 @@ static CP_Image CP_CheckIfImageIsLoaded(const char* filepath)
 
 static void CP_AddImageHandle(CP_Image img)
 {
-	// allocate the array if it doesnt exist
-	if (images == NULL)
-	{
-		images = (CP_Image*)calloc(CP_INITIAL_IMAGE_COUNT, sizeof(CP_Image));
-	}
-
-	// track the image handle for unloading
-	images[image_num++] = img;
-
-	if (image_num == image_max)
-	{
-		// store the current array
-		CP_Image * temp = images;
-		// allocate an array twice the size
-		images = (CP_Image*)calloc(image_max * 2, sizeof(CP_Image));
-		// copy over the old data
-		memcpy_s(images, image_max * 2 * sizeof(CP_Image), temp, image_max * sizeof(CP_Image));
-		// double the size
-		image_max *= 2;
-		// free the old array
-		free(temp);
-	}
+	// push a new image
+	vect_push_CP_Image(image_vector, img);
 }
 
-void CP_ImageShutdown(void)
+void CP_Image_Clear_Vect(vect_CP_Image* vector)
 {
 	CP_CorePtr CORE = GetCPCore();
 	if (!CORE || !CORE->nvg) return;
-	for (unsigned i = 0; i < image_num; ++i)
-	{
-		if (images[i]) // check if its null
-		{
-			nvgDeleteImage(CORE->nvg, images[i]->handle); // free nanoVG's data
-			free(images[i]); // free the image struct
-		}
-	}
 
-	if (images)
+	// free every queued image
+	while (vector->size)
 	{
-		free(images);
+		// start at the end
+		CP_Image const image = vect_at_CP_Image(vector, (unsigned)vector->size - 1);
+
+		nvgDeleteImage(CORE->nvg, image->handle); // free nanoVG's data
+		free(image);
+
+		vect_pop_CP_Image(vector);
 	}
+}
+
+void CP_Image_Init(void)
+{
+	if (image_vector == NULL)
+	{
+		image_vector = vect_init_CP_Image(CP_INITIAL_IMAGE_COUNT);
+	}
+	if (free_image_queue == NULL)
+	{
+		free_image_queue = vect_init_CP_Image(CP_INITIAL_IMAGE_COUNT);
+	}
+}
+
+void CP_Image_Update(void)
+{
+	CP_Image_Clear_Vect(free_image_queue);
+}
+
+void CP_Image_Shutdown(void)
+{
+	CP_CorePtr CORE = GetCPCore();
+	if (!CORE || !CORE->nvg) return;
+
+	// free all images
+	CP_Image_Clear_Vect(image_vector);
+	CP_Image_Clear_Vect(free_image_queue);
+
+	vect_free_CP_Image(image_vector);
+	vect_free_CP_Image(free_image_queue);
 }
 
 static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float h, float s0, float t0, float s1, float t1, int alpha, float degrees)
@@ -209,20 +221,20 @@ CP_API void CP_Image_Free(CP_Image* img)
 		return;
 	}
 
-	CP_CorePtr CORE = GetCPCore();
-	if (!CORE || !CORE->nvg) return;
-
-	for (unsigned i = 0; i < image_num; ++i)
+	// find the image in the list
+	for (unsigned i = 0; i < image_vector->size; ++i)
 	{
-		if (images[i] && images[i] == *img)
+		if (vect_at_CP_Image(image_vector, i) == *img)
 		{
-			nvgDeleteImage(CORE->nvg, images[i]->handle); // free nanoVG's data
-			free(images[i]);
-			images[i] = NULL;
+			// remove the image from the list and place on the free queue
+			vect_rem_CP_Image(image_vector, i);
+			vect_push_CP_Image(free_image_queue, *img);
 			*img = NULL;
 			return;
 		}
 	}
+
+	// TODO: handle error - we reached the end of the list without finding the image
 }
 
 CP_API int CP_Image_GetWidth(CP_Image img)
