@@ -287,7 +287,7 @@ void CP_Initialize(void)
 
 	// Initialize first CP_DrawInfo
 	_CORE.nstates = 1;
-	GetDrawInfo()->rect_mode = CP_POSITION_CENTER;
+	GetDrawInfo()->rect_mode = CP_POSITION_CORNER;
 	GetDrawInfo()->ellipse_mode = CP_POSITION_CENTER;
 	GetDrawInfo()->image_mode = CP_POSITION_CENTER;
 	GetDrawInfo()->fill = TRUE;
