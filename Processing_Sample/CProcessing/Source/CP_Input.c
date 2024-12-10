@@ -316,10 +316,11 @@ void CP_Input_WorldMouseUpdate(void)
 	CP_CorePtr CORE = GetCPCore();
 	if (!CORE || !CORE->nvg) return;
 
-	float t[6] = { 0 };
-	nvgCurrentTransform(CORE->nvg, t); // world to screen
-	nvgTransformInverse(t, t);         // screen to world
-	nvgTransformPoint(&_worldMouseX, &_worldMouseY, t, _mouseX, _mouseY);
+	float worldToScreen[6] = { 0 };
+	float screenToWorld[6] = { 0 };
+	nvgCurrentTransform(CORE->nvg, worldToScreen); // world to screen
+	nvgTransformInverse(screenToWorld, worldToScreen);         // screen to world
+	nvgTransformPoint(&_worldMouseX, &_worldMouseY, screenToWorld, _mouseX, _mouseY);
 	_worldMouseIsDirty = FALSE;
 }
 
