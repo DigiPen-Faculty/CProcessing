@@ -51,8 +51,9 @@ typedef struct CP_Image_Struct
 // Public Functions:
 //------------------------------------------------------------------------------
 
-// INTERNAL USE
-void CP_ImageShutdown(void);
+void CP_Image_Init(void);
+void CP_Image_Update(void);
+void CP_Image_Shutdown(void);
 
 #ifdef __cplusplus
 }
