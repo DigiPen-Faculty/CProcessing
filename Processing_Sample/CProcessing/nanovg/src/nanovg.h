@@ -542,11 +542,17 @@ void nvgEllipse(NVGcontext* ctx, float cx, float cy, float rx, float ry);
 // Creates new circle shaped sub-path.
 void nvgCircle(NVGcontext* ctx, float cx, float cy, float r);
 
+// Creates a rect or circle shaped sub-path based on line cap mode
+void nvgPoint(NVGcontext* ctx, float cx, float cy);
+
 // Fills the current path with current fill style.
 void nvgFill(NVGcontext* ctx);
 
 // Fills the current path with current stroke style.
 void nvgStroke(NVGcontext* ctx);
+
+// Fills the current path with stroke style override.
+void nvgFillPoint(NVGcontext* ctx);
 
 
 //

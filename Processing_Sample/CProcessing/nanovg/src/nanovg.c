@@ -2248,6 +2248,20 @@ void nvgCircle(NVGcontext* ctx, float cx, float cy, float r)
 	nvgEllipse(ctx, cx,cy, r,r);
 }
 
+void nvgPoint(NVGcontext* ctx, float x, float y)
+{
+	NVGstate* state = nvg__getState(ctx);
+	float halfWidth = state->strokeWidth * 0.5f;
+	if (state->lineCap == NVG_ROUND)
+	{
+		nvgCircle(ctx, x + 0.5f, y + 0.5f, halfWidth);
+	}
+	else
+	{
+		nvgRect(ctx, x + 0.5f - halfWidth, y + 0.5f - halfWidth, state->strokeWidth, state->strokeWidth);
+	}
+}
+
 void nvgDebugDumpPathCache(NVGcontext* ctx)
 {
 	const NVGpath* path;
@@ -2270,11 +2284,11 @@ void nvgDebugDumpPathCache(NVGcontext* ctx)
 	}
 }
 
-void nvgFill(NVGcontext* ctx)
+void nvgFillInternal(NVGcontext* ctx, int useStrokePaint)
 {
 	NVGstate* state = nvg__getState(ctx);
 	const NVGpath* path;
-	NVGpaint fillPaint = state->fill;
+	NVGpaint fillPaint = useStrokePaint ? state->stroke : state->fill;
 	int i;
 
 	nvg__flattenPaths(ctx);
@@ -2309,6 +2323,16 @@ void nvgFill(NVGcontext* ctx)
 	}
 }
 
+void nvgFill(NVGcontext* ctx)
+{
+	nvgFillInternal(ctx, 0);
+}
+
+void nvgFillPoint(NVGcontext* ctx)
+{
+	nvgFillInternal(ctx, 1);
+}
+
 void nvgStroke(NVGcontext* ctx)
 {
 	NVGstate* state = nvg__getState(ctx);
@@ -2317,7 +2341,6 @@ void nvgStroke(NVGcontext* ctx)
 	NVGpaint strokePaint = state->stroke;
 	const NVGpath* path;
 	int i;
-	
 	
 	if (strokeWidth < ctx->fringeWidth) {
 		// If the stroke width is less than pixel size, use alpha to emulate coverage.
