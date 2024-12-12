@@ -101,12 +101,12 @@ CP_API void CP_Graphics_DrawPoint(float x, float y)
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
-	// Point only has fill, no stroke
+	// Point path and fill
 	if (DI->fill)
 	{
 		nvgBeginPath(CORE->nvg);
-		nvgRect(CORE->nvg, x, y, 1.0f, 1.0f);
-		nvgFill(CORE->nvg);
+		nvgPoint(CORE->nvg, x, y);
+		nvgFillPoint(CORE->nvg);
 	}
 }
 
