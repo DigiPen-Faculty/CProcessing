@@ -82,10 +82,11 @@ CP_API void CP_Math_ScreenToWorld(float xIn, float yIn, float* xOut, float* yOut
 		return;
 	}
 
-	float t[6] = { 0 };
-	nvgCurrentTransform(CORE->nvg, t);
-	nvgTransformInverse(t, t); // world to screen -> screen to world
-	nvgTransformPoint(xOut, yOut, t, xIn, yIn);
+	float worldToScreen[6] = { 0 };
+	float screenToWorld[6] = { 0 };
+	nvgCurrentTransform(CORE->nvg, worldToScreen);
+	nvgTransformInverse(screenToWorld, worldToScreen);
+	nvgTransformPoint(xOut, yOut, screenToWorld, xIn, yIn);
 }
 
 CP_API void CP_Math_WorldToScreen(float xIn, float yIn, float* xOut, float* yOut)
