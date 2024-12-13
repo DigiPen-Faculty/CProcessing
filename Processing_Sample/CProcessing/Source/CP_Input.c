@@ -182,9 +182,7 @@ void CP_Input_Init(void)
 
 void CP_Input_Update(void)
 {
-	CP_CorePtr CORE = GetCPCore();
-	CP_BOOL focused = glfwGetWindowAttrib(CORE->window, GLFW_FOCUSED);
-	if (focused)
+	if (CP_System_GetWindowFocus())
 	{
 		CP_Input_KeyboardUpdate();
 		CP_Input_MouseUpdate();

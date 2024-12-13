@@ -236,6 +236,11 @@ CP_API void CP_System_SetWindowTitle(const char* title)
 	glfwSetWindowTitle(_CORE.window, title);
 }
 
+CP_API CP_BOOL CP_System_GetWindowFocus(void)
+{
+	return glfwGetWindowAttrib(_CORE.window, GLFW_FOCUSED);
+}
+
 CP_API void CP_System_ShowCursor(CP_BOOL show)
 {
 	glfwSetInputMode(_CORE.window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
