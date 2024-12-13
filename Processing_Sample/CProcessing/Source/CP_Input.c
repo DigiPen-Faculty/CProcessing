@@ -182,9 +182,12 @@ void CP_Input_Init(void)
 
 void CP_Input_Update(void)
 {
-	CP_Input_KeyboardUpdate();
-	CP_Input_MouseUpdate();
-	CP_Input_GamepadUpdate();
+	if (CP_System_GetWindowFocus())
+	{
+		CP_Input_KeyboardUpdate();
+		CP_Input_MouseUpdate();
+		CP_Input_GamepadUpdate();
+	}
 }
 
 void CP_Input_KeyboardUpdate(void)
