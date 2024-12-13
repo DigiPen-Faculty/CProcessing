@@ -149,6 +149,29 @@ CP_API CP_Font CP_Font_Load(const char* filepath)
 	return CP_Font_LoadInternal(filepath, false, NULL, 0, 0);
 }
 
+CP_API void CP_Font_Free(CP_Font* font)
+{
+	if (font == NULL || *font == NULL)
+	{
+		return;
+	}
+
+	// find the font in the list
+	for (unsigned i = 0; i < font_vector->size; ++i)
+	{
+		if (vect_at_CP_Font(font_vector, i) == *font)
+		{
+			// remove the image from the list and place on the free queue
+			vect_rem_CP_Font(font_vector, i);
+			free(*font);
+			*font = NULL;
+			return;
+		}
+	}
+
+	// TODO: handle error - we reached the end of the list without finding the image
+}
+
 CP_API void CP_Font_Set(CP_Font font)
 {
 	CP_CorePtr CORE = GetCPCore();
