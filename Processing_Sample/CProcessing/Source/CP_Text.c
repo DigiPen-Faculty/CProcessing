@@ -128,6 +128,7 @@ void CP_Text_Shutdown(void)
 		CP_Font font = vect_at_CP_Font(font_vector, i);
 		if (font)
 		{
+			nvgFreeFont(CORE->nvg, font->filepath);
 			free(font);
 		}
 	}
@@ -147,6 +148,42 @@ CP_API CP_Font CP_Font_GetDefault(void)
 CP_API CP_Font CP_Font_Load(const char* filepath)
 {
 	return CP_Font_LoadInternal(filepath, false, NULL, 0, 0);
+}
+
+CP_API void CP_Font_Free(CP_Font* font)
+{
+	if (font == NULL || *font == NULL)
+	{
+		return;
+	}
+
+	CP_CorePtr CORE = GetCPCore();
+	if (!CORE || !CORE->nvg)
+	{
+		return;
+	}
+
+	// find the font in the list
+	for (unsigned i = 0; i < font_vector->size; ++i)
+	{
+		if (vect_at_CP_Font(font_vector, i) == *font)
+		{
+			if (i == 0)
+			{
+				// don't allow the unloading of the built-in default font Exo2-Regular.ttf
+				return;
+			}
+
+			// remove the font from the list and also ask NVG to remove and free
+			vect_rem_CP_Font(font_vector, i);
+			nvgFreeFont(CORE->nvg, (*font)->filepath);
+			free(*font);
+			*font = NULL;
+			return;
+		}
+	}
+
+	// TODO: handle error - we reached the end of the list without finding the image
 }
 
 CP_API void CP_Font_Set(CP_Font font)

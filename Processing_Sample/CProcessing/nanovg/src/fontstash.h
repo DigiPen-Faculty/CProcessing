@@ -876,6 +876,24 @@ error:
 	return FONS_INVALID;
 }
 
+static FONSfont* fons__remFont(FONScontext* stash, const char* name)
+{
+	int idx = fonsGetFontByName(stash, name);
+
+	if (idx == FONS_INVALID)
+		return NULL;
+
+	FONSfont* font = stash->fonts[idx];
+
+	char* dest = (char*)stash->fonts + (sizeof(FONSfont*) * idx);
+	char* src = dest + sizeof(FONSfont*);
+	size_t num_bytes = sizeof(FONSfont*) * (stash->cfonts - idx - 1);
+	memmove(dest, src, num_bytes);
+	stash->nfonts--;
+
+	return font;
+}
+
 int fonsAddFont(FONScontext* stash, const char* name, const char* path)
 {
 	FILE* fp = 0;

@@ -2398,6 +2398,11 @@ int nvgFindFont(NVGcontext* ctx, const char* name)
 	return fonsGetFontByName(ctx->fs, name);
 }
 
+void nvgFreeFont(NVGcontext* ctx, const char* name)
+{
+	FONSfont* font = fons__remFont(ctx->fs, name);
+	fons__freeFont(font);
+}
 
 int nvgAddFallbackFontId(NVGcontext* ctx, int baseFont, int fallbackFont)
 {
