@@ -128,6 +128,7 @@ void CP_Text_Shutdown(void)
 		CP_Font font = vect_at_CP_Font(font_vector, i);
 		if (font)
 		{
+			nvgFreeFont(CORE->nvg, font->filepath);
 			free(font);
 		}
 	}

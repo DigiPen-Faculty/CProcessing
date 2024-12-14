@@ -885,8 +885,8 @@ static FONSfont* fons__remFont(FONScontext* stash, const char* name)
 
 	FONSfont* font = stash->fonts[idx];
 
-	FONSfont* dest = (FONSfont*)stash->fonts + (sizeof(FONSfont*) * idx);
-	FONSfont* src = dest + sizeof(FONSfont*);
+	char* dest = (char*)stash->fonts + (sizeof(FONSfont*) * idx);
+	char* src = dest + sizeof(FONSfont*);
 	size_t num_bytes = sizeof(FONSfont*) * (stash->cfonts - idx - 1);
 	memmove(dest, src, num_bytes);
 	stash->nfonts--;
