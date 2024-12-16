@@ -267,6 +267,8 @@ CP_API float			CP_Vector_Distance					(CP_Vector a, CP_Vector b);
 CP_API float			CP_Vector_DotProduct				(CP_Vector a, CP_Vector b);
 CP_API float			CP_Vector_CrossProduct				(CP_Vector a, CP_Vector b);
 CP_API float			CP_Vector_Angle						(CP_Vector a, CP_Vector b);
+CP_API float			CP_Vector_AngleCW					(CP_Vector from, CP_Vector to);
+CP_API float			CP_Vector_AngleCCW					(CP_Vector from, CP_Vector to);
 
 
 //---------------------------------------------------------

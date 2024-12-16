@@ -141,6 +141,28 @@ CP_API float CP_Vector_Angle(CP_Vector a, CP_Vector b)
 	return CP_Math_Degrees((float)acos((double)(CP_Vector_DotProduct(a, b) / (CP_Vector_Length(a) * CP_Vector_Length(b)))));
 }
 
+CP_API float CP_Vector_AngleCW(CP_Vector from, CP_Vector to)
+{
+	// update right vectors
+	CP_Vector toRight = CP_Vector_Set(-to.y, to.x);
+
+	float ang = CP_Vector_Angle(from, to);
+	if (CP_Vector_DotProduct(from, toRight) <= 0)
+	{
+		return ang;
+	}
+	else
+	{
+		return 360.0f - ang;
+	}
+}
+
+CP_API float CP_Vector_AngleCCW(CP_Vector from, CP_Vector to)
+{
+	float ang = CP_Vector_AngleCW(from, to);
+	return ang == 0 ? ang : ang - 360.0f;
+}
+
 //-------------------------------------
 // Matrix
 
