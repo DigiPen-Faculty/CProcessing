@@ -40,8 +40,8 @@ FunctionPtr _postUpdateFunction = NULL;
 
 // FrameRate Control
 static double StartingTime, EndingTime, ElapsedSeconds;
-static double _frametimeTarget = 0.033333;
-static double _frametime = 0.033333;
+static double _frametimeTarget = 1.0 / 60.0;
+static double _frametime = 1.0 / 60.0;
 
 // Frames since the start of the program
 static unsigned int _frameCount;
@@ -224,6 +224,11 @@ CP_API int CP_System_GetDisplayWidth(void)
 CP_API int CP_System_GetDisplayHeight(void)
 {
 	return _CORE.native_height;
+}
+
+CP_API int CP_System_GetDisplayRefreshRate(void)
+{
+	return glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate;
 }
 
 CP_API HWND CP_System_GetWindowHandle(void)
