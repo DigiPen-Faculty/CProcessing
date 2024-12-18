@@ -72,10 +72,12 @@ CP_API int				CP_System_GetWindowWidth			(void);
 CP_API int				CP_System_GetWindowHeight			(void);
 CP_API int				CP_System_GetDisplayWidth			(void);
 CP_API int				CP_System_GetDisplayHeight			(void);
+CP_API int				CP_System_GetDisplayRefreshRate		(void);
 CP_API HWND				CP_System_GetWindowHandle			(void);
 CP_API void				CP_System_SetWindowTitle			(const char* title);
+CP_API CP_BOOL			CP_System_GetWindowFocus			(void);
 CP_API void				CP_System_ShowCursor				(CP_BOOL show);
-CP_API int				CP_System_GetFrameCount				(void);
+CP_API unsigned 		CP_System_GetFrameCount				(void);
 CP_API float			CP_System_GetFrameRate				(void);
 CP_API void				CP_System_SetFrameRate				(float fps);
 CP_API float			CP_System_GetDt						(void);
@@ -157,6 +159,7 @@ CP_API int				CP_Image_GetHeight					(CP_Image img);
 CP_API void				CP_Image_Draw						(CP_Image img, float x, float y, float w, float h, int alpha);
 CP_API void				CP_Image_DrawAdvanced				(CP_Image img, float x, float y, float w, float h, int alpha, float degrees);
 CP_API void				CP_Image_DrawSubImage				(CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha);
+CP_API void				CP_Image_DrawSubImageAdvanced       (CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha, float degrees);
 CP_API CP_Image			CP_Image_CreateFromData				(int w, int h, unsigned char* pixelDataInput);
 CP_API CP_Image			CP_Image_Screenshot					(int x, int y, int w, int h);
 CP_API void				CP_Image_GetPixelData				(CP_Image img, CP_Color* pixelDataOutput);
@@ -189,6 +192,7 @@ CP_API float			CP_Sound_GetGroupPitch				(CP_SOUND_GROUP group);
 //		All functions related to loading and drawing fonts
 CP_API CP_Font			CP_Font_GetDefault					(void);
 CP_API CP_Font			CP_Font_Load						(const char* filepath);
+CP_API void				CP_Font_Free						(CP_Font* font);
 CP_API void				CP_Font_Set							(CP_Font font);
 CP_API void				CP_Font_DrawText					(const char* text, float x, float y);
 CP_API void				CP_Font_DrawTextBox					(const char* text, float x, float y, float rowWidth);
@@ -217,21 +221,21 @@ CP_API float			CP_Input_GetMouseDeltaY				(void);
 CP_API float			CP_Input_GetMouseWorldX				(void);
 CP_API float			CP_Input_GetMouseWorldY				(void);
 CP_API CP_BOOL			CP_Input_GamepadTriggered			(CP_GAMEPAD button);
-CP_API CP_BOOL			CP_Input_GamepadTriggeredAdvanced	(CP_GAMEPAD button, int gamepadIndex);
+CP_API CP_BOOL			CP_Input_GamepadTriggeredAdvanced	(CP_GAMEPAD button, unsigned gamepadIndex);
 CP_API CP_BOOL			CP_Input_GamepadReleased			(CP_GAMEPAD button);
-CP_API CP_BOOL			CP_Input_GamepadReleasedAdvanced	(CP_GAMEPAD button, int gamepadIndex);
+CP_API CP_BOOL			CP_Input_GamepadReleasedAdvanced	(CP_GAMEPAD button, unsigned gamepadIndex);
 CP_API CP_BOOL			CP_Input_GamepadDown				(CP_GAMEPAD button);
-CP_API CP_BOOL			CP_Input_GamepadDownAdvanced		(CP_GAMEPAD button, int gamepadIndex);
+CP_API CP_BOOL			CP_Input_GamepadDownAdvanced		(CP_GAMEPAD button, unsigned gamepadIndex);
 CP_API float			CP_Input_GamepadRightTrigger		(void);
-CP_API float			CP_Input_GamepadRightTriggerAdvanced(int gamepadIndex);
+CP_API float			CP_Input_GamepadRightTriggerAdvanced(unsigned gamepadIndex);
 CP_API float			CP_Input_GamepadLeftTrigger			(void);
-CP_API float			CP_Input_GamepadLeftTriggerAdvanced	(int gamepadIndex);
+CP_API float			CP_Input_GamepadLeftTriggerAdvanced	(unsigned gamepadIndex);
 CP_API CP_Vector		CP_Input_GamepadRightStick			(void);
-CP_API CP_Vector		CP_Input_GamepadRightStickAdvanced	(int gamepadIndex);
+CP_API CP_Vector		CP_Input_GamepadRightStickAdvanced	(unsigned gamepadIndex);
 CP_API CP_Vector		CP_Input_GamepadLeftStick			(void);
-CP_API CP_Vector		CP_Input_GamepadLeftStickAdvanced	(int gamepadIndex);
+CP_API CP_Vector		CP_Input_GamepadLeftStickAdvanced	(unsigned gamepadIndex);
 CP_API CP_BOOL			CP_Input_GamepadConnected			(void);
-CP_API CP_BOOL			CP_Input_GamepadConnectedAdvanced	(int gamepadIndex);
+CP_API CP_BOOL			CP_Input_GamepadConnectedAdvanced	(unsigned gamepadIndex);
 
 
 //---------------------------------------------------------
@@ -265,6 +269,8 @@ CP_API float			CP_Vector_Distance					(CP_Vector a, CP_Vector b);
 CP_API float			CP_Vector_DotProduct				(CP_Vector a, CP_Vector b);
 CP_API float			CP_Vector_CrossProduct				(CP_Vector a, CP_Vector b);
 CP_API float			CP_Vector_Angle						(CP_Vector a, CP_Vector b);
+CP_API float			CP_Vector_AngleCW					(CP_Vector from, CP_Vector to);
+CP_API float			CP_Vector_AngleCCW					(CP_Vector from, CP_Vector to);
 
 
 //---------------------------------------------------------
