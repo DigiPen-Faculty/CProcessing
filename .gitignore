@@ -63,4 +63,8 @@ Processing_Empty/Win32/
 Processing_Empty/x64/
 Processing_Sample/CProcessingPackage/
 
+# User files
 *.user
+
+# Release script intermediate files
+CProcessingOutput/
