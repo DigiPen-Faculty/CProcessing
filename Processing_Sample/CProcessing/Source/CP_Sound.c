@@ -57,11 +57,36 @@ static CP_Sound CP_CheckIfSoundIsLoaded(const char* filepath)
 
 void CP_Sound_Init(void)
 {
+
+
+	Soloud* soloud = Soloud_create();
+
+	Soloud_init(soloud);
+
+
+	Wav* sound = Wav_create();
+	Wav_load(sound, "./Assets/808cowbell.wav");
+
+	Soloud_playEx(soloud, sound, 10.0f, 0, 0, 0);
+
+	int checkVoiceCount = Soloud_getVoiceCount(soloud);
+	if (checkVoiceCount > 0)
+	{
+		//__debugbreak();
+	}
+
+	//Soloud_deinit(soloud);
+
+	//Soloud_destroy(soloud);
+
+
+
+
 	// Allocate the initial vector size for loaded sounds
 	sound_vector = vect_init_CP_Sound(CP_INITIAL_SOUND_CAPACITY);
 
 	// Create the FMOD system
-	result = FMOD_System_Create(&_fmod_system);
+	result = 1;// FMOD_System_Create(&_fmod_system);
 	if (result != FMOD_OK)
 	{
 		// TODO: handle error - FMOD_ErrorString(result)

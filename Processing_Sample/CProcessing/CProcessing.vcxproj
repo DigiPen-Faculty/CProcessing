@@ -121,7 +121,8 @@
     </Link>
     <PostBuildEvent>
       <Command>if exist "$(SolutionDir)$(Configuration)\*.exe" del "$(SolutionDir)$(Configuration)\*.exe"
-xcopy "$(ProjectDir)FMOD\lib\x86\fmodL.dll" "$(ProjectDir)lib\x86\*" /s /r /y /q /i</Command>
+xcopy "$(ProjectDir)FMOD\lib\x86\fmodL.dll" "$(ProjectDir)lib\x86\*" /s /r /y /q /i
+xcopy "$(ProjectDir)soloud\lib\x86\soloud_d.dll" "$(ProjectDir)lib\x86\*" /s /r /y /q /i</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -148,7 +149,8 @@ xcopy "$(ProjectDir)FMOD\lib\x86\fmodL.dll" "$(ProjectDir)lib\x86\*" /s /r /y /q
     </Link>
     <PostBuildEvent>
       <Command>if exist "$(SolutionDir)$(Configuration)\*.exe" del "$(SolutionDir)$(Configuration)\*.exe"
-xcopy "$(ProjectDir)FMOD\lib\x86\fmod.dll" "$(ProjectDir)lib\x86\*" /s /r /y /q /i</Command>
+xcopy "$(ProjectDir)FMOD\lib\x86\fmod.dll" "$(ProjectDir)lib\x86\*" /s /r /y /q /i
+xcopy "$(ProjectDir)soloud\lib\x86\soloud.dll" "$(ProjectDir)lib\x86\*" /s /r /y /q /i</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -173,7 +175,8 @@ xcopy "$(ProjectDir)FMOD\lib\x86\fmod.dll" "$(ProjectDir)lib\x86\*" /s /r /y /q 
     </Link>
     <PostBuildEvent>
       <Command>if exist "$(SolutionDir)$(Configuration)\*.exe" del "$(SolutionDir)$(Configuration)\*.exe"
-xcopy "$(ProjectDir)FMOD\lib\x64\fmodL.dll" "$(ProjectDir)lib\x64\*" /s /r /y /q /i</Command>
+xcopy "$(ProjectDir)FMOD\lib\x64\fmodL.dll" "$(ProjectDir)lib\x64\*" /s /r /y /q /i
+xcopy "$(ProjectDir)soloud\lib\x64\soloud_d.dll" "$(ProjectDir)lib\x64\*" /s /r /y /q /i</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -200,7 +203,8 @@ xcopy "$(ProjectDir)FMOD\lib\x64\fmodL.dll" "$(ProjectDir)lib\x64\*" /s /r /y /q
     </Link>
     <PostBuildEvent>
       <Command>if exist "$(SolutionDir)$(Configuration)\*.exe" del "$(SolutionDir)$(Configuration)\*.exe"
-xcopy "$(ProjectDir)FMOD\lib\x64\fmod.dll" "$(ProjectDir)lib\x64\*" /s /r /y /q /i</Command>
+xcopy "$(ProjectDir)FMOD\lib\x64\fmod.dll" "$(ProjectDir)lib\x64\*" /s /r /y /q /i
+xcopy "$(ProjectDir)soloud\lib\x64\soloud.dll" "$(ProjectDir)lib\x64\*" /s /r /y /q /i</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
