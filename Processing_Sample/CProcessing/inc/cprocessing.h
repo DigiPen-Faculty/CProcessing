@@ -170,10 +170,9 @@ CP_API void				CP_Image_UpdatePixelData			(CP_Image img, CP_Color* pixelDataInpu
 // SOUND:
 //		All functions related to loading and playing sounds
 CP_API CP_Sound			CP_Sound_Load						(const char* filepath);
-CP_API CP_Sound			CP_Sound_LoadMusic					(const char* filepath);
+CP_API CP_Sound			CP_Sound_LoadStream					(const char* filepath);
 CP_API void				CP_Sound_Free						(CP_Sound* sound);
 CP_API void				CP_Sound_Play						(CP_Sound sound);
-CP_API void				CP_Sound_PlayMusic					(CP_Sound sound);
 CP_API void				CP_Sound_PlayAdvanced				(CP_Sound sound, float volume, float pitch, CP_BOOL looping, CP_SOUND_GROUP group);
 CP_API void				CP_Sound_PauseAll					(void);
 CP_API void				CP_Sound_PauseGroup					(CP_SOUND_GROUP group);

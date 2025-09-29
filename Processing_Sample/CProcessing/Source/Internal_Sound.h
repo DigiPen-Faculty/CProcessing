@@ -1,11 +1,11 @@
 //------------------------------------------------------------------------------
 // file:	Internal_Sound.h
-// author:	Daniel Hamilton, Andrea Ellinger
+// author:	Daniel Hamilton, Andrea Ellinger, Justin Chambers
 // brief:	Internal structs and functions for Sound
 //
 // INTERNAL USE ONLY, DO NOT DISTRIBUTE
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// Copyright © 2025 DigiPen, All rights reserved.
 //------------------------------------------------------------------------------
 
 #pragma once
@@ -18,7 +18,6 @@ extern "C" {
 // Include Files:
 //------------------------------------------------------------------------------
 
-#include "fmod.h"
 #include "soloud_c.h"
 
 //------------------------------------------------------------------------------
@@ -30,18 +29,35 @@ extern "C" {
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+// Public Enums:
+//------------------------------------------------------------------------------
+
+//---------------------------------------------------------
+// AUDIO SOURCE TYPE:
+//		Audio source type manages streaming content
+typedef enum SL_AUDIOSOURCE_TYPE
+{
+	SL_AUDIOSOURCE_WAV = 0,		// Default
+	SL_AUDIOSOURCE_STREAM = 1
+} SL_AUDIOSOURCE_TYPE;
+
+//------------------------------------------------------------------------------
 // Public Structures:
 //------------------------------------------------------------------------------
 
 typedef struct CP_Sound_Struct
 {
 	char filepath[MAX_PATH];
-    FMOD_SOUND* sound;
+    AudioSource* sound;
+	SL_AUDIOSOURCE_TYPE type;
 } CP_Sound_Struct;
 
-//------------------------------------------------------------------------------
-// Public Enums:
-//------------------------------------------------------------------------------
+typedef struct CP_VoiceGroup_Struct
+{
+	unsigned int handle;
+	float volume;
+	float pitch;
+} CP_VoiceGroup_Struct;
 
 //------------------------------------------------------------------------------
 // Public Variables:
