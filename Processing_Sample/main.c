@@ -651,7 +651,13 @@ void audio_test(void)
 			{
 				if (CP_Input_MouseTriggered(MOUSE_BUTTON_1))
 				{
-					CP_Sound_Play(notes[1][i]);
+
+					static float pitch = 1.0f;
+					pitch += 0.1f;
+					static CP_BOOL loop = FALSE;
+					loop = !loop;
+
+					CP_Sound_PlayAdvanced(notes[1][i], 1.0f, pitch, loop, CP_SOUND_GROUP_0);
           CP_Settings_Fill(CP_Color_Create(255, 0, 0, 10));
 				}
 			}
@@ -702,13 +708,23 @@ void audio_test(void)
 		Sleep(250);
 		if (index50 %= 2) {
 			if (CP_Random_RangeFloat(0, 10.0) < 5.0)
-				CP_Sound_Play(notes[1][CP_Random_RangeInt(0, 6)]);
+				CP_Sound_PlayAdvanced(notes[1][CP_Random_RangeInt(0, 6)], 1.0f, CP_System_GetSeconds() / 5.0f, 0, 0);
 			if (CP_Random_RangeFloat(0, 10.0) < 5.0)
 				CP_Sound_Play(notes[0][CP_Random_RangeInt(0, 5)]);
 		}
 		if (CP_Random_RangeFloat(0, 10.0) < 5.0)
 			CP_Sound_Play(drums[CP_Random_RangeInt(0, 2)]);
 		CP_Sound_Play(drums[3]);
+	}
+
+	if (CP_Input_KeyTriggered(KEY_ESCAPE))
+	{
+		float volume = CP_Sound_GetGroupVolume(CP_SOUND_GROUP_0);
+		CP_Sound_SetGroupVolume(CP_SOUND_GROUP_0, volume * 0.9f);
+	}
+	if (CP_Input_KeyTriggered(KEY_F1))
+	{
+		CP_Sound_StopGroup(CP_SOUND_GROUP_0);
 	}
 #endif
 }
@@ -2822,7 +2838,7 @@ int main(void)
 
 	//CP_Engine_SetNextGameState(NULL, text_demo, NULL);
 	//CP_Engine_SetNextGameState(NULL, time_test, NULL);
-	//CP_Engine_SetNextGameState(NULL, audio_test, NULL);
+	CP_Engine_SetNextGameState(NULL, audio_test, NULL);
 	//CP_Engine_SetNextGameState(mouse_setup, mouse_follower, NULL);
 
 	//CP_Engine_SetNextGameState(image_test_setup, image_test, NULL);
@@ -2867,7 +2883,7 @@ int main(void)
 	//CP_Engine_SetNextGameState(initfr, updatefr, NULL);
 	//CP_Engine_SetNextGameState(inittint, updatetint, NULL);
 
-	CP_Engine_SetNextGameState(JUSTIN_DEMO_INIT, JUSTIN_DEMO_UPDATE_CP_COLORHSV, NULL);
+	//CP_Engine_SetNextGameState(JUSTIN_DEMO_INIT, JUSTIN_DEMO_UPDATE_CP_COLORHSV, NULL);
 
 	CP_Engine_Run();
 	return 0;

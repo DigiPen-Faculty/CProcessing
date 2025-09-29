@@ -109,7 +109,7 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)CProcessing\lib\x86\CProcessingd.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)CProcessing\lib\x86\fmodL.dll" "$(OutDir)" /s /r /y /q
+xcopy "$(ProjectDir)CProcessing\lib\x86\soloud_d.dll" "$(OutDir)" /s /r /y /q
 xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -137,7 +137,7 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)CProcessing\lib\x86\CProcessing.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)CProcessing\lib\x86\fmod.dll" "$(OutDir)" /s /r /y /q
+xcopy "$(ProjectDir)CProcessing\lib\x86\soloud.dll" "$(OutDir)" /s /r /y /q
 xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -161,7 +161,7 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)CProcessing\lib\x64\CProcessingd.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)CProcessing\lib\x64\fmodL.dll" "$(OutDir)" /s /r /y /q
+xcopy "$(ProjectDir)CProcessing\lib\x64\soloud_d.dll" "$(OutDir)" /s /r /y /q
 xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -189,7 +189,7 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)CProcessing\lib\x64\CProcessing.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)CProcessing\lib\x64\fmod.dll" "$(OutDir)" /s /r /y /q
+xcopy "$(ProjectDir)CProcessing\lib\x64\soloud.dll" "$(OutDir)" /s /r /y /q
 xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
