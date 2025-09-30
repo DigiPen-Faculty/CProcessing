@@ -23,7 +23,7 @@
 #define CP_NUM_KEYS          GLFW_KEY_LAST + 1
 #define CP_NUM_MOUSE_BUTTONS GLFW_MOUSE_BUTTON_LAST
 #define CP_VALID_KEY_MAX     120 // this must match valid_keys array below
-#define DOUBLE_CLICK_TIME    500 // in milliseconds
+#define DOUBLE_CLICK_TIME    0.5 // in seconds
 
 #define CP_GAMEPAD_TRIGGER_THRESHOLD	XINPUT_GAMEPAD_TRIGGER_THRESHOLD
 #define CP_GAMEPAD_THUMB_DEADZONE		XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
@@ -70,8 +70,8 @@ static float mouse_wheely_current  = 0.0f;
 static float mouse_wheelx_realtime = 0.0f;
 static float mouse_wheely_realtime = 0.0f;
 
-static DWORD previous_click_time = 0;
-static DWORD current_click_time  = 0;
+static double previous_click_time = 0;
+static double current_click_time  = 0;
 
 static int	mouse_double_clicked_current  = FALSE;
 static int	mouse_double_clicked_realtime = FALSE;
@@ -138,9 +138,9 @@ void CP_Input_MouseCallback(GLFWwindow* window, int button, int action, int mods
         if (button == MOUSE_BUTTON_1)
         {
             previous_click_time = current_click_time;
-            current_click_time = timeGetTime();
+            current_click_time = glfwGetTime();
 
-            DWORD dt = current_click_time - previous_click_time;
+            double dt = current_click_time - previous_click_time;
             if (dt <= DOUBLE_CLICK_TIME)
             {
                 mouse_double_clicked_realtime = TRUE;
@@ -182,12 +182,9 @@ void CP_Input_Init(void)
 
 void CP_Input_Update(void)
 {
-	if (CP_System_GetWindowFocus())
-	{
-		CP_Input_KeyboardUpdate();
-		CP_Input_MouseUpdate();
-		CP_Input_GamepadUpdate();
-	}
+	CP_Input_KeyboardUpdate();
+	CP_Input_MouseUpdate();
+	CP_Input_GamepadUpdate();
 }
 
 void CP_Input_KeyboardUpdate(void)
