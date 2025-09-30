@@ -141,7 +141,7 @@ GOTO :init
 			IF EXIST *.%%e DEL *.%%e
 		)
 		CD ..\..\inc
-		DEL fmod*.*
+		DEL soloud*.*
 		DEL glfw*.*
 		CD ..\..\
 
