@@ -78,6 +78,7 @@ CP_CorePtr GetCPCore(void);
 CP_DrawInfoPtr GetDrawInfo(void);
 
 void CP_SetWindowSizeInternal(int new_width, int new_height, bool isFullscreen);
+void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFullscreen);
 
 void CP_Initialize(void);
 void CP_Update(void);
