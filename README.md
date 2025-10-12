@@ -24,4 +24,4 @@ Default font used in the library:
 
 ## Acknowledgment
 * [NanoVG](https://github.com/memononen/nanovg) by Mikko Mononen
-* FMOD Studio by Firelight Technologies Pty Ltd.
+* [SoLoud](https://solhsa.com/soloud/) by Jari Komppa
