@@ -20,6 +20,11 @@
 static CP_Core _CORE = { 0 };
 static bool _isInitialized = false;
 
+CP_BOOL _deferredSizeChange = FALSE;
+int _deferredWidth = 0;
+int _deferredHeight = 0;
+CP_BOOL _deferredFullscreen = FALSE;
+
 typedef struct GameStateFuncs
 {
 	FunctionPtr init;
@@ -459,6 +464,12 @@ void CP_FrameStart(void)
 {
 	CP_FrameRate_FrameStart();
 
+	if (_deferredSizeChange)
+	{
+		_deferredSizeChange = FALSE;
+		CP_DeferredSetWindowSizeInternal(_deferredWidth, _deferredHeight, _deferredFullscreen);
+	}
+
 	nvgBeginFrame(_CORE.nvg, _CORE.window_width, _CORE.window_height, _CORE.pixel_ratio);
 }
 
@@ -540,6 +551,14 @@ void CP_UpdateFrameTime(void)
 
 void CP_SetWindowSizeInternal(int new_width, int new_height, bool isFullscreen)
 {
+	_deferredSizeChange = TRUE;
+	_deferredWidth = new_width;
+	_deferredHeight = new_height;
+	_deferredFullscreen = isFullscreen;
+}
+
+void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFullscreen)
+{
 	if (!_CORE.nvg)
 	{
 		// this will only happen if setting size before OpenGL init
@@ -579,6 +598,11 @@ void CP_SetWindowSizeInternal(int new_width, int new_height, bool isFullscreen)
 		windowPosY = (int)(_CORE.native_height / 2.0f) - (int)(new_height / 2.0f);
 	}
 	glfwSetWindowMonitor(_CORE.window, isFullscreen ? glfwGetPrimaryMonitor() : NULL, windowPosX, windowPosY, new_width, new_height, 60);
+	if (!isFullscreen)
+	{
+		// returning from fullscreen needs a size refresh to properly include window decoration dimensions
+		glfwSetWindowSize(_CORE.window, new_width, new_height);
+	}
 
 	// get and store size values based on the actual window
 	glfwGetFramebufferSize(_CORE.window, &_CORE.canvas_width, &_CORE.canvas_height);
