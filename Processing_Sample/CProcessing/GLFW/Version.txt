@@ -1,5 +1,5 @@
 GLFW Version
-3.3.2
+3.4
 
 Date
-January 20, 2020
+October, 2025

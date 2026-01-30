@@ -13,13 +13,48 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Test GameStates">
-      <UniqueIdentifier>{e951bea7-945b-4c80-b598-b2b2caf79a86}</UniqueIdentifier>
+    <Filter Include="Demos">
+      <UniqueIdentifier>{3f70106c-4d50-436f-929d-ea1a0c51556c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Demos\DancingLinesDemo.c">
+      <Filter>Demos</Filter>
+    </ClCompile>
+    <ClCompile Include="Demos\DemoManager.c">
+      <Filter>Demos</Filter>
+    </ClCompile>
+    <ClCompile Include="Demos\GamepadDemo.c">
+      <Filter>Demos</Filter>
+    </ClCompile>
+    <ClCompile Include="Demos\GridWaveDemo.c">
+      <Filter>Demos</Filter>
+    </ClCompile>
+    <ClCompile Include="Demos\NoiseDemo.c">
+      <Filter>Demos</Filter>
+    </ClCompile>
+    <ClCompile Include="test_code.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Demos\DancingLinesDemo.h">
+      <Filter>Demos</Filter>
+    </ClInclude>
+    <ClInclude Include="Demos\DemoManager.h">
+      <Filter>Demos</Filter>
+    </ClInclude>
+    <ClInclude Include="Demos\GamepadDemo.h">
+      <Filter>Demos</Filter>
+    </ClInclude>
+    <ClInclude Include="Demos\GridWaveDemo.h">
+      <Filter>Demos</Filter>
+    </ClInclude>
+    <ClInclude Include="Demos\NoiseDemo.h">
+      <Filter>Demos</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
