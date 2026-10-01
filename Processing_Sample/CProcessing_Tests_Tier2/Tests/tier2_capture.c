@@ -13,6 +13,7 @@
 #include "tier2_capture.h"
 
 CP_Color tier2_snapshots[SCN_COUNT][TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+Tier2Scalars tier2_scalars = { 0 };
 
 #define WHITE CP_Color_Create(255, 255, 255, 255)
 #define BLACK CP_Color_Create(0, 0, 0, 255)
@@ -21,7 +22,12 @@ CP_Color tier2_snapshots[SCN_COUNT][TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 #define GREEN CP_Color_Create(0, 200, 0, 255)
 
 static int frameCount = 0;
-#define WARMUP_FRAMES 2
+// Generous margin for the deferred window resize (requested in
+// HarnessInit) to actually settle at the OS/compositor level before any
+// scenario is captured -- too small a margin was observed to cause
+// occasional flaky captures (the GL framebuffer still reflecting the old
+// window size on some runs but not others).
+#define WARMUP_FRAMES 15
 
 static void CaptureCurrentFrame(Tier2Scenario scenario)
 {
@@ -46,6 +52,10 @@ static void ResetToBaseline(void)
 static void Scn_ClearBackground(void)
 {
     CP_Graphics_ClearBackground(CP_Color_Create(10, 20, 30, 255));
+    // Captured here (the first scenario) and again in Scn_SystemEngineState
+    // (one of the last) so the test suite can confirm frame count actually
+    // advances across the scripted run.
+    tier2_scalars.frameCountEarly = CP_System_GetFrameCount();
 }
 
 static void Scn_DrawPoint(void)
@@ -283,6 +293,153 @@ static void Scn_SettingsSaveRestore(void)
     CP_Graphics_DrawRect(100, 100, 40, 40);
 }
 
+// ---- CP_Image (Phase E) ----
+// Test fixture: Assets/quadrants.png, a 4x4 image with four distinct,
+// solid-colored 2x2 quadrants (TL=red, TR=green, BL=blue, BR=yellow) --
+// see the Phase E commit message for how it was generated. A tiny
+// synthetic fixture with exact, known pixel values is more testable than
+// a photo, and keeps this project's test assets independent of the demo
+// app's Assets folder.
+
+static void Scn_ImageLoadAndDraw(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST); // crisp quadrant edges, no bilinear bleed
+    CP_Settings_ImageMode(CP_POSITION_CENTER);
+
+    CP_Image img = CP_Image_Load("Assets/quadrants.png");
+    tier2_scalars.quadImageWidth = CP_Image_GetWidth(img);
+    tier2_scalars.quadImageHeight = CP_Image_GetHeight(img);
+
+    // Drawn as an 80x80 square centered on the canvas: spans x:[60,140], y:[60,140].
+    CP_Image_Draw(img, 100, 100, 80, 80, 255);
+    CP_Image_Free(&img);
+
+    // CP_Image_CreateFromData / GetPixelData / UpdatePixelData round-trip,
+    // entirely independent of any file -- a 2x2 synthetic buffer.
+    CP_Color source[4] = {
+        CP_Color_Create(10, 20, 30, 255), CP_Color_Create(40, 50, 60, 255),
+        CP_Color_Create(70, 80, 90, 255), CP_Color_Create(100, 110, 120, 255)
+    };
+    CP_Image synthetic = CP_Image_CreateFromData(2, 2, (unsigned char*)source);
+    CP_Image_GetPixelData(synthetic, tier2_scalars.createFromDataReadback);
+
+    CP_Color updated[4] = {
+        CP_Color_Create(200, 0, 0, 255), CP_Color_Create(0, 200, 0, 255),
+        CP_Color_Create(0, 0, 200, 255), CP_Color_Create(200, 200, 0, 255)
+    };
+    CP_Image_UpdatePixelData(synthetic, updated);
+    CP_Image_GetPixelData(synthetic, tier2_scalars.updatePixelDataReadback);
+    CP_Image_Free(&synthetic);
+}
+
+static void Scn_ImageSubImage(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+    CP_Settings_ImageMode(CP_POSITION_CENTER);
+
+    CP_Image img = CP_Image_Load("Assets/quadrants.png");
+    // s0/t0/s1/t1 are *pixel* coordinates into the source image, not
+    // normalized [0,1] UVs (CP_Image.c:102-145, confirmed against the
+    // wiki's Image page). (2,0)-(4,2) selects just the top-right (green)
+    // quadrant of the 4x4 fixture; drawn as a 60x60 square centered on the
+    // canvas.
+    CP_Image_DrawSubImage(img, 100, 100, 60, 60, 2, 0, 4, 2, 255);
+    CP_Image_Free(&img);
+}
+
+// ---- CP_Font (Phase E) ----
+// Bounding-box/occupancy checks rather than pixel-perfect glyph
+// comparisons, per 06-test-suite-plan.md's Tier 2 notes -- exact glyph
+// rendering is too brittle to assert against directly.
+
+static void Scn_FontDrawText(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(BLACK);
+    CP_Font_Set(CP_Font_GetDefault());
+    CP_Settings_TextSize(60.0f);
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
+    CP_Font_DrawText("I", 40, 40); // a single bold vertical stroke, cheap to bound reliably
+}
+
+static void Scn_FontLoadFree(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(BLACK);
+    CP_Font customFont = CP_Font_Load("Assets/Exo2-Regular.ttf");
+    CP_Font_Set(customFont);
+    CP_Settings_TextSize(60.0f);
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
+    CP_Font_DrawText("I", 40, 40);
+    CP_Font_Free(&customFont);
+}
+
+// ---- CP_System / CP_Engine (Phase E) ----
+// These read state via the public getters rather than touching _CORE
+// directly, and must run *during* the single CP_Engine_Run() call: once it
+// returns, CP_Shutdown() has already torn down the GLFW window/context,
+// and several of these getters (ShowCursor, GetWindowFocus, ...) call
+// straight into GLFW with no null-check guard.
+
+static int preUpdateHookCount = 0;
+static int postUpdateHookCount = 0;
+
+static void PreUpdateHook(void) { ++preUpdateHookCount; }
+static void PostUpdateHook(void) { ++postUpdateHookCount; }
+
+static void Scn_SystemEngineState(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+
+    tier2_scalars.windowWidthAfterSet = CP_System_GetWindowWidth();
+    tier2_scalars.windowHeightAfterSet = CP_System_GetWindowHeight();
+    tier2_scalars.frameCountLater = CP_System_GetFrameCount();
+    tier2_scalars.dtSample = CP_System_GetDt();
+    tier2_scalars.millisSample = CP_System_GetMillis();
+    tier2_scalars.secondsSample = CP_System_GetSeconds();
+    tier2_scalars.frameRateSample = CP_System_GetFrameRate();
+    tier2_scalars.windowFocusSample = CP_System_GetWindowFocus();
+    tier2_scalars.displayWidth = CP_System_GetDisplayWidth();
+    tier2_scalars.displayHeight = CP_System_GetDisplayHeight();
+    tier2_scalars.displayRefreshRate = CP_System_GetDisplayRefreshRate();
+    tier2_scalars.preUpdateHookCount = preUpdateHookCount;
+    tier2_scalars.postUpdateHookCount = postUpdateHookCount;
+
+    CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture"); // just must not crash
+    CP_System_ShowCursor(TRUE); // just must not crash
+}
+
+// ---- CP_Sound (Phase E) ----
+// Per 06-test-suite-plan.md: no reliable way to assert "it sounds
+// correct" automatically, so the realistic goal is load/free/play/pause/
+// stop not crashing or leaking, plus group volume/pitch getters
+// round-tripping what was set.
+
+static void Scn_SoundRoundTrip(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+
+    CP_Sound sound = CP_Sound_Load("Assets/beep.wav");
+
+    CP_Sound_SetGroupVolume(CP_SOUND_GROUP_SFX, 0.3f);
+    tier2_scalars.volumeAfterSet = CP_Sound_GetGroupVolume(CP_SOUND_GROUP_SFX);
+    CP_Sound_SetGroupPitch(CP_SOUND_GROUP_SFX, 1.5f);
+    tier2_scalars.pitchAfterSet = CP_Sound_GetGroupPitch(CP_SOUND_GROUP_SFX);
+
+    CP_Sound_PlayAdvanced(sound, 0.1f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
+    CP_Sound_PauseGroup(CP_SOUND_GROUP_SFX);
+    CP_Sound_ResumeGroup(CP_SOUND_GROUP_SFX);
+    CP_Sound_PauseAll();
+    CP_Sound_ResumeAll();
+    CP_Sound_StopGroup(CP_SOUND_GROUP_SFX);
+    CP_Sound_Play(sound);
+    CP_Sound_StopAll();
+
+    CP_Sound_Free(&sound);
+}
+
 typedef void (*ScenarioFunc)(void);
 
 static const ScenarioFunc kScenarios[SCN_COUNT] = {
@@ -311,12 +468,20 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SETTINGS_APPLYMATRIX] = Scn_SettingsApplyMatrix,
     [SCN_SETTINGS_BLENDMODE_ADD] = Scn_SettingsBlendModeAdd,
     [SCN_SETTINGS_SAVE_RESTORE] = Scn_SettingsSaveRestore,
+    [SCN_IMAGE_LOAD_AND_DRAW] = Scn_ImageLoadAndDraw,
+    [SCN_IMAGE_SUBIMAGE] = Scn_ImageSubImage,
+    [SCN_FONT_DRAWTEXT] = Scn_FontDrawText,
+    [SCN_FONT_LOAD_FREE] = Scn_FontLoadFree,
+    [SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
+    [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
 };
 
 static void HarnessInit(void)
 {
     CP_System_SetWindowSize(TIER2_CANVAS_SIZE, TIER2_CANVAS_SIZE);
     CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture");
+    CP_Engine_SetPreUpdateFunction(PreUpdateHook);
+    CP_Engine_SetPostUpdateFunction(PostUpdateHook);
     frameCount = 0;
 }
 

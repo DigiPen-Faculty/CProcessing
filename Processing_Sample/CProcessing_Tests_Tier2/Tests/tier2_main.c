@@ -53,5 +53,28 @@ int main(void)
     RUN_TEST(test_tier2_settings_blendmode_add_sums_overlapping_colors);
     RUN_TEST(test_tier2_settings_save_restore_round_trips_fill_and_transform);
 
+    // test_tier2_image.c
+    RUN_TEST(test_tier2_image_load_reports_correct_dimensions);
+    RUN_TEST(test_tier2_image_draw_places_quadrants_correctly);
+    RUN_TEST(test_tier2_image_createfromdata_roundtrips_exactly);
+    RUN_TEST(test_tier2_image_updatepixeldata_roundtrips_exactly);
+    RUN_TEST(test_tier2_image_drawsubimage_selects_correct_region);
+
+    // test_tier2_font.c
+    RUN_TEST(test_tier2_font_drawtext_occupies_expected_region);
+    RUN_TEST(test_tier2_font_load_free_renders_with_custom_font);
+
+    // test_tier2_system_engine.c
+    RUN_TEST(test_tier2_system_window_size_matches_what_was_set);
+    RUN_TEST(test_tier2_system_frame_count_advances);
+    RUN_TEST(test_tier2_system_timing_getters_are_sane);
+    RUN_TEST(test_tier2_system_window_focus_is_a_valid_bool);
+    RUN_TEST(test_tier2_system_display_info_is_positive);
+    RUN_TEST(test_tier2_engine_pre_and_post_update_hooks_fire);
+
+    // test_tier2_sound.c
+    RUN_TEST(test_tier2_sound_group_volume_roundtrips);
+    RUN_TEST(test_tier2_sound_group_pitch_roundtrips);
+
     return UNITY_END();
 }

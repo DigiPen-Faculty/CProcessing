@@ -45,10 +45,53 @@ typedef enum
     SCN_SETTINGS_APPLYMATRIX,
     SCN_SETTINGS_BLENDMODE_ADD,
     SCN_SETTINGS_SAVE_RESTORE,
+    SCN_IMAGE_LOAD_AND_DRAW,
+    SCN_IMAGE_SUBIMAGE,
+    SCN_FONT_DRAWTEXT,
+    SCN_FONT_LOAD_FREE,
+    SCN_SYSTEM_ENGINE_STATE,
+    SCN_SOUND_ROUNDTRIP,
     SCN_COUNT
 } Tier2Scenario;
 
 extern CP_Color tier2_snapshots[SCN_COUNT][TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+
+// Non-pixel results: CP_Image round-trips, CP_System/CP_Engine state, and
+// CP_Sound round-trips that don't fit the screenshot model. Populated
+// during the same single scripted engine run as tier2_snapshots, for the
+// same reason (see the file banner above) -- most of these touch GLFW
+// handles that are torn down once CP_Engine_Run() returns, so they have to
+// be read *during* the run, not after.
+typedef struct
+{
+    // CP_Image
+    int quadImageWidth;
+    int quadImageHeight;
+    CP_Color createFromDataReadback[4];
+    CP_Color updatePixelDataReadback[4];
+
+    // CP_System / CP_Engine
+    int windowWidthAfterSet;
+    int windowHeightAfterSet;
+    unsigned frameCountEarly;
+    unsigned frameCountLater;
+    float dtSample;
+    float millisSample;
+    float secondsSample;
+    float frameRateSample;
+    CP_BOOL windowFocusSample;
+    int displayWidth;
+    int displayHeight;
+    int displayRefreshRate;
+    int preUpdateHookCount;
+    int postUpdateHookCount;
+
+    // CP_Sound
+    float volumeAfterSet;
+    float pitchAfterSet;
+} Tier2Scalars;
+
+extern Tier2Scalars tier2_scalars;
 
 // Runs the one and only CP_Engine_Run() call for this process, scripting
 // through every scenario in Tier2Scenario and filling tier2_snapshots.

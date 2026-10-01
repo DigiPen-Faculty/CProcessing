@@ -110,7 +110,8 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)..\CProcessing\lib\x86\CProcessingd.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)..\CProcessing\lib\x86\soloud_d.dll" "$(OutDir)" /s /r /y /q</Command>
+xcopy "$(ProjectDir)..\CProcessing\lib\x86\soloud_d.dll" "$(OutDir)" /s /r /y /q
+xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -133,7 +134,8 @@ xcopy "$(ProjectDir)..\CProcessing\lib\x86\soloud_d.dll" "$(OutDir)" /s /r /y /q
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)..\CProcessing\lib\x86\CProcessing.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)..\CProcessing\lib\x86\soloud.dll" "$(OutDir)" /s /r /y /q</Command>
+xcopy "$(ProjectDir)..\CProcessing\lib\x86\soloud.dll" "$(OutDir)" /s /r /y /q
+xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -152,7 +154,8 @@ xcopy "$(ProjectDir)..\CProcessing\lib\x86\soloud.dll" "$(OutDir)" /s /r /y /q</
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)..\CProcessing\lib\x64\CProcessingd.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)..\CProcessing\lib\x64\soloud_d.dll" "$(OutDir)" /s /r /y /q</Command>
+xcopy "$(ProjectDir)..\CProcessing\lib\x64\soloud_d.dll" "$(OutDir)" /s /r /y /q
+xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -175,7 +178,8 @@ xcopy "$(ProjectDir)..\CProcessing\lib\x64\soloud_d.dll" "$(OutDir)" /s /r /y /q
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)..\CProcessing\lib\x64\CProcessing.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)..\CProcessing\lib\x64\soloud.dll" "$(OutDir)" /s /r /y /q</Command>
+xcopy "$(ProjectDir)..\CProcessing\lib\x64\soloud.dll" "$(OutDir)" /s /r /y /q
+xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -184,6 +188,10 @@ xcopy "$(ProjectDir)..\CProcessing\lib\x64\soloud.dll" "$(OutDir)" /s /r /y /q</
     <ClCompile Include="Tests\tier2_capture.c" />
     <ClCompile Include="Tests\test_tier2_graphics.c" />
     <ClCompile Include="Tests\test_tier2_settings.c" />
+    <ClCompile Include="Tests\test_tier2_image.c" />
+    <ClCompile Include="Tests\test_tier2_font.c" />
+    <ClCompile Include="Tests\test_tier2_system_engine.c" />
+    <ClCompile Include="Tests\test_tier2_sound.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CProcessing_Tests\ThirdParty\Unity\unity.h" />
