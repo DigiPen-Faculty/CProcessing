@@ -51,6 +51,7 @@ typedef enum
     SCN_FONT_LOAD_FREE,
     SCN_SYSTEM_ENGINE_STATE,
     SCN_SOUND_ROUNDTRIP,
+    SCN_INPUT_QUIESCENT_DEFAULTS,
     SCN_COUNT
 } Tier2Scenario;
 
@@ -89,6 +90,14 @@ typedef struct
     // CP_Sound
     float volumeAfterSet;
     float pitchAfterSet;
+
+    // CP_Input (quiescent-state defaults only -- see Scn_InputQuiescentDefaults)
+    CP_BOOL gamepadConnected;
+    CP_BOOL gamepad0ConnectedAdvanced;
+    float mouseWheel;
+    CP_BOOL mouseDoubleClicked;
+    CP_BOOL keyADown;
+    CP_BOOL mouseLeftDown;
 } Tier2Scalars;
 
 extern Tier2Scalars tier2_scalars;

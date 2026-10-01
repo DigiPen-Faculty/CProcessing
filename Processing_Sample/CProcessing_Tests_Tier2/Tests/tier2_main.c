@@ -76,5 +76,10 @@ int main(void)
     RUN_TEST(test_tier2_sound_group_volume_roundtrips);
     RUN_TEST(test_tier2_sound_group_pitch_roundtrips);
 
+    // test_tier2_input.c
+    RUN_TEST(test_tier2_input_no_gamepad_attached_reports_disconnected);
+    RUN_TEST(test_tier2_input_mouse_wheel_is_zero_at_rest);
+    RUN_TEST(test_tier2_input_no_clicks_or_keys_in_a_quiescent_frame);
+
     return UNITY_END();
 }

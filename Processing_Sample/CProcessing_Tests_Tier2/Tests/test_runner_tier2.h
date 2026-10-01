@@ -54,3 +54,8 @@ void test_tier2_engine_pre_and_post_update_hooks_fire(void);
 // test_tier2_sound.c -- Tier 2: CP_Sound (crash/round-trip checks, not audio correctness).
 void test_tier2_sound_group_volume_roundtrips(void);
 void test_tier2_sound_group_pitch_roundtrips(void);
+
+// test_tier2_input.c -- Tier 2: CP_Input (quiescent-state defaults only).
+void test_tier2_input_no_gamepad_attached_reports_disconnected(void);
+void test_tier2_input_mouse_wheel_is_zero_at_rest(void);
+void test_tier2_input_no_clicks_or_keys_in_a_quiescent_frame(void);

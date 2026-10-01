@@ -440,6 +440,34 @@ static void Scn_SoundRoundTrip(void)
     CP_Sound_Free(&sound);
 }
 
+// ---- CP_Input (Phase F, partial -- see the Phase F commit message) ----
+// This covers only the slice of CP_Input that's deterministically
+// testable without synthesizing OS input events or hardware: default
+// values in a quiescent frame where nothing was pressed, moved, or
+// plugged in. The plan's actual Phase F goal -- splitting the
+// triggered/released/down edge-detection logic out of CP_Input.c so it
+// can be unit-tested directly against synthetic state transitions -- is a
+// real refactor of production input-handling code, not just new tests,
+// and 06-test-suite-plan.md calls out that it's meant to happen alongside
+// the separate XInput-to-GLFW-gamepad-API migration in
+// 03-dependency-assessment.md. Deliberately not attempted here: that's an
+// architecture decision for a human to make alongside that migration, not
+// one to make unilaterally while adding tests.
+static void Scn_InputQuiescentDefaults(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+
+    // Assumes no gamepad is actually attached to the machine running this;
+    // true in CI once Phase G lands, and was true on the dev machine this
+    // was verified on, but is a real caveat for local runs elsewhere.
+    tier2_scalars.gamepadConnected = CP_Input_GamepadConnected();
+    tier2_scalars.gamepad0ConnectedAdvanced = CP_Input_GamepadConnectedAdvanced(0);
+    tier2_scalars.mouseWheel = CP_Input_MouseWheel();
+    tier2_scalars.mouseDoubleClicked = CP_Input_MouseDoubleClicked();
+    tier2_scalars.keyADown = CP_Input_KeyDown(KEY_A);
+    tier2_scalars.mouseLeftDown = CP_Input_MouseDown(MOUSE_BUTTON_LEFT);
+}
+
 typedef void (*ScenarioFunc)(void);
 
 static const ScenarioFunc kScenarios[SCN_COUNT] = {
@@ -474,6 +502,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_FONT_LOAD_FREE] = Scn_FontLoadFree,
     [SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
     [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
+    [SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,
 };
 
 static void HarnessInit(void)
