@@ -1,0 +1,38 @@
+name: Tests
+
+# Tier 1 (CP_Math, CP_Vector, CP_Matrix, CP_Color, CP_Random/CP_Noise) runs
+# headless with no window or GL context, so it's CI-friendly today. Tier 2
+# (the engine/pixel-sampling harness) needs a real window + GL context and
+# is not wired in here yet -- see CProcessing-planning/06-test-suite-plan.md
+# Phase G for the headless-GL spike that's a prerequisite for that.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tier1:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: x64
+            outDir: x64
+          - platform: x86
+            outDir: Win32
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build CProcessing_Tests (${{ matrix.platform }})
+        working-directory: Processing_Sample
+        shell: cmd
+        run: msbuild Processing_Sample.sln /t:CProcessing_Tests /p:Configuration=Debug /p:Platform=${{ matrix.platform }} /m /v:minimal
+
+      - name: Run Tier 1 tests (${{ matrix.platform }})
+        working-directory: Processing_Sample
+        shell: cmd
+        run: ${{ matrix.outDir }}\Debug\CProcessing_Tests.exe
