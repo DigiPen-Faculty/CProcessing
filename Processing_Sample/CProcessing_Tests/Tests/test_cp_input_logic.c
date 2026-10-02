@@ -68,6 +68,36 @@ void test_inputlogic_press_hold_release_sequence(void)
     TEST_ASSERT_EQUAL_INT(4, releasedFrame);
 }
 
+// ---- per-frame sampling (quick taps) ----
+
+void test_inputlogic_sample_reflects_realtime_state(void)
+{
+    TEST_ASSERT_TRUE(CP_InputLogic_SampleButton(true, false));
+    TEST_ASSERT_FALSE(CP_InputLogic_SampleButton(false, false));
+}
+
+void test_inputlogic_sample_tap_between_frames_is_not_lost(void)
+{
+    // Press and release both happened since the last sample: the realtime
+    // state is already "up" again, but the latched press must still count.
+    TEST_ASSERT_TRUE(CP_InputLogic_SampleButton(false, true));
+}
+
+void test_inputlogic_quick_tap_triggers_then_releases(void)
+{
+    // Simulate the per-frame update: frame 1 samples a tap that came and went
+    // between frames, frame 2 samples with nothing new.
+    bool previous = false;
+    bool current = CP_InputLogic_SampleButton(false, true);   // frame 1
+    TEST_ASSERT_TRUE(CP_InputLogic_Triggered(current, previous));
+    TEST_ASSERT_FALSE(CP_InputLogic_Released(current, previous));
+
+    previous = current;
+    current = CP_InputLogic_SampleButton(false, false);       // frame 2
+    TEST_ASSERT_FALSE(CP_InputLogic_Triggered(current, previous));
+    TEST_ASSERT_TRUE(CP_InputLogic_Released(current, previous));
+}
+
 // ---- double click ----
 
 void test_inputlogic_double_click_within_window(void)

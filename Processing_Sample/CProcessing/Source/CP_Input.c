@@ -43,6 +43,7 @@ static bool valid_keys_sparse[CP_NUM_KEYS] = { false };
 static int key_states_previous[CP_NUM_KEYS] = { 0 };
 static int key_states_current[CP_NUM_KEYS]  = { 0 };
 static int key_states_realtime[CP_NUM_KEYS] = { 0 };
+static bool key_pressed_since_update[CP_NUM_KEYS] = { false }; // see CP_InputLogic_SampleButton
 static bool key_any_triggered = false;
 static bool key_any_down = false;
 static bool key_any_released = false;
@@ -54,6 +55,7 @@ static bool key_any_released = false;
 static int mouse_states_previous[CP_NUM_MOUSE_BUTTONS] = { 0 };
 static int mouse_states_current[CP_NUM_MOUSE_BUTTONS]  = { 0 };
 static int mouse_states_realtime[CP_NUM_MOUSE_BUTTONS] = { 0 };
+static bool mouse_pressed_since_update[CP_NUM_MOUSE_BUTTONS] = { false };
 
 // Mouse Wheel
 static int   mouse_wheel_captured  = FALSE;
@@ -114,6 +116,7 @@ void CP_Input_KeyboardCallback(GLFWwindow* window, int key, int scancode, int ac
     {
     case GLFW_PRESS:
         key_states_realtime[key] = TRUE;
+        key_pressed_since_update[key] = true;
         break;
     case GLFW_RELEASE:
         key_states_realtime[key] = FALSE;
@@ -139,6 +142,7 @@ void CP_Input_MouseCallback(GLFWwindow* window, int button, int action, int mods
     {
     case GLFW_PRESS:
         mouse_states_realtime[button] = TRUE;
+        mouse_pressed_since_update[button] = true;
         break;
     case GLFW_RELEASE:
         mouse_states_realtime[button] = FALSE;
@@ -201,7 +205,11 @@ void CP_Input_KeyboardUpdate(void)
 	//      realtime -> current
 	unsigned size = sizeof(key_states_previous[0]) * CP_NUM_KEYS;
 	memcpy(key_states_previous, key_states_current, size);
-	memcpy(key_states_current, key_states_realtime, size);
+	for (unsigned keyCode = 0; keyCode < CP_NUM_KEYS; ++keyCode)
+	{
+		key_states_current[keyCode] = CP_InputLogic_SampleButton(key_states_realtime[keyCode], key_pressed_since_update[keyCode]);
+		key_pressed_since_update[keyCode] = false;
+	}
 	// track values for ANY key
 	key_any_triggered = false;
 	key_any_down = false;
@@ -240,7 +248,11 @@ void CP_Input_MouseUpdate(void)
     // Update Mouse Buttons
     int size = sizeof(mouse_states_previous[0]) * CP_NUM_MOUSE_BUTTONS;
     memcpy(mouse_states_previous, mouse_states_current, size);
-    memcpy(mouse_states_current, mouse_states_realtime, size);
+    for (int button = 0; button < CP_NUM_MOUSE_BUTTONS; ++button)
+    {
+        mouse_states_current[button] = CP_InputLogic_SampleButton(mouse_states_realtime[button], mouse_pressed_since_update[button]);
+        mouse_pressed_since_update[button] = false;
+    }
 
     // Update mouse wheel
     mouse_wheelx_previous = mouse_wheelx_current;

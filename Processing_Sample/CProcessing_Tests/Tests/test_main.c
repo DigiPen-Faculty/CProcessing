@@ -155,6 +155,9 @@ int main(void)
     RUN_TEST(test_inputlogic_triggered_truth_table);
     RUN_TEST(test_inputlogic_released_truth_table);
     RUN_TEST(test_inputlogic_press_hold_release_sequence);
+    RUN_TEST(test_inputlogic_sample_reflects_realtime_state);
+    RUN_TEST(test_inputlogic_sample_tap_between_frames_is_not_lost);
+    RUN_TEST(test_inputlogic_quick_tap_triggers_then_releases);
     RUN_TEST(test_inputlogic_double_click_within_window);
     RUN_TEST(test_inputlogic_double_click_window_is_inclusive);
     RUN_TEST(test_inputlogic_double_click_too_slow);

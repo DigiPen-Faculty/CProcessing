@@ -72,6 +72,19 @@ static inline bool CP_InputLogic_Released(bool current, bool previous)
 	return !current && previous;
 }
 
+// Per-frame sampling of a key/button's down state.
+//
+// OS events arrive asynchronously; CProcessing samples the state once per
+// frame. A press and release that both land between two samples (a quick
+// tap, a touchpad click, an automated key press) would otherwise be missed
+// entirely. pressedSinceLastSample latches any press seen since the previous
+// sample so a tap still reads as down for exactly one frame: Triggered on
+// that frame and Released on the next.
+static inline bool CP_InputLogic_SampleButton(bool realtimeDown, bool pressedSinceLastSample)
+{
+	return realtimeDown || pressedSinceLastSample;
+}
+
 //------------------------------------------------------------------------------
 // Mouse double click: a left-button release within this many seconds of the
 // previous left-button release counts as a double click
