@@ -20,9 +20,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 #------------------------------------------------------------------------------
 # GLFW - windowing, input, OpenGL context creation
 #------------------------------------------------------------------------------
-set(CPROCESSING_GLFW_VERSION "3.4")
-set(CPROCESSING_GLFW_URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip")
-set(CPROCESSING_GLFW_SHA256 "b5ec004b2712fd08e8861dc271428f048775200a2df719ccf575143ba749a3e9")
+#
+# 3.5.1 rather than the 3.4 the prebuilt Windows libraries in GLFW/lib are:
+# GLFW 3.4's Wayland backend calls wl_seat_get_version() on a NULL seat when
+# the compositor has not advertised an input seat at startup, crashing
+# CProcessing intermittently under Wayland (seen under WSLg; found with core
+# dumps). 3.5.1 handles a missing seat. The API CProcessing uses is the same.
+set(CPROCESSING_GLFW_VERSION "3.5.1")
+set(CPROCESSING_GLFW_URL "https://github.com/glfw/glfw/releases/download/3.5.1/glfw-3.5.1.zip")
+set(CPROCESSING_GLFW_SHA256 "ea79bc5feffc254c87291980c2d0bce9acebb68c4983b79f961dcd2cb8a611a0")
 
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
