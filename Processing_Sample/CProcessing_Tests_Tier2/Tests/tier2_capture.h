@@ -137,6 +137,10 @@ typedef struct
     CP_BOOL consoleVisibleAfterReshow;
     int printfAfterShowConsole;     // printf's return value: negative on failure
     int printfAfterHideConsole;
+
+    // How many scenarios were captured: SCN_COUNT unless the engine couldn't
+    // start (no window or OpenGL context) or stopped early
+    int scenariosCaptured;
 } Tier2Scalars;
 
 extern Tier2Scalars tier2_scalars;

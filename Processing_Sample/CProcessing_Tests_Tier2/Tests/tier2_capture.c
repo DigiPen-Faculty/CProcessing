@@ -687,6 +687,7 @@ static void HarnessUpdate(void)
         ResetToBaseline();
         kScenarios[scenarioIndex]();
         CaptureCurrentFrame((Tier2Scenario)scenarioIndex);
+        ++tier2_scalars.scenariosCaptured;
     }
 
     if (scenarioIndex >= SCN_COUNT - 1)
