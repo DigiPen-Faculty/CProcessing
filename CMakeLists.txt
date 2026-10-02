@@ -14,8 +14,16 @@
 
 cmake_minimum_required(VERSION 3.20)
 
+# The version is defined once, in cprocessing_common.h
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Sample/CProcessing/inc/cprocessing_common.h"
+    _cp_version_lines REGEX "^#define CP_VERSION_(MAJOR|MINOR|PATCH) +[0-9]+")
+foreach(_part MAJOR MINOR PATCH)
+    string(REGEX MATCH "CP_VERSION_${_part} +([0-9]+)" _ "${_cp_version_lines}")
+    set(_cp_version_${_part} "${CMAKE_MATCH_1}")
+endforeach()
+
 project(CProcessing
-    VERSION 1.0.0
+    VERSION ${_cp_version_MAJOR}.${_cp_version_MINOR}.${_cp_version_PATCH}
     DESCRIPTION "A Processing-inspired C library for learning game programming"
     LANGUAGES C CXX
 )

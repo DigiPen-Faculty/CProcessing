@@ -36,8 +36,12 @@
 // Acknowledgment:
 //
 // NanoVG by Mikko Mononen
-// FMOD Studio by Firelight Technologies Pty Ltd.
-// 
+// SoLoud by Jari Komppa
+// GLFW by Marcus Geelnard and Camilla Loewy
+// miniaudio by David Reid
+// Exo 2 font (built in as the default font) by Natanael Gama,
+//   licensed under the SIL Open Font License 1.1
+//
 //---------------------------------------------------------
 
 #pragma once

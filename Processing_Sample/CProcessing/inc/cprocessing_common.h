@@ -14,7 +14,16 @@ extern "C"
 #endif
 
 //---------------------------------------------------------
-// Cleanup Warnings 
+// Version of this CProcessing release: major.minor.patch
+// (CMakeLists.txt reads the project version from these lines)
+
+#define CP_VERSION_MAJOR 3
+#define CP_VERSION_MINOR 0
+#define CP_VERSION_PATCH 0
+
+
+//---------------------------------------------------------
+// Cleanup Warnings
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4201)  // nonstandard extension used : nameless struct/union

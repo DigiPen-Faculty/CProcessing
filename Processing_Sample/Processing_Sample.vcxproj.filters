@@ -36,9 +36,6 @@
     <ClCompile Include="Demos\NoiseDemo.c">
       <Filter>Demos</Filter>
     </ClCompile>
-    <ClCompile Include="test_code.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Demos\DancingLinesDemo.h">
