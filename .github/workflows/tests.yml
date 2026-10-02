@@ -1,20 +1,29 @@
 name: Tests
 
-# Tier 1 (CP_Math, CP_Vector, CP_Matrix, CP_Color, CP_Random/CP_Noise) runs
-# headless with no window or GL context, so it's CI-friendly today.
+# Build and test CProcessing on every pull request and every push to main.
 #
-# Tier 2 (the engine/pixel-sampling harness, CProcessing_Tests_Tier2) needs
-# a real GL context. The tier2 job below is a Phase G spike at wiring that
-# up headlessly, not a verified, trusted part of this workflow yet -- see
-# that job for why -- so it's `continue-on-error: true` and separate from
-# the tier1 job so it can never block a PR on its own.
+#   windows-msbuild   The Visual Studio solution students and faculty use:
+#                     whole solution (library, demos, tests) for x64 and x86,
+#                     then Tier 1.
+#   windows-tier2     Tier 2 (real engine, pixel-sampling) for the Visual
+#                     Studio build, using Mesa's llvmpipe software OpenGL
+#                     since hosted Windows runners have no GPU.
+#   linux             CMake + GCC and Clang (+ an ASan/UBSan build): Tier 1,
+#                     and Tier 2 under a virtual X server (Xvfb + llvmpipe).
+#   windows-cmake     CMake + MSVC: Tier 1 and Tier 2 (Mesa llvmpipe).
+#   macos             CMake + Apple Clang: build and Tier 1; Tier 2 is
+#                     attempted but not yet gating (see that step).
+#
+# Tier 1 needs no window or GL context. Tier 2 opens a real window and GL
+# context and screenshots what it draws (see CProcessing_Tests_Tier2).
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  tier1:
+  windows-msbuild:
     runs-on: windows-2022
     strategy:
       fail-fast: false
@@ -30,37 +39,23 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
 
-      - name: Build CProcessing_Tests (${{ matrix.platform }})
+      - name: Build solution (${{ matrix.platform }})
         working-directory: Processing_Sample
         shell: cmd
-        run: msbuild Processing_Sample.sln /t:CProcessing_Tests /p:Configuration=Debug /p:Platform=${{ matrix.platform }} /m /v:minimal
+        run: msbuild Processing_Sample.sln /p:Configuration=Debug /p:Platform=${{ matrix.platform }} /m /v:minimal
 
       - name: Run Tier 1 tests (${{ matrix.platform }})
         working-directory: Processing_Sample
         shell: cmd
         run: ${{ matrix.outDir }}\Debug\CProcessing_Tests.exe
 
-  # Phase G spike (06-test-suite-plan.md): can CProcessing_Tests_Tier2 get a
-  # real OpenGL context on a GPU-less GitHub-hosted Windows runner?
-  #
-  # windows-2022 runners have no GPU, so the default opengl32.dll only
-  # offers OpenGL 1.1 (GDI generic) -- nowhere near enough for nanovg's GL3
-  # backend. The known fix is to vendor Mesa's llvmpipe software
-  # rasterizer (a drop-in opengl32.dll) next to the executable so Windows'
-  # DLL search order picks it over the system one; llvmpipe then provides
-  # a real, if slow, OpenGL 3.3+ context with working FBOs and pixel
-  # readback entirely in software. install-mesa-windows-action wraps the
-  # pal1000/mesa-dist-win distribution and also sets the GALLIUM_DRIVER
-  # env var llvmpipe needs.
-  #
-  # This job is NOT yet confirmed working end to end -- it could not be
-  # verified without actually pushing and watching a run, which wasn't
-  # done as part of writing it. `continue-on-error: true` and a separate
-  # job (rather than folding into tier1) are both deliberate: a red result
-  # here should read as "the spike needs more work," never as "the real,
-  # already-verified Tier 1 suite broke." Once this is confirmed reliable,
-  # drop continue-on-error and fold Tier 2 into the regular gate.
-  tier2_spike:
+  # Hosted Windows runners have no GPU, so the system opengl32.dll only offers
+  # OpenGL 1.1. Mesa's llvmpipe (a drop-in opengl32.dll placed next to the
+  # executable) provides a real OpenGL 3.3+ context in software. This exact
+  # setup (Mesa 23.3.5 release-msvc, GALLIUM_DRIVER=llvmpipe) passes 43/43
+  # locally. It stays non-gating until it has been seen passing on hosted
+  # runners a few times; then drop continue-on-error.
+  windows-tier2:
     runs-on: windows-2022
     continue-on-error: true
     steps:
@@ -80,6 +75,116 @@ jobs:
           path: ${{ github.workspace }}/Processing_Sample/x64/Debug/Tier2
 
       - name: Run Tier 2 tests (x64)
-        working-directory: Processing_Sample
+        working-directory: Processing_Sample/x64/Debug/Tier2
         shell: cmd
-        run: x64\Debug\Tier2\CProcessing_Tests_Tier2.exe
+        run: CProcessing_Tests_Tier2.exe
+
+  linux:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: gcc
+            cc: gcc
+            cxx: g++
+            build_type: Debug
+            flags: ""
+          - name: clang
+            cc: clang
+            cxx: clang++
+            build_type: Release
+            flags: ""
+          - name: asan
+            cc: gcc
+            cxx: g++
+            build_type: Debug
+            flags: "-fsanitize=address,undefined -fno-omit-frame-pointer"
+    name: linux (${{ matrix.name }})
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ninja-build clang \
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev \
+            libwayland-dev libxkbcommon-dev wayland-protocols \
+            libgl1-mesa-dev libgl1-mesa-dri xvfb xauth
+
+      - name: Configure
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: >
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCPROCESSING_WARNINGS_AS_ERRORS=ON
+          "-DCMAKE_C_FLAGS=${{ matrix.flags }}"
+          "-DCMAKE_CXX_FLAGS=${{ matrix.flags }}"
+          "-DCMAKE_EXE_LINKER_FLAGS=${{ matrix.flags }}"
+          "-DCMAKE_SHARED_LINKER_FLAGS=${{ matrix.flags }}"
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Tier 1
+        env:
+          ASAN_OPTIONS: detect_leaks=0
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1:suppressions=${{ github.workspace }}/.github/sanitizers/ubsan.supp
+        run: ctest --test-dir build -L tier1 --output-on-failure
+
+      - name: Tier 2 (Xvfb + llvmpipe)
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          # GPU driver internals allocate/leak by design; don't fail on them
+          ASAN_OPTIONS: detect_leaks=0
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1:suppressions=${{ github.workspace }}/.github/sanitizers/ubsan.supp
+        run: xvfb-run -a -s "-screen 0 1280x1024x24" ctest --test-dir build -L tier2 --output-on-failure
+
+  windows-cmake:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -A x64 -DCPROCESSING_WARNINGS_AS_ERRORS=ON
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Tier 1
+        run: ctest --test-dir build -C Release -L tier1 --output-on-failure
+
+      - name: Install Mesa (llvmpipe software OpenGL)
+        uses: f3d-app/install-mesa-windows-action@v1
+        with:
+          path: ${{ github.workspace }}/build/bin/Release
+
+      - name: Tier 2 (Mesa llvmpipe)
+        # Same setup as windows-tier2: non-gating until seen passing on
+        # hosted runners.
+        continue-on-error: true
+        run: ctest --test-dir build -C Release -L tier2 --output-on-failure
+
+  macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCPROCESSING_WARNINGS_AS_ERRORS=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Tier 1
+        run: ctest --test-dir build -L tier1 --output-on-failure
+
+      - name: Tier 2
+        # macOS support has only been built, not yet run on real hardware;
+        # whether a hosted macOS runner can open an OpenGL window is also
+        # unconfirmed. Non-gating until both are verified.
+        continue-on-error: true
+        run: ctest --test-dir build -L tier2 --output-on-failure
