@@ -4,6 +4,7 @@
 * It's a framework that provides simple implementations for many of the common things used in 2D games all within the C programming language.
 * Graphics, Audio, Input, Fonts, Colors, Math (Vectors and Matrices), Random
 * It is a DLL that can be incorporated into projects across many platforms and accessed from many different programming languages.
+* It runs on Windows, Linux and macOS.
 * It was patterned after Processing (Java) and P5.js (JavaScript)
  
 ## What can you do with it?
@@ -14,6 +15,7 @@
 ## What's next?
 * Grab a copy of the [Latest Release](https://github.com/DigiPen-Faculty/CProcessing/releases).
 * Read through the [Documentation](https://github.com/DigiPen-Faculty/CProcessing/wiki).
+* See what changed in each release in the [Changelog](CHANGELOG.md).
 * Have fun building awesome stuff!
 
 ## Building from source
@@ -25,8 +27,8 @@
 ## License
 The library is offered under the [MIT License](https://github.com/DigiPen-Faculty/CProcessing/blob/main/LICENSE).
 
-Default font used in the library:
-* Roboto - licensed under [Apache license](http://www.apache.org/licenses/LICENSE-2.0)
+Default font, built into the library:
+* Exo 2 by Natanael Gama - licensed under the [SIL Open Font License 1.1](Processing_Sample/Assets/Exo2_license.txt)
 
 ## Acknowledgment
 * [NanoVG](https://github.com/memononen/nanovg) by Mikko Mononen

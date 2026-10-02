@@ -40,6 +40,9 @@ void game_exit(void)
 // CP_Engine_Run() is the core function that starts the simulation
 int main(void)
 {
+	// uncomment to open a console window that shows printf output
+	// CP_System_ShowConsole(TRUE);
+
 	CP_Engine_SetNextGameState(game_init, game_update, game_exit);
 	CP_Engine_Run();
 	return 0;
