@@ -29,8 +29,6 @@ option(CPROCESSING_BUILD_SHARED "Build CProcessing as a shared library (DLL/.so/
 option(CPROCESSING_BUILD_DEMOS "Build the Processing_Demos sample program" ${CPROCESSING_IS_TOP_LEVEL})
 option(CPROCESSING_BUILD_TESTS "Build the Tier 1 and Tier 2 test suites" ${CPROCESSING_IS_TOP_LEVEL})
 option(CPROCESSING_WARNINGS_AS_ERRORS "Treat compiler warnings in CProcessing code as errors" OFF)
-option(CPROCESSING_FORCE_CANVAS_FBO
-    "Draw through the offscreen canvas framebuffer on Windows too (always used on Linux/macOS; see CP_System.c)" OFF)
 
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
@@ -139,10 +137,6 @@ target_include_directories(CProcessing
         "${CP_DIR}/nanovg/src"
         "${CPROCESSING_GLFW_INCLUDE_DIR}"
 )
-
-if(CPROCESSING_FORCE_CANVAS_FBO)
-    target_compile_definitions(CProcessing PRIVATE CP_USE_CANVAS_FBO=1)
-endif()
 
 if(UNIX AND NOT APPLE AND GLFW_BUILD_X11)
     # Enables CP_System_GetWindowHandle on X11 (glfwGetX11Window)

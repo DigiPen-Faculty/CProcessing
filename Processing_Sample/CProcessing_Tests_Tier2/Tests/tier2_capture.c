@@ -471,8 +471,8 @@ static void Scn_InputQuiescentDefaults(void)
 
 // ---- Drawing persistence (cross-platform work) ----
 // CProcessing never clears the screen between frames on its own: whatever
-// was drawn stays until drawn over. Windows gets this from a single-buffered
-// window; Linux/macOS from an offscreen canvas framebuffer (CP_System.c).
+// was drawn stays until drawn over, via the offscreen canvas framebuffer
+// (CP_System.c).
 // The first scenario draws a red square; the next frame draws only a blue
 // square without clearing, so both must be in the second capture.
 

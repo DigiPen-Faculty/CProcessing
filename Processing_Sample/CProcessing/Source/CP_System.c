@@ -123,26 +123,16 @@ static void CP_FramebufferSizeCallback(GLFWwindow* window, int width, int height
 //---------------------------------------------------------
 // CANVAS:
 //		CProcessing, like Processing, does not clear the screen between frames:
-//		whatever was drawn stays until it is drawn over. On Windows this has
-//		always been done with a single-buffered window that is drawn to
-//		directly. Single-buffered windows are not available everywhere
-//		(Wayland/EGL has no single-buffered window surfaces, and macOS core
-//		profile contexts are unreliable with them), so elsewhere the frame is
-//		drawn into a persistent offscreen framebuffer (the "canvas") that is
-//		copied to a normal double-buffered window at the end of every frame.
+//		whatever was drawn stays until it is drawn over. Every frame is drawn
+//		into a persistent offscreen framebuffer (the "canvas") that is copied
+//		to a normal double-buffered window at the end of the frame.
 //		Screenshots read back from the canvas.
 //
-//		Define CP_USE_CANVAS_FBO=1 to use the canvas on Windows as well.
+//		(CProcessing used to draw straight into a single-buffered window on
+//		Windows instead. Single-buffered windows are not available everywhere -
+//		Wayland/EGL has none, and macOS core profile contexts are unreliable
+//		with them - so the canvas is used on every platform for consistency.)
 
-#if !defined(CP_USE_CANVAS_FBO)
-	#if defined(_WIN32)
-		#define CP_USE_CANVAS_FBO 0
-	#else
-		#define CP_USE_CANVAS_FBO 1
-	#endif
-#endif
-
-#if CP_USE_CANVAS_FBO
 static GLuint _canvasFramebuffer = 0;
 static GLuint _canvasColorBuffer = 0;
 static GLuint _canvasDepthStencilBuffer = 0;
@@ -249,7 +239,6 @@ static void CP_Canvas_Present(void)
 		GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
 }
-#endif // CP_USE_CANVAS_FBO
 
 CP_CorePtr GetCPCore(void)
 {
@@ -560,11 +549,7 @@ void CP_Initialize(void)
 	// Create the window
 	glfwDefaultWindowHints();
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-#if CP_USE_CANVAS_FBO
 	glfwWindowHint(GLFW_DOUBLEBUFFER, 1);	// persistence comes from the canvas framebuffer
-#else
-	glfwWindowHint(GLFW_DOUBLEBUFFER, 0);	// draw straight to a persistent front buffer
-#endif
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 	glfwWindowHint(GLFW_VISIBLE, 0);
 #if defined(__APPLE__)
@@ -648,17 +633,12 @@ void CP_Initialize(void)
 	// Update and render
 	glViewport(0, 0, _CORE.canvas_width, _CORE.canvas_height);
 
-#if CP_USE_CANVAS_FBO
 	// Create the persistent drawing canvas (also binds it and sets the viewport)
 	if (!CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height))
 	{
 		CP_InitializeFailed();
 		return;
 	}
-#else
-	// Set readable front buffer for screen shot functionality
-	glReadBuffer(GL_FRONT);
-#endif
 
 	// Set the background color
 	CP_Graphics_ClearBackground(CP_Color_Create(150, 150, 150, 255));
@@ -718,9 +698,7 @@ void CP_Shutdown(void)
 
 	// Clean up GL resources while the GL context still exists, then glfw
 	// (which destroys the window and context)
-#if CP_USE_CANVAS_FBO
 	CP_Canvas_Destroy();
-#endif
 	nvgDeleteGL3(_CORE.nvg);
 	_CORE.nvg = NULL;
 	glfwTerminate();
@@ -738,10 +716,8 @@ void CP_FrameStart(void)
 		CP_DeferredSetWindowSizeInternal(_deferredWidth, _deferredHeight, _deferredFullscreen);
 	}
 
-#if CP_USE_CANVAS_FBO
 	// follow any window size change the window system has applied
 	CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height);
-#endif
 
 	nvgBeginFrame(_CORE.nvg, _CORE.window_width, _CORE.window_height, _CORE.pixel_ratio);
 }
@@ -749,9 +725,7 @@ void CP_FrameStart(void)
 void CP_FrameEnd(void)
 {
 	nvgEndFrame(_CORE.nvg);
-#if CP_USE_CANVAS_FBO
 	CP_Canvas_Present();
-#endif
 	glfwSwapBuffers(_CORE.window);
 	glFlush();
 	glfwPollEvents();

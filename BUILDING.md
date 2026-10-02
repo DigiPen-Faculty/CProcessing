@@ -111,7 +111,6 @@ Pass options to the configure step with `-D`, for example
 | `CPROCESSING_BUILD_DEMOS` | `ON`* | Build `Processing_Demos`. |
 | `CPROCESSING_BUILD_TESTS` | `ON`* | Build the Tier 1 and Tier 2 tests. |
 | `CPROCESSING_WARNINGS_AS_ERRORS` | `OFF` | Treat warnings in CProcessing's own code as errors. CI turns this on. |
-| `CPROCESSING_FORCE_CANVAS_FBO` | `OFF` | Use the offscreen drawing canvas on Windows as well (see Platform notes). |
 
 \* Only when CProcessing is the top-level project. When it's added to another
 project with `add_subdirectory`, the demos and tests are off by default.
@@ -149,10 +148,9 @@ template.
   compiles unchanged on all three platforms. `cprocessing.h` includes no OS
   headers. Code that needs Windows APIs includes `<windows.h>` itself.
   `CP_System_GetWindowHandle` returns a `void*`; cast it to `HWND` on Windows.
-- **Drawing persists between frames** on every platform, as in Processing.
-  Windows does this with a single-buffered window. Linux and macOS draw into
-  an offscreen canvas that is copied to the window each frame, because Wayland
-  and macOS don't support single-buffered windows reliably.
+- **Drawing persists between frames**, as in Processing. Every platform draws
+  into the same kind of offscreen canvas, which is copied to the window each
+  frame.
 - **Linux: X11 and Wayland** are both supported. GLFW picks the native one
   automatically. Under Wayland, `CP_System_SetWindowPosition` has no effect,
   because the compositor places windows, and `CP_System_GetWindowHandle`

@@ -1,8 +1,7 @@
-// Tier 2 checks added with the cross-platform work: behavior that every
-// platform must share even though the implementation differs underneath
-// (single-buffered window on Windows, offscreen canvas framebuffer on
-// Linux/macOS), plus error paths that used to crash. See the matching
-// Scn_* functions in tier2_capture.c.
+// Tier 2 checks added with the cross-platform work: behavior every platform
+// must share (drawing persisting through the offscreen canvas, screenshots of
+// sub-regions, the native window handle), plus error paths that used to
+// crash. See the matching Scn_* functions in tier2_capture.c.
 #include "unity.h"
 #include "tier2_capture.h"
 
