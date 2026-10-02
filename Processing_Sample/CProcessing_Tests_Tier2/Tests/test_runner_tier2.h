@@ -59,3 +59,13 @@ void test_tier2_sound_group_pitch_roundtrips(void);
 void test_tier2_input_no_gamepad_attached_reports_disconnected(void);
 void test_tier2_input_mouse_wheel_is_zero_at_rest(void);
 void test_tier2_input_no_clicks_or_keys_in_a_quiescent_frame(void);
+
+// test_tier2_crossplatform.c -- Tier 2: behavior every platform must share.
+void test_tier2_drawing_persists_into_the_next_frame(void);
+void test_tier2_first_frame_did_not_contain_the_later_drawing(void);
+void test_tier2_screenshot_subregion_has_requested_size(void);
+void test_tier2_screenshot_subregion_reads_the_right_place(void);
+void test_tier2_screenshot_subregion_is_not_flipped(void);
+void test_tier2_missing_files_load_as_null(void);
+void test_tier2_null_handles_are_ignored(void);
+void test_tier2_window_handle_is_available(void);

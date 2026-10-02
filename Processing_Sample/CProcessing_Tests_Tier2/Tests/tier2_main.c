@@ -81,5 +81,15 @@ int main(void)
     RUN_TEST(test_tier2_input_mouse_wheel_is_zero_at_rest);
     RUN_TEST(test_tier2_input_no_clicks_or_keys_in_a_quiescent_frame);
 
+    // test_tier2_crossplatform.c
+    RUN_TEST(test_tier2_drawing_persists_into_the_next_frame);
+    RUN_TEST(test_tier2_first_frame_did_not_contain_the_later_drawing);
+    RUN_TEST(test_tier2_screenshot_subregion_has_requested_size);
+    RUN_TEST(test_tier2_screenshot_subregion_reads_the_right_place);
+    RUN_TEST(test_tier2_screenshot_subregion_is_not_flipped);
+    RUN_TEST(test_tier2_missing_files_load_as_null);
+    RUN_TEST(test_tier2_null_handles_are_ignored);
+    RUN_TEST(test_tier2_window_handle_is_available);
+
     return UNITY_END();
 }

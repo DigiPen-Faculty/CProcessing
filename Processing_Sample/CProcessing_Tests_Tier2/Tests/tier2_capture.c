@@ -411,6 +411,7 @@ static void Scn_SystemEngineState(void)
     tier2_scalars.displayRefreshRate = CP_System_GetDisplayRefreshRate();
     tier2_scalars.preUpdateHookCount = preUpdateHookCount;
     tier2_scalars.postUpdateHookCount = postUpdateHookCount;
+    tier2_scalars.windowHandleIsNull = CP_System_GetWindowHandle() == NULL;
 
     CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture"); // just must not crash
     CP_System_ShowCursor(TRUE); // just must not crash
@@ -468,6 +469,107 @@ static void Scn_InputQuiescentDefaults(void)
     tier2_scalars.mouseLeftDown = CP_Input_MouseDown(MOUSE_BUTTON_LEFT);
 }
 
+// ---- Drawing persistence (cross-platform work) ----
+// CProcessing never clears the screen between frames on its own: whatever
+// was drawn stays until drawn over. Windows gets this from a single-buffered
+// window; Linux/macOS from an offscreen canvas framebuffer (CP_System.c).
+// The first scenario draws a red square; the next frame draws only a blue
+// square without clearing, so both must be in the second capture.
+
+static void Scn_PersistFirstFrame(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_NoStroke();
+    CP_Settings_Fill(RED);
+    CP_Graphics_DrawRect(50, 50, 40, 40);
+}
+
+static void Scn_PersistNextFrame(void)
+{
+    // deliberately no ClearBackground
+    CP_Settings_NoStroke();
+    CP_Settings_Fill(BLUE);
+    CP_Graphics_DrawRect(150, 150, 40, 40);
+}
+
+// ---- CP_Image_Screenshot of sub-regions (cross-platform work) ----
+// The scenario captures always screenshot the whole canvas from (0,0); this
+// checks offset regions too, i.e. the window-to-framebuffer coordinate
+// conversion (y is flipped for glReadPixels).
+
+static CP_Color SampleImage(CP_Image image, int x, int y)
+{
+    static CP_Color pixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+    int w = CP_Image_GetWidth(image);
+    CP_Image_GetPixelData(image, pixels);
+    return pixels[y * w + x];
+}
+
+static void Scn_ScreenshotSubregion(void)
+{
+    CP_Settings_NoStroke();
+    CP_Settings_RectMode(CP_POSITION_CORNER);
+    CP_Settings_Fill(RED);
+    CP_Graphics_DrawRect(0, 0, 100, 100);
+    CP_Settings_Fill(GREEN);
+    CP_Graphics_DrawRect(100, 0, 100, 100);
+    CP_Settings_Fill(BLUE);
+    CP_Graphics_DrawRect(0, 100, 100, 100);
+    CP_Settings_Fill(CP_Color_Create(255, 255, 0, 255));
+    CP_Graphics_DrawRect(100, 100, 100, 100);
+
+    CP_Image topRight = CP_Image_Screenshot(100, 0, 100, 100);
+    tier2_scalars.subTopRightWidth = CP_Image_GetWidth(topRight);
+    tier2_scalars.subTopRightHeight = CP_Image_GetHeight(topRight);
+    tier2_scalars.subTopRightCenter = SampleImage(topRight, 50, 50);
+    CP_Image_Free(&topRight);
+
+    CP_Image bottomLeft = CP_Image_Screenshot(0, 100, 100, 100);
+    tier2_scalars.subBottomLeftCenter = SampleImage(bottomLeft, 50, 50);
+    CP_Image_Free(&bottomLeft);
+
+    // 50x50 region centered on the point where all four quadrants meet
+    CP_Image straddle = CP_Image_Screenshot(75, 75, 50, 50);
+    tier2_scalars.straddleCorners[0] = SampleImage(straddle, 5, 5);
+    tier2_scalars.straddleCorners[1] = SampleImage(straddle, 44, 5);
+    tier2_scalars.straddleCorners[2] = SampleImage(straddle, 5, 44);
+    tier2_scalars.straddleCorners[3] = SampleImage(straddle, 44, 44);
+    CP_Image_Free(&straddle);
+}
+
+// ---- Error paths (cross-platform work) ----
+// Missing files and NULL handles must fail quietly (NULL / no-op) rather
+// than crash -- including when there is no audio device at all, which is
+// the normal case on CI runners.
+
+static void Scn_ErrorPaths(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+
+    CP_Image missingImage = CP_Image_Load("Assets/this_file_does_not_exist.png");
+    tier2_scalars.missingImageIsNull = missingImage == NULL;
+    CP_Font missingFont = CP_Font_Load("Assets/this_file_does_not_exist.ttf");
+    tier2_scalars.missingFontIsNull = missingFont == NULL;
+    CP_Sound missingSound = CP_Sound_Load("Assets/this_file_does_not_exist.wav");
+    tier2_scalars.missingSoundIsNull = missingSound == NULL;
+
+    // None of these may crash
+    CP_Image nullImage = NULL;
+    CP_Sound nullSound = NULL;
+    CP_Font nullFont = NULL;
+    CP_Image_Draw(NULL, 10, 10, 10, 10, 255);
+    CP_Image_Free(NULL);
+    CP_Image_Free(&nullImage);
+    CP_Sound_Play(NULL);
+    CP_Sound_PlayAdvanced(NULL, 1.0f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
+    CP_Sound_Free(NULL);
+    CP_Sound_Free(&nullSound);
+    CP_Font_Set(NULL);
+    CP_Font_Free(NULL);
+    CP_Font_Free(&nullFont);
+    tier2_scalars.survivedNullCalls = TRUE;
+}
+
 typedef void (*ScenarioFunc)(void);
 
 static const ScenarioFunc kScenarios[SCN_COUNT] = {
@@ -503,6 +605,10 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
     [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
     [SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,
+    [SCN_PERSIST_FIRST_FRAME] = Scn_PersistFirstFrame,
+    [SCN_PERSIST_NEXT_FRAME] = Scn_PersistNextFrame,
+    [SCN_SCREENSHOT_SUBREGION] = Scn_ScreenshotSubregion,
+    [SCN_ERROR_PATHS] = Scn_ErrorPaths,
 };
 
 static void HarnessInit(void)

@@ -137,6 +137,14 @@ void test_noise_is_deterministic_for_same_seed_and_coordinates(void);
 void test_noise_different_seeds_can_diverge(void);
 void test_noise_same_coordinate_is_continuous_with_its_neighbor(void);
 
+// test_internal_platform.c -- Tier 1: portability helpers (Internal_Platform.h).
+void test_platform_stringcopy_copies_short_string(void);
+void test_platform_stringcopy_exact_fit(void);
+void test_platform_stringcopy_truncates_and_terminates(void);
+void test_platform_stringcopy_null_source_gives_empty_string(void);
+void test_platform_stringcopy_zero_size_writes_nothing(void);
+void test_platform_path_buffer_is_large_enough(void);
+
 // test_cp_input_logic.c -- Tier 1: pure CP_Input logic (Internal_InputLogic.h).
 void test_inputlogic_triggered_truth_table(void);
 void test_inputlogic_released_truth_table(void);

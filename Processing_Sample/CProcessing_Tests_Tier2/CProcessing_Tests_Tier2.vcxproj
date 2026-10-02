@@ -193,6 +193,7 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     <ClCompile Include="Tests\test_tier2_system_engine.c" />
     <ClCompile Include="Tests\test_tier2_sound.c" />
     <ClCompile Include="Tests\test_tier2_input.c" />
+    <ClCompile Include="Tests\test_tier2_crossplatform.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CProcessing_Tests\ThirdParty\Unity\unity.h" />

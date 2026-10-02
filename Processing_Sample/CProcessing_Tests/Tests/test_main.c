@@ -151,6 +151,14 @@ int main(void)
     RUN_TEST(test_noise_different_seeds_can_diverge);
     RUN_TEST(test_noise_same_coordinate_is_continuous_with_its_neighbor);
 
+    // test_internal_platform.c
+    RUN_TEST(test_platform_stringcopy_copies_short_string);
+    RUN_TEST(test_platform_stringcopy_exact_fit);
+    RUN_TEST(test_platform_stringcopy_truncates_and_terminates);
+    RUN_TEST(test_platform_stringcopy_null_source_gives_empty_string);
+    RUN_TEST(test_platform_stringcopy_zero_size_writes_nothing);
+    RUN_TEST(test_platform_path_buffer_is_large_enough);
+
     // test_cp_input_logic.c
     RUN_TEST(test_inputlogic_triggered_truth_table);
     RUN_TEST(test_inputlogic_released_truth_table);
