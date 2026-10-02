@@ -11,8 +11,8 @@ name: Tests
 #   linux             CMake + GCC and Clang (+ an ASan/UBSan build): Tier 1,
 #                     and Tier 2 under a virtual X server (Xvfb + llvmpipe).
 #   windows-cmake     CMake + MSVC: Tier 1 and Tier 2 (Mesa llvmpipe).
-#   macos             CMake + Apple Clang: build and Tier 1; Tier 2 is
-#                     attempted but not yet gating (see that step).
+#   macos             CMake + Apple Clang: build and Tier 1. (Tier 2 can't
+#                     run on hosted macOS runners; see that job.)
 #   starter           The CMake starter project (Processing_Empty_CMake),
 #                     building CProcessing from this checkout, then running
 #                     the game for a few seconds under Xvfb.
@@ -188,12 +188,11 @@ jobs:
       - name: Tier 1
         run: ctest --test-dir build -L tier1 --output-on-failure
 
-      - name: Tier 2
-        # macOS support has only been built, not yet run on real hardware;
-        # whether a hosted macOS runner can open an OpenGL window is also
-        # unconfirmed. Non-gating until both are verified.
-        continue-on-error: true
-        run: ctest --test-dir build -L tier2 --output-on-failure
+      # No Tier 2 here: hosted macOS runners are virtual machines without a
+      # GPU, and on macOS GLFW only accepts a hardware-accelerated OpenGL
+      # renderer, so the window can't be created ("NSGL: Failed to find a
+      # suitable pixel format"). Tier 2 is still built above; run it on a
+      # real Mac.
 
   starter:
     runs-on: ubuntu-24.04

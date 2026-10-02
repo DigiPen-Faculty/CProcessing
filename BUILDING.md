@@ -178,8 +178,9 @@ To build against a local copy of CProcessing instead of the download, add
 - **One library file.** GLFW, SoLoud and miniaudio are linked into the
   CProcessing library itself. A game needs only `CProcessing.dll`
   (`libCProcessing.so` / `libCProcessing.dylib`) next to it.
-- **macOS** builds and passes compile checks, but has not yet been run on a
-  Mac. Please report anything that misbehaves there.
+- **macOS** builds and passes the Tier 1 tests in CI, but has not yet been
+  run on a real Mac. Tier 2 and the demos need a GPU, which GitHub's hosted
+  macOS runners don't have. Please report anything that misbehaves there.
 
 ## Making a release
 
