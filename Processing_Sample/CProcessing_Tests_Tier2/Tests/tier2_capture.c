@@ -10,6 +10,7 @@
 // All coordinates below were computed by hand against the actual source
 // (CP_Graphics.c, CP_Setting.c) rather than assumed -- see the Phase D
 // commit message for the worked geometry on the rotation/transform cases.
+#include <stdio.h>
 #include "tier2_capture.h"
 
 CP_Color tier2_snapshots[SCN_COUNT][TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
@@ -384,9 +385,9 @@ static void Scn_FontLoadFree(void)
 // ---- CP_System / CP_Engine (Phase E) ----
 // These read state via the public getters rather than touching _CORE
 // directly, and must run *during* the single CP_Engine_Run() call: once it
-// returns, CP_Shutdown() has already torn down the GLFW window/context,
-// and several of these getters (ShowCursor, GetWindowFocus, ...) call
-// straight into GLFW with no null-check guard.
+// returns, CP_Shutdown() has already torn down the GLFW window/context, and
+// the window queries (GetWindowFocus, GetDisplayRefreshRate, ...) only
+// report "no window".
 
 static int preUpdateHookCount = 0;
 static int postUpdateHookCount = 0;
@@ -414,7 +415,6 @@ static void Scn_SystemEngineState(void)
     tier2_scalars.windowHandleIsNull = CP_System_GetWindowHandle() == NULL;
 
     CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture"); // just must not crash
-    CP_System_ShowCursor(TRUE); // just must not crash
 }
 
 // ---- CP_Sound (Phase E) ----
@@ -575,6 +575,36 @@ static void Scn_ErrorPaths(void)
     tier2_scalars.survivedNullCalls = TRUE;
 }
 
+// ---- Cursor and console (v3) ----
+// The cursor was hidden before CP_Engine_Run (tier2_RunCaptureOnce), and
+// HarnessInit checked that it still was once the window existed. Here the
+// getter must follow each ShowCursor call.
+//
+// The console can only be checked loosely: whether there is one to show
+// depends on how the tests were started (from a terminal, an IDE, Explorer
+// or a CI runner), and a console shared with a terminal is never hidden.
+// So: hiding then showing again must end where showing started, and printf
+// must keep working throughout. The visible behavior is checked by hand
+// (C in the demo program).
+static void Scn_SystemWindowSettings(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+
+    CP_System_ShowCursor(TRUE);
+    tier2_scalars.cursorVisibleAfterShow = CP_System_GetCursorVisible();
+    CP_System_ShowCursor(FALSE);
+    CP_System_ShowCursor(FALSE);    // repeating a call is harmless
+    tier2_scalars.cursorVisibleAfterHide = CP_System_GetCursorVisible();
+    CP_System_ShowCursor(TRUE);
+
+    CP_System_ShowConsole(FALSE);
+    CP_System_ShowConsole(FALSE);
+    tier2_scalars.consoleVisibleAfterHide = CP_System_GetConsoleVisible();
+    tier2_scalars.printfAfterHideConsole = printf("Tier 2: printf while the console is hidden\n");
+    CP_System_ShowConsole(TRUE);    // leave it visible for the test results
+    tier2_scalars.consoleVisibleAfterReshow = CP_System_GetConsoleVisible();
+}
+
 typedef void (*ScenarioFunc)(void);
 
 static const ScenarioFunc kScenarios[SCN_COUNT] = {
@@ -614,10 +644,14 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_PERSIST_NEXT_FRAME] = Scn_PersistNextFrame,
     [SCN_SCREENSHOT_SUBREGION] = Scn_ScreenshotSubregion,
     [SCN_ERROR_PATHS] = Scn_ErrorPaths,
+    [SCN_SYSTEM_WINDOW_SETTINGS] = Scn_SystemWindowSettings,
 };
 
 static void HarnessInit(void)
 {
+    // the window now exists; the cursor was hidden before it did
+    tier2_scalars.cursorVisibleAtStart = CP_System_GetCursorVisible();
+
     CP_System_SetWindowSize(TIER2_CANVAS_SIZE, TIER2_CANVAS_SIZE);
     CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture");
     CP_Engine_SetPreUpdateFunction(PreUpdateHook);
@@ -653,6 +687,7 @@ static void HarnessUpdate(void)
         ResetToBaseline();
         kScenarios[scenarioIndex]();
         CaptureCurrentFrame((Tier2Scenario)scenarioIndex);
+        ++tier2_scalars.scenariosCaptured;
     }
 
     if (scenarioIndex >= SCN_COUNT - 1)
@@ -663,6 +698,20 @@ static void HarnessUpdate(void)
 
 void tier2_RunCaptureOnce(void)
 {
+    // Before the window exists: settings are stored for later, queries
+    // return "nothing yet", and none of it may crash
+    CP_System_ShowCursor(FALSE);
+    tier2_scalars.cursorVisibleBeforeRun = CP_System_GetCursorVisible();
+    CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture");
+    tier2_scalars.windowFocusBeforeRun = CP_System_GetWindowFocus();
+    tier2_scalars.displayRefreshRateBeforeRun = CP_System_GetDisplayRefreshRate();
+    CP_Engine_Terminate();          // nothing to terminate yet: must not stop the run below
+    CP_System_ShowConsole(TRUE);
+    CP_System_ShowConsole(FALSE);
+    CP_System_ShowConsole(TRUE);
+    tier2_scalars.consoleVisibleBeforeRun = CP_System_GetConsoleVisible();
+    tier2_scalars.printfAfterShowConsole = printf("Tier 2: capturing scenarios\n");
+
     CP_Engine_SetNextGameState(HarnessInit, HarnessUpdate, NULL);
     CP_Engine_Run();
 }

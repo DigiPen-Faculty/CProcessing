@@ -21,9 +21,12 @@
     SoLoud (with miniaudio) is linked statically into CProcessing.dll, so
     there is no separate soloud.dll to ship.
 
-    Requires Visual Studio 2022 or later with the C++ workload (its bundled
-    CMake is found automatically) and an internet connection for the first
-    configure.
+    The libraries are built with the same compiler as the solution's projects
+    (Visual Studio 2026, platform toolset v145), so everything linked into
+    CProcessing.dll comes from one toolset.
+
+    Requires Visual Studio 2026 with the C++ workload (its bundled CMake is
+    found automatically) and an internet connection for the first configure.
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File tools\update-windows-prebuilt.ps1
@@ -31,24 +34,26 @@
 [CmdletBinding()]
 param(
     [string]$BuildRoot = (Join-Path $env:TEMP "cprocessing-prebuilt"),
-    [string]$Generator = ""
+    # Must match <PlatformToolset> in the solution's .vcxproj files
+    [string]$Generator = "Visual Studio 18 2026",
+    [string]$Toolset = "v145"
 )
 $ErrorActionPreference = "Stop"
 
 $repo = Split-Path -Parent $PSScriptRoot
 $cp = Join-Path $repo "Processing_Sample\CProcessing"
 
-# Find CMake: PATH first, then the copy bundled with Visual Studio.
-$cmake = (Get-Command cmake -ErrorAction SilentlyContinue).Source
+# Find CMake: the copy bundled with Visual Studio 2026 first (it knows the
+# Visual Studio 2026 generator), then PATH.
+$cmake = Get-ChildItem "$env:ProgramFiles\Microsoft Visual Studio\18" -Recurse -Filter cmake.exe -ErrorAction SilentlyContinue |
+    Where-Object { $_.FullName -match "CommonExtensions\\Microsoft\\CMake" } | Select-Object -First 1 -ExpandProperty FullName
 if (-not $cmake) {
-    $cmake = Get-ChildItem "$env:ProgramFiles\Microsoft Visual Studio" -Recurse -Filter cmake.exe -ErrorAction SilentlyContinue |
-        Where-Object { $_.FullName -match "CommonExtensions\\Microsoft\\CMake" } | Select-Object -First 1 -ExpandProperty FullName
+    $cmake = (Get-Command cmake -ErrorAction SilentlyContinue).Source
 }
-if (-not $cmake) { throw "CMake not found. Install Visual Studio's C++ workload or CMake 3.20+." }
+if (-not $cmake) { throw "CMake not found. Install Visual Studio 2026's C++ workload." }
 Write-Host "Using $cmake"
 
-$genArgs = @()
-if ($Generator) { $genArgs = @("-G", $Generator) }
+$genArgs = @("-G", $Generator, "-T", $Toolset)
 
 foreach ($arch in @(@{ Name = "x64"; Cmake = "x64" }, @{ Name = "x86"; Cmake = "Win32" })) {
     $build = Join-Path $BuildRoot $arch.Name
@@ -90,12 +95,12 @@ $date = Get-Date -Format "yyyy-MM-dd"
 @"
 GLFW $(Get-Pin 'CPROCESSING_GLFW_VERSION')
 Built $date by tools/update-windows-prebuilt.ps1 from the pins in cmake/CProcessingDependencies.cmake
-(static library, Release, /MD; used by both Debug and Release builds of CProcessing)
+(static library, Release, /MD, platform toolset $Toolset; used by both Debug and Release builds of CProcessing)
 "@ | Set-Content (Join-Path $cp "GLFW\Version.txt") -Encoding ascii
 @"
 SoLoud commit $(Get-Pin 'CPROCESSING_SOLOUD_COMMIT') with miniaudio $(Get-Pin 'CPROCESSING_MINIAUDIO_VERSION')
 Built $date by tools/update-windows-prebuilt.ps1 from the pins in cmake/CProcessingDependencies.cmake
-(static libraries: soloud.lib Release /MD, soloud_d.lib Debug /MDd; backends: miniaudio + nosound)
+(static libraries: soloud.lib Release /MD, soloud_d.lib Debug /MDd, platform toolset $Toolset; backends: miniaudio + nosound)
 "@ | Set-Content (Join-Path $cp "soloud\Version.txt") -Encoding ascii
 
 Write-Host "`nDone. Rebuild Processing_Sample.sln (all four configurations) and run both test projects."

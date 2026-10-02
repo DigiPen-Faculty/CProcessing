@@ -68,8 +68,13 @@ Processing_Sample/CProcessingPackage/
 
 # Release script intermediate files
 CProcessingOutput/
+# Release packages are attached to GitHub Releases, not committed
+Releases/
 Processing_Sample/Processi.14B654ED/
 Processing_Empty/Processi.14B654ED/
 Processing_Sample/Intermediate/
 Processing_Sample/CProcessing_Tests/Intermediate/
 Processing_Sample/CProcessing_Tests_Tier2/Intermediate/
+
+# CMake build folders (see BUILDING.md and Processing_Empty_CMake)
+build/

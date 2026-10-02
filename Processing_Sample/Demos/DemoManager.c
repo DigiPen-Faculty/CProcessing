@@ -4,6 +4,7 @@
 // Utilities to organize multiple demos
 //---------------------------------------------------------
 
+#include <stdio.h>
 #include "cprocessing.h"
 #include "DemoManager.h"
 
@@ -82,6 +83,12 @@ void DemoManagerPreupdate(void)
 		}
 	}
 
+	// C will show or hide the console, where printf output appears
+	if (CP_Input_KeyTriggered(KEY_C))
+	{
+		CP_System_ShowConsole(!CP_System_GetConsoleVisible());
+	}
+
 	// Demo states can be chosen by pressing different number keys 1-9
 	for (int key = KEY_1; key <= KEY_9; ++key)
 	{
@@ -90,6 +97,7 @@ void DemoManagerPreupdate(void)
 			int key_value = key - KEY_1;
 			if (key_value < GAMESTATE_MAX)	// only valid demo numbers work
 			{
+				printf("Switching to demo %d\n", key_value + 1);
 				DemoStateSwitcher(demoGamestateArray[key - KEY_1]);
 			}
 		}

@@ -9,7 +9,7 @@
 // documentation link:
 // https://github.com/DigiPen-Faculty/CProcessing/wiki
 //
-// Copyright © 2020 DigiPen, All rights reserved.
+// Copyright (c) 2026 DigiPen, All rights reserved.
 //---------------------------------------------------------
 
 #include "cprocessing.h"
@@ -41,6 +41,7 @@ void game_exit(void)
 int main(void)
 {
 	// uncomment to open a console window that shows printf output
+	// (on Linux and macOS, run the game from a terminal to see it)
 	// CP_System_ShowConsole(TRUE);
 
 	CP_Engine_SetNextGameState(game_init, game_update, game_exit);

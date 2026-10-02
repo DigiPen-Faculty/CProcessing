@@ -6,6 +6,7 @@
 // down, window closed -- before UNITY_BEGIN(), so that every RUN_TEST
 // below only ever touches already-captured pixel data. See tier2_capture.h
 // for the full reasoning.
+#include <stdio.h>
 #include "unity.h"
 #include "tier2_capture.h"
 #include "test_runner_tier2.h"
@@ -21,6 +22,17 @@ void tearDown(void)
 int main(void)
 {
     tier2_RunCaptureOnce();
+
+    // If the engine couldn't start (CProcessing prints the reason above) or
+    // stopped early, the captures are empty: every test would fail on zeros
+    // and a few would pass by accident. Report that once, clearly, instead.
+    if (tier2_scalars.scenariosCaptured != SCN_COUNT)
+    {
+        printf("Tier 2 could not run: %d of %d scenarios were captured.\n"
+               "It needs a window with an OpenGL 3.2 or newer context.\n",
+               tier2_scalars.scenariosCaptured, SCN_COUNT);
+        return 1;
+    }
 
     UNITY_BEGIN();
 
@@ -71,6 +83,11 @@ int main(void)
     RUN_TEST(test_tier2_system_window_focus_is_a_valid_bool);
     RUN_TEST(test_tier2_system_display_info_is_positive);
     RUN_TEST(test_tier2_engine_pre_and_post_update_hooks_fire);
+    RUN_TEST(test_tier2_system_window_queries_before_run_report_no_window);
+    RUN_TEST(test_tier2_system_cursor_hidden_before_run_stays_hidden);
+    RUN_TEST(test_tier2_system_cursor_getter_follows_showcursor);
+    RUN_TEST(test_tier2_system_console_hide_then_show_round_trips);
+    RUN_TEST(test_tier2_system_console_printf_keeps_working);
 
     // test_tier2_sound.c
     RUN_TEST(test_tier2_sound_group_volume_roundtrips);

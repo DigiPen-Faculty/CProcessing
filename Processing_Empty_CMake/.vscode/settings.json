@@ -1,0 +1,6 @@
+{
+    // Run and debug the game from build/bin, where its Assets are
+    "cmake.debugConfig": {
+        "cwd": "${workspaceFolder}/build/bin"
+    }
+}

@@ -3,7 +3,8 @@
 CProcessing builds on **Windows**, **Linux** and **macOS**. There are two ways
 to build it:
 
-- **Visual Studio solution (Windows):** the existing workflow, unchanged.
+- **Visual Studio solution (Windows):** the workflow students and faculty
+  use, with Visual Studio 2026.
 - **CMake (Windows, Linux, macOS):** builds the library, the demos and the
   tests from source on any platform.
 
@@ -13,13 +14,14 @@ template project. This page is for building CProcessing itself.
 
 ## Windows: Visual Studio solution
 
-Open `Processing_Sample/Processing_Sample.sln` in Visual Studio 2022 or later
-and build. The solution contains:
+Open `Processing_Sample/Processing_Sample.sln` in Visual Studio 2026 and
+build. The projects use Visual Studio 2026's compiler (platform toolset
+v145), as does the student template. The solution contains:
 
 | Project | What it is |
 |---|---|
 | `CProcessing` | The library: `CProcessing.dll`, or `CProcessingd.dll` for Debug. |
-| `Processing_Sample` | The demo program. Press 1–4 to switch demos, F for fullscreen, Escape to quit. |
+| `Processing_Sample` | The demo program. Press 1–4 to switch demos, F for fullscreen, C to show or hide the console, Escape to quit. |
 | `CProcessing_Tests` | Tier 1 tests: pure functions, no window needed. |
 | `CProcessing_Tests_Tier2` | Tier 2 tests: drives the real engine and checks the rendered pixels. |
 
@@ -27,8 +29,9 @@ and build. The solution contains:
 
 ### Prerequisites
 
-- **Windows:** Visual Studio 2022 or later with the "Desktop development with
-  C++" workload, which includes CMake. A standalone CMake 3.20+ also works.
+- **Windows:** Visual Studio 2026 with the "Desktop development with C++"
+  workload, which includes CMake. Visual Studio 2022 and a standalone CMake
+  3.20+ also work.
 - **macOS:** Xcode Command Line Tools (`xcode-select --install`) and CMake
   3.20+ (`brew install cmake`).
 - **Linux:** a C/C++ compiler, CMake 3.20+, and the X11/Wayland/OpenGL
@@ -36,12 +39,12 @@ and build. The solution contains:
 
   ```sh
   # Debian / Ubuntu
-  sudo apt install build-essential cmake ninja-build \
+  sudo apt install build-essential cmake ninja-build pkg-config \
       libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev \
       libwayland-dev libxkbcommon-dev wayland-protocols libgl1-mesa-dev
 
   # Fedora
-  sudo dnf install gcc gcc-c++ cmake ninja-build \
+  sudo dnf install gcc gcc-c++ cmake ninja-build pkgconf-pkg-config \
       libX11-devel libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel libXext-devel \
       wayland-devel libxkbcommon-devel wayland-protocols-devel mesa-libGL-devel
 
@@ -117,30 +120,35 @@ project with `add_subdirectory`, the demos and tests are off by default.
 
 ## Using CProcessing in your own CMake project
 
-A game that lives in its own folder can pull CProcessing in with CMake:
+The easiest start is the CMake starter project in
+[`Processing_Empty_CMake/`](Processing_Empty_CMake/). Copy the folder and
+follow its README. It's also on the
+[Releases page](https://github.com/DigiPen-Faculty/CProcessing/releases) for
+Linux and macOS, with the library already built:
+`CProcessingTemplate-linux-x64.zip` and `CProcessingTemplate-macos.zip`.
+
+To add CProcessing to an existing CMake project, download it with
+`FetchContent`:
 
 ```cmake
-cmake_minimum_required(VERSION 3.20)
 project(MyGame C CXX)   # CXX is needed because SoLoud is C++
 
 include(FetchContent)
 FetchContent_Declare(cprocessing
-    GIT_REPOSITORY https://github.com/DigiPen-Faculty/CProcessing.git
-    GIT_TAG        main)   # better: pin a release tag or commit
+    URL https://github.com/DigiPen-Faculty/CProcessing/archive/refs/tags/v3.0.0.tar.gz)
 FetchContent_MakeAvailable(cprocessing)
 
-add_executable(MyGame main.c)
 target_link_libraries(MyGame PRIVATE CProcessing::CProcessing)
-
-# Put the library and the Assets folder next to the game, so it runs from there
-set_target_properties(MyGame PROPERTIES BUILD_RPATH "$ORIGIN")   # Linux; use @loader_path on macOS
-add_custom_command(TARGET MyGame POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:CProcessing> $<TARGET_FILE_DIR:MyGame>
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Assets $<TARGET_FILE_DIR:MyGame>/Assets)
 ```
 
-`#include "cprocessing.h"` then works exactly as it does in the Visual Studio
-template.
+The game also needs the CProcessing library and its `Assets` folder next to
+it. The starter's `CMakeLists.txt` shows how to set that up, along with the
+output folder, the library search path on Linux and macOS, and a window
+without a console on Windows. `#include "cprocessing.h"` then works exactly as
+it does in the Visual Studio template.
+
+To build against a local copy of CProcessing instead of the download, add
+`-DFETCHCONTENT_SOURCE_DIR_CPROCESSING=/path/to/CProcessing` when configuring.
 
 ## Platform notes
 
@@ -148,6 +156,13 @@ template.
   compiles unchanged on all three platforms. `cprocessing.h` includes no OS
   headers. Code that needs Windows APIs includes `<windows.h>` itself.
   `CP_System_GetWindowHandle` returns a `void*`; cast it to `HWND` on Windows.
+- **Console output.** `CP_System_ShowConsole(TRUE)` makes `printf` output
+  visible. On Windows it uses the terminal the program was started from, or
+  else opens a console window, which `CP_System_ShowConsole(FALSE)` hides
+  again. On Linux and macOS, output goes to the terminal the program was
+  started from, so run it from a terminal to see it. On every platform,
+  showing the console also turns off output buffering, so each `printf`
+  appears immediately.
 - **Drawing persists between frames**, as in Processing. Every platform draws
   into the same kind of offscreen canvas, which is copied to the window each
   frame.
@@ -163,5 +178,33 @@ template.
 - **One library file.** GLFW, SoLoud and miniaudio are linked into the
   CProcessing library itself. A game needs only `CProcessing.dll`
   (`libCProcessing.so` / `libCProcessing.dylib`) next to it.
-- **macOS** builds and passes compile checks, but has not yet been run on a
-  Mac. Please report anything that misbehaves there.
+- **macOS** builds and passes the Tier 1 tests in CI, but has not yet been
+  run on a real Mac. Tier 2 and the demos need a GPU, which GitHub's hosted
+  macOS runners don't have. Please report anything that misbehaves there.
+
+## Making a release
+
+1. **Set the version** in three places:
+   - `CP_VERSION_MAJOR/MINOR/PATCH` in
+     `Processing_Sample/CProcessing/inc/cprocessing_common.h`. CMake reads
+     its version from these.
+   - The download tag in `Processing_Empty_CMake/CMakeLists.txt`.
+   - The newest section heading in `CHANGELOG.md`, with the release date
+     replacing "(unreleased)".
+2. **Regenerate the Windows template** in the repository from a Visual
+   Studio 2026 Developer Command Prompt, and commit the result:
+   `BuildReleasePackage.bat -r all -c -z`. This updates
+   `Processing_Empty/CProcessing`; the zip it writes to `Releases/` is not
+   committed.
+3. **Optionally, check the packages** by running the Release workflow by hand
+   (Actions > Release > Run workflow). It builds all three packages and
+   checks them, without releasing anything.
+4. **Push a tag** named after the version, such as `v3.0.0`. The Release
+   workflow checks that the version matches everywhere and builds:
+   - `CProcessingTemplate.zip` (the Visual Studio template)
+   - `CProcessingTemplate-linux-x64.zip`
+   - `CProcessingTemplate-macos.zip`
+
+   It then creates a draft GitHub Release with those files and the
+   changelog section as its notes.
+5. **Review the draft** on GitHub and publish it.

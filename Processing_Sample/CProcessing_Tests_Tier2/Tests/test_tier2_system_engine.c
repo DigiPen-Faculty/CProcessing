@@ -43,3 +43,34 @@ void test_tier2_engine_pre_and_post_update_hooks_fire(void)
     TEST_ASSERT_GREATER_THAN_INT(0, tier2_scalars.preUpdateHookCount);
     TEST_ASSERT_GREATER_THAN_INT(0, tier2_scalars.postUpdateHookCount);
 }
+
+void test_tier2_system_window_queries_before_run_report_no_window(void)
+{
+    TEST_ASSERT_EQUAL_UINT(FALSE, tier2_scalars.windowFocusBeforeRun);
+    TEST_ASSERT_EQUAL_INT(0, tier2_scalars.displayRefreshRateBeforeRun);
+}
+
+void test_tier2_system_cursor_hidden_before_run_stays_hidden(void)
+{
+    TEST_ASSERT_EQUAL_UINT(FALSE, tier2_scalars.cursorVisibleBeforeRun);
+    TEST_ASSERT_EQUAL_UINT(FALSE, tier2_scalars.cursorVisibleAtStart);
+}
+
+void test_tier2_system_cursor_getter_follows_showcursor(void)
+{
+    TEST_ASSERT_EQUAL_UINT(TRUE, tier2_scalars.cursorVisibleAfterShow);
+    TEST_ASSERT_EQUAL_UINT(FALSE, tier2_scalars.cursorVisibleAfterHide);
+}
+
+void test_tier2_system_console_hide_then_show_round_trips(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.consoleVisibleBeforeRun == TRUE || tier2_scalars.consoleVisibleBeforeRun == FALSE);
+    TEST_ASSERT_TRUE(tier2_scalars.consoleVisibleAfterHide == TRUE || tier2_scalars.consoleVisibleAfterHide == FALSE);
+    TEST_ASSERT_EQUAL_UINT(tier2_scalars.consoleVisibleBeforeRun, tier2_scalars.consoleVisibleAfterReshow);
+}
+
+void test_tier2_system_console_printf_keeps_working(void)
+{
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, tier2_scalars.printfAfterShowConsole);
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, tier2_scalars.printfAfterHideConsole);
+}

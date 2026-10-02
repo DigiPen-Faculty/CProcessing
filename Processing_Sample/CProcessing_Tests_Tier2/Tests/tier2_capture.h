@@ -60,6 +60,7 @@ typedef enum
     SCN_PERSIST_NEXT_FRAME,
     SCN_SCREENSHOT_SUBREGION,
     SCN_ERROR_PATHS,
+    SCN_SYSTEM_WINDOW_SETTINGS,
     SCN_COUNT
 } Tier2Scenario;
 
@@ -122,6 +123,24 @@ typedef struct
     CP_BOOL missingFontIsNull;
     CP_BOOL missingSoundIsNull;
     CP_BOOL survivedNullCalls;
+
+    // Window settings and queries before CP_Engine_Run, and the cursor and
+    // console during it (see tier2_RunCaptureOnce and Scn_SystemWindowSettings)
+    CP_BOOL cursorVisibleBeforeRun;
+    CP_BOOL cursorVisibleAtStart;
+    CP_BOOL cursorVisibleAfterShow;
+    CP_BOOL cursorVisibleAfterHide;
+    CP_BOOL windowFocusBeforeRun;
+    int displayRefreshRateBeforeRun;
+    CP_BOOL consoleVisibleBeforeRun;
+    CP_BOOL consoleVisibleAfterHide;
+    CP_BOOL consoleVisibleAfterReshow;
+    int printfAfterShowConsole;     // printf's return value: negative on failure
+    int printfAfterHideConsole;
+
+    // How many scenarios were captured: SCN_COUNT unless the engine couldn't
+    // start (no window or OpenGL context) or stopped early
+    int scenariosCaptured;
 } Tier2Scalars;
 
 extern Tier2Scalars tier2_scalars;
