@@ -1,5 +1,3 @@
-GLFW Version
-3.4
-
-Date
-October, 2025
+GLFW 3.5.1
+Built 2026-10-02 by tools/update-windows-prebuilt.ps1 from the pins in cmake/CProcessingDependencies.cmake
+(static library, Release, /MD; used by both Debug and Release builds of CProcessing)

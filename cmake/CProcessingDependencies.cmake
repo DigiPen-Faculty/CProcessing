@@ -1,12 +1,17 @@
-# Third-party dependencies that are built from source by the CMake build.
+# Third-party dependencies that are built from source: GLFW, SoLoud, miniaudio.
 #
-# Both are downloaded at configure time from a pinned URL and verified
-# against a SHA-256 hash, so every build uses exactly the same source. See
+# This file is the single place their versions are pinned, for every
+# platform and both build systems: the prebuilt libraries the Visual Studio
+# solution links are generated from these same pins by
+# tools/update-windows-prebuilt.ps1.
+#
+# Each is downloaded at configure time from a pinned URL and verified against
+# a SHA-256 hash, so every build uses exactly the same source. See
 # DEPENDENCIES.md for the policy and for how to update a pin.
 #
-# Offline builds: point FETCHCONTENT_SOURCE_DIR_GLFW / FETCHCONTENT_SOURCE_DIR_SOLOUD
+# Offline builds: point FETCHCONTENT_SOURCE_DIR_GLFW / _SOLOUD / _MINIAUDIO
 # at an already-extracted copy of the same release, e.g.
-#   cmake -B build -DFETCHCONTENT_SOURCE_DIR_GLFW=/path/to/glfw-3.4
+#   cmake -B build -DFETCHCONTENT_SOURCE_DIR_GLFW=/path/to/glfw-3.5.1
 
 include(FetchContent)
 
@@ -21,8 +26,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # GLFW - windowing, input, OpenGL context creation
 #------------------------------------------------------------------------------
 #
-# 3.5.1 rather than the 3.4 the prebuilt Windows libraries in GLFW/lib are:
-# GLFW 3.4's Wayland backend calls wl_seat_get_version() on a NULL seat when
+# 3.5.1 rather than 3.4: GLFW 3.4's Wayland backend calls wl_seat_get_version() on a NULL seat when
 # the compositor has not advertised an input seat at startup, crashing
 # CProcessing intermittently under Wayland (seen under WSLg; found with core
 # dumps). 3.5.1 handles a missing seat. The API CProcessing uses is the same.
@@ -50,7 +54,7 @@ set(CPROCESSING_GLFW_INCLUDE_DIR "${glfw_SOURCE_DIR}/include/GLFW")
 # SoLoud - audio
 #
 # Pinned to upstream master rather than the last tagged release
-# (RELEASE_20200207, which the prebuilt Windows DLLs were built from): master
+# (RELEASE_20200207, which CProcessing used until 2026): master
 # carries ~4 years of fixes including voice-group allocation and miniaudio
 # updates, and its C API is a superset of the 20200207 one CProcessing uses.
 #

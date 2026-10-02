@@ -161,8 +161,9 @@ template.
   controllers on Windows, plus most controllers on Linux and macOS. Buttons
   follow the Xbox layout.
 - **No audio device** (a headless machine, or a VM without sound) is not an
-  error. With the CMake build, sounds still load and "play" silently. With
-  the Visual Studio build's prebuilt SoLoud, sound is disabled instead:
-  `CP_Sound_Load` returns `NULL`, and the other sound functions do nothing.
+  error. Sounds still load and "play" silently.
+- **One library file.** GLFW, SoLoud and miniaudio are linked into the
+  CProcessing library itself. A game needs only `CProcessing.dll`
+  (`libCProcessing.so` / `libCProcessing.dylib`) next to it.
 - **macOS** builds and passes compile checks, but has not yet been run on a
   Mac. Please report anything that misbehaves there.
