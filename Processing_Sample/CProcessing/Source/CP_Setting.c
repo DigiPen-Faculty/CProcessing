@@ -180,7 +180,7 @@ CP_API void CP_Settings_TextSize(float size)
 
 CP_API void CP_Settings_TextAlignment(CP_TEXT_ALIGN_HORIZONTAL h, CP_TEXT_ALIGN_VERTICAL v)
 {
-	int flags = h | v;
+	int flags = (int)h | (int)v;
 	CP_CorePtr CORE = GetCPCore();
 	if (!CORE || !CORE->nvg) return;
 	nvgTextAlign(CORE->nvg, flags);

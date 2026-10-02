@@ -1,0 +1,85 @@
+// Entry point for the CProcessing_Tests_Tier2 executable.
+//
+// tier2_RunCaptureOnce() drives the ONE AND ONLY CP_Engine_Run() call this
+// process makes, scripting through every scenario in tier2_capture.c and
+// capturing a screenshot per scenario. That has to finish -- engine shut
+// down, window closed -- before UNITY_BEGIN(), so that every RUN_TEST
+// below only ever touches already-captured pixel data. See tier2_capture.h
+// for the full reasoning.
+#include "unity.h"
+#include "tier2_capture.h"
+#include "test_runner_tier2.h"
+
+void setUp(void)
+{
+}
+
+void tearDown(void)
+{
+}
+
+int main(void)
+{
+    tier2_RunCaptureOnce();
+
+    UNITY_BEGIN();
+
+    // test_tier2_graphics.c
+    RUN_TEST(test_tier2_graphics_clearbackground_fills_whole_canvas);
+    RUN_TEST(test_tier2_graphics_drawpoint_is_colored_by_stroke_not_fill);
+    RUN_TEST(test_tier2_graphics_drawline);
+    RUN_TEST(test_tier2_graphics_drawlineadvanced_rotates_90_degrees);
+    RUN_TEST(test_tier2_graphics_drawrect);
+    RUN_TEST(test_tier2_graphics_drawrectadvanced_rotates_45_degrees);
+    RUN_TEST(test_tier2_graphics_drawcircle);
+    RUN_TEST(test_tier2_graphics_drawellipse_is_not_circular);
+    RUN_TEST(test_tier2_graphics_drawellipseadvanced_rotates_90_degrees);
+    RUN_TEST(test_tier2_graphics_drawtriangle);
+    RUN_TEST(test_tier2_graphics_drawtriangleadvanced_rotates_180_degrees);
+    RUN_TEST(test_tier2_graphics_drawquad);
+    RUN_TEST(test_tier2_graphics_drawquadadvanced_rotates_45_degrees);
+    RUN_TEST(test_tier2_graphics_customshape_beginend);
+
+    // test_tier2_settings.c
+    RUN_TEST(test_tier2_settings_nofill_leaves_interior_untouched);
+    RUN_TEST(test_tier2_settings_strokeweight_widens_the_line);
+    RUN_TEST(test_tier2_settings_rectmode_corner_changes_interpretation);
+    RUN_TEST(test_tier2_settings_ellipsemode_corner_changes_interpretation);
+    RUN_TEST(test_tier2_settings_translate_moves_subsequent_draws);
+    RUN_TEST(test_tier2_settings_scale_resizes_subsequent_draws);
+    RUN_TEST(test_tier2_settings_rotate_rotates_subsequent_draws);
+    RUN_TEST(test_tier2_settings_resetmatrix_cancels_prior_transform);
+    RUN_TEST(test_tier2_settings_applymatrix_applies_the_given_matrix);
+    RUN_TEST(test_tier2_settings_blendmode_add_sums_overlapping_colors);
+    RUN_TEST(test_tier2_settings_save_restore_round_trips_fill_and_transform);
+
+    // test_tier2_image.c
+    RUN_TEST(test_tier2_image_load_reports_correct_dimensions);
+    RUN_TEST(test_tier2_image_draw_places_quadrants_correctly);
+    RUN_TEST(test_tier2_image_createfromdata_roundtrips_exactly);
+    RUN_TEST(test_tier2_image_updatepixeldata_roundtrips_exactly);
+    RUN_TEST(test_tier2_image_drawsubimage_selects_correct_region);
+
+    // test_tier2_font.c
+    RUN_TEST(test_tier2_font_drawtext_occupies_expected_region);
+    RUN_TEST(test_tier2_font_load_free_renders_with_custom_font);
+
+    // test_tier2_system_engine.c
+    RUN_TEST(test_tier2_system_window_size_matches_what_was_set);
+    RUN_TEST(test_tier2_system_frame_count_advances);
+    RUN_TEST(test_tier2_system_timing_getters_are_sane);
+    RUN_TEST(test_tier2_system_window_focus_is_a_valid_bool);
+    RUN_TEST(test_tier2_system_display_info_is_positive);
+    RUN_TEST(test_tier2_engine_pre_and_post_update_hooks_fire);
+
+    // test_tier2_sound.c
+    RUN_TEST(test_tier2_sound_group_volume_roundtrips);
+    RUN_TEST(test_tier2_sound_group_pitch_roundtrips);
+
+    // test_tier2_input.c
+    RUN_TEST(test_tier2_input_no_gamepad_attached_reports_disconnected);
+    RUN_TEST(test_tier2_input_mouse_wheel_is_zero_at_rest);
+    RUN_TEST(test_tier2_input_no_clicks_or_keys_in_a_quiescent_frame);
+
+    return UNITY_END();
+}

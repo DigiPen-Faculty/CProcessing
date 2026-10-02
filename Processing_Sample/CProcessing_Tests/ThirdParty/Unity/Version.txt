@@ -1,0 +1,13 @@
+Unity Test Framework (ThrowTheSwitch/Unity)
+
+Source
+https://github.com/ThrowTheSwitch/Unity
+
+Vendored from commit
+2b80d1a357271b20f15c9f2573ddab164a626132
+
+Date
+October, 2026
+
+License
+MIT (see LICENSE.txt in this folder)

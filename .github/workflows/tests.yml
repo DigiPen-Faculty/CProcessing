@@ -1,0 +1,85 @@
+name: Tests
+
+# Tier 1 (CP_Math, CP_Vector, CP_Matrix, CP_Color, CP_Random/CP_Noise) runs
+# headless with no window or GL context, so it's CI-friendly today.
+#
+# Tier 2 (the engine/pixel-sampling harness, CProcessing_Tests_Tier2) needs
+# a real GL context. The tier2 job below is a Phase G spike at wiring that
+# up headlessly, not a verified, trusted part of this workflow yet -- see
+# that job for why -- so it's `continue-on-error: true` and separate from
+# the tier1 job so it can never block a PR on its own.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tier1:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: x64
+            outDir: x64
+          - platform: x86
+            outDir: Win32
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build CProcessing_Tests (${{ matrix.platform }})
+        working-directory: Processing_Sample
+        shell: cmd
+        run: msbuild Processing_Sample.sln /t:CProcessing_Tests /p:Configuration=Debug /p:Platform=${{ matrix.platform }} /m /v:minimal
+
+      - name: Run Tier 1 tests (${{ matrix.platform }})
+        working-directory: Processing_Sample
+        shell: cmd
+        run: ${{ matrix.outDir }}\Debug\CProcessing_Tests.exe
+
+  # Phase G spike (06-test-suite-plan.md): can CProcessing_Tests_Tier2 get a
+  # real OpenGL context on a GPU-less GitHub-hosted Windows runner?
+  #
+  # windows-2022 runners have no GPU, so the default opengl32.dll only
+  # offers OpenGL 1.1 (GDI generic) -- nowhere near enough for nanovg's GL3
+  # backend. The known fix is to vendor Mesa's llvmpipe software
+  # rasterizer (a drop-in opengl32.dll) next to the executable so Windows'
+  # DLL search order picks it over the system one; llvmpipe then provides
+  # a real, if slow, OpenGL 3.3+ context with working FBOs and pixel
+  # readback entirely in software. install-mesa-windows-action wraps the
+  # pal1000/mesa-dist-win distribution and also sets the GALLIUM_DRIVER
+  # env var llvmpipe needs.
+  #
+  # This job is NOT yet confirmed working end to end -- it could not be
+  # verified without actually pushing and watching a run, which wasn't
+  # done as part of writing it. `continue-on-error: true` and a separate
+  # job (rather than folding into tier1) are both deliberate: a red result
+  # here should read as "the spike needs more work," never as "the real,
+  # already-verified Tier 1 suite broke." Once this is confirmed reliable,
+  # drop continue-on-error and fold Tier 2 into the regular gate.
+  tier2_spike:
+    runs-on: windows-2022
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build CProcessing_Tests_Tier2 (x64)
+        working-directory: Processing_Sample
+        shell: cmd
+        run: msbuild Processing_Sample.sln /t:CProcessing_Tests_Tier2 /p:Configuration=Debug /p:Platform=x64 /m /v:minimal
+
+      - name: Install Mesa (llvmpipe software OpenGL)
+        uses: f3d-app/install-mesa-windows-action@v1
+        with:
+          path: ${{ github.workspace }}/Processing_Sample/x64/Debug/Tier2
+
+      - name: Run Tier 2 tests (x64)
+        working-directory: Processing_Sample
+        shell: cmd
+        run: x64\Debug\Tier2\CProcessing_Tests_Tier2.exe
