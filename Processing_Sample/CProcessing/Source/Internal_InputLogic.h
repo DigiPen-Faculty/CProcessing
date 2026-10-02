@@ -23,6 +23,11 @@
 #include <math.h>
 #include <stdbool.h>
 #include "cprocessing_common.h"
+// Only GLFW's constants and structs are needed here: don't let glfw3.h pull
+// in the system OpenGL header (deprecated, and warning-heavy, on macOS)
+#ifndef GLFW_INCLUDE_NONE
+	#define GLFW_INCLUDE_NONE
+#endif
 #include "glfw3.h"
 
 #ifdef __cplusplus

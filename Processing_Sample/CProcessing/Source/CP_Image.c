@@ -322,43 +322,55 @@ CP_API CP_Image CP_Image_CreateFromData(int w, int h, unsigned char* pixelDataIn
 
 CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 {
-	unsigned char* buffer = (unsigned char*)malloc(4 * w * h);
-	unsigned char* rowTemp = (unsigned char*)malloc(4 * w);
-	if (!buffer || !rowTemp)
+	CP_CorePtr CORE = GetCPCore();
+	if (!CORE || !CORE->nvg || w <= 0 || h <= 0)
 	{
 		return NULL;
 	}
-	CP_CorePtr CORE = GetCPCore();
 
-	// glReadPixles uses x,y as the lower left, so lets convert that
-	// to the top right for the sake of consistency
-	y = (CORE->window_height - h) - y;
+	// x, y, w, h are in window coordinates; the framebuffer can have more
+	// pixels than that on hi-dpi displays (e.g. 2x on a Retina Mac), so read
+	// the matching framebuffer region and scale it back to w x h.
+	// (pixel_ratio is 1 on standard displays, where this is a plain copy)
+	const float ratio = CORE->pixel_ratio > 0.0f ? CORE->pixel_ratio : 1.0f;
+	const int readX = (int)(x * ratio + 0.5f);
+	const int readW = (int)(w * ratio + 0.5f);
+	const int readH = (int)(h * ratio + 0.5f);
+	// glReadPixels uses x,y as the lower left, so convert from the top left
+	const int readY = CORE->canvas_height - (int)((y + h) * ratio + 0.5f);
+
+	unsigned char* readBuffer = (unsigned char*)malloc((size_t)4 * readW * readH);
+	unsigned char* buffer = (unsigned char*)malloc((size_t)4 * w * h);
+	if (!readBuffer || !buffer)
+	{
+		free(readBuffer);
+		free(buffer);
+		return NULL;
+	}
 
 	// flush nanovg so image can be captured
 	nvgEndFrame(CORE->nvg);
 
-	glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+	glReadPixels(readX, readY, readW, readH, GL_RGBA, GL_UNSIGNED_BYTE, readBuffer);
 
 	nvgBeginFrame(CORE->nvg, CORE->window_width, CORE->window_height, CORE->pixel_ratio);
 
-	int rowWidth = w * 4;
-	int size = h;
-	
-	for (int rowIndex = 0; rowIndex < (size / 2); ++rowIndex) // loop through each row
+	// flip rows (GL is bottom-up) and, for hi-dpi, sample down to w x h
+	for (int row = 0; row < h; ++row)
 	{
-		unsigned char* rowFront = &buffer[rowIndex * rowWidth];
-		unsigned char* rowBack = &buffer[(h - rowIndex - 1) * rowWidth];
-
-		memcpy(rowTemp, rowFront, rowWidth);
-		memcpy(rowFront, rowBack, rowWidth);
-		memcpy(rowBack, rowTemp, rowWidth);
+		const int srcRow = readH - 1 - (int)(row * ((float)readH / h));
+		for (int col = 0; col < w; ++col)
+		{
+			const int srcCol = (int)(col * ((float)readW / w));
+			memcpy(&buffer[((size_t)row * w + col) * 4], &readBuffer[((size_t)srcRow * readW + srcCol) * 4], 4);
+		}
 	}
 
 	// createImage returns NULL if it fails, we want to pass that along as well
 	CP_Image newImg = CP_Image_CreateFromData(w, h, buffer);
 
+	free(readBuffer);
 	free(buffer);
-	free(rowTemp);
 
 	return newImg;
 }
