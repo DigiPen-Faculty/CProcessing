@@ -22,11 +22,21 @@ name: Release
 #
 # Running the workflow by hand (Actions > Release > Run workflow) builds and
 # checks the packages without releasing anything; they're attached to the
-# run as artifacts.
+# run as artifacts. Pull requests that change the packaging or the CMake
+# build do the same, so a broken package shows up before a release.
 
 on:
   push:
     tags: ['v*']
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - BuildReleasePackage.bat
+      - tools/make-starter-package.sh
+      - Processing_Empty/**
+      - Processing_Empty_CMake/**
+      - CMakeLists.txt
+      - cmake/**
   workflow_dispatch:
 
 permissions:
