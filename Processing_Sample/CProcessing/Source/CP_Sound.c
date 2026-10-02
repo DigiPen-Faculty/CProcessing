@@ -50,7 +50,7 @@ static void SL_Sound_Release(CP_Sound sound)
 // Internal Functions:
 //------------------------------------------------------------------------------
 
-static BOOL CP_IsValidSoundGroup(CP_SOUND_GROUP group)
+static CP_BOOL CP_IsValidSoundGroup(CP_SOUND_GROUP group)
 {
 	return group >= 0 && group < CP_SOUND_GROUP_MAX;
 }
@@ -173,7 +173,7 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 	}
 
 	// Set filepath string for cache checking
-	strcpy_s(sound->filepath, MAX_PATH, filepath);
+	CP_StringCopy(sound->filepath, CP_PATH_MAX, filepath);
 
 	// Add it to the list
 	vect_push_CP_Sound(sound_vector, sound);

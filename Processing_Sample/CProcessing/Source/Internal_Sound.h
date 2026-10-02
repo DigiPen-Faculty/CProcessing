@@ -18,6 +18,7 @@ extern "C" {
 // Include Files:
 //------------------------------------------------------------------------------
 
+#include "Internal_Platform.h"
 #include "soloud_c.h"
 
 //------------------------------------------------------------------------------
@@ -47,7 +48,7 @@ typedef enum SL_AUDIOSOURCE_TYPE
 
 typedef struct CP_Sound_Struct
 {
-	char filepath[MAX_PATH];
+	char filepath[CP_PATH_MAX];
     AudioSource* sound;
 	SL_AUDIOSOURCE_TYPE type;
 } CP_Sound_Struct;

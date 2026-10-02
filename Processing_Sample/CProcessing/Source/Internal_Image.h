@@ -18,6 +18,8 @@ extern "C" {
 // Include Files:
 //------------------------------------------------------------------------------
 
+#include "Internal_Platform.h"
+
 //------------------------------------------------------------------------------
 // Defines:
 //------------------------------------------------------------------------------
@@ -33,7 +35,7 @@ extern "C" {
 typedef struct CP_Image_Struct
 {
     int handle;              // handle to the nanoVG image
-    char filepath[MAX_PATH]; // full path of the image
+    char filepath[CP_PATH_MAX]; // full path of the image
     int w;                   // width of the image
     int h;                   // height of the image
     int load_error;          // was there an error loading the image

@@ -73,7 +73,7 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 
 	new_font->load_error = FALSE;
 	new_font->handle = -1;
-	strcpy_s(new_font->filepath, MAX_PATH, filepath);
+	CP_StringCopy(new_font->filepath, CP_PATH_MAX, filepath);
 
 	if (!CORE || !CORE->nvg)
 	{

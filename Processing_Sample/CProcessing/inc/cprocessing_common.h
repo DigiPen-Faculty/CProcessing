@@ -24,19 +24,39 @@ extern "C"
 
 
 //---------------------------------------------------------
-// Windows Defines
+// Platform Defines
+//
+// On Windows, <windows.h> has always been included from here, and existing
+// projects may depend on it arriving this way, so it is still included by
+// default. Define CP_NO_WINDOWS_H before including cprocessing.h to opt out.
+// Other platforms never include it; nothing in this API requires it.
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#if defined(_WIN32) && !defined(CP_NO_WINDOWS_H)
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN
+	#endif
+	#include <windows.h>
+#endif
 
 
 //---------------------------------------------------------
-// Eports for DLL functions
+// Exports for shared library functions
+//
+// CPROCESSING_EXPORTS - defined while building the library itself
+// CPROCESSING_STATIC  - defined when building/using CProcessing as a static library
 
-#ifdef CPROCESSING_EXPORTS
-	#define DLL_EXPORT __declspec(dllexport)
+#if defined(CPROCESSING_STATIC)
+	#define DLL_EXPORT
+#elif defined(_WIN32)
+	#ifdef CPROCESSING_EXPORTS
+		#define DLL_EXPORT __declspec(dllexport)
+	#else
+		#define DLL_EXPORT __declspec(dllimport)
+	#endif
+#elif defined(__GNUC__) || defined(__clang__)
+	#define DLL_EXPORT __attribute__((visibility("default")))
 #else
-	#define DLL_EXPORT __declspec(dllimport)
+	#define DLL_EXPORT
 #endif
 #define CP_API DLL_EXPORT
 
@@ -45,6 +65,25 @@ extern "C"
 // CProcessing Types
 
 typedef unsigned int	CP_BOOL;
+
+// TRUE and FALSE historically came from <windows.h>; keep them available
+// everywhere so CP_BOOL code reads the same on every platform.
+#ifndef TRUE
+	#define TRUE 1
+#endif
+#ifndef FALSE
+	#define FALSE 0
+#endif
+
+// Native OS window handle returned by CP_System_GetWindowHandle:
+//   Windows - HWND
+//   macOS   - NSWindow*
+//   Linux   - X11 Window id (cast to a pointer) or NULL under Wayland
+#if defined(_WIN32) && !defined(CP_NO_WINDOWS_H)
+	typedef HWND		CP_WindowHandle;
+#else
+	typedef void*		CP_WindowHandle;
+#endif
 typedef struct			CP_Image_Struct* CP_Image;
 typedef struct			CP_Sound_Struct* CP_Sound;
 typedef struct			CP_Font_Struct* CP_Font;
@@ -202,7 +241,7 @@ typedef union CP_Matrix
 //---------------------------------------------------------
 // INPUT:
 //		Keyboard and mouse values match GLFW
-//		Gamepad uses a mapping to XINPUT
+//		Gamepad buttons follow the Xbox controller layout (via GLFW's gamepad mappings)
 typedef enum CP_KEY
 {
 	KEY_ANY = 0,			// Special value for checking any key

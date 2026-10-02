@@ -73,7 +73,7 @@ CP_API int				CP_System_GetWindowHeight			(void);
 CP_API int				CP_System_GetDisplayWidth			(void);
 CP_API int				CP_System_GetDisplayHeight			(void);
 CP_API int				CP_System_GetDisplayRefreshRate		(void);
-CP_API HWND				CP_System_GetWindowHandle			(void);
+CP_API CP_WindowHandle	CP_System_GetWindowHandle			(void);
 CP_API void				CP_System_SetWindowTitle			(const char* title);
 CP_API CP_BOOL			CP_System_GetWindowFocus			(void);
 CP_API void				CP_System_ShowCursor				(CP_BOOL show);

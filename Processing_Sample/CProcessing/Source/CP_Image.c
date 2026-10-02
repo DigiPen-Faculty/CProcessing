@@ -190,7 +190,7 @@ CP_API CP_Image CP_Image_Load(const char* filepath)
 		return NULL;
 	}
 
-	strcpy_s(img->filepath, MAX_PATH, filepath);
+	CP_StringCopy(img->filepath, CP_PATH_MAX, filepath);
 
 	// load the image
 	img->handle = nvgCreateImage(CORE->nvg, filepath, 0);
@@ -297,8 +297,8 @@ CP_API CP_Image CP_Image_CreateFromData(int w, int h, unsigned char* pixelDataIn
 		return NULL;
 	}
 
-	char buffer[MAX_PATH] = { 0 };
-	strcpy_s(img->filepath, MAX_PATH, buffer);
+	// images created from data have no file path
+	img->filepath[0] = '\0';
 
 	// load the image
 	img->handle = nvgCreateImageRGBA(CORE->nvg, w, h, 0, pixelDataInput);

@@ -11,13 +11,28 @@
 #include "nanovg_gl.h"
 #include "tinycthread.h"
 
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include "glfw3native.h"
+// Native window access (used only by CP_System_GetWindowHandle)
+#if defined(_WIN32)
+	#define GLFW_EXPOSE_NATIVE_WIN32
+	#include "glfw3native.h"
+#elif defined(__APPLE__)
+	#define GLFW_EXPOSE_NATIVE_COCOA
+	#include "glfw3native.h"
+#elif defined(CP_HAS_X11)
+	#define GLFW_EXPOSE_NATIVE_X11
+	#include "glfw3native.h"
+#endif
 
 #define isRunning !glfwWindowShouldClose(_CORE.window)
 
 // Internal information
-static CP_Core _CORE = { 0 };
+// Non-zero defaults are set here (rather than only in SetCPCoreValues, which
+// is called from DllMain on Windows) so every platform starts from the same state.
+static CP_Core _CORE = {
+	.pixel_ratio = 1.0f,
+	.window_posX = -1,
+	.window_posY = -1
+};
 static bool _isInitialized = false;
 
 CP_BOOL _deferredSizeChange = FALSE;
@@ -102,6 +117,11 @@ CP_API void CP_Engine_Run(void)
 
 	// initialize the CProcessing Engine
 	CP_Initialize();
+	if (!_isInitialized)
+	{
+		// window/context creation failed - the reason has already been printed
+		return;
+	}
 
 	// main loop
 	while (isRunning)
@@ -236,9 +256,31 @@ CP_API int CP_System_GetDisplayRefreshRate(void)
 	return glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate;
 }
 
-CP_API HWND CP_System_GetWindowHandle(void)
+CP_API CP_WindowHandle CP_System_GetWindowHandle(void)
 {
 	return _CORE.hwnd;
+}
+
+// Query the OS-level handle for the GLFW window (see CP_WindowHandle)
+static CP_WindowHandle CP_GetNativeWindowHandle(GLFWwindow* window)
+{
+	if (!window)
+	{
+		return NULL;
+	}
+#if defined(_WIN32)
+	return (CP_WindowHandle)glfwGetWin32Window(window);
+#elif defined(__APPLE__)
+	return (CP_WindowHandle)glfwGetCocoaWindow(window);
+#elif defined(CP_HAS_X11)
+	if (glfwGetPlatform() == GLFW_PLATFORM_X11)
+	{
+		return (CP_WindowHandle)(uintptr_t)glfwGetX11Window(window);
+	}
+	return NULL;
+#else
+	return NULL;
+#endif
 }
 
 CP_API void CP_System_SetWindowTitle(const char* title)
@@ -308,13 +350,23 @@ void CP_Initialize(void)
 	GetDrawInfo()->fill = TRUE;
 	GetDrawInfo()->stroke = TRUE;
 
+	// Set the error callback first so initialization problems are reported too
+	glfwSetErrorCallback(error_callback_glfw);
+
 	// Initialize GLFW
 	if (!glfwInit()) {
-		printf("Failed to init GLFW.");
+		printf("Failed to init GLFW (is a display available?).\n");
+		return;
 	}
 
 	// we need GLFW to query the monitor, then set the correct resolution for the window
 	const GLFWvidmode* structure = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	if (!structure)
+	{
+		printf("Failed to query the primary monitor.\n");
+		glfwTerminate();
+		return;
+	}
 	_CORE.native_width = structure->width;
 	_CORE.native_height = structure->height;
 	if (_CORE.isFullscreen && _CORE.canvas_width == 0 && _CORE.canvas_height == 0)
@@ -330,8 +382,7 @@ void CP_Initialize(void)
 		_CORE.window_height = CP_Math_ClampInt(_CORE.canvas_height > 0 ? _CORE.canvas_height : 400, 0, _CORE.native_height);
 	}
 
-	// Set error call back and create the window
-	glfwSetErrorCallback(error_callback_glfw);
+	// Create the window
 	glfwDefaultWindowHints();
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 	glfwWindowHint(GLFW_DOUBLEBUFFER, 0);
@@ -340,17 +391,26 @@ void CP_Initialize(void)
 	_CORE.window = glfwCreateWindow(_CORE.window_width, _CORE.window_height, "CProcessing Application", _CORE.isFullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 
 	if (!_CORE.window) {
+		printf("Failed to create the CProcessing window.\n");
 		glfwTerminate();
+		return;
 	}
 
-	_CORE.hwnd = glfwGetWin32Window(_CORE.window);
+	_CORE.hwnd = CP_GetNativeWindowHandle(_CORE.window);
 
 	glfwMakeContextCurrent(_CORE.window);
-	gladLoadGL();
+	if (!gladLoadGL())
+	{
+		printf("Failed to load OpenGL functions.\n");
+		glfwTerminate();
+		return;
+	}
 	_CORE.nvg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
 	if (_CORE.nvg == NULL)
 	{
-		printf("Could not init nanovg.\n");
+		printf("Could not init nanovg (OpenGL 3.2 or newer is required).\n");
+		glfwTerminate();
+		return;
 	}
 
 	// Init default draw settings state items here:

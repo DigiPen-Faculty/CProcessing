@@ -13,7 +13,6 @@
 #include <math.h>
 #include "cprocessing.h"
 #include "Internal_System.h"
-#include <timeapi.h>
 #include <xinput.h>
 
 //------------------------------------------------------------------------------
@@ -192,8 +191,8 @@ void CP_Input_KeyboardUpdate(void)
 	// Move current  -> previous
 	//      realtime -> current
 	unsigned size = sizeof(key_states_previous[0]) * CP_NUM_KEYS;
-	memcpy_s(key_states_previous, size, key_states_current, size);
-	memcpy_s(key_states_current, size, key_states_realtime, size);
+	memcpy(key_states_previous, key_states_current, size);
+	memcpy(key_states_current, key_states_realtime, size);
 	// track values for ANY key
 	key_any_triggered = false;
 	key_any_down = false;
@@ -231,8 +230,8 @@ void CP_Input_MouseUpdate(void)
 
     // Update Mouse Buttons
     int size = sizeof(mouse_states_previous[0]) * CP_NUM_MOUSE_BUTTONS;
-    memcpy_s(mouse_states_previous, size, mouse_states_current, size);
-    memcpy_s(mouse_states_current, size, mouse_states_realtime, size);
+    memcpy(mouse_states_previous, mouse_states_current, size);
+    memcpy(mouse_states_current, mouse_states_realtime, size);
 
     // Update mouse wheel
     mouse_wheelx_previous = mouse_wheelx_current;

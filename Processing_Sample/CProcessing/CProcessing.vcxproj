@@ -219,6 +219,7 @@ xcopy "$(ProjectDir)soloud\lib\x64\soloud.dll" "$(ProjectDir)lib\x64\*" /s /r /y
     <ClInclude Include="Source\Internal_Input.h" />
     <ClInclude Include="Source\Internal_Math.h" />
     <ClInclude Include="Source\Internal_Noise.h" />
+    <ClInclude Include="Source\Internal_Platform.h" />
     <ClInclude Include="Source\Internal_Random.h" />
     <ClInclude Include="Source\Internal_Sound.h" />
     <ClInclude Include="Source\Internal_Text.h" />
