@@ -22,12 +22,17 @@ Tier2Scalars tier2_scalars = { 0 };
 #define GREEN CP_Color_Create(0, 200, 0, 255)
 
 static int frameCount = 0;
-// Generous margin for the deferred window resize (requested in
-// HarnessInit) to actually settle at the OS/compositor level before any
-// scenario is captured -- too small a margin was observed to cause
-// occasional flaky captures (the GL framebuffer still reflecting the old
-// window size on some runs but not others).
+static int firstScenarioFrame = -1;
+// The deferred window resize requested in HarnessInit has to actually
+// settle at the OS/compositor level before any scenario is captured. How
+// long that takes varies: it is synchronous on Windows but asynchronous on
+// X11/Wayland/macOS (observed taking anywhere from ~10 to 40+ frames under
+// WSLg), so a fixed frame count was flaky. Instead, wait at least
+// WARMUP_FRAMES and then until the canvas reports the requested size, giving
+// up after MAX_WARMUP_FRAMES (the size test then fails with a clear message
+// instead of every pixel test failing mysteriously).
 #define WARMUP_FRAMES 15
+#define MAX_WARMUP_FRAMES 600
 
 static void CaptureCurrentFrame(Tier2Scenario scenario)
 {
@@ -507,19 +512,30 @@ static void HarnessInit(void)
     CP_Engine_SetPreUpdateFunction(PreUpdateHook);
     CP_Engine_SetPostUpdateFunction(PostUpdateHook);
     frameCount = 0;
+    firstScenarioFrame = -1;
 }
 
 static void HarnessUpdate(void)
 {
-    int scenarioIndex = frameCount - WARMUP_FRAMES;
-    ++frameCount;
-
     // Let the deferred window resize (requested in HarnessInit) take effect
     // before drawing/capturing anything.
-    if (scenarioIndex < 0)
+    if (firstScenarioFrame < 0)
     {
-        return;
+        bool sizeSettled = CP_System_GetWindowWidth() == TIER2_CANVAS_SIZE
+            && CP_System_GetWindowHeight() == TIER2_CANVAS_SIZE;
+        if ((frameCount >= WARMUP_FRAMES && sizeSettled) || frameCount >= MAX_WARMUP_FRAMES)
+        {
+            firstScenarioFrame = frameCount;
+        }
+        else
+        {
+            ++frameCount;
+            return;
+        }
     }
+
+    int scenarioIndex = frameCount - firstScenarioFrame;
+    ++frameCount;
 
     if (scenarioIndex < SCN_COUNT)
     {

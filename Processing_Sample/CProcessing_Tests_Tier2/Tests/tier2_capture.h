@@ -14,6 +14,8 @@
 // engine's own call stack.
 #pragma once
 
+#include <stdbool.h>
+#include <stddef.h>
 #include "cprocessing.h"
 
 #define TIER2_CANVAS_SIZE 200

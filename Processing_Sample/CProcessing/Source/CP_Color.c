@@ -18,6 +18,9 @@
 // Defines:
 //------------------------------------------------------------------------------
 
+static inline int CP_ColorMaxInt(int a, int b) { return a > b ? a : b; }
+static inline int CP_ColorMinInt(int a, int b) { return a < b ? a : b; }
+
 //------------------------------------------------------------------------------
 // Private Consts:
 //------------------------------------------------------------------------------
@@ -132,8 +135,9 @@ CP_API CP_ColorHSL CP_ColorHSL_Lerp(CP_ColorHSL a, CP_ColorHSL b, float lerp_fac
 //
 CP_API CP_ColorHSL CP_ColorHSL_FromColor(CP_Color rgb)
 {
-	int CmaxI = max(max(rgb.r, rgb.g), rgb.b);
-	int CminI = min(min(rgb.r, rgb.g), rgb.b);
+	// (min/max used to come from <windows.h> macros)
+	int CmaxI = CP_ColorMaxInt(CP_ColorMaxInt(rgb.r, rgb.g), rgb.b);
+	int CminI = CP_ColorMinInt(CP_ColorMinInt(rgb.r, rgb.g), rgb.b);
 	int deltaI = CmaxI - CminI;
 
 	float r = rgb.r / 255.0f;

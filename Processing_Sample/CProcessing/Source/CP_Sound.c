@@ -10,6 +10,9 @@
 // Include Files:
 //------------------------------------------------------------------------------
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "cprocessing.h"
 #include "Internal_Sound.h"
 #include "vect.h"
@@ -57,6 +60,11 @@ static CP_BOOL CP_IsValidSoundGroup(CP_SOUND_GROUP group)
 
 static CP_Sound CP_CheckIfSoundIsLoaded(const char* filepath)
 {
+	if (!sound_vector)
+	{
+		return NULL;
+	}
+
 	for (unsigned i = 0; i < sound_vector->size; ++i)
 	{
 		CP_Sound snd = vect_at_CP_Sound(sound_vector, i);
@@ -74,14 +82,27 @@ void CP_Sound_Init(void)
 	// Allocate the initial vector size for loaded sounds
 	sound_vector = vect_init_CP_Sound(CP_INITIAL_SOUND_CAPACITY);
 
+	// Default group settings (kept even if no audio device is available so the
+	// group getters still report sensible values)
+	for (unsigned index = 0; index < CP_SOUND_GROUP_MAX; ++index)
+	{
+		voice_groups[index].handle = 0;
+		voice_groups[index].volume = 1.0f;
+		voice_groups[index].pitch = 1.0f;
+	}
+
 	// Create the SoLoud system
 	_soloud_system = Soloud_create();
 	result = Soloud_init(_soloud_system);
 
 	if (result != 0)
 	{
-		// TODO: handle error - FMOD_ErrorString(result)
-		CP_Sound_Shutdown();
+		// No usable audio device (e.g. a headless machine or CI runner).
+		// Sound becomes a silent no-op rather than taking the program down:
+		// every CP_Sound function checks for a NULL system.
+		printf("CProcessing: audio unavailable (%s), sound is disabled.\n", Soloud_getErrorString(_soloud_system, result));
+		Soloud_destroy(_soloud_system);
+		_soloud_system = NULL;
 		return;
 	}
 	// Create the channel groups (for stopping/pausing and controlling pitch and volume on a per group basis)
@@ -105,8 +126,11 @@ void CP_Sound_Shutdown(void)
 	{
 		// Stop all current sounds
 		CP_Sound_StopAll();
+	}
 
-		// Free sounds 
+	if (sound_vector != NULL)
+	{
+		// Free sounds
 		for (unsigned i = 0; i < sound_vector->size; ++i)
 		{
 			CP_Sound sound = vect_at_CP_Sound(sound_vector, i);
@@ -118,7 +142,11 @@ void CP_Sound_Shutdown(void)
 
 		// Free lists
 		vect_free(sound_vector);
+		sound_vector = NULL;
+	}
 
+	if (_soloud_system != NULL)
+	{
 		// Release system
 		Soloud_deinit(_soloud_system);
 		Soloud_destroy(_soloud_system);
@@ -128,7 +156,7 @@ void CP_Sound_Shutdown(void)
 
 CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 {
-	if (!filepath)
+	if (!filepath || !_soloud_system || !sound_vector)
 		return NULL;
 
 	CP_Sound sound = NULL;
@@ -167,7 +195,8 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 	}
 	if (result != 0)
 	{
-		// TODO: handle error - FMOD_ErrorString(result)
+		// release the SoLoud object as well as our struct (file missing or unreadable)
+		SL_Sound_Release(sound);
 		free(sound);
 		return NULL;
 	}
@@ -197,7 +226,7 @@ CP_API CP_Sound CP_Sound_LoadStream(const char* filepath)
 
 CP_API void CP_Sound_Free(CP_Sound* sound)
 {
-	if (sound == NULL || *sound == NULL)
+	if (sound == NULL || *sound == NULL || sound_vector == NULL)
 	{
 		return;
 	}
@@ -224,6 +253,11 @@ CP_API void CP_Sound_Free(CP_Sound* sound)
 
 CP_API void CP_Sound_Play(CP_Sound sound)
 {
+	if (sound == NULL)
+	{
+		return;
+	}
+
 	if (sound->type == SL_AUDIOSOURCE_STREAM)
 	{
 		CP_Sound_PlayAdvanced(sound, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
@@ -237,7 +271,7 @@ CP_API void CP_Sound_Play(CP_Sound sound)
 CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_BOOL looping, CP_SOUND_GROUP group)
 {
 	// TODO: handle voice group
-	if (!CP_IsValidSoundGroup(group) || sound == NULL)
+	if (!CP_IsValidSoundGroup(group) || sound == NULL || _soloud_system == NULL)
 	{
 		return;
 	}
@@ -273,12 +307,15 @@ CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_
 
 CP_API void CP_Sound_PauseAll(void)
 {
-	Soloud_setPauseAll(_soloud_system, TRUE);
+	if (_soloud_system)
+	{
+		Soloud_setPauseAll(_soloud_system, TRUE);
+	}
 }
 
 CP_API void CP_Sound_PauseGroup(CP_SOUND_GROUP group)
 {
-	if(CP_IsValidSoundGroup(group))
+	if (_soloud_system && CP_IsValidSoundGroup(group))
 	{
 		Soloud_setPause(_soloud_system, voice_groups[group].handle, TRUE);
 	}
@@ -286,12 +323,15 @@ CP_API void CP_Sound_PauseGroup(CP_SOUND_GROUP group)
 
 CP_API void CP_Sound_ResumeAll(void)
 {
-	Soloud_setPauseAll(_soloud_system, FALSE);
+	if (_soloud_system)
+	{
+		Soloud_setPauseAll(_soloud_system, FALSE);
+	}
 }
 
 CP_API void CP_Sound_ResumeGroup(CP_SOUND_GROUP group)
 {
-	if (CP_IsValidSoundGroup(group))
+	if (_soloud_system && CP_IsValidSoundGroup(group))
 	{
 		Soloud_setPause(_soloud_system, voice_groups[group].handle, FALSE);
 	}
@@ -299,12 +339,15 @@ CP_API void CP_Sound_ResumeGroup(CP_SOUND_GROUP group)
 
 CP_API void CP_Sound_StopAll(void)
 {
-	Soloud_stopAll(_soloud_system);
+	if (_soloud_system)
+	{
+		Soloud_stopAll(_soloud_system);
+	}
 }
 
 CP_API void CP_Sound_StopGroup(CP_SOUND_GROUP group)
 {
-	if (CP_IsValidSoundGroup(group))
+	if (_soloud_system && CP_IsValidSoundGroup(group))
 	{
 		Soloud_stop(_soloud_system, voice_groups[group].handle);
 	}
@@ -318,7 +361,10 @@ CP_API void CP_Sound_SetGroupVolume(CP_SOUND_GROUP group, float volume)
 	}
 	if (CP_IsValidSoundGroup(group))
 	{
-		Soloud_setVolume(_soloud_system, voice_groups[group].handle, volume);
+		if (_soloud_system)
+		{
+			Soloud_setVolume(_soloud_system, voice_groups[group].handle, volume);
+		}
 		voice_groups[group].volume = volume;
 	}
 }
@@ -340,7 +386,10 @@ CP_API void CP_Sound_SetGroupPitch(CP_SOUND_GROUP group, float pitch)
 	}
 	if (CP_IsValidSoundGroup(group))
 	{
-		Soloud_setRelativePlaySpeed(_soloud_system, voice_groups[group].handle, pitch);
+		if (_soloud_system)
+		{
+			Soloud_setRelativePlaySpeed(_soloud_system, voice_groups[group].handle, pitch);
+		}
 		voice_groups[group].pitch = pitch;
 	}
 }

@@ -32,7 +32,10 @@ void test_tier2_system_display_info_is_positive(void)
 {
     TEST_ASSERT_GREATER_THAN_INT(0, tier2_scalars.displayWidth);
     TEST_ASSERT_GREATER_THAN_INT(0, tier2_scalars.displayHeight);
-    TEST_ASSERT_GREATER_THAN_INT(0, tier2_scalars.displayRefreshRate);
+    // 0 means "unknown": virtual displays (Xvfb, some VMs/remote sessions)
+    // don't report a refresh rate, and GLFW passes that through as 0.
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, tier2_scalars.displayRefreshRate);
+    TEST_ASSERT_LESS_OR_EQUAL_INT(1000, tier2_scalars.displayRefreshRate);
 }
 
 void test_tier2_engine_pre_and_post_update_hooks_fire(void)

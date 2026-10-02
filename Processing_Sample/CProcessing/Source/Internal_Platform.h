@@ -24,6 +24,16 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
+// On Windows the internals still see <windows.h>, privately, and always
+// before GLAD/GLFW so the macros they share (APIENTRY, ...) are defined in
+// the same order as when it arrived through the public header.
+#if defined(_WIN32)
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN
+	#endif
+	#include <windows.h>
+#endif
+
 //------------------------------------------------------------------------------
 // Path length used for the internal filepath caches (images, sounds, fonts).
 // Windows keeps its historical MAX_PATH (260) so struct layouts and behavior are

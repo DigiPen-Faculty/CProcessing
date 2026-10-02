@@ -112,7 +112,8 @@ void CP_Text_Init(void)
 	font_vector = vect_init_CP_Font(CP_INITIAL_FONT_COUNT);
 
 	// load the default font from internal binary resource data
-	_default_font = CP_Font_LoadInternal("./Assets/Exo2-Regular.ttf", true, Exo2_Regular_ttf, Exo2_Regular_ttf_size, 0);
+	// freeData = 0: NanoVG only reads the embedded font data, so casting away const is safe
+	_default_font = CP_Font_LoadInternal("./Assets/Exo2-Regular.ttf", true, (unsigned char*)Exo2_Regular_ttf, Exo2_Regular_ttf_size, 0);
 }
 
 void CP_Text_Shutdown(void)
