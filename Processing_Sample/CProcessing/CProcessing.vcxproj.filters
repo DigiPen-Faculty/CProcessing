@@ -63,6 +63,9 @@
     <ClInclude Include="Source\Internal_Noise.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Internal_InputLogic.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Internal_Platform.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>

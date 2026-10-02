@@ -444,15 +444,10 @@ static void Scn_SoundRoundTrip(void)
 // This covers only the slice of CP_Input that's deterministically
 // testable without synthesizing OS input events or hardware: default
 // values in a quiescent frame where nothing was pressed, moved, or
-// plugged in. The plan's actual Phase F goal -- splitting the
-// triggered/released/down edge-detection logic out of CP_Input.c so it
-// can be unit-tested directly against synthetic state transitions -- is a
-// real refactor of production input-handling code, not just new tests,
-// and 06-test-suite-plan.md calls out that it's meant to happen alongside
-// the separate XInput-to-GLFW-gamepad-API migration in
-// 03-dependency-assessment.md. Deliberately not attempted here: that's an
-// architecture decision for a human to make alongside that migration, not
-// one to make unilaterally while adding tests.
+// plugged in. The edge-detection/deadzone/mapping logic itself was split
+// out into Source/Internal_InputLogic.h together with the XInput -> GLFW
+// gamepad migration, and is unit-tested directly in the Tier 1 project
+// (CProcessing_Tests/Tests/test_cp_input_logic.c).
 static void Scn_InputQuiescentDefaults(void)
 {
     CP_Graphics_ClearBackground(WHITE);
