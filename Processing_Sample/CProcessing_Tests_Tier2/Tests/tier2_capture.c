@@ -22,12 +22,17 @@ Tier2Scalars tier2_scalars = { 0 };
 #define GREEN CP_Color_Create(0, 200, 0, 255)
 
 static int frameCount = 0;
-// Generous margin for the deferred window resize (requested in
-// HarnessInit) to actually settle at the OS/compositor level before any
-// scenario is captured -- too small a margin was observed to cause
-// occasional flaky captures (the GL framebuffer still reflecting the old
-// window size on some runs but not others).
+static int firstScenarioFrame = -1;
+// The deferred window resize requested in HarnessInit has to actually
+// settle at the OS/compositor level before any scenario is captured. How
+// long that takes varies: it is synchronous on Windows but asynchronous on
+// X11/Wayland/macOS (observed taking anywhere from ~10 to 40+ frames under
+// WSLg), so a fixed frame count was flaky. Instead, wait at least
+// WARMUP_FRAMES and then until the canvas reports the requested size, giving
+// up after MAX_WARMUP_FRAMES (the size test then fails with a clear message
+// instead of every pixel test failing mysteriously).
 #define WARMUP_FRAMES 15
+#define MAX_WARMUP_FRAMES 600
 
 static void CaptureCurrentFrame(Tier2Scenario scenario)
 {
@@ -406,6 +411,7 @@ static void Scn_SystemEngineState(void)
     tier2_scalars.displayRefreshRate = CP_System_GetDisplayRefreshRate();
     tier2_scalars.preUpdateHookCount = preUpdateHookCount;
     tier2_scalars.postUpdateHookCount = postUpdateHookCount;
+    tier2_scalars.windowHandleIsNull = CP_System_GetWindowHandle() == NULL;
 
     CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture"); // just must not crash
     CP_System_ShowCursor(TRUE); // just must not crash
@@ -444,15 +450,10 @@ static void Scn_SoundRoundTrip(void)
 // This covers only the slice of CP_Input that's deterministically
 // testable without synthesizing OS input events or hardware: default
 // values in a quiescent frame where nothing was pressed, moved, or
-// plugged in. The plan's actual Phase F goal -- splitting the
-// triggered/released/down edge-detection logic out of CP_Input.c so it
-// can be unit-tested directly against synthetic state transitions -- is a
-// real refactor of production input-handling code, not just new tests,
-// and 06-test-suite-plan.md calls out that it's meant to happen alongside
-// the separate XInput-to-GLFW-gamepad-API migration in
-// 03-dependency-assessment.md. Deliberately not attempted here: that's an
-// architecture decision for a human to make alongside that migration, not
-// one to make unilaterally while adding tests.
+// plugged in. The edge-detection/deadzone/mapping logic itself was split
+// out into Source/Internal_InputLogic.h together with the XInput -> GLFW
+// gamepad migration, and is unit-tested directly in the Tier 1 project
+// (CProcessing_Tests/Tests/test_cp_input_logic.c).
 static void Scn_InputQuiescentDefaults(void)
 {
     CP_Graphics_ClearBackground(WHITE);
@@ -466,6 +467,112 @@ static void Scn_InputQuiescentDefaults(void)
     tier2_scalars.mouseDoubleClicked = CP_Input_MouseDoubleClicked();
     tier2_scalars.keyADown = CP_Input_KeyDown(KEY_A);
     tier2_scalars.mouseLeftDown = CP_Input_MouseDown(MOUSE_BUTTON_LEFT);
+}
+
+// ---- Drawing persistence (cross-platform work) ----
+// CProcessing never clears the screen between frames on its own: whatever
+// was drawn stays until drawn over, via the offscreen canvas framebuffer
+// (CP_System.c).
+// The first scenario draws a red square; the next frame draws only a blue
+// square without clearing, so both must be in the second capture.
+
+static void Scn_PersistFirstFrame(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_NoStroke();
+    CP_Settings_Fill(RED);
+    CP_Graphics_DrawRect(50, 50, 40, 40);
+}
+
+static void Scn_PersistNextFrame(void)
+{
+    // deliberately no ClearBackground
+    CP_Settings_NoStroke();
+    CP_Settings_Fill(BLUE);
+    CP_Graphics_DrawRect(150, 150, 40, 40);
+}
+
+// ---- CP_Image_Screenshot of sub-regions (cross-platform work) ----
+// The scenario captures always screenshot the whole canvas from (0,0); this
+// checks offset regions too, i.e. the window-to-framebuffer coordinate
+// conversion (y is flipped for glReadPixels).
+
+static CP_Color SampleImage(CP_Image image, int x, int y)
+{
+    static CP_Color pixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+    int w = CP_Image_GetWidth(image);
+    CP_Image_GetPixelData(image, pixels);
+    return pixels[y * w + x];
+}
+
+static void Scn_ScreenshotSubregion(void)
+{
+    CP_Settings_NoStroke();
+    CP_Settings_RectMode(CP_POSITION_CORNER);
+    CP_Settings_Fill(RED);
+    CP_Graphics_DrawRect(0, 0, 100, 100);
+    CP_Settings_Fill(GREEN);
+    CP_Graphics_DrawRect(100, 0, 100, 100);
+    CP_Settings_Fill(BLUE);
+    CP_Graphics_DrawRect(0, 100, 100, 100);
+    CP_Settings_Fill(CP_Color_Create(255, 255, 0, 255));
+    CP_Graphics_DrawRect(100, 100, 100, 100);
+
+    CP_Image topRight = CP_Image_Screenshot(100, 0, 100, 100);
+    tier2_scalars.subTopRightWidth = CP_Image_GetWidth(topRight);
+    tier2_scalars.subTopRightHeight = CP_Image_GetHeight(topRight);
+    tier2_scalars.subTopRightCenter = SampleImage(topRight, 50, 50);
+    CP_Image_Free(&topRight);
+
+    CP_Image bottomLeft = CP_Image_Screenshot(0, 100, 100, 100);
+    tier2_scalars.subBottomLeftCenter = SampleImage(bottomLeft, 50, 50);
+    CP_Image_Free(&bottomLeft);
+
+    // 50x50 region centered on the point where all four quadrants meet
+    CP_Image straddle = CP_Image_Screenshot(75, 75, 50, 50);
+    tier2_scalars.straddleCorners[0] = SampleImage(straddle, 5, 5);
+    tier2_scalars.straddleCorners[1] = SampleImage(straddle, 44, 5);
+    tier2_scalars.straddleCorners[2] = SampleImage(straddle, 5, 44);
+    tier2_scalars.straddleCorners[3] = SampleImage(straddle, 44, 44);
+    CP_Image_Free(&straddle);
+}
+
+// ---- Error paths (cross-platform work) ----
+// Missing files and NULL handles must fail quietly (NULL / no-op) rather
+// than crash -- including when there is no audio device at all, which is
+// the normal case on CI runners.
+
+static void Scn_ErrorPaths(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+
+    CP_Image missingImage = CP_Image_Load("Assets/this_file_does_not_exist.png");
+    tier2_scalars.missingImageIsNull = missingImage == NULL;
+    CP_Font missingFont = CP_Font_Load("Assets/this_file_does_not_exist.ttf");
+    tier2_scalars.missingFontIsNull = missingFont == NULL;
+    CP_Sound missingSound = CP_Sound_Load("Assets/this_file_does_not_exist.wav");
+    tier2_scalars.missingSoundIsNull = missingSound == NULL;
+    // a NULL path is treated like a missing file
+    tier2_scalars.missingImageIsNull = tier2_scalars.missingImageIsNull && CP_Image_Load(NULL) == NULL;
+    tier2_scalars.missingFontIsNull = tier2_scalars.missingFontIsNull && CP_Font_Load(NULL) == NULL;
+    tier2_scalars.missingSoundIsNull = tier2_scalars.missingSoundIsNull && CP_Sound_Load(NULL) == NULL
+        && CP_Sound_LoadStream(NULL) == NULL;
+
+    // None of these may crash
+    CP_Image nullImage = NULL;
+    CP_Sound nullSound = NULL;
+    CP_Font nullFont = NULL;
+    CP_Image_Draw(NULL, 10, 10, 10, 10, 255);
+    CP_Image_Free(NULL);
+    CP_Image_Free(&nullImage);
+    CP_Sound_Play(NULL);
+    CP_Sound_PlayAdvanced(NULL, 1.0f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
+    CP_Sound_Free(NULL);
+    CP_Sound_Free(&nullSound);
+    CP_Font_Set(NULL);
+    CP_Font_Free(NULL);
+    CP_Font_Free(&nullFont);
+    tier2_scalars.survivedNullCalls = TRUE;
 }
 
 typedef void (*ScenarioFunc)(void);
@@ -503,6 +610,10 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
     [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
     [SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,
+    [SCN_PERSIST_FIRST_FRAME] = Scn_PersistFirstFrame,
+    [SCN_PERSIST_NEXT_FRAME] = Scn_PersistNextFrame,
+    [SCN_SCREENSHOT_SUBREGION] = Scn_ScreenshotSubregion,
+    [SCN_ERROR_PATHS] = Scn_ErrorPaths,
 };
 
 static void HarnessInit(void)
@@ -512,19 +623,30 @@ static void HarnessInit(void)
     CP_Engine_SetPreUpdateFunction(PreUpdateHook);
     CP_Engine_SetPostUpdateFunction(PostUpdateHook);
     frameCount = 0;
+    firstScenarioFrame = -1;
 }
 
 static void HarnessUpdate(void)
 {
-    int scenarioIndex = frameCount - WARMUP_FRAMES;
-    ++frameCount;
-
     // Let the deferred window resize (requested in HarnessInit) take effect
     // before drawing/capturing anything.
-    if (scenarioIndex < 0)
+    if (firstScenarioFrame < 0)
     {
-        return;
+        bool sizeSettled = CP_System_GetWindowWidth() == TIER2_CANVAS_SIZE
+            && CP_System_GetWindowHeight() == TIER2_CANVAS_SIZE;
+        if ((frameCount >= WARMUP_FRAMES && sizeSettled) || frameCount >= MAX_WARMUP_FRAMES)
+        {
+            firstScenarioFrame = frameCount;
+        }
+        else
+        {
+            ++frameCount;
+            return;
+        }
     }
+
+    int scenarioIndex = frameCount - firstScenarioFrame;
+    ++frameCount;
 
     if (scenarioIndex < SCN_COUNT)
     {

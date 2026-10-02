@@ -136,3 +136,43 @@ void test_noise_stays_within_0_and_1(void);
 void test_noise_is_deterministic_for_same_seed_and_coordinates(void);
 void test_noise_different_seeds_can_diverge(void);
 void test_noise_same_coordinate_is_continuous_with_its_neighbor(void);
+
+// test_internal_platform.c -- Tier 1: portability helpers (Internal_Platform.h).
+void test_platform_stringcopy_copies_short_string(void);
+void test_platform_stringcopy_exact_fit(void);
+void test_platform_stringcopy_truncates_and_terminates(void);
+void test_platform_stringcopy_null_source_gives_empty_string(void);
+void test_platform_stringcopy_zero_size_writes_nothing(void);
+void test_platform_path_buffer_is_large_enough(void);
+
+// test_cp_input_logic.c -- Tier 1: pure CP_Input logic (Internal_InputLogic.h).
+void test_inputlogic_triggered_truth_table(void);
+void test_inputlogic_released_truth_table(void);
+void test_inputlogic_press_hold_release_sequence(void);
+void test_inputlogic_sample_reflects_realtime_state(void);
+void test_inputlogic_sample_tap_between_frames_is_not_lost(void);
+void test_inputlogic_quick_tap_triggers_then_releases(void);
+void test_inputlogic_double_click_within_window(void);
+void test_inputlogic_double_click_window_is_inclusive(void);
+void test_inputlogic_double_click_too_slow(void);
+void test_inputlogic_gamepad_button_validity(void);
+void test_inputlogic_gamepad_button_mask_is_one_bit_per_button(void);
+void test_inputlogic_gamepad_button_mask_invalid_is_zero(void);
+void test_inputlogic_gamepad_button_down_reads_only_its_bit(void);
+void test_inputlogic_gamepad_to_glfw_button_mapping(void);
+void test_inputlogic_from_glfw_null_is_disconnected(void);
+void test_inputlogic_from_glfw_resting_pad(void);
+void test_inputlogic_from_glfw_maps_pressed_buttons(void);
+void test_inputlogic_from_glfw_triggers_rescaled_to_0_1(void);
+void test_inputlogic_from_glfw_stick_y_is_up_positive(void);
+void test_inputlogic_trigger_rest_and_full(void);
+void test_inputlogic_trigger_below_threshold_is_zero(void);
+void test_inputlogic_trigger_out_of_range_clamps(void);
+void test_inputlogic_trigger_matches_legacy_xinput(void);
+void test_inputlogic_stick_center_is_zero(void);
+void test_inputlogic_stick_inside_deadzone_is_zero(void);
+void test_inputlogic_stick_full_deflection_reaches_one(void);
+void test_inputlogic_stick_is_odd_symmetric(void);
+void test_inputlogic_stick_is_monotonic(void);
+void test_inputlogic_stick_out_of_range_clamps(void);
+void test_inputlogic_stick_matches_legacy_xinput(void);

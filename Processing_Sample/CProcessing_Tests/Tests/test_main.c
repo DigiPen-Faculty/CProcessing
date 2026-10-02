@@ -151,5 +151,45 @@ int main(void)
     RUN_TEST(test_noise_different_seeds_can_diverge);
     RUN_TEST(test_noise_same_coordinate_is_continuous_with_its_neighbor);
 
+    // test_internal_platform.c
+    RUN_TEST(test_platform_stringcopy_copies_short_string);
+    RUN_TEST(test_platform_stringcopy_exact_fit);
+    RUN_TEST(test_platform_stringcopy_truncates_and_terminates);
+    RUN_TEST(test_platform_stringcopy_null_source_gives_empty_string);
+    RUN_TEST(test_platform_stringcopy_zero_size_writes_nothing);
+    RUN_TEST(test_platform_path_buffer_is_large_enough);
+
+    // test_cp_input_logic.c
+    RUN_TEST(test_inputlogic_triggered_truth_table);
+    RUN_TEST(test_inputlogic_released_truth_table);
+    RUN_TEST(test_inputlogic_press_hold_release_sequence);
+    RUN_TEST(test_inputlogic_sample_reflects_realtime_state);
+    RUN_TEST(test_inputlogic_sample_tap_between_frames_is_not_lost);
+    RUN_TEST(test_inputlogic_quick_tap_triggers_then_releases);
+    RUN_TEST(test_inputlogic_double_click_within_window);
+    RUN_TEST(test_inputlogic_double_click_window_is_inclusive);
+    RUN_TEST(test_inputlogic_double_click_too_slow);
+    RUN_TEST(test_inputlogic_gamepad_button_validity);
+    RUN_TEST(test_inputlogic_gamepad_button_mask_is_one_bit_per_button);
+    RUN_TEST(test_inputlogic_gamepad_button_mask_invalid_is_zero);
+    RUN_TEST(test_inputlogic_gamepad_button_down_reads_only_its_bit);
+    RUN_TEST(test_inputlogic_gamepad_to_glfw_button_mapping);
+    RUN_TEST(test_inputlogic_from_glfw_null_is_disconnected);
+    RUN_TEST(test_inputlogic_from_glfw_resting_pad);
+    RUN_TEST(test_inputlogic_from_glfw_maps_pressed_buttons);
+    RUN_TEST(test_inputlogic_from_glfw_triggers_rescaled_to_0_1);
+    RUN_TEST(test_inputlogic_from_glfw_stick_y_is_up_positive);
+    RUN_TEST(test_inputlogic_trigger_rest_and_full);
+    RUN_TEST(test_inputlogic_trigger_below_threshold_is_zero);
+    RUN_TEST(test_inputlogic_trigger_out_of_range_clamps);
+    RUN_TEST(test_inputlogic_trigger_matches_legacy_xinput);
+    RUN_TEST(test_inputlogic_stick_center_is_zero);
+    RUN_TEST(test_inputlogic_stick_inside_deadzone_is_zero);
+    RUN_TEST(test_inputlogic_stick_full_deflection_reaches_one);
+    RUN_TEST(test_inputlogic_stick_is_odd_symmetric);
+    RUN_TEST(test_inputlogic_stick_is_monotonic);
+    RUN_TEST(test_inputlogic_stick_out_of_range_clamps);
+    RUN_TEST(test_inputlogic_stick_matches_legacy_xinput);
+
     return UNITY_END();
 }

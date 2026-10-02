@@ -38,8 +38,10 @@ void xorshiftSeed(int seed)
 	srand(seed);
 	for (unsigned index = 0; index < 4; ++index)
 	{
-		state[index] = rand() << 16;
-		state[index] |= rand();
+		// unsigned shift: RAND_MAX is 2^31-1 on glibc/macOS, so shifting the
+		// signed int would overflow (MSVC's RAND_MAX is 32767, unaffected)
+		state[index] = (uint32_t)rand() << 16;
+		state[index] |= (uint32_t)rand();
 	}
 }
 
@@ -57,7 +59,7 @@ uint32_t xorshift128(void)
 }
 #endif
 
-inline uint32_t internalRand(void)
+static inline uint32_t internalRand(void)
 {
 #ifdef USE_XORSHIFT
 	return xorshift128();

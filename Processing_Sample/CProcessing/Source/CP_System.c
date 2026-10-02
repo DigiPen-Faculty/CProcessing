@@ -11,13 +11,26 @@
 #include "nanovg_gl.h"
 #include "tinycthread.h"
 
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include "glfw3native.h"
+// Native window access (used only by CP_System_GetWindowHandle)
+#if defined(_WIN32)
+	#define GLFW_EXPOSE_NATIVE_WIN32
+	#include "glfw3native.h"
+#elif defined(__APPLE__)
+	#define GLFW_EXPOSE_NATIVE_COCOA
+	#include "glfw3native.h"
+#elif defined(CP_HAS_X11)
+	#define GLFW_EXPOSE_NATIVE_X11
+	#include "glfw3native.h"
+#endif
 
 #define isRunning !glfwWindowShouldClose(_CORE.window)
 
-// Internal information
-static CP_Core _CORE = { 0 };
+// Internal information (everything not listed starts as zero/NULL)
+static CP_Core _CORE = {
+	.pixel_ratio = 1.0f,
+	.window_posX = -1,
+	.window_posY = -1
+};
 static bool _isInitialized = false;
 
 CP_BOOL _deferredSizeChange = FALSE;
@@ -56,6 +69,177 @@ void error_callback_glfw(int error, const char* desc)
 	printf("GLFW error %d: %s\n", error, desc);
 }
 
+// Wayland does not let applications position their own windows (the
+// compositor decides), and GLFW reports an error if asked to
+static void CP_SetWindowPosIfSupported(GLFWwindow* window, int x, int y)
+{
+	if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND)
+	{
+		return;
+	}
+	glfwSetWindowPos(window, x, y);
+}
+
+static void CP_UpdatePixelRatio(void)
+{
+	if (_CORE.window_width > 0 && _CORE.canvas_width > 0)
+	{
+		// Calculate pixel ratio for hi-dpi devices.
+		_CORE.pixel_ratio = (float)_CORE.canvas_width / (float)_CORE.window_width;
+	}
+}
+
+// Window and framebuffer sizes are tracked through callbacks because on X11,
+// Wayland and macOS a resize/fullscreen request is applied asynchronously by
+// the window system: reading the size straight after requesting it can still
+// return the old values. Zero sizes (minimized windows) are ignored so the
+// last real size and pixel ratio are kept.
+static void CP_WindowSizeCallback(GLFWwindow* window, int width, int height)
+{
+	UNREFERENCED_PARAMETER(window);
+	if (width <= 0 || height <= 0)
+	{
+		return;
+	}
+	_CORE.window_width = width;
+	_CORE.window_height = height;
+	CP_UpdatePixelRatio();
+}
+
+static void CP_FramebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+	UNREFERENCED_PARAMETER(window);
+	if (width <= 0 || height <= 0)
+	{
+		return;
+	}
+	_CORE.canvas_width = width;
+	_CORE.canvas_height = height;
+	CP_UpdatePixelRatio();
+	glViewport(0, 0, width, height);
+}
+
+
+//---------------------------------------------------------
+// CANVAS:
+//		CProcessing, like Processing, does not clear the screen between frames:
+//		whatever was drawn stays until it is drawn over. Every frame is drawn
+//		into a persistent offscreen framebuffer (the "canvas") that is copied
+//		to a normal double-buffered window at the end of the frame.
+//		Screenshots read back from the canvas.
+//
+//		(CProcessing used to draw straight into a single-buffered window on
+//		Windows instead. Single-buffered windows are not available everywhere -
+//		Wayland/EGL has none, and macOS core profile contexts are unreliable
+//		with them - so the canvas is used on every platform for consistency.)
+
+static GLuint _canvasFramebuffer = 0;
+static GLuint _canvasColorBuffer = 0;
+static GLuint _canvasDepthStencilBuffer = 0;
+static int _canvasBufferWidth = 0;
+static int _canvasBufferHeight = 0;
+
+static void CP_Canvas_Destroy(void)
+{
+	if (_canvasFramebuffer)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDeleteFramebuffers(1, &_canvasFramebuffer);
+		glDeleteRenderbuffers(1, &_canvasColorBuffer);
+		glDeleteRenderbuffers(1, &_canvasDepthStencilBuffer);
+	}
+	_canvasFramebuffer = _canvasColorBuffer = _canvasDepthStencilBuffer = 0;
+	_canvasBufferWidth = _canvasBufferHeight = 0;
+}
+
+// (Re)create the canvas at the given size, keeping whatever was already drawn
+// (anchored to the top-left corner, matching CProcessing's coordinate origin).
+static bool CP_Canvas_Resize(int width, int height)
+{
+	if (width <= 0 || height <= 0)
+	{
+		return false;
+	}
+	if (_canvasFramebuffer && width == _canvasBufferWidth && height == _canvasBufferHeight)
+	{
+		return true;
+	}
+
+	GLuint framebuffer = 0, color = 0, depthStencil = 0;
+	glGenFramebuffers(1, &framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+	glGenRenderbuffers(1, &color);
+	glBindRenderbuffer(GL_RENDERBUFFER, color);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color);
+
+	// NanoVG needs a stencil buffer for fills and stencil strokes
+	glGenRenderbuffers(1, &depthStencil);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthStencil);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencil);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		printf("CProcessing: could not create the %d x %d drawing canvas.\n", width, height);
+		glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
+		glDeleteFramebuffers(1, &framebuffer);
+		glDeleteRenderbuffers(1, &color);
+		glDeleteRenderbuffers(1, &depthStencil);
+		return false;
+	}
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	if (_canvasFramebuffer)
+	{
+		// carry the old drawing over to the new canvas
+		int copyWidth = width < _canvasBufferWidth ? width : _canvasBufferWidth;
+		int copyHeight = height < _canvasBufferHeight ? height : _canvasBufferHeight;
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, _canvasFramebuffer);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
+		glDisable(GL_SCISSOR_TEST);
+		glBlitFramebuffer(0, _canvasBufferHeight - copyHeight, copyWidth, _canvasBufferHeight,
+			0, height - copyHeight, copyWidth, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glDeleteFramebuffers(1, &_canvasFramebuffer);
+		glDeleteRenderbuffers(1, &_canvasColorBuffer);
+		glDeleteRenderbuffers(1, &_canvasDepthStencilBuffer);
+	}
+
+	_canvasFramebuffer = framebuffer;
+	_canvasColorBuffer = color;
+	_canvasDepthStencilBuffer = depthStencil;
+	_canvasBufferWidth = width;
+	_canvasBufferHeight = height;
+
+	// everything CProcessing draws goes to the canvas
+	glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
+	glViewport(0, 0, width, height);
+	return true;
+}
+
+// Copy the canvas to the window's back buffer (call before swapping)
+static void CP_Canvas_Present(void)
+{
+	if (!_canvasFramebuffer)
+	{
+		return;
+	}
+	int windowFbWidth = 0, windowFbHeight = 0;
+	glfwGetFramebufferSize(_CORE.window, &windowFbWidth, &windowFbHeight);
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, _canvasFramebuffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glDisable(GL_SCISSOR_TEST);
+	glBlitFramebuffer(0, 0, _canvasBufferWidth, _canvasBufferHeight,
+		0, windowFbHeight - _canvasBufferHeight, _canvasBufferWidth, windowFbHeight,
+		GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
+}
+
 CP_CorePtr GetCPCore(void)
 {
 	return &_CORE;
@@ -64,25 +248,6 @@ CP_CorePtr GetCPCore(void)
 CP_DrawInfoPtr GetDrawInfo(void)
 {
 	return &_CORE.states[_CORE.nstates - 1];
-}
-
-void SetCPCoreValues(void)
-{
-	_CORE.nvg			= NULL;
-	_CORE.window		= NULL;
-	_CORE.hwnd			= NULL;
-	_CORE.window_width	= 0;
-	_CORE.window_height	= 0;
-	_CORE.canvas_width	= 0;
-	_CORE.canvas_height	= 0;
-	_CORE.native_width	= 0;
-	_CORE.native_height	= 0;
-	_CORE.isFullscreen	= FALSE;
-	_CORE.pixel_ratio	= 1.0f;
-	_CORE.window_posX	= -1;
-	_CORE.window_posY	= -1;
-	_CORE.nstates		= 0;
-	memset(_CORE.states, 0, sizeof(CP_DrawInfo) * CP_MAX_STATES);
 }
 
 
@@ -102,6 +267,11 @@ CP_API void CP_Engine_Run(void)
 
 	// initialize the CProcessing Engine
 	CP_Initialize();
+	if (!_isInitialized)
+	{
+		// window/context creation failed - the reason has already been printed
+		return;
+	}
 
 	// main loop
 	while (isRunning)
@@ -197,7 +367,7 @@ CP_API void CP_System_SetWindowPosition(int x, int y)
 	_CORE.window_posY = y;
 	if (_CORE.nvg)
 	{
-		glfwSetWindowPos(_CORE.window, x, y);
+		CP_SetWindowPosIfSupported(_CORE.window, x, y);
 	}
 }
 
@@ -236,9 +406,31 @@ CP_API int CP_System_GetDisplayRefreshRate(void)
 	return glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate;
 }
 
-CP_API HWND CP_System_GetWindowHandle(void)
+CP_API CP_WindowHandle CP_System_GetWindowHandle(void)
 {
 	return _CORE.hwnd;
+}
+
+// Query the OS-level handle for the GLFW window (see CP_WindowHandle)
+static CP_WindowHandle CP_GetNativeWindowHandle(GLFWwindow* window)
+{
+	if (!window)
+	{
+		return NULL;
+	}
+#if defined(_WIN32)
+	return (CP_WindowHandle)glfwGetWin32Window(window);
+#elif defined(__APPLE__)
+	return (CP_WindowHandle)glfwGetCocoaWindow(window);
+#elif defined(CP_HAS_X11)
+	if (glfwGetPlatform() == GLFW_PLATFORM_X11)
+	{
+		return (CP_WindowHandle)(uintptr_t)glfwGetX11Window(window);
+	}
+	return NULL;
+#else
+	return NULL;
+#endif
 }
 
 CP_API void CP_System_SetWindowTitle(const char* title)
@@ -291,6 +483,20 @@ CP_API float CP_System_GetSeconds(void)
 // INTERNAL Engine and System:
 //		Support functions not exposed to the user
 
+// Undo a partially completed CP_Initialize so nothing is left pointing at a
+// destroyed window or GL context (CP_Engine_Run then returns immediately)
+static void CP_InitializeFailed(void)
+{
+	if (_CORE.nvg)
+	{
+		nvgDeleteGL3(_CORE.nvg);
+		_CORE.nvg = NULL;
+	}
+	glfwTerminate();
+	_CORE.window = NULL;
+	_CORE.hwnd = NULL;
+}
+
 void CP_Initialize(void)
 {
 	if (_isInitialized == true)
@@ -308,13 +514,23 @@ void CP_Initialize(void)
 	GetDrawInfo()->fill = TRUE;
 	GetDrawInfo()->stroke = TRUE;
 
+	// Set the error callback first so initialization problems are reported too
+	glfwSetErrorCallback(error_callback_glfw);
+
 	// Initialize GLFW
 	if (!glfwInit()) {
-		printf("Failed to init GLFW.");
+		printf("Failed to init GLFW (is a display available?).\n");
+		return;
 	}
 
 	// we need GLFW to query the monitor, then set the correct resolution for the window
 	const GLFWvidmode* structure = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	if (!structure)
+	{
+		printf("Failed to query the primary monitor.\n");
+		CP_InitializeFailed();
+		return;
+	}
 	_CORE.native_width = structure->width;
 	_CORE.native_height = structure->height;
 	if (_CORE.isFullscreen && _CORE.canvas_width == 0 && _CORE.canvas_height == 0)
@@ -330,27 +546,45 @@ void CP_Initialize(void)
 		_CORE.window_height = CP_Math_ClampInt(_CORE.canvas_height > 0 ? _CORE.canvas_height : 400, 0, _CORE.native_height);
 	}
 
-	// Set error call back and create the window
-	glfwSetErrorCallback(error_callback_glfw);
+	// Create the window
 	glfwDefaultWindowHints();
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-	glfwWindowHint(GLFW_DOUBLEBUFFER, 0);
+	glfwWindowHint(GLFW_DOUBLEBUFFER, 1);	// persistence comes from the canvas framebuffer
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 	glfwWindowHint(GLFW_VISIBLE, 0);
+#if defined(__APPLE__)
+	// macOS only provides OpenGL 3.2+ as a forward-compatible core profile,
+	// and NanoVG's GL3 backend needs 3.2
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+#endif
 	_CORE.window = glfwCreateWindow(_CORE.window_width, _CORE.window_height, "CProcessing Application", _CORE.isFullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 
 	if (!_CORE.window) {
-		glfwTerminate();
+		printf("Failed to create the CProcessing window.\n");
+		CP_InitializeFailed();
+		return;
 	}
 
-	_CORE.hwnd = glfwGetWin32Window(_CORE.window);
+	_CORE.hwnd = CP_GetNativeWindowHandle(_CORE.window);
 
 	glfwMakeContextCurrent(_CORE.window);
-	gladLoadGL();
+	// Load GL through GLFW so the right loader is used for whichever context
+	// API GLFW picked (WGL, GLX, EGL/Wayland, NSGL)
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		printf("Failed to load OpenGL functions.\n");
+		CP_InitializeFailed();
+		return;
+	}
 	_CORE.nvg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
 	if (_CORE.nvg == NULL)
 	{
-		printf("Could not init nanovg.\n");
+		printf("Could not init nanovg (OpenGL 3.2 or newer is required).\n");
+		CP_InitializeFailed();
+		return;
 	}
 
 	// Init default draw settings state items here:
@@ -377,8 +611,7 @@ void CP_Initialize(void)
 
 	glfwGetFramebufferSize(_CORE.window, &_CORE.canvas_width, &_CORE.canvas_height);
 	glfwGetWindowSize(_CORE.window, &_CORE.window_width, &_CORE.window_height);
-	// Calculate pixel ratio for hi-dpi devices.
-	_CORE.pixel_ratio = (float)_CORE.canvas_width / (float)_CORE.window_width;
+	CP_UpdatePixelRatio();
 
 	int windowPosX = 0;
 	int windowPosY = 0;
@@ -395,13 +628,17 @@ void CP_Initialize(void)
 		windowPosX = (structure->width / 2) - (_CORE.window_width / 2);
 		windowPosY = (structure->height / 2) - (_CORE.window_height / 2);
 	}
-	glfwSetWindowPos(_CORE.window, windowPosX, windowPosY);
+	CP_SetWindowPosIfSupported(_CORE.window, windowPosX, windowPosY);
 
 	// Update and render
 	glViewport(0, 0, _CORE.canvas_width, _CORE.canvas_height);
 
-	// Set readable front buffer for screen shot functionality
-	glReadBuffer(GL_FRONT);
+	// Create the persistent drawing canvas (also binds it and sets the viewport)
+	if (!CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height))
+	{
+		CP_InitializeFailed();
+		return;
+	}
 
 	// Set the background color
 	CP_Graphics_ClearBackground(CP_Color_Create(150, 150, 150, 255));
@@ -411,6 +648,10 @@ void CP_Initialize(void)
 	glfwSetKeyCallback(_CORE.window, CP_Input_KeyboardCallback);
 	glfwSetMouseButtonCallback(_CORE.window, CP_Input_MouseCallback);
 	glfwSetScrollCallback(_CORE.window, CP_Input_MouseWheelCallback);
+
+	// Track size changes the window system applies after the fact
+	glfwSetWindowSizeCallback(_CORE.window, CP_WindowSizeCallback);
+	glfwSetFramebufferSizeCallback(_CORE.window, CP_FramebufferSizeCallback);
 
 	// Init frame rate control
 	CP_FrameRate_Init();
@@ -455,9 +696,14 @@ void CP_Shutdown(void)
 	CP_Sound_Shutdown();
 	CP_Image_Shutdown();
 
-	// Clean up glfw and nvg
-	glfwTerminate();
+	// Clean up GL resources while the GL context still exists, then glfw
+	// (which destroys the window and context)
+	CP_Canvas_Destroy();
 	nvgDeleteGL3(_CORE.nvg);
+	_CORE.nvg = NULL;
+	glfwTerminate();
+	_CORE.window = NULL;
+	_CORE.hwnd = NULL;
 }
 
 void CP_FrameStart(void)
@@ -470,12 +716,16 @@ void CP_FrameStart(void)
 		CP_DeferredSetWindowSizeInternal(_deferredWidth, _deferredHeight, _deferredFullscreen);
 	}
 
+	// follow any window size change the window system has applied
+	CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height);
+
 	nvgBeginFrame(_CORE.nvg, _CORE.window_width, _CORE.window_height, _CORE.pixel_ratio);
 }
 
 void CP_FrameEnd(void)
 {
 	nvgEndFrame(_CORE.nvg);
+	CP_Canvas_Present();
 	glfwSwapBuffers(_CORE.window);
 	glFlush();
 	glfwPollEvents();
@@ -607,8 +857,7 @@ void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFull
 	// get and store size values based on the actual window
 	glfwGetFramebufferSize(_CORE.window, &_CORE.canvas_width, &_CORE.canvas_height);
 	glfwGetWindowSize(_CORE.window, &_CORE.window_width, &_CORE.window_height);
-	// Calculate pixel ratio for hi-dpi devices.
-	_CORE.pixel_ratio = (float)_CORE.canvas_width / (float)_CORE.window_width;
+	CP_UpdatePixelRatio();
 	// update openGL frame size
 	glViewport(0, 0, _CORE.canvas_width, _CORE.canvas_height);
 }

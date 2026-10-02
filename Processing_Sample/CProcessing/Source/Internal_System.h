@@ -15,6 +15,7 @@
 extern "C" {
 #endif
 
+#include "Internal_Platform.h"
 #include "glad.h"
 #include "glfw3.h"
 
@@ -57,7 +58,7 @@ typedef struct CP_Core
 {
     NVGcontext* nvg;
     GLFWwindow* window;
-	HWND hwnd;
+	CP_WindowHandle hwnd;
 	int window_width;
 	int window_height;
     int canvas_width;

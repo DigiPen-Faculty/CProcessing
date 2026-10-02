@@ -57,6 +57,11 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 	CP_Font new_font = NULL;
 	CP_CorePtr CORE = GetCPCore();
 
+	if (!filepath || !font_vector)
+	{
+		return NULL;
+	}
+
 	// Check if the font is already loaded
 	new_font = CP_Font_IsLoaded(filepath);
 	if (new_font)
@@ -73,7 +78,7 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 
 	new_font->load_error = FALSE;
 	new_font->handle = -1;
-	strcpy_s(new_font->filepath, MAX_PATH, filepath);
+	CP_StringCopy(new_font->filepath, CP_PATH_MAX, filepath);
 
 	if (!CORE || !CORE->nvg)
 	{
@@ -112,7 +117,8 @@ void CP_Text_Init(void)
 	font_vector = vect_init_CP_Font(CP_INITIAL_FONT_COUNT);
 
 	// load the default font from internal binary resource data
-	_default_font = CP_Font_LoadInternal("./Assets/Exo2-Regular.ttf", true, Exo2_Regular_ttf, Exo2_Regular_ttf_size, 0);
+	// freeData = 0: NanoVG only reads the embedded font data, so casting away const is safe
+	_default_font = CP_Font_LoadInternal("./Assets/Exo2-Regular.ttf", true, (unsigned char*)Exo2_Regular_ttf, Exo2_Regular_ttf_size, 0);
 }
 
 void CP_Text_Shutdown(void)

@@ -14,6 +14,8 @@
 // engine's own call stack.
 #pragma once
 
+#include <stdbool.h>
+#include <stddef.h>
 #include "cprocessing.h"
 
 #define TIER2_CANVAS_SIZE 200
@@ -52,6 +54,12 @@ typedef enum
     SCN_SYSTEM_ENGINE_STATE,
     SCN_SOUND_ROUNDTRIP,
     SCN_INPUT_QUIESCENT_DEFAULTS,
+    // Cross-platform work: these two must stay consecutive -- the second
+    // one draws on top of the first one's frame without clearing.
+    SCN_PERSIST_FIRST_FRAME,
+    SCN_PERSIST_NEXT_FRAME,
+    SCN_SCREENSHOT_SUBREGION,
+    SCN_ERROR_PATHS,
     SCN_COUNT
 } Tier2Scenario;
 
@@ -98,6 +106,22 @@ typedef struct
     CP_BOOL mouseDoubleClicked;
     CP_BOOL keyADown;
     CP_BOOL mouseLeftDown;
+
+    // CP_System_GetWindowHandle
+    CP_BOOL windowHandleIsNull;
+
+    // CP_Image_Screenshot of sub-regions (see Scn_ScreenshotSubregion)
+    int subTopRightWidth;
+    int subTopRightHeight;
+    CP_Color subTopRightCenter;     // region (100,0) 100x100 -> green quadrant
+    CP_Color subBottomLeftCenter;   // region (0,100) 100x100 -> blue quadrant
+    CP_Color straddleCorners[4];    // region (75,75) 50x50: TL, TR, BL, BR samples
+
+    // Error paths (see Scn_ErrorPaths)
+    CP_BOOL missingImageIsNull;
+    CP_BOOL missingFontIsNull;
+    CP_BOOL missingSoundIsNull;
+    CP_BOOL survivedNullCalls;
 } Tier2Scalars;
 
 extern Tier2Scalars tier2_scalars;

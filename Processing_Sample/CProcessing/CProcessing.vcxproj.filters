@@ -63,7 +63,10 @@
     <ClInclude Include="Source\Internal_Noise.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="Source\Internal_InputLogic.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Internal_Platform.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
     <ClInclude Include="inc\cprocessing.h">
@@ -89,9 +92,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\CP_Random.c">
       <Filter>Source Files</Filter>
     </ClCompile>

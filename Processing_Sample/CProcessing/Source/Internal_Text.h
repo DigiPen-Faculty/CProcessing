@@ -18,6 +18,8 @@ extern "C" {
 // Include Files:
 //------------------------------------------------------------------------------
 
+#include "Internal_Platform.h"
+
 //------------------------------------------------------------------------------
 // Defines:
 //------------------------------------------------------------------------------
@@ -33,7 +35,7 @@ extern "C" {
 typedef struct CP_Font_Struct
 {
     int handle;
-    char filepath[MAX_PATH];
+    char filepath[CP_PATH_MAX];
     int load_error;
 } CP_Font_Struct;
 

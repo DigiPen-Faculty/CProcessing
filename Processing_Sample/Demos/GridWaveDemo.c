@@ -9,7 +9,8 @@
 #include "cprocessing.h"
 #include "GridWaveDemo.h"
 #include "DemoManager.h"
-#include "stdlib.h"
+#include <stdlib.h>
+#include <string.h>
 
 int grid_stride = 20;
 int grid_width = 0;
@@ -70,7 +71,7 @@ void DrawGrid(void)
 
 void UpdateGrid(void)
 {
-	memcpy_s(grid_offsets_cache, memory_size, grid_offsets, memory_size);
+	memcpy(grid_offsets_cache, grid_offsets, memory_size);
 
 	for (int j = 1; j < grid_height - 1; ++j)
 	{

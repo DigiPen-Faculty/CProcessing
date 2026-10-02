@@ -24,19 +24,26 @@ extern "C"
 
 
 //---------------------------------------------------------
-// Windows Defines
+// Exports for shared library functions
+//
+// This header is the same on every platform and includes no OS headers.
+// (Projects that want Windows APIs include <windows.h> themselves.)
+//
+// CPROCESSING_EXPORTS - defined while building the library itself
+// CPROCESSING_STATIC  - defined when building/using CProcessing as a static library
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
-
-//---------------------------------------------------------
-// Eports for DLL functions
-
-#ifdef CPROCESSING_EXPORTS
-	#define DLL_EXPORT __declspec(dllexport)
+#if defined(CPROCESSING_STATIC)
+	#define DLL_EXPORT
+#elif defined(_WIN32)
+	#ifdef CPROCESSING_EXPORTS
+		#define DLL_EXPORT __declspec(dllexport)
+	#else
+		#define DLL_EXPORT __declspec(dllimport)
+	#endif
+#elif defined(__GNUC__) || defined(__clang__)
+	#define DLL_EXPORT __attribute__((visibility("default")))
 #else
-	#define DLL_EXPORT __declspec(dllimport)
+	#define DLL_EXPORT
 #endif
 #define CP_API DLL_EXPORT
 
@@ -45,6 +52,21 @@ extern "C"
 // CProcessing Types
 
 typedef unsigned int	CP_BOOL;
+
+// Values for CP_BOOL
+#ifndef TRUE
+	#define TRUE 1
+#endif
+#ifndef FALSE
+	#define FALSE 0
+#endif
+
+// Native OS window handle returned by CP_System_GetWindowHandle; cast it to
+// the platform's own type:
+//   Windows - HWND
+//   macOS   - NSWindow*
+//   Linux   - X11 Window id (cast to a pointer) or NULL under Wayland
+typedef void*			CP_WindowHandle;
 typedef struct			CP_Image_Struct* CP_Image;
 typedef struct			CP_Sound_Struct* CP_Sound;
 typedef struct			CP_Font_Struct* CP_Font;
@@ -202,7 +224,7 @@ typedef union CP_Matrix
 //---------------------------------------------------------
 // INPUT:
 //		Keyboard and mouse values match GLFW
-//		Gamepad uses a mapping to XINPUT
+//		Gamepad buttons follow the Xbox controller layout (via GLFW's gamepad mappings)
 typedef enum CP_KEY
 {
 	KEY_ANY = 0,			// Special value for checking any key

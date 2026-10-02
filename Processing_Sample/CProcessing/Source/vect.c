@@ -60,7 +60,7 @@ void vect_resize(vect_t *v)
 }
 
 size_t vect_chk_bounds(vect_t *v, size_t pos) {
-    return ((int)pos < v->size);
+    return (pos < v->size);
 }
 
 size_t vect_at(vect_t *v, size_t pos)

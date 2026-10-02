@@ -13,22 +13,16 @@
 #include <math.h>
 #include "cprocessing.h"
 #include "Internal_System.h"
-#include <timeapi.h>
-#include <xinput.h>
+#include "Internal_InputLogic.h"
 
 //------------------------------------------------------------------------------
 // Defines and Internal Variables:
 //------------------------------------------------------------------------------
 
-#define CP_NUM_KEYS          GLFW_KEY_LAST + 1
-#define CP_NUM_MOUSE_BUTTONS GLFW_MOUSE_BUTTON_LAST
+#define CP_NUM_KEYS          (GLFW_KEY_LAST + 1)
+#define CP_NUM_MOUSE_BUTTONS (GLFW_MOUSE_BUTTON_LAST + 1)
 #define CP_VALID_KEY_MAX     120 // this must match valid_keys array below
-#define DOUBLE_CLICK_TIME    0.5 // in seconds
-
-#define CP_GAMEPAD_TRIGGER_THRESHOLD	XINPUT_GAMEPAD_TRIGGER_THRESHOLD
-#define CP_GAMEPAD_THUMB_DEADZONE		XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
-#define CP_GAMEPAD_TRIGGER_RANGE		255.0f
-#define CP_GAMEPAD_THUMB_RANGE			32767.0f
+#define CP_NUM_GAMEPADS      4   // matches CP_MAX_GAMEPADS in cprocessing_common.h
 
 //-------------------------------------
 // Keyboard
@@ -49,6 +43,7 @@ static bool valid_keys_sparse[CP_NUM_KEYS] = { false };
 static int key_states_previous[CP_NUM_KEYS] = { 0 };
 static int key_states_current[CP_NUM_KEYS]  = { 0 };
 static int key_states_realtime[CP_NUM_KEYS] = { 0 };
+static bool key_pressed_since_update[CP_NUM_KEYS] = { false }; // see CP_InputLogic_SampleButton
 static bool key_any_triggered = false;
 static bool key_any_down = false;
 static bool key_any_released = false;
@@ -60,6 +55,7 @@ static bool key_any_released = false;
 static int mouse_states_previous[CP_NUM_MOUSE_BUTTONS] = { 0 };
 static int mouse_states_current[CP_NUM_MOUSE_BUTTONS]  = { 0 };
 static int mouse_states_realtime[CP_NUM_MOUSE_BUTTONS] = { 0 };
+static bool mouse_pressed_since_update[CP_NUM_MOUSE_BUTTONS] = { false };
 
 // Mouse Wheel
 static int   mouse_wheel_captured  = FALSE;
@@ -88,13 +84,17 @@ static bool _worldMouseIsDirty = TRUE;
 //-------------------------------------
 // Gamepad
 
-static XINPUT_STATE gamepad_curr_states[XUSER_MAX_COUNT] = { 0 };
-static XINPUT_STATE gamepad_prev_states[XUSER_MAX_COUNT] = { 0 };
-static CP_GAMEPAD_ANALOG_STATE gamepad_curr_analog_states[XUSER_MAX_COUNT] = { 0 };
-static CP_GAMEPAD_ANALOG_STATE gamepad_prev_analog_states[XUSER_MAX_COUNT] = { 0 };
-static bool gamepad_connected[XUSER_MAX_COUNT] = { false };
+// Gamepads come from GLFW's gamepad API (SDL_GameControllerDB mappings), which
+// covers XInput controllers on Windows as well as Linux and macOS devices.
+// CProcessing gamepad index N is the Nth connected GLFW joystick that has a
+// gamepad mapping, in GLFW joystick order.
+static unsigned gamepad_curr_buttons[CP_NUM_GAMEPADS] = { 0 };
+static unsigned gamepad_prev_buttons[CP_NUM_GAMEPADS] = { 0 };
+static CP_GAMEPAD_ANALOG_STATE gamepad_curr_analog_states[CP_NUM_GAMEPADS] = { 0 };
+static CP_GAMEPAD_ANALOG_STATE gamepad_prev_analog_states[CP_NUM_GAMEPADS] = { 0 };
+static bool gamepad_connected[CP_NUM_GAMEPADS] = { false };
+static int gamepad_slot_joystick[CP_NUM_GAMEPADS] = { -1, -1, -1, -1 }; // GLFW joystick id in each slot last frame
 static int _defaultGamepadId = -1;
-static const float _deadzone = CP_GAMEPAD_THUMB_DEADZONE / CP_GAMEPAD_THUMB_RANGE;
 
 //------------------------------------------------------------------------------
 // Internal Functions:
@@ -105,11 +105,19 @@ void CP_Input_KeyboardCallback(GLFWwindow* window, int key, int scancode, int ac
     UNREFERENCED_PARAMETER(mods);
     UNREFERENCED_PARAMETER(scancode);
     UNREFERENCED_PARAMETER(window);
-    
+
+    // GLFW reports keys it can't map (media keys, some layouts) as
+    // GLFW_KEY_UNKNOWN (-1); ignore anything outside the tracked range
+    if (key < 0 || key >= CP_NUM_KEYS)
+    {
+        return;
+    }
+
     switch (action)
     {
     case GLFW_PRESS:
         key_states_realtime[key] = TRUE;
+        key_pressed_since_update[key] = true;
         break;
     case GLFW_RELEASE:
         key_states_realtime[key] = FALSE;
@@ -126,10 +134,16 @@ void CP_Input_MouseCallback(GLFWwindow* window, int button, int action, int mods
     UNREFERENCED_PARAMETER(mods);
     UNREFERENCED_PARAMETER(window);
 
+    if (button < 0 || button >= CP_NUM_MOUSE_BUTTONS)
+    {
+        return;
+    }
+
     switch (action)
     {
     case GLFW_PRESS:
         mouse_states_realtime[button] = TRUE;
+        mouse_pressed_since_update[button] = true;
         break;
     case GLFW_RELEASE:
         mouse_states_realtime[button] = FALSE;
@@ -140,8 +154,7 @@ void CP_Input_MouseCallback(GLFWwindow* window, int button, int action, int mods
             previous_click_time = current_click_time;
             current_click_time = glfwGetTime();
 
-            double dt = current_click_time - previous_click_time;
-            if (dt <= DOUBLE_CLICK_TIME)
+            if (CP_InputLogic_IsDoubleClick(previous_click_time, current_click_time))
             {
                 mouse_double_clicked_realtime = TRUE;
             }
@@ -192,15 +205,19 @@ void CP_Input_KeyboardUpdate(void)
 	// Move current  -> previous
 	//      realtime -> current
 	unsigned size = sizeof(key_states_previous[0]) * CP_NUM_KEYS;
-	memcpy_s(key_states_previous, size, key_states_current, size);
-	memcpy_s(key_states_current, size, key_states_realtime, size);
+	memcpy(key_states_previous, key_states_current, size);
+	for (unsigned keyCode = 0; keyCode < CP_NUM_KEYS; ++keyCode)
+	{
+		key_states_current[keyCode] = CP_InputLogic_SampleButton(key_states_realtime[keyCode], key_pressed_since_update[keyCode]);
+		key_pressed_since_update[keyCode] = false;
+	}
 	// track values for ANY key
 	key_any_triggered = false;
 	key_any_down = false;
 	key_any_released = false;
 	for (unsigned keyCode = 0; keyCode < CP_NUM_KEYS; ++keyCode)
 	{
-		if (!key_any_triggered && key_states_current[keyCode] && !key_states_previous[keyCode])
+		if (!key_any_triggered && CP_InputLogic_Triggered(key_states_current[keyCode], key_states_previous[keyCode]))
 		{
 			key_any_triggered = true;
 		}
@@ -208,7 +225,7 @@ void CP_Input_KeyboardUpdate(void)
 		{
 			key_any_down = true;
 		}
-		if (!key_any_released && !key_states_current[keyCode] && key_states_previous[keyCode])
+		if (!key_any_released && CP_InputLogic_Released(key_states_current[keyCode], key_states_previous[keyCode]))
 		{
 			key_any_released = true;
 		}
@@ -231,8 +248,12 @@ void CP_Input_MouseUpdate(void)
 
     // Update Mouse Buttons
     int size = sizeof(mouse_states_previous[0]) * CP_NUM_MOUSE_BUTTONS;
-    memcpy_s(mouse_states_previous, size, mouse_states_current, size);
-    memcpy_s(mouse_states_current, size, mouse_states_realtime, size);
+    memcpy(mouse_states_previous, mouse_states_current, size);
+    for (int button = 0; button < CP_NUM_MOUSE_BUTTONS; ++button)
+    {
+        mouse_states_current[button] = CP_InputLogic_SampleButton(mouse_states_realtime[button], mouse_pressed_since_update[button]);
+        mouse_pressed_since_update[button] = false;
+    }
 
     // Update mouse wheel
     mouse_wheelx_previous = mouse_wheelx_current;
@@ -261,53 +282,58 @@ void CP_Input_MouseUpdate(void)
 void CP_Input_GamepadUpdate(void)
 {
 	_defaultGamepadId = -1;
-	memset(gamepad_connected, 0, sizeof(bool) * XUSER_MAX_COUNT);
+	memset(gamepad_connected, 0, sizeof(gamepad_connected));
 
-	for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i)
+	// copy to previous structures and zero out new structures
+	memcpy(gamepad_prev_buttons, gamepad_curr_buttons, sizeof(gamepad_curr_buttons));
+	memcpy(gamepad_prev_analog_states, gamepad_curr_analog_states, sizeof(gamepad_curr_analog_states));
+	memset(gamepad_curr_buttons, 0, sizeof(gamepad_curr_buttons));
+	memset(gamepad_curr_analog_states, 0, sizeof(gamepad_curr_analog_states));
+
+	// assign connected GLFW gamepads to CProcessing gamepad slots in joystick order
+	unsigned slot = 0;
+	for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST && slot < CP_NUM_GAMEPADS; ++jid)
 	{
-		// copy to previous structures
-		memcpy(&gamepad_prev_states[i], &gamepad_curr_states[i], sizeof(XINPUT_STATE));
-		memcpy(&gamepad_prev_analog_states[i], &gamepad_curr_analog_states[i], sizeof(CP_GAMEPAD_ANALOG_STATE));
-		
-		// zero out new structures
-		memset(&gamepad_curr_states[i], 0, sizeof(XINPUT_STATE));
-		memset(&gamepad_curr_analog_states[i], 0, sizeof(CP_GAMEPAD_ANALOG_STATE));
-
-		if (XInputGetState(i, &gamepad_curr_states[i]) == 0)
+		GLFWgamepadstate state;
+		if (!glfwJoystickIsGamepad(jid) || !glfwGetGamepadState(jid, &state))
 		{
-			// mark connected and keep track of one default gamepad for basic function access
-			gamepad_connected[i] = true;
-			if (_defaultGamepadId < 0)
-			{
-				_defaultGamepadId = i;
-			}
-
-			// handle deadzones and store analog values in range 0 - 1.0f
-
-			// triggers
-			gamepad_curr_analog_states[i].left_trigger = CP_Math_ClampFloat((float)(gamepad_curr_states[i].Gamepad.bLeftTrigger - CP_GAMEPAD_TRIGGER_THRESHOLD) / (CP_GAMEPAD_TRIGGER_RANGE - CP_GAMEPAD_TRIGGER_THRESHOLD), 0, 1.0f);
-			gamepad_curr_analog_states[i].right_trigger = CP_Math_ClampFloat((float)(gamepad_curr_states[i].Gamepad.bRightTrigger - CP_GAMEPAD_TRIGGER_THRESHOLD) / (CP_GAMEPAD_TRIGGER_RANGE - CP_GAMEPAD_TRIGGER_THRESHOLD), 0, 1.0f);
-
-			// sticks
-			short currStick = 0;
-			float normStick = 0;
-			// left X
-			currStick = gamepad_curr_states[i].Gamepad.sThumbLX;
-			normStick = fmaxf(-1.0f, (float)currStick / CP_GAMEPAD_THUMB_RANGE);
-			gamepad_curr_analog_states[i].left_stick.x = (fabsf(normStick) < _deadzone ? 0 : (fabsf(normStick) - _deadzone) * (normStick / fabsf(normStick))) / (1.0f - _deadzone);
-			// left Y
-			currStick = gamepad_curr_states[i].Gamepad.sThumbLY;
-			normStick = fmaxf(-1.0f, (float)currStick / CP_GAMEPAD_THUMB_RANGE);
-			gamepad_curr_analog_states[i].left_stick.y = (fabsf(normStick) < _deadzone ? 0 : (fabsf(normStick) - _deadzone) * (normStick / fabsf(normStick))) / (1.0f - _deadzone);
-			// left X
-			currStick = gamepad_curr_states[i].Gamepad.sThumbRX;
-			normStick = fmaxf(-1.0f, (float)currStick / CP_GAMEPAD_THUMB_RANGE);
-			gamepad_curr_analog_states[i].right_stick.x = (fabsf(normStick) < _deadzone ? 0 : (fabsf(normStick) - _deadzone) * (normStick / fabsf(normStick))) / (1.0f - _deadzone);
-			// left Y
-			currStick = gamepad_curr_states[i].Gamepad.sThumbRY;
-			normStick = fmaxf(-1.0f, (float)currStick / CP_GAMEPAD_THUMB_RANGE);
-			gamepad_curr_analog_states[i].right_stick.y = (fabsf(normStick) < _deadzone ? 0 : (fabsf(normStick) - _deadzone) * (normStick / fabsf(normStick))) / (1.0f - _deadzone);		
+			continue;
 		}
+
+		CP_GamepadRawState raw = CP_InputLogic_FromGLFWGamepad(&state);
+
+		// mark connected and keep track of one default gamepad for basic function access
+		gamepad_connected[slot] = true;
+		if (_defaultGamepadId < 0)
+		{
+			_defaultGamepadId = (int)slot;
+		}
+
+		gamepad_curr_buttons[slot] = raw.buttons;
+		if (gamepad_slot_joystick[slot] >= 0 && gamepad_slot_joystick[slot] != jid)
+		{
+			// a different controller moved into this slot (an earlier one was
+			// unplugged): don't compare its buttons against the previous
+			// controller's, which would report spurious presses/releases
+			gamepad_prev_buttons[slot] = raw.buttons;
+		}
+		gamepad_slot_joystick[slot] = jid;
+
+		// handle deadzones and store analog values (triggers 0 - 1.0f, sticks -1.0f - 1.0f)
+		gamepad_curr_analog_states[slot].left_trigger = CP_InputLogic_ApplyTriggerThreshold(raw.left_trigger);
+		gamepad_curr_analog_states[slot].right_trigger = CP_InputLogic_ApplyTriggerThreshold(raw.right_trigger);
+		gamepad_curr_analog_states[slot].left_stick.x = CP_InputLogic_ApplyStickDeadzone(raw.left_x);
+		gamepad_curr_analog_states[slot].left_stick.y = CP_InputLogic_ApplyStickDeadzone(raw.left_y);
+		gamepad_curr_analog_states[slot].right_stick.x = CP_InputLogic_ApplyStickDeadzone(raw.right_x);
+		gamepad_curr_analog_states[slot].right_stick.y = CP_InputLogic_ApplyStickDeadzone(raw.right_y);
+
+		++slot;
+	}
+
+	// slots without a controller this frame
+	for (unsigned emptySlot = slot; emptySlot < CP_NUM_GAMEPADS; ++emptySlot)
+	{
+		gamepad_slot_joystick[emptySlot] = -1;
 	}
 }
 
@@ -346,32 +372,12 @@ CP_BOOL CP_Input_IsValidMouse(CP_MOUSE button)
 
 CP_BOOL CP_Input_IsValidGamepad(CP_GAMEPAD button)
 {
-	return (button >= 0 && button <= GAMEPAD_Y);
+	return CP_InputLogic_GamepadButtonIsValid(button);
 }
 
 CP_BOOL CP_Input_IsValidGamepadIndex(unsigned index)
 {
-	return index >= 0 && index < 4;
-}
-
-int CP_Input_ConvertGamepadToXInput(CP_GAMEPAD button)
-{
-	static int buttonConverter[] = {
-		XINPUT_GAMEPAD_DPAD_UP,
-		XINPUT_GAMEPAD_DPAD_DOWN,
-		XINPUT_GAMEPAD_DPAD_LEFT,
-		XINPUT_GAMEPAD_DPAD_RIGHT,
-		XINPUT_GAMEPAD_START,
-		XINPUT_GAMEPAD_BACK,
-		XINPUT_GAMEPAD_LEFT_THUMB,
-		XINPUT_GAMEPAD_RIGHT_THUMB,
-		XINPUT_GAMEPAD_LEFT_SHOULDER,
-		XINPUT_GAMEPAD_RIGHT_SHOULDER,
-		XINPUT_GAMEPAD_A,
-		XINPUT_GAMEPAD_B,
-		XINPUT_GAMEPAD_X,
-		XINPUT_GAMEPAD_Y };
-	return buttonConverter[button];
+	return index < CP_NUM_GAMEPADS;
 }
 
 //------------------------------------------------------------------------------
@@ -390,7 +396,7 @@ CP_API CP_BOOL CP_Input_KeyTriggered(CP_KEY keyCode)
     if (CP_Input_IsValidKey(keyCode))
     {
         // Wasn't pressed last frame and is pressed this frame
-        return (key_states_current[keyCode] && !key_states_previous[keyCode]);
+        return CP_InputLogic_Triggered(key_states_current[keyCode], key_states_previous[keyCode]);
     }
 
     return FALSE;
@@ -405,7 +411,7 @@ CP_API CP_BOOL CP_Input_KeyReleased(CP_KEY keyCode)
     if (CP_Input_IsValidKey(keyCode))
     {
         // Was pressed last frame and isn't pressed this frame
-        return (!key_states_current[keyCode] && key_states_previous[keyCode]);
+        return CP_InputLogic_Released(key_states_current[keyCode], key_states_previous[keyCode]);
     }
 
     return FALSE;
@@ -436,7 +442,7 @@ CP_API CP_BOOL CP_Input_MouseTriggered(CP_MOUSE button)
 		return FALSE;
 	}
 
-    return mouse_states_current[button] && !mouse_states_previous[button];
+    return CP_InputLogic_Triggered(mouse_states_current[button], mouse_states_previous[button]);
 }
 
 CP_API CP_BOOL CP_Input_MouseReleased(CP_MOUSE button)
@@ -446,7 +452,7 @@ CP_API CP_BOOL CP_Input_MouseReleased(CP_MOUSE button)
 		return FALSE;
 	}
 
-    return !mouse_states_current[button] && mouse_states_previous[button];
+    return CP_InputLogic_Released(mouse_states_current[button], mouse_states_previous[button]);
 }
 
 CP_API CP_BOOL CP_Input_MouseDown(CP_MOUSE button)
@@ -552,8 +558,9 @@ CP_API CP_BOOL CP_Input_GamepadTriggeredAdvanced(CP_GAMEPAD button, unsigned gam
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		// Wasn't pressed last frame and is pressed this frame
-		int convertedButton = CP_Input_ConvertGamepadToXInput(button);
-		return (gamepad_curr_states[gamepadIndex].Gamepad.wButtons & convertedButton) != 0 && (gamepad_prev_states[gamepadIndex].Gamepad.wButtons & convertedButton) == 0;
+		return CP_InputLogic_Triggered(
+			CP_InputLogic_GamepadButtonDown(gamepad_curr_buttons[gamepadIndex], button),
+			CP_InputLogic_GamepadButtonDown(gamepad_prev_buttons[gamepadIndex], button));
 	}
 
 	return FALSE;
@@ -569,8 +576,9 @@ CP_API CP_BOOL CP_Input_GamepadReleasedAdvanced(CP_GAMEPAD button, unsigned game
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		// Was pressed last frame and isn't pressed this frame
-		int convertedButton = CP_Input_ConvertGamepadToXInput(button);
-		return (gamepad_curr_states[gamepadIndex].Gamepad.wButtons & convertedButton) == 0 && (gamepad_prev_states[gamepadIndex].Gamepad.wButtons & convertedButton) != 0;
+		return CP_InputLogic_Released(
+			CP_InputLogic_GamepadButtonDown(gamepad_curr_buttons[gamepadIndex], button),
+			CP_InputLogic_GamepadButtonDown(gamepad_prev_buttons[gamepadIndex], button));
 	}
 
 	return FALSE;
@@ -586,8 +594,7 @@ CP_API CP_BOOL CP_Input_GamepadDownAdvanced(CP_GAMEPAD button, unsigned gamepadI
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		// Is the button down?
-		int convertedButton = CP_Input_ConvertGamepadToXInput(button);
-		return (gamepad_curr_states[gamepadIndex].Gamepad.wButtons & convertedButton) != 0;
+		return CP_InputLogic_GamepadButtonDown(gamepad_curr_buttons[gamepadIndex], button);
 	}
 
 	return FALSE;
