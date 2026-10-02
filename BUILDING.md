@@ -19,7 +19,7 @@ and build. The solution contains:
 | Project | What it is |
 |---|---|
 | `CProcessing` | The library: `CProcessing.dll`, or `CProcessingd.dll` for Debug. |
-| `Processing_Sample` | The demo program. Press 1–4 to switch demos, F for fullscreen, Escape to quit. |
+| `Processing_Sample` | The demo program. Press 1–4 to switch demos, F for fullscreen, C to show or hide the console, Escape to quit. |
 | `CProcessing_Tests` | Tier 1 tests: pure functions, no window needed. |
 | `CProcessing_Tests_Tier2` | Tier 2 tests: drives the real engine and checks the rendered pixels. |
 
@@ -148,6 +148,13 @@ template.
   compiles unchanged on all three platforms. `cprocessing.h` includes no OS
   headers. Code that needs Windows APIs includes `<windows.h>` itself.
   `CP_System_GetWindowHandle` returns a `void*`; cast it to `HWND` on Windows.
+- **Console output.** `CP_System_ShowConsole(TRUE)` makes `printf` output
+  visible. On Windows it uses the terminal the program was started from, or
+  else opens a console window, which `CP_System_ShowConsole(FALSE)` hides
+  again. On Linux and macOS, output goes to the terminal the program was
+  started from, so run it from a terminal to see it. On every platform,
+  showing the console also turns off output buffering, so each `printf`
+  appears immediately.
 - **Drawing persists between frames**, as in Processing. Every platform draws
   into the same kind of offscreen canvas, which is copied to the window each
   frame.

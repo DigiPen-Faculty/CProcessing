@@ -50,6 +50,11 @@ void test_tier2_system_timing_getters_are_sane(void);
 void test_tier2_system_window_focus_is_a_valid_bool(void);
 void test_tier2_system_display_info_is_positive(void);
 void test_tier2_engine_pre_and_post_update_hooks_fire(void);
+void test_tier2_system_window_queries_before_run_report_no_window(void);
+void test_tier2_system_cursor_hidden_before_run_stays_hidden(void);
+void test_tier2_system_cursor_getter_follows_showcursor(void);
+void test_tier2_system_console_hide_then_show_round_trips(void);
+void test_tier2_system_console_printf_keeps_working(void);
 
 // test_tier2_sound.c -- Tier 2: CP_Sound (crash/round-trip checks, not audio correctness).
 void test_tier2_sound_group_volume_roundtrips(void);

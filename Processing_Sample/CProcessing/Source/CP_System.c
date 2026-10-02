@@ -10,6 +10,10 @@
 #include "Internal_System.h"
 #include "nanovg_gl.h"
 #include "tinycthread.h"
+#include <stdio.h>
+#if !defined(_WIN32)
+	#include <unistd.h>	// isatty
+#endif
 
 // Native window access (used only by CP_System_GetWindowHandle)
 #if defined(_WIN32)
@@ -37,6 +41,11 @@ CP_BOOL _deferredSizeChange = FALSE;
 int _deferredWidth = 0;
 int _deferredHeight = 0;
 CP_BOOL _deferredFullscreen = FALSE;
+
+// Window settings that may be requested before the window exists; they are
+// stored here and applied when CP_Initialize creates the window
+static CP_BOOL _cursorVisible = TRUE;
+static char _windowTitle[256] = "CProcessing Application";
 
 typedef struct GameStateFuncs
 {
@@ -314,7 +323,10 @@ CP_API void CP_Engine_Run(void)
 CP_API void CP_Engine_Terminate(void)
 {
 	// mark the program for termination
-	glfwSetWindowShouldClose(GetCPCore()->window, GL_TRUE);
+	if (_CORE.window)
+	{
+		glfwSetWindowShouldClose(_CORE.window, GL_TRUE);
+	}
 }
 
 // Set the init, update and exit functions which CProcessing will call.
@@ -403,7 +415,14 @@ CP_API int CP_System_GetDisplayHeight(void)
 
 CP_API int CP_System_GetDisplayRefreshRate(void)
 {
-	return glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate;
+	// 0 means unknown, as before CP_Engine_Run there is no display information yet
+	if (!_CORE.window)
+	{
+		return 0;
+	}
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = monitor ? glfwGetVideoMode(monitor) : NULL;
+	return mode ? mode->refreshRate : 0;
 }
 
 CP_API CP_WindowHandle CP_System_GetWindowHandle(void)
@@ -435,17 +454,156 @@ static CP_WindowHandle CP_GetNativeWindowHandle(GLFWwindow* window)
 
 CP_API void CP_System_SetWindowTitle(const char* title)
 {
-	glfwSetWindowTitle(_CORE.window, title);
+	CP_StringCopy(_windowTitle, sizeof(_windowTitle), title);
+	if (_CORE.window)
+	{
+		glfwSetWindowTitle(_CORE.window, _windowTitle);
+	}
 }
 
 CP_API CP_BOOL CP_System_GetWindowFocus(void)
 {
-	return glfwGetWindowAttrib(_CORE.window, GLFW_FOCUSED);
+	return _CORE.window && glfwGetWindowAttrib(_CORE.window, GLFW_FOCUSED) ? TRUE : FALSE;
+}
+
+static void CP_ApplyCursorVisible(void)
+{
+	glfwSetInputMode(_CORE.window, GLFW_CURSOR, _cursorVisible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
 }
 
 CP_API void CP_System_ShowCursor(CP_BOOL show)
 {
-	glfwSetInputMode(_CORE.window, GLFW_CURSOR, show ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+	_cursorVisible = show ? TRUE : FALSE;
+	if (_CORE.window)
+	{
+		CP_ApplyCursorVisible();
+	}
+}
+
+CP_API CP_BOOL CP_System_GetCursorVisible(void)
+{
+	return _cursorVisible;
+}
+
+
+//---------------------------------------------------------
+// CONSOLE:
+//		A text console, so printf debugging works.
+//
+//		Windows: programs built as GUI apps (the CProcessing template and
+//		demos) start without a console. The first CP_System_ShowConsole(TRUE)
+//		attaches to the terminal the program was started from, or else opens a
+//		new console window, and points stdout, stderr and stdin at it.
+//		A console window the program has to itself is then only ever hidden
+//		and shown, never freed, so the streams stay valid. Its close button is
+//		removed, because closing a console window ends the whole program.
+//		A console shared with other programs (such as the terminal the program
+//		was started from) is never hidden.
+//
+//		Linux/macOS: output goes to the terminal the program was started from,
+//		if there is one. There is no portable way to open a console window, so
+//		showing and hiding change nothing visible; run the program from a
+//		terminal to see its output.
+//
+//		On every platform, showing the console turns off stdout/stderr
+//		buffering, so output appears immediately, even when the program
+//		crashes right after printing.
+
+static bool _consoleStreamsReady = false;
+#if defined(_WIN32)
+static HWND _consoleWindow = NULL;	// a console window the program has to itself, which may be hidden
+static bool _consoleHidden = false;
+
+// Point a standard stream at the console, unless it already goes somewhere
+// (for example redirected to a file or a pipe)
+static void CP_Console_ConnectStream(FILE* stream, const char* device, const char* mode)
+{
+	if (_fileno(stream) < 0)
+	{
+		FILE* reopened = NULL;
+		freopen_s(&reopened, device, mode, stream);
+	}
+}
+#endif
+
+static void CP_Console_PrepareStreams(void)
+{
+	if (_consoleStreamsReady)
+	{
+		return;
+	}
+	_consoleStreamsReady = true;
+#if defined(_WIN32)
+	CP_Console_ConnectStream(stdout, "CONOUT$", "w");
+	CP_Console_ConnectStream(stderr, "CONOUT$", "w");
+	CP_Console_ConnectStream(stdin, "CONIN$", "r");
+#endif
+	fflush(stdout);
+	fflush(stderr);
+	setvbuf(stdout, NULL, _IONBF, 0);
+	setvbuf(stderr, NULL, _IONBF, 0);
+}
+
+CP_API void CP_System_ShowConsole(CP_BOOL show)
+{
+#if defined(_WIN32)
+	if (show && GetConsoleWindow() == NULL)
+	{
+		// no console yet: use the terminal the program was started from,
+		// or else open a new console window
+		if (!AttachConsole(ATTACH_PARENT_PROCESS) && !AllocConsole())
+		{
+			return;
+		}
+		if (_CORE.window)
+		{
+			// a new console window takes the focus; give it back to the game
+			glfwFocusWindow(_CORE.window);
+		}
+	}
+
+	HWND console = GetConsoleWindow();
+	if (console == NULL)
+	{
+		return;
+	}
+	if (!_consoleStreamsReady)
+	{
+		CP_Console_PrepareStreams();
+
+		// Only a console the program has to itself may be hidden
+		DWORD processes[2];
+		if (GetConsoleProcessList(processes, 2) == 1)
+		{
+			_consoleWindow = console;
+			HMENU menu = GetSystemMenu(console, FALSE);
+			if (menu)
+			{
+				DeleteMenu(menu, SC_CLOSE, MF_BYCOMMAND);
+			}
+		}
+	}
+	if (_consoleWindow)
+	{
+		// showing must not take the keyboard focus away from the game
+		ShowWindow(_consoleWindow, show ? SW_SHOWNOACTIVATE : SW_HIDE);
+		_consoleHidden = !show;
+	}
+#else
+	if (show)
+	{
+		CP_Console_PrepareStreams();
+	}
+#endif
+}
+
+CP_API CP_BOOL CP_System_GetConsoleVisible(void)
+{
+#if defined(_WIN32)
+	return GetConsoleWindow() != NULL && !_consoleHidden ? TRUE : FALSE;
+#else
+	return isatty(STDOUT_FILENO) ? TRUE : FALSE;
+#endif
 }
 
 CP_API unsigned CP_System_GetFrameCount(void)
@@ -560,7 +718,7 @@ void CP_Initialize(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 #endif
-	_CORE.window = glfwCreateWindow(_CORE.window_width, _CORE.window_height, "CProcessing Application", _CORE.isFullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
+	_CORE.window = glfwCreateWindow(_CORE.window_width, _CORE.window_height, _windowTitle, _CORE.isFullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 
 	if (!_CORE.window) {
 		printf("Failed to create the CProcessing window.\n");
@@ -648,6 +806,9 @@ void CP_Initialize(void)
 	glfwSetKeyCallback(_CORE.window, CP_Input_KeyboardCallback);
 	glfwSetMouseButtonCallback(_CORE.window, CP_Input_MouseCallback);
 	glfwSetScrollCallback(_CORE.window, CP_Input_MouseWheelCallback);
+
+	// Apply a cursor setting requested before the window existed
+	CP_ApplyCursorVisible();
 
 	// Track size changes the window system applies after the fact
 	glfwSetWindowSizeCallback(_CORE.window, CP_WindowSizeCallback);
