@@ -515,6 +515,20 @@ CP_API float CP_System_GetSeconds(void)
 // INTERNAL Engine and System:
 //		Support functions not exposed to the user
 
+// Undo a partially completed CP_Initialize so nothing is left pointing at a
+// destroyed window or GL context (CP_Engine_Run then returns immediately)
+static void CP_InitializeFailed(void)
+{
+	if (_CORE.nvg)
+	{
+		nvgDeleteGL3(_CORE.nvg);
+		_CORE.nvg = NULL;
+	}
+	glfwTerminate();
+	_CORE.window = NULL;
+	_CORE.hwnd = NULL;
+}
+
 void CP_Initialize(void)
 {
 	if (_isInitialized == true)
@@ -546,7 +560,7 @@ void CP_Initialize(void)
 	if (!structure)
 	{
 		printf("Failed to query the primary monitor.\n");
-		glfwTerminate();
+		CP_InitializeFailed();
 		return;
 	}
 	_CORE.native_width = structure->width;
@@ -586,7 +600,7 @@ void CP_Initialize(void)
 
 	if (!_CORE.window) {
 		printf("Failed to create the CProcessing window.\n");
-		glfwTerminate();
+		CP_InitializeFailed();
 		return;
 	}
 
@@ -598,14 +612,14 @@ void CP_Initialize(void)
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		printf("Failed to load OpenGL functions.\n");
-		glfwTerminate();
+		CP_InitializeFailed();
 		return;
 	}
 	_CORE.nvg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
 	if (_CORE.nvg == NULL)
 	{
 		printf("Could not init nanovg (OpenGL 3.2 or newer is required).\n");
-		glfwTerminate();
+		CP_InitializeFailed();
 		return;
 	}
 
@@ -659,9 +673,7 @@ void CP_Initialize(void)
 	// Create the persistent drawing canvas (also binds it and sets the viewport)
 	if (!CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height))
 	{
-		nvgDeleteGL3(_CORE.nvg);
-		_CORE.nvg = NULL;
-		glfwTerminate();
+		CP_InitializeFailed();
 		return;
 	}
 #else

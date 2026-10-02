@@ -552,6 +552,11 @@ static void Scn_ErrorPaths(void)
     tier2_scalars.missingFontIsNull = missingFont == NULL;
     CP_Sound missingSound = CP_Sound_Load("Assets/this_file_does_not_exist.wav");
     tier2_scalars.missingSoundIsNull = missingSound == NULL;
+    // a NULL path is treated like a missing file
+    tier2_scalars.missingImageIsNull = tier2_scalars.missingImageIsNull && CP_Image_Load(NULL) == NULL;
+    tier2_scalars.missingFontIsNull = tier2_scalars.missingFontIsNull && CP_Font_Load(NULL) == NULL;
+    tier2_scalars.missingSoundIsNull = tier2_scalars.missingSoundIsNull && CP_Sound_Load(NULL) == NULL
+        && CP_Sound_LoadStream(NULL) == NULL;
 
     // None of these may crash
     CP_Image nullImage = NULL;

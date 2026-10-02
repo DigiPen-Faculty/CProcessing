@@ -93,6 +93,7 @@ static unsigned gamepad_prev_buttons[CP_NUM_GAMEPADS] = { 0 };
 static CP_GAMEPAD_ANALOG_STATE gamepad_curr_analog_states[CP_NUM_GAMEPADS] = { 0 };
 static CP_GAMEPAD_ANALOG_STATE gamepad_prev_analog_states[CP_NUM_GAMEPADS] = { 0 };
 static bool gamepad_connected[CP_NUM_GAMEPADS] = { false };
+static int gamepad_slot_joystick[CP_NUM_GAMEPADS] = { -1, -1, -1, -1 }; // GLFW joystick id in each slot last frame
 static int _defaultGamepadId = -1;
 
 //------------------------------------------------------------------------------
@@ -309,6 +310,14 @@ void CP_Input_GamepadUpdate(void)
 		}
 
 		gamepad_curr_buttons[slot] = raw.buttons;
+		if (gamepad_slot_joystick[slot] >= 0 && gamepad_slot_joystick[slot] != jid)
+		{
+			// a different controller moved into this slot (an earlier one was
+			// unplugged): don't compare its buttons against the previous
+			// controller's, which would report spurious presses/releases
+			gamepad_prev_buttons[slot] = raw.buttons;
+		}
+		gamepad_slot_joystick[slot] = jid;
 
 		// handle deadzones and store analog values (triggers 0 - 1.0f, sticks -1.0f - 1.0f)
 		gamepad_curr_analog_states[slot].left_trigger = CP_InputLogic_ApplyTriggerThreshold(raw.left_trigger);
@@ -319,6 +328,12 @@ void CP_Input_GamepadUpdate(void)
 		gamepad_curr_analog_states[slot].right_stick.y = CP_InputLogic_ApplyStickDeadzone(raw.right_y);
 
 		++slot;
+	}
+
+	// slots without a controller this frame
+	for (unsigned emptySlot = slot; emptySlot < CP_NUM_GAMEPADS; ++emptySlot)
+	{
+		gamepad_slot_joystick[emptySlot] = -1;
 	}
 }
 

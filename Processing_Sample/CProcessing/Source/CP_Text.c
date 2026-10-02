@@ -57,6 +57,11 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 	CP_Font new_font = NULL;
 	CP_CorePtr CORE = GetCPCore();
 
+	if (!filepath || !font_vector)
+	{
+		return NULL;
+	}
+
 	// Check if the font is already loaded
 	new_font = CP_Font_IsLoaded(filepath);
 	if (new_font)
