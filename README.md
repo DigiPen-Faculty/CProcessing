@@ -16,6 +16,12 @@
 * Read through the [Documentation](https://github.com/DigiPen-Faculty/CProcessing/wiki).
 * Have fun building awesome stuff!
 
+## Building from source
+* **Windows:** open `Processing_Sample/Processing_Sample.sln` in Visual Studio.
+* **Windows, Linux and macOS:** use CMake (`cmake -B build && cmake --build build`).
+* See [BUILDING.md](BUILDING.md) for details and platform notes, and
+  [DEPENDENCIES.md](DEPENDENCIES.md) for the third-party libraries and how they're pinned.
+
 ## License
 The library is offered under the [MIT License](https://github.com/DigiPen-Faculty/CProcessing/blob/main/LICENSE).
 
@@ -25,3 +31,5 @@ Default font used in the library:
 ## Acknowledgment
 * [NanoVG](https://github.com/memononen/nanovg) by Mikko Mononen
 * [SoLoud](https://solhsa.com/soloud/) by Jari Komppa
+* [GLFW](https://www.glfw.org/) by Marcus Geelnard and Camilla Löwy
+* [miniaudio](https://miniaud.io/) by David Reid
