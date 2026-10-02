@@ -5,8 +5,7 @@
 //			Everything the library used to pick up implicitly from <windows.h>
 //			(MAX_PATH, UNREFERENCED_PARAMETER, the *_s string functions) is
 //			provided here instead, so the internals compile the same way on
-//			Windows, Linux and macOS without the public header having to drag
-//			<windows.h> into every translation unit.
+//			Windows, Linux and macOS. The public headers include no OS headers.
 //
 // INTERNAL USE ONLY, DO NOT DISTRIBUTE
 //
@@ -24,9 +23,9 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
-// On Windows the internals still see <windows.h>, privately, and always
-// before GLAD/GLFW so the macros they share (APIENTRY, ...) are defined in
-// the same order as when it arrived through the public header.
+// On Windows the internals include <windows.h> privately (GLFW's native
+// window header needs it), always before GLAD/GLFW so the macros they share
+// (APIENTRY, ...) are defined once, by <windows.h>.
 #if defined(_WIN32)
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
@@ -36,14 +35,9 @@ extern "C" {
 
 //------------------------------------------------------------------------------
 // Path length used for the internal filepath caches (images, sounds, fonts).
-// Windows keeps its historical MAX_PATH (260) so struct layouts and behavior are
-// unchanged there; POSIX systems allow much longer paths, so use PATH_MAX-sized
-// buffers instead of silently truncating real paths.
-#if defined(_WIN32)
-	#define CP_PATH_MAX 260
-#else
-	#define CP_PATH_MAX 4096
-#endif
+// Long enough for Linux/macOS PATH_MAX and Windows long paths alike, so real
+// paths are never truncated.
+#define CP_PATH_MAX 4096
 
 #ifndef UNREFERENCED_PARAMETER
 	#define UNREFERENCED_PARAMETER(P) ((void)(P))

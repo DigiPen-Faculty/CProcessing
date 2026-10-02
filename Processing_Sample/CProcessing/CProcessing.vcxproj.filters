@@ -69,9 +69,6 @@
     <ClInclude Include="Source\Internal_Platform.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Internal Headers</Filter>
-    </ClInclude>
     <ClInclude Include="inc\cprocessing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -95,9 +92,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\CP_Random.c">
       <Filter>Source Files</Filter>
     </ClCompile>

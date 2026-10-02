@@ -25,9 +25,7 @@
 
 #define isRunning !glfwWindowShouldClose(_CORE.window)
 
-// Internal information
-// Non-zero defaults are set here (rather than only in SetCPCoreValues, which
-// is called from DllMain on Windows) so every platform starts from the same state.
+// Internal information (everything not listed starts as zero/NULL)
 static CP_Core _CORE = {
 	.pixel_ratio = 1.0f,
 	.window_posX = -1,
@@ -261,25 +259,6 @@ CP_CorePtr GetCPCore(void)
 CP_DrawInfoPtr GetDrawInfo(void)
 {
 	return &_CORE.states[_CORE.nstates - 1];
-}
-
-void SetCPCoreValues(void)
-{
-	_CORE.nvg			= NULL;
-	_CORE.window		= NULL;
-	_CORE.hwnd			= NULL;
-	_CORE.window_width	= 0;
-	_CORE.window_height	= 0;
-	_CORE.canvas_width	= 0;
-	_CORE.canvas_height	= 0;
-	_CORE.native_width	= 0;
-	_CORE.native_height	= 0;
-	_CORE.isFullscreen	= FALSE;
-	_CORE.pixel_ratio	= 1.0f;
-	_CORE.window_posX	= -1;
-	_CORE.window_posY	= -1;
-	_CORE.nstates		= 0;
-	memset(_CORE.states, 0, sizeof(CP_DrawInfo) * CP_MAX_STATES);
 }
 
 

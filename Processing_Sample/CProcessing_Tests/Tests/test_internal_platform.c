@@ -48,9 +48,6 @@ void test_platform_stringcopy_zero_size_writes_nothing(void)
 
 void test_platform_path_buffer_is_large_enough(void)
 {
-#if defined(_WIN32)
-    TEST_ASSERT_EQUAL_INT(260, CP_PATH_MAX); // historical MAX_PATH, unchanged
-#else
-    TEST_ASSERT_TRUE(CP_PATH_MAX >= 1024);   // POSIX paths can be much longer
-#endif
+    // the same on every platform, and longer than Windows' old MAX_PATH (260)
+    TEST_ASSERT_EQUAL_INT(4096, CP_PATH_MAX);
 }

@@ -223,7 +223,6 @@
     <ClInclude Include="Source\Internal_Resources.h" />
     <ClInclude Include="Source\tinycthread.h" />
     <ClInclude Include="Source\vect.h" />
-    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GLAD\glad.c" />
@@ -240,7 +239,6 @@
     <ClCompile Include="Source\CP_Sound.c" />
     <ClCompile Include="Source\CP_Text.c" />
     <ClCompile Include="Source\CP_System.c" />
-    <ClCompile Include="dllmain.c" />
     <ClCompile Include="Source\tinycthread.c" />
     <ClCompile Include="Source\vect.c" />
   </ItemGroup>

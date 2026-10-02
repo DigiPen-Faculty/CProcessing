@@ -111,10 +111,6 @@ set(CPROCESSING_SOURCES
     "${CP_DIR}/Source/tinycthread.c"
     "${CP_DIR}/Source/vect.c"
 )
-if(WIN32)
-    list(APPEND CPROCESSING_SOURCES "${CP_DIR}/dllmain.c")
-endif()
-
 # Vendored third-party sources (NanoVG with its bundled stb_image/stb_truetype,
 # GLAD, tinycthread) are compiled as-is; don't report their warnings.
 if(NOT MSVC)
@@ -143,10 +139,6 @@ target_include_directories(CProcessing
         "${CP_DIR}/nanovg/src"
         "${CPROCESSING_GLFW_INCLUDE_DIR}"
 )
-
-# The library's own code must not depend on <windows.h> arriving through the
-# public header; building it with CP_NO_WINDOWS_H on Windows enforces that.
-target_compile_definitions(CProcessing PRIVATE CP_NO_WINDOWS_H)
 
 if(CPROCESSING_FORCE_CANVAS_FBO)
     target_compile_definitions(CProcessing PRIVATE CP_USE_CANVAS_FBO=1)

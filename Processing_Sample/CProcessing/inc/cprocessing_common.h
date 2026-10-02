@@ -24,23 +24,10 @@ extern "C"
 
 
 //---------------------------------------------------------
-// Platform Defines
-//
-// On Windows, <windows.h> has always been included from here, and existing
-// projects may depend on it arriving this way, so it is still included by
-// default. Define CP_NO_WINDOWS_H before including cprocessing.h to opt out.
-// Other platforms never include it; nothing in this API requires it.
-
-#if defined(_WIN32) && !defined(CP_NO_WINDOWS_H)
-	#ifndef WIN32_LEAN_AND_MEAN
-		#define WIN32_LEAN_AND_MEAN
-	#endif
-	#include <windows.h>
-#endif
-
-
-//---------------------------------------------------------
 // Exports for shared library functions
+//
+// This header is the same on every platform and includes no OS headers.
+// (Projects that want Windows APIs include <windows.h> themselves.)
 //
 // CPROCESSING_EXPORTS - defined while building the library itself
 // CPROCESSING_STATIC  - defined when building/using CProcessing as a static library
@@ -66,8 +53,7 @@ extern "C"
 
 typedef unsigned int	CP_BOOL;
 
-// TRUE and FALSE historically came from <windows.h>; keep them available
-// everywhere so CP_BOOL code reads the same on every platform.
+// Values for CP_BOOL
 #ifndef TRUE
 	#define TRUE 1
 #endif
@@ -75,15 +61,12 @@ typedef unsigned int	CP_BOOL;
 	#define FALSE 0
 #endif
 
-// Native OS window handle returned by CP_System_GetWindowHandle:
+// Native OS window handle returned by CP_System_GetWindowHandle; cast it to
+// the platform's own type:
 //   Windows - HWND
 //   macOS   - NSWindow*
 //   Linux   - X11 Window id (cast to a pointer) or NULL under Wayland
-#if defined(_WIN32) && !defined(CP_NO_WINDOWS_H)
-	typedef HWND		CP_WindowHandle;
-#else
-	typedef void*		CP_WindowHandle;
-#endif
+typedef void*			CP_WindowHandle;
 typedef struct			CP_Image_Struct* CP_Image;
 typedef struct			CP_Sound_Struct* CP_Sound;
 typedef struct			CP_Font_Struct* CP_Font;

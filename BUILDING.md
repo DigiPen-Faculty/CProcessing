@@ -146,9 +146,9 @@ template.
 ## Platform notes
 
 - **Same API everywhere.** Student code written against `cprocessing.h`
-  compiles unchanged on all three platforms. On Windows, `cprocessing.h` still
-  includes `<windows.h>` for backward compatibility. Define `CP_NO_WINDOWS_H`
-  before including it to opt out.
+  compiles unchanged on all three platforms. `cprocessing.h` includes no OS
+  headers. Code that needs Windows APIs includes `<windows.h>` itself.
+  `CP_System_GetWindowHandle` returns a `void*`; cast it to `HWND` on Windows.
 - **Drawing persists between frames** on every platform, as in Processing.
   Windows does this with a single-buffered window. Linux and macOS draw into
   an offscreen canvas that is copied to the window each frame, because Wayland
