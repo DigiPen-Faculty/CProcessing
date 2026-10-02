@@ -13,6 +13,11 @@ same behavior everywhere.
 
 Each change says what to do in an existing project.
 
+- **Visual Studio 2026 is required** for the template project and the
+  Visual Studio solution. They use its compiler (platform toolset v145), and
+  the CProcessing DLLs are built with it. A game built this way needs the
+  Visual C++ runtime that comes with Visual Studio 2026; on a computer
+  without it, install the latest Microsoft Visual C++ Redistributable.
 - **`cprocessing.h` no longer includes `<windows.h>`.** Code that uses
   Windows APIs or types through it, such as `Sleep`, `BOOL` or `MAX_PATH`,
   needs `#include <windows.h>` added before `#include "cprocessing.h"`.

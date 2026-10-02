@@ -3,7 +3,8 @@
 CProcessing builds on **Windows**, **Linux** and **macOS**. There are two ways
 to build it:
 
-- **Visual Studio solution (Windows):** the existing workflow, unchanged.
+- **Visual Studio solution (Windows):** the workflow students and faculty
+  use, with Visual Studio 2026.
 - **CMake (Windows, Linux, macOS):** builds the library, the demos and the
   tests from source on any platform.
 
@@ -13,8 +14,9 @@ template project. This page is for building CProcessing itself.
 
 ## Windows: Visual Studio solution
 
-Open `Processing_Sample/Processing_Sample.sln` in Visual Studio 2022 or later
-and build. The solution contains:
+Open `Processing_Sample/Processing_Sample.sln` in Visual Studio 2026 and
+build. The projects use Visual Studio 2026's compiler (platform toolset
+v145), as does the student template. The solution contains:
 
 | Project | What it is |
 |---|---|
@@ -27,8 +29,9 @@ and build. The solution contains:
 
 ### Prerequisites
 
-- **Windows:** Visual Studio 2022 or later with the "Desktop development with
-  C++" workload, which includes CMake. A standalone CMake 3.20+ also works.
+- **Windows:** Visual Studio 2026 with the "Desktop development with C++"
+  workload, which includes CMake. Visual Studio 2022 and a standalone CMake
+  3.20+ also work.
 - **macOS:** Xcode Command Line Tools (`xcode-select --install`) and CMake
   3.20+ (`brew install cmake`).
 - **Linux:** a C/C++ compiler, CMake 3.20+, and the X11/Wayland/OpenGL

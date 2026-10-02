@@ -16,6 +16,9 @@ name: Tests
 #
 # Tier 1 needs no window or GL context. Tier 2 opens a real window and GL
 # context and screenshots what it draws (see CProcessing_Tests_Tier2).
+#
+# The Windows jobs use windows-2025, whose image has Visual Studio 2026: the
+# solution's projects use its platform toolset, v145.
 on:
   push:
     branches: [main]
@@ -24,7 +27,7 @@ on:
 
 jobs:
   windows-msbuild:
-    runs-on: windows-2022
+    runs-on: windows-2025
     strategy:
       fail-fast: false
       matrix:
@@ -53,10 +56,10 @@ jobs:
   # OpenGL 1.1. Mesa's llvmpipe (a drop-in opengl32.dll placed next to the
   # executable) provides a real OpenGL 3.3+ context in software. This exact
   # setup (Mesa 23.3.5 release-msvc, GALLIUM_DRIVER=llvmpipe) passes the whole
-  # Tier 2 suite locally. It stays non-gating until it has been seen passing on hosted
-  # runners a few times; then drop continue-on-error.
+  # Tier 2 suite locally. It stays non-gating until it has been seen passing
+  # on hosted runners a few times; then drop continue-on-error.
   windows-tier2:
-    runs-on: windows-2022
+    runs-on: windows-2025
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -144,7 +147,7 @@ jobs:
         run: xvfb-run -a -s "-screen 0 1280x1024x24" ctest --test-dir build -L tier2 --output-on-failure
 
   windows-cmake:
-    runs-on: windows-2022
+    runs-on: windows-2025
     steps:
       - uses: actions/checkout@v4
 

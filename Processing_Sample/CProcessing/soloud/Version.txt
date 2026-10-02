@@ -1,3 +1,3 @@
 SoLoud commit e82fd32c1f62183922f08c14c814a02b58db1873 with miniaudio 0.11.25
 Built 2026-10-02 by tools/update-windows-prebuilt.ps1 from the pins in cmake/CProcessingDependencies.cmake
-(static libraries: soloud.lib Release /MD, soloud_d.lib Debug /MDd; backends: miniaudio + nosound)
+(static libraries: soloud.lib Release /MD, soloud_d.lib Debug /MDd, platform toolset v145; backends: miniaudio + nosound)
