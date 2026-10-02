@@ -75,3 +75,6 @@ Processing_Empty/Processi.14B654ED/
 Processing_Sample/Intermediate/
 Processing_Sample/CProcessing_Tests/Intermediate/
 Processing_Sample/CProcessing_Tests_Tier2/Intermediate/
+
+# CMake build folders (see BUILDING.md and Processing_Empty_CMake)
+build/

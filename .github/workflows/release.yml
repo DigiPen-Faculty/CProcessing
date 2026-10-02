@@ -1,0 +1,218 @@
+name: Release
+
+# Builds the release packages and, for a version tag, attaches them to a
+# draft GitHub Release:
+#
+#   CProcessingTemplate.zip            Windows: the Visual Studio template
+#   CProcessingTemplate-linux-x64.zip  Linux: the CMake starter project with
+#                                      a prebuilt libCProcessing.so
+#   CProcessingTemplate-macos.zip      macOS (Apple silicon and Intel): the
+#                                      CMake starter project with a prebuilt
+#                                      libCProcessing.dylib
+#
+# The file names have no version in them, so links to
+# .../releases/latest/download/<name> keep working from release to release.
+#
+# To release:
+#   1. Set CP_VERSION_* in Processing_Sample/CProcessing/inc/cprocessing_common.h,
+#      the download tag in Processing_Empty_CMake/CMakeLists.txt, and the
+#      version and date of the newest section in CHANGELOG.md.
+#   2. Push a tag such as v3.0.0 on that commit.
+#   3. Review the draft release this workflow creates, then publish it.
+#
+# Running the workflow by hand (Actions > Release > Run workflow) builds and
+# checks the packages without releasing anything; they're attached to the
+# run as artifacts.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check that the version is the same everywhere
+        id: version
+        run: |
+          header=Processing_Sample/CProcessing/inc/cprocessing_common.h
+          part() { sed -n "s/^#define CP_VERSION_$1 *\([0-9][0-9]*\).*/\1/p" "$header"; }
+          version="$(part MAJOR).$(part MINOR).$(part PATCH)"
+          echo "cprocessing_common.h: $version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          grep -q "archive/refs/tags/v$version.tar.gz" Processing_Empty_CMake/CMakeLists.txt ||
+            { echo "::error::Processing_Empty_CMake/CMakeLists.txt doesn't download v$version"; exit 1; }
+          grep -Eq "^## ${version//./\\.}( |$)" CHANGELOG.md ||
+            { echo "::error::CHANGELOG.md has no '## $version' section"; exit 1; }
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            if [ "$GITHUB_REF_NAME" != "v$version" ]; then
+              echo "::error::tag $GITHUB_REF_NAME doesn't match version $version"; exit 1
+            fi
+            if grep -Eq "^## ${version//./\\.} \(unreleased\)" CHANGELOG.md; then
+              echo "::error::CHANGELOG.md still says $version is unreleased; give it a date"; exit 1
+            fi
+          fi
+
+  windows:
+    needs: version
+    runs-on: windows-2025   # Visual Studio 2026 (platform toolset v145)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build the library (Debug and Release, x64 and x86)
+        working-directory: Processing_Sample
+        shell: cmd
+        run: |
+          for %%c in (Debug Release) do for %%p in (x64 x86) do (
+            msbuild Processing_Sample.sln /t:CProcessing /p:Configuration=%%c /p:Platform=%%p /m /v:minimal || exit /b 1
+          )
+
+      - name: Package the template
+        shell: cmd
+        run: call .\BuildReleasePackage.bat -c -z
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: Releases/CProcessingTemplate.zip
+          if-no-files-found: error
+
+  linux:
+    needs: version
+    runs-on: ubuntu-24.04
+    # Built on Ubuntu 22.04 so the library needs only glibc 2.34 and runs on
+    # older distributions than the runner's own
+    container: ubuntu:22.04
+    steps:
+      - name: Install build tools
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            build-essential cmake git ca-certificates pkg-config \
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev \
+            libwayland-dev libxkbcommon-dev wayland-protocols libgl1-mesa-dev
+
+      - uses: actions/checkout@v4
+
+      - name: Build the library
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+            -DCPROCESSING_BUILD_DEMOS=OFF -DCPROCESSING_BUILD_TESTS=OFF
+          cmake --build build --parallel
+
+      - name: Package the starter project
+        run: bash tools/make-starter-package.sh build/bin/libCProcessing.so CProcessingTemplate-linux-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: CProcessingTemplate-linux-x64.zip
+          if-no-files-found: error
+
+  # Use the Linux package the way a student would, on a machine with only a
+  # compiler and CMake: build the starter project and run the game.
+  linux-check:
+    needs: linux
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux
+
+      - name: Build the starter project from the package
+        run: |
+          cmake -E tar xf CProcessingTemplate-linux-x64.zip
+          cd CProcessingTemplate
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+          ls build/bin
+
+      - name: Run the game for 5 seconds (Xvfb, software OpenGL)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends xvfb xauth libgl1-mesa-dri
+          cd CProcessingTemplate/build/bin
+          status=0
+          LIBGL_ALWAYS_SOFTWARE=1 timeout 5 xvfb-run -a ./MyGame || status=$?
+          if [ "$status" != 124 ]; then
+            echo "::error::MyGame exited before the 5 seconds were up (status $status)"; exit 1
+          fi
+
+  macos:
+    needs: version
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the library (Apple silicon and Intel in one file)
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+            "-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DCPROCESSING_BUILD_DEMOS=OFF -DCPROCESSING_BUILD_TESTS=OFF
+          cmake --build build --parallel
+          lipo -info build/bin/libCProcessing.dylib
+          otool -L build/bin/libCProcessing.dylib
+
+      - name: Package the starter project
+        run: bash tools/make-starter-package.sh build/bin/libCProcessing.dylib CProcessingTemplate-macos.zip
+
+      - name: Build the starter project from the package
+        run: |
+          mkdir check && cd check
+          cmake -E tar xf ../CProcessingTemplate-macos.zip
+          cd CProcessingTemplate
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+          otool -L build/bin/MyGame
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: CProcessingTemplate-macos.zip
+          if-no-files-found: error
+
+  release:
+    needs: [version, windows, linux, linux-check, macos]
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: packages
+          merge-multiple: true
+
+      - name: Take the release notes from CHANGELOG.md
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          awk -v v="$VERSION" '
+            $0 == "## " v || index($0, "## " v " ") == 1 { found = 1; next }
+            found && /^## / { exit }
+            found { print }' CHANGELOG.md > notes.md
+          cat notes.md
+
+      - name: Create a draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" packages/*.zip \
+            --draft --verify-tag \
+            --title "CProcessing $VERSION" \
+            --notes-file notes.md

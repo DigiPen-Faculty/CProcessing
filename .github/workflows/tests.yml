@@ -13,6 +13,9 @@ name: Tests
 #   windows-cmake     CMake + MSVC: Tier 1 and Tier 2 (Mesa llvmpipe).
 #   macos             CMake + Apple Clang: build and Tier 1; Tier 2 is
 #                     attempted but not yet gating (see that step).
+#   starter           The CMake starter project (Processing_Empty_CMake),
+#                     building CProcessing from this checkout, then running
+#                     the game for a few seconds under Xvfb.
 #
 # Tier 1 needs no window or GL context. Tier 2 opens a real window and GL
 # context and screenshots what it draws (see CProcessing_Tests_Tier2).
@@ -191,3 +194,30 @@ jobs:
         # unconfirmed. Non-gating until both are verified.
         continue-on-error: true
         run: ctest --test-dir build -L tier2 --output-on-failure
+
+  starter:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends             libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev             libwayland-dev libxkbcommon-dev wayland-protocols             libgl1-mesa-dev libgl1-mesa-dri xvfb xauth
+
+      - name: Build the starter project
+        # FETCHCONTENT_SOURCE_DIR_CPROCESSING uses this checkout instead of
+        # downloading the release named in its CMakeLists.txt
+        run: |
+          cmake -S Processing_Empty_CMake -B starter-build -DCMAKE_BUILD_TYPE=Debug             -DCPROCESSING_WARNINGS_AS_ERRORS=ON             "-DFETCHCONTENT_SOURCE_DIR_CPROCESSING=${{ github.workspace }}"
+          cmake --build starter-build --parallel
+          ls starter-build/bin
+
+      - name: Run the game for 5 seconds (Xvfb, software OpenGL)
+        working-directory: starter-build/bin
+        run: |
+          status=0
+          LIBGL_ALWAYS_SOFTWARE=1 timeout 5 xvfb-run -a ./MyGame || status=$?
+          if [ "$status" != 124 ]; then
+            echo "::error::MyGame exited before the 5 seconds were up (status $status)"; exit 1
+          fi

@@ -45,9 +45,14 @@ Each change says what to do in an existing project.
 - `CP_System_GetCursorVisible()`, the getter for `CP_System_ShowCursor`.
 - `CP_VERSION_MAJOR`, `CP_VERSION_MINOR` and `CP_VERSION_PATCH` macros in
   `cprocessing_common.h`.
+- **Templates for Linux and macOS:** `CProcessingTemplate-linux-x64.zip` and
+  `CProcessingTemplate-macos.zip` on the Releases page. Each is a CMake
+  starter project with the library already built, so it needs only a
+  compiler and CMake. The same starter is in the repository as
+  `Processing_Empty_CMake/`, which builds CProcessing from source on any
+  platform. It includes Visual Studio Code settings.
 - **A CMake build** for all three platforms, alongside the Visual Studio
-  solution. A game in its own folder can use CProcessing through CMake's
-  `FetchContent`. See [BUILDING.md](BUILDING.md).
+  solution. See [BUILDING.md](BUILDING.md).
 - **A new demo program** with a demo menu: press 1-4 to switch demos, F for
   fullscreen, C to show or hide the console, Escape to quit.
 - **Automated tests** (157 unit tests and 56 rendering and engine tests) and

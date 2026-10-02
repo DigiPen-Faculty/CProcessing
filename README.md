@@ -13,7 +13,8 @@
 * It could be used in other classes such as AI, Math, and Physics where course projects have students demonstrating cool enemy behaviors or dynamic body collisions and resolutions, but they wouldn't need to write a complete engine or know how to do graphics etc.
 
 ## What's next?
-* Grab a copy of the [Latest Release](https://github.com/DigiPen-Faculty/CProcessing/releases).
+* Grab a copy of the [Latest Release](https://github.com/DigiPen-Faculty/CProcessing/releases):
+  `CProcessingTemplate.zip` for Visual Studio on Windows, or the CMake starter project for Linux (`CProcessingTemplate-linux-x64.zip`) or macOS (`CProcessingTemplate-macos.zip`).
 * Read through the [Documentation](https://github.com/DigiPen-Faculty/CProcessing/wiki).
 * See what changed in each release in the [Changelog](CHANGELOG.md).
 * Have fun building awesome stuff!
