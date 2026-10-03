@@ -52,6 +52,7 @@ void test_tier2_font_free_keeps_other_fonts_working(void);
 void test_tier2_font_text_animated_by_size_draws_every_frame(void);
 void test_tier2_font_text_animated_by_scale_draws_every_frame(void);
 void test_tier2_font_text_size_is_the_em_size(void);
+void test_tier2_font_large_text_draws(void);
 void test_tier2_font_text_mirrored_and_flipped_draws(void);
 
 // test_tier2_system_engine.c -- Tier 2: CP_System + CP_Engine lifecycle.

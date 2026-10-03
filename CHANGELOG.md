@@ -61,7 +61,7 @@ Each change says what to do in an existing project.
   solution. See [BUILDING.md](BUILDING.md).
 - **A new demo program** with a demo menu: press 1-4 to switch demos, F for
   fullscreen, C to show or hide the console, Escape to quit.
-- **Automated tests** (157 unit tests and 67 rendering and engine tests) and
+- **Automated tests** (157 unit tests and 68 rendering and engine tests) and
   continuous integration on Windows, Linux and macOS.
 
 ### Changed
@@ -104,6 +104,8 @@ Each change says what to do in an existing project.
 - Text drawn mirrored or upside down, for example after
   `CP_Settings_Scale(-1, 1)` to flip a sprite, didn't appear at all.
 - Text at negative coordinates could be shifted by a pixel.
+- In 32-bit (x86) builds, large text (around size 600 and up) stopped the
+  program with an assertion in Debug builds and didn't appear in Release.
 - After `CP_Font_Free`, text in fonts loaded after the freed one was drawn
   in the wrong font, or not at all.
 

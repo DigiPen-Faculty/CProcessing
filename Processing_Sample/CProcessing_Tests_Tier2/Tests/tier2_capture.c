@@ -720,6 +720,23 @@ static void Scn_FontEmSize(void)
     CP_Font_DrawText("H", 20, 150);
 }
 
+// ---- Large text (v3) ----
+// Fontstash rasterizes each glyph in a fixed scratch buffer. On 32-bit
+// builds the 2018 NanoVG's buffer ran out for glyphs of a few hundred
+// pixels: text at size 600 tripped an assert in stb_truetype in Debug
+// builds and drew nothing in Release (fixed by the NanoVG update). An @ at
+// size 600, centered, so its middle strokes fall on the canvas. This only
+// fails on 32-bit (x86) builds; 64-bit ones always had room.
+static void Scn_FontLarge(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(BLACK);
+    CP_Font_Set(CP_Font_GetDefault());
+    CP_Settings_TextSize(600.0f);
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+    CP_Font_DrawText("@", 100, 100);
+}
+
 // ---- Mirrored and flipped text (v3) ----
 // NanoVG culls back faces, and a mirroring transform turns each glyph's
 // quad around, so text drawn with CP_Settings_Scale(-1, 1), the usual way
@@ -1013,6 +1030,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_FONT_SIZE_SWEEP] = Scn_FontSizeSweep,
     [SCN_FONT_SCALE_SWEEP] = Scn_FontScaleSweep,
     [SCN_FONT_EM_SIZE] = Scn_FontEmSize,
+    [SCN_FONT_LARGE] = Scn_FontLarge,
     [SCN_FONT_MIRRORED] = Scn_FontMirrored,
     [SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
     [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,

@@ -85,6 +85,7 @@ int main(void)
     RUN_TEST(test_tier2_font_text_animated_by_size_draws_every_frame);
     RUN_TEST(test_tier2_font_text_animated_by_scale_draws_every_frame);
     RUN_TEST(test_tier2_font_text_size_is_the_em_size);
+    RUN_TEST(test_tier2_font_large_text_draws);
     RUN_TEST(test_tier2_font_text_mirrored_and_flipped_draws);
 
     // test_tier2_system_engine.c

@@ -96,6 +96,16 @@ void test_tier2_font_text_size_is_the_em_size(void)
     TEST_ASSERT_INT_WITHIN(2, 69, bottom - top + 1);
 }
 
+void test_tier2_font_large_text_draws(void)
+{
+    // See Scn_FontLarge: the middle of a 600-pixel @ covers the canvas
+    int ink = 0;
+    for (int y = 0; y < TIER2_CANVAS_SIZE; ++y)
+        for (int x = 0; x < TIER2_CANVAS_SIZE; ++x)
+            ink += IsInk(tier2_SamplePixel(SCN_FONT_LARGE, x, y));
+    TEST_ASSERT_GREATER_THAN_INT(2000, ink);
+}
+
 // Counts the ink in a band of Scn_FontMirrored, and the pixels where the
 // band doesn't match the plain text (rows 0-66) mirrored or flipped.
 static void CompareBand(int band, int* ink, int* mismatched)

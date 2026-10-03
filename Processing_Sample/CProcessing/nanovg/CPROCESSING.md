@@ -32,6 +32,11 @@ commit. These upstream fixes since 2018 matter to CProcessing:
 - Text whose size changes every frame lost glyphs (`8d1b1e7`), and leaked
   glyph atlas textures (`4e42b6c`). Both had already been fixed here in
   October 2026 by applying upstream's code.
+- On 32-bit builds, large text (size 600 or so) ran out of fontstash's
+  scratch memory: an assert in Debug builds, nothing drawn in Release. The
+  larger buffer (`c7f7078`) and newer stb_truetype fix it. Exo 2's @ and
+  MS Gothic's 龍 (16 strokes) now draw exactly the same on x86 as on x64,
+  up to size 2000.
 - Glyph positions are rounded down rather than toward zero, so text at
   negative coordinates isn't shifted by a pixel (`426aa3f`).
 - A 1x1 texture is bound when drawing without an image, since some OpenGL
