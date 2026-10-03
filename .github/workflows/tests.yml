@@ -8,6 +8,8 @@ name: Tests
 #   windows-tier2     Tier 2 (real engine, pixel-sampling) for the Visual
 #                     Studio build, using Mesa's llvmpipe software OpenGL
 #                     since hosted Windows runners have no GPU.
+#   windows-tier2-x86 The same for the 32-bit (x86) build, which students
+#                     can also choose. Some bugs only show there.
 #   linux             CMake + GCC and Clang (+ an ASan/UBSan build): Tier 1,
 #                     and Tier 2 under a virtual X server (Xvfb + llvmpipe).
 #   windows-cmake     CMake + MSVC: Tier 1 and Tier 2 (Mesa llvmpipe).
@@ -31,6 +33,7 @@ on:
 jobs:
   windows-msbuild:
     runs-on: windows-2025
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -57,13 +60,12 @@ jobs:
 
   # Hosted Windows runners have no GPU, so the system opengl32.dll only offers
   # OpenGL 1.1. Mesa's llvmpipe (a drop-in opengl32.dll placed next to the
-  # executable) provides a real OpenGL 3.3+ context in software. This exact
-  # setup (Mesa 23.3.5 release-msvc, GALLIUM_DRIVER=llvmpipe) passes the whole
-  # Tier 2 suite locally. It stays non-gating until it has been seen passing
-  # on hosted runners a few times; then drop continue-on-error.
+  # executable) provides a real OpenGL 3.3+ context in software (Mesa 23.3.5
+  # release-msvc, GALLIUM_DRIVER=llvmpipe). Non-gating at first, this passed
+  # on hosted runners for every pull request into 3.0.0 and is now required.
   windows-tier2:
     runs-on: windows-2025
-    continue-on-error: true
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
 
@@ -85,8 +87,50 @@ jobs:
         shell: cmd
         run: CProcessing_Tests_Tier2.exe
 
+  # The same for the 32-bit build. f3d-app/install-mesa-windows-action only
+  # installs 64-bit Mesa, so the 32-bit DLLs come from the same Mesa release
+  # (downloaded, checked against its SHA-256, and unpacked here). This setup
+  # passes the whole Tier 2 suite locally, on x86 Debug and Release. It stays
+  # non-gating until it has been seen passing on hosted runners a few times,
+  # as the x64 job was; then drop continue-on-error.
+  windows-tier2-x86:
+    runs-on: windows-2025
+    continue-on-error: true
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Build CProcessing_Tests_Tier2 (x86)
+        working-directory: Processing_Sample
+        shell: cmd
+        run: msbuild Processing_Sample.sln /t:CProcessing_Tests_Tier2 /p:Configuration=Debug /p:Platform=x86 /m /v:minimal
+
+      - name: Install 32-bit Mesa (llvmpipe software OpenGL)
+        shell: pwsh
+        env:
+          MESA_VERSION: 23.3.5
+          MESA_SHA256: ce42bee2034f3dbd272f1d658040dfa678c0d8e653f260be8808f4e80f34c06a
+        run: |
+          $archive = "$env:RUNNER_TEMP\mesa.7z"
+          Invoke-WebRequest "https://github.com/pal1000/mesa-dist-win/releases/download/$env:MESA_VERSION/mesa3d-$env:MESA_VERSION-release-msvc.7z" -OutFile $archive
+          $hash = (Get-FileHash $archive -Algorithm SHA256).Hash
+          if ($hash -ne $env:MESA_SHA256) { throw "Mesa archive SHA-256 is $hash, expected $env:MESA_SHA256" }
+          7z x $archive "-o$env:RUNNER_TEMP\mesa" x86\opengl32.dll x86\libglapi.dll x86\libgallium_wgl.dll -y
+          if ($LASTEXITCODE -ne 0) { throw "7z failed" }
+          Copy-Item "$env:RUNNER_TEMP\mesa\x86\*.dll" Processing_Sample\Win32\Debug\Tier2\
+          "GALLIUM_DRIVER=llvmpipe" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Run Tier 2 tests (x86)
+        working-directory: Processing_Sample/Win32/Debug/Tier2
+        shell: cmd
+        run: CProcessing_Tests_Tier2.exe
+
   linux:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -151,6 +195,7 @@ jobs:
 
   windows-cmake:
     runs-on: windows-2025
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
 
@@ -169,13 +214,12 @@ jobs:
           path: ${{ github.workspace }}/build/bin/Release
 
       - name: Tier 2 (Mesa llvmpipe)
-        # Same setup as windows-tier2: non-gating until seen passing on
-        # hosted runners.
-        continue-on-error: true
+        # Same setup as windows-tier2, and required like it.
         run: ctest --test-dir build -C Release -L tier2 --output-on-failure
 
   macos:
     runs-on: macos-15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
 
@@ -196,6 +240,7 @@ jobs:
 
   starter:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
 

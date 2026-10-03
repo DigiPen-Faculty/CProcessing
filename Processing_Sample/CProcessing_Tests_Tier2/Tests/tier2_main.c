@@ -7,9 +7,29 @@
 // below only ever touches already-captured pixel data. See tier2_capture.h
 // for the full reasoning.
 #include <stdio.h>
+#include <stdlib.h>
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
 #include "unity.h"
 #include "tier2_capture.h"
 #include "test_runner_tier2.h"
+
+// A failed assert or abort() in a Debug build normally opens a dialog box,
+// which nobody can click on a CI runner, so the job would hang. Print the
+// report and exit instead. (The library uses the same CRT DLL, so this
+// covers asserts inside CProcessing and its third-party code too.)
+static void ReportCrashesWithoutDialogs(void)
+{
+#ifdef _MSC_VER
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+    _set_error_mode(_OUT_TO_STDERR);
+    _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+#endif
+}
 
 void setUp(void)
 {
@@ -21,6 +41,7 @@ void tearDown(void)
 
 int main(void)
 {
+    ReportCrashesWithoutDialogs();
     tier2_RunCaptureOnce();
 
     // If the engine couldn't start (CProcessing prints the reason above) or
