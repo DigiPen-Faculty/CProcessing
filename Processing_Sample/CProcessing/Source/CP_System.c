@@ -8,7 +8,6 @@
 
 #include "cprocessing.h"
 #include "Internal_System.h"
-#include "nanovg_gl.h"
 #include "tinycthread.h"
 #include <stdio.h>
 #if !defined(_WIN32)
@@ -671,6 +670,11 @@ void CP_Initialize(void)
 	GetDrawInfo()->image_mode = CP_POSITION_CENTER;
 	GetDrawInfo()->fill = TRUE;
 	GetDrawInfo()->stroke = TRUE;
+	// NanoVG's own defaults (nvgReset)
+	GetDrawInfo()->fill_color = CP_Color_Create(255, 255, 255, 255);
+	GetDrawInfo()->stroke_color = CP_Color_Create(0, 0, 0, 255);
+	GetDrawInfo()->stroke_weight = 1.0f;
+	GetDrawInfo()->line_cap = CP_LINE_CAP_BUTT;
 
 	// Set the error callback first so initialization problems are reported too
 	glfwSetErrorCallback(error_callback_glfw);
@@ -880,7 +884,7 @@ void CP_FrameStart(void)
 	// follow any window size change the window system has applied
 	CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height);
 
-	nvgBeginFrame(_CORE.nvg, _CORE.window_width, _CORE.window_height, _CORE.pixel_ratio);
+	nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
 }
 
 void CP_FrameEnd(void)

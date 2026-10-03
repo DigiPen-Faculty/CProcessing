@@ -17,13 +17,26 @@ void test_tier2_graphics_clearbackground_fills_whole_canvas(void)
     assertColorWithin(2, expected, tier2_SamplePixel(SCN_CLEAR_BACKGROUND, 5, 5));
 }
 
-void test_tier2_graphics_drawpoint_is_colored_by_stroke_not_fill(void)
+void test_tier2_graphics_drawpoint_follows_stroke_settings(void)
 {
-    // See the comment on Scn_DrawPoint in tier2_capture.c: the rendered
-    // color comes from the current stroke, not the fill, despite the draw
-    // being gated on fill being enabled.
-    assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_POINT, 100, 100));
-    assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_POINT, 10, 10));
+    // See Scn_DrawPoint in tier2_capture.c
+    const CP_Color red = CP_Color_Create(255, 0, 0, 255);
+    const CP_Color white = CP_Color_Create(255, 255, 255, 255);
+
+    // Round cap: the middle is drawn, the corner of its bounding square isn't
+    assertColorWithin(2, red, tier2_SamplePixel(SCN_DRAW_POINT, 50, 50));
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_POINT, 59, 59));
+    // Square cap: the corner is drawn too
+    assertColorWithin(2, red, tier2_SamplePixel(SCN_DRAW_POINT, 150, 50));
+    assertColorWithin(2, red, tier2_SamplePixel(SCN_DRAW_POINT, 158, 58));
+    // The rect drawn after the points still uses the fill color
+    assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_DRAW_POINT, 100, 100));
+    // Hidden by no stroke, not by no fill
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_POINT, 100, 150));
+    assertColorWithin(2, red, tier2_SamplePixel(SCN_DRAW_POINT, 50, 150));
+    // Red again after CP_Settings_Restore, not blue
+    assertColorWithin(2, red, tier2_SamplePixel(SCN_DRAW_POINT, 150, 150));
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_POINT, 10, 10));
 }
 
 void test_tier2_graphics_drawline(void)

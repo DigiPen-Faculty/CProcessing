@@ -57,3 +57,58 @@ void test_tier2_image_drawsubimage_selects_correct_region(void)
     assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_SUBIMAGE, 75, 75));
     assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_IMAGE_SUBIMAGE, 20, 20));
 }
+
+void test_tier2_image_16_bit_png_loads_and_draws(void)
+{
+    // See Scn_Image16Bit: drawn like quadrants.png, 80x80 centered
+    TEST_ASSERT_EQUAL_INT(4, tier2_scalars.image16BitWidth);
+    assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_IMAGE_16_BIT, 80, 80));
+    assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_16_BIT, 120, 80));
+    assertColorWithin(2, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_IMAGE_16_BIT, 80, 120));
+    assertColorWithin(2, CP_Color_Create(255, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_16_BIT, 120, 120));
+}
+
+void test_tier2_image_filter_mode_nearest_and_linear(void)
+{
+    // See Scn_ImageFilterModes. Nearest: four solid colors meeting in the
+    // middle of the left half.
+    assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_IMAGE_FILTER_MODES, 45, 95));
+    assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_FILTER_MODES, 55, 95));
+    assertColorWithin(2, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_IMAGE_FILTER_MODES, 45, 105));
+    assertColorWithin(2, CP_Color_Create(255, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_FILTER_MODES, 55, 105));
+    // Linear: the middle of the right half averages all four
+    assertColorWithin(10, CP_Color_Create(128, 128, 64, 255), tier2_SamplePixel(SCN_IMAGE_FILTER_MODES, 150, 100));
+}
+
+void test_tier2_image_wrap_modes(void)
+{
+    // See Scn_ImageWrapModes. Each source pixel is 20x20 on screen; the
+    // samples are in the top row, 2.5 and 3.5 source pixels across, past
+    // the image's right edge (top row: red, green).
+    const CP_Color red = CP_Color_Create(255, 0, 0, 255);
+    const CP_Color green = CP_Color_Create(0, 255, 0, 255);
+    const CP_Color white = CP_Color_Create(255, 255, 255, 255);
+    struct { int x, y; CP_Color past, farther; } tiles[4] = {
+        { 10, 10, white, white },     // clamp: nothing past the edge
+        { 110, 10, green, green },    // clamp to edge: the edge pixel repeats
+        { 10, 110, red, green },      // repeat: the image again
+        { 110, 110, green, red },     // mirror: the image reversed
+    };
+    for (int i = 0; i < 4; ++i)
+    {
+        assertColorWithin(2, red, tier2_SamplePixel(SCN_IMAGE_WRAP_MODES, tiles[i].x + 10, tiles[i].y + 10));
+        assertColorWithin(2, tiles[i].past, tier2_SamplePixel(SCN_IMAGE_WRAP_MODES, tiles[i].x + 50, tiles[i].y + 10));
+        assertColorWithin(2, tiles[i].farther, tier2_SamplePixel(SCN_IMAGE_WRAP_MODES, tiles[i].x + 70, tiles[i].y + 10));
+    }
+}
+
+void test_tier2_image_many_images_load_draw_and_free(void)
+{
+    // See Scn_ImageMany: 40 images, more than the image list starts with.
+    TEST_ASSERT_EQUAL_INT(40, tier2_scalars.manyImagesCreated);
+    TEST_ASSERT_EQUAL_INT(4, tier2_scalars.manyImagesFileWidth);
+    TEST_ASSERT_EQUAL_INT(40, tier2_scalars.manyImagesFreed);
+    // The first and the last were drawn: 10x10 squares at (0,0) and (140,80)
+    assertColorWithin(2, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_IMAGE_MANY, 5, 5));
+    assertColorWithin(2, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_IMAGE_MANY, 145, 85));
+}

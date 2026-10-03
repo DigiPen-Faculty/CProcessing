@@ -44,7 +44,7 @@ void DrawGamepadData(int posX, int posY, int i)
 	CP_Font_DrawText(buffer, 10, 30);
 	if (defaultId == i)
 	{
-		CP_Font_DrawText("Default", 10, 50);
+		CP_Font_DrawText("Default", 10, 60);
 	}
 
 	//-------------------------

@@ -5,7 +5,7 @@
 
 // test_tier2_graphics.c -- Tier 2: CP_Graphics (shape primitives).
 void test_tier2_graphics_clearbackground_fills_whole_canvas(void);
-void test_tier2_graphics_drawpoint_is_colored_by_stroke_not_fill(void);
+void test_tier2_graphics_drawpoint_follows_stroke_settings(void);
 void test_tier2_graphics_drawline(void);
 void test_tier2_graphics_drawlineadvanced_rotates_90_degrees(void);
 void test_tier2_graphics_drawrect(void);
@@ -31,6 +31,9 @@ void test_tier2_settings_resetmatrix_cancels_prior_transform(void);
 void test_tier2_settings_applymatrix_applies_the_given_matrix(void);
 void test_tier2_settings_blendmode_add_sums_overlapping_colors(void);
 void test_tier2_settings_save_restore_round_trips_fill_and_transform(void);
+void test_tier2_settings_blend_modes_with_equations(void);
+void test_tier2_settings_tint_multiplies_shapes_and_images(void);
+void test_tier2_settings_carry_over_to_the_next_frame(void);
 
 // test_tier2_image.c -- Tier 2: CP_Image.
 void test_tier2_image_load_reports_correct_dimensions(void);
@@ -38,10 +41,21 @@ void test_tier2_image_draw_places_quadrants_correctly(void);
 void test_tier2_image_createfromdata_roundtrips_exactly(void);
 void test_tier2_image_updatepixeldata_roundtrips_exactly(void);
 void test_tier2_image_drawsubimage_selects_correct_region(void);
+void test_tier2_image_many_images_load_draw_and_free(void);
+void test_tier2_image_16_bit_png_loads_and_draws(void);
+void test_tier2_image_filter_mode_nearest_and_linear(void);
+void test_tier2_image_wrap_modes(void);
 
 // test_tier2_font.c -- Tier 2: CP_Font (bounding-box/occupancy checks).
 void test_tier2_font_drawtext_occupies_expected_region(void);
 void test_tier2_font_load_free_renders_with_custom_font(void);
+void test_tier2_font_free_keeps_other_fonts_working(void);
+void test_tier2_font_text_animated_by_size_draws_every_frame(void);
+void test_tier2_font_text_animated_by_scale_draws_every_frame(void);
+void test_tier2_font_text_size_is_the_em_size(void);
+void test_tier2_font_opentype_cff_font_loads_and_draws(void);
+void test_tier2_font_large_text_draws(void);
+void test_tier2_font_text_mirrored_and_flipped_draws(void);
 
 // test_tier2_system_engine.c -- Tier 2: CP_System + CP_Engine lifecycle.
 void test_tier2_system_window_size_matches_what_was_set(void);

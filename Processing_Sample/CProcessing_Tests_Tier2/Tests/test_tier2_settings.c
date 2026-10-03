@@ -81,6 +81,49 @@ void test_tier2_settings_blendmode_add_sums_overlapping_colors(void)
     assertColorWithin(5, CP_Color_Create(0, 100, 0, 255), tier2_SamplePixel(SCN_SETTINGS_BLENDMODE_ADD, 140, 100));
 }
 
+void test_tier2_settings_blend_modes_with_equations(void)
+{
+    // See Scn_SettingsBlendModes: background (200, 100, 50), square (100, 100, 100)
+    // Subtract: background minus square, clamped at 0
+    assertColorWithin(3, CP_Color_Create(100, 0, 0, 255), tier2_SamplePixel(SCN_SETTINGS_BLEND_MODES, 40, 100));
+    // Multiply: background * square / 255
+    assertColorWithin(3, CP_Color_Create(78, 39, 20, 255), tier2_SamplePixel(SCN_SETTINGS_BLEND_MODES, 80, 100));
+    // Min and max, per channel
+    assertColorWithin(3, CP_Color_Create(100, 100, 50, 255), tier2_SamplePixel(SCN_SETTINGS_BLEND_MODES, 120, 100));
+    assertColorWithin(3, CP_Color_Create(200, 100, 100, 255), tier2_SamplePixel(SCN_SETTINGS_BLEND_MODES, 160, 100));
+}
+
+void test_tier2_settings_tint_multiplies_shapes_and_images(void)
+{
+    // See Scn_SettingsTint
+    assertColorWithin(3, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_SETTINGS_TINT, 50, 50));
+    // Blue at alpha 128 tints halfway: 1 + (0 - 1) * 128/255 of red and green
+    assertColorWithin(3, CP_Color_Create(127, 127, 255, 255), tier2_SamplePixel(SCN_SETTINGS_TINT, 150, 50));
+    assertColorWithin(3, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_SETTINGS_TINT, 100, 150));
+}
+
+void test_tier2_settings_carry_over_to_the_next_frame(void)
+{
+    // See Scn_SettingsCarryToNextFrame: the text size set in the previous
+    // frame still applies, so the capital H is 150 * 690/1000 = 103.5
+    // pixels tall
+    int top = -1, bottom = -1;
+    for (int y = 0; y < TIER2_CANVAS_SIZE; ++y)
+    {
+        for (int x = 0; x < TIER2_CANVAS_SIZE; ++x)
+        {
+            if (tier2_SamplePixel(SCN_SETTINGS_CARRY_TO_NEXT_FRAME, x, y).r < 128)
+            {
+                if (top < 0) top = y;
+                bottom = y;
+                break;
+            }
+        }
+    }
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, top);
+    TEST_ASSERT_INT_WITHIN(2, 104, bottom - top + 1);
+}
+
 void test_tier2_settings_save_restore_round_trips_fill_and_transform(void)
 {
     // If fill weren't restored this would be blue; if the transform

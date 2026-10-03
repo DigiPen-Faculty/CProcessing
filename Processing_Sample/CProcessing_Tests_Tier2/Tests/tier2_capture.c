@@ -10,7 +10,9 @@
 // All coordinates below were computed by hand against the actual source
 // (CP_Graphics.c, CP_Setting.c) rather than assumed -- see the Phase D
 // commit message for the worked geometry on the rotation/transform cases.
+#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "tier2_capture.h"
 
 CP_Color tier2_snapshots[SCN_COUNT][TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
@@ -35,11 +37,16 @@ static int firstScenarioFrame = -1;
 #define WARMUP_FRAMES 15
 #define MAX_WARMUP_FRAMES 600
 
-static void CaptureCurrentFrame(Tier2Scenario scenario)
+static void CaptureInto(CP_Color* pixels)
 {
     CP_Image shot = CP_Image_Screenshot(0, 0, TIER2_CANVAS_SIZE, TIER2_CANVAS_SIZE);
-    CP_Image_GetPixelData(shot, tier2_snapshots[scenario]);
+    CP_Image_GetPixelData(shot, pixels);
     CP_Image_Free(&shot);
+}
+
+static void CaptureCurrentFrame(Tier2Scenario scenario)
+{
+    CaptureInto(tier2_snapshots[scenario]);
 }
 
 // Known-good baseline so each scenario starts from the same state
@@ -50,6 +57,7 @@ static void ResetToBaseline(void)
     CP_Settings_Fill(WHITE);
     CP_Settings_Stroke(BLACK);
     CP_Settings_StrokeWeight(3.0f);
+    CP_Settings_LineCapMode(CP_LINE_CAP_BUTT);
     CP_Settings_RectMode(CP_POSITION_CENTER);
     CP_Settings_EllipseMode(CP_POSITION_CENTER);
     CP_Settings_BlendMode(CP_BLEND_ALPHA);
@@ -64,20 +72,37 @@ static void Scn_ClearBackground(void)
     tier2_scalars.frameCountEarly = CP_System_GetFrameCount();
 }
 
+// A point follows the line settings, as the wiki documents: the stroke
+// color, the stroke weight as its size, and the line cap as its shape. It
+// has no fill. See test_tier2_graphics_drawpoint_follows_stroke_settings.
 static void Scn_DrawPoint(void)
 {
     CP_Graphics_ClearBackground(WHITE);
-    // CP_Graphics_DrawPoint is gated on DI->fill (must be enabled for
-    // anything to draw at all -- CP_Graphics.c:100-112), but nanovg's
-    // nvgFillPoint renders it with useStrokePaint=1 (nanovg.c:2331-2334),
-    // i.e. the pixels that actually appear are colored by the current
-    // *stroke* color/width, not the fill color. Undocumented, verified by
-    // running this scenario against both colors and checking which one
-    // shows up -- asserted explicitly in test_tier2_graphics_drawpoint.
-    CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255)); // must be enabled, but should NOT be the rendered color
-    CP_Settings_Stroke(RED); // this is the color that actually renders
-    CP_Settings_StrokeWeight(20.0f); // nvgPoint sizes itself off strokeWidth
-    CP_Graphics_DrawPoint(100, 100);
+    CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255));
+    CP_Settings_Stroke(RED);
+    CP_Settings_StrokeWeight(20.0f);
+
+    // Round cap: a circle 20 across. Square cap: a 20x20 square.
+    CP_Settings_LineCapMode(CP_LINE_CAP_ROUND);
+    CP_Graphics_DrawPoint(50, 50);
+    CP_Settings_LineCapMode(CP_LINE_CAP_SQUARE);
+    CP_Graphics_DrawPoint(150, 50);
+
+    // Drawing a point leaves the fill color alone
+    CP_Settings_NoStroke();
+    CP_Graphics_DrawRect(100, 100, 20, 20);
+
+    // No stroke hides a point; no fill doesn't
+    CP_Graphics_DrawPoint(100, 150);
+    CP_Settings_Stroke(RED);
+    CP_Settings_NoFill();
+    CP_Graphics_DrawPoint(50, 150);
+
+    // A stroke color undone by CP_Settings_Restore is undone for points too
+    CP_Settings_Save();
+    CP_Settings_Stroke(CP_Color_Create(0, 0, 255, 255));
+    CP_Settings_Restore();
+    CP_Graphics_DrawPoint(150, 150);
 }
 
 static void Scn_DrawLine(void)
@@ -287,6 +312,113 @@ static void Scn_SettingsBlendModeAdd(void)
     CP_Graphics_DrawRect(120, 100, 60, 60); // spans x:[90,150]; overlap x:[90,110]
 }
 
+// ---- Settings that CProcessing patches into NanoVG ----
+// See Processing_Sample/CProcessing/nanovg/CPROCESSING.md. Each of these
+// guards a patch, so an update of NanoVG that loses one fails here.
+
+// The blend modes that need a blend equation, over a (200, 100, 50)
+// background, each with a (100, 100, 100) square:
+// subtract (background minus square), multiply, min and max.
+static void Scn_SettingsBlendModes(void)
+{
+    CP_Graphics_ClearBackground(CP_Color_Create(200, 100, 50, 255));
+    CP_Settings_NoStroke();
+    CP_Settings_Fill(CP_Color_Create(100, 100, 100, 255));
+    const CP_BLEND_MODE modes[4] = { CP_BLEND_SUBTRACT, CP_BLEND_MULTIPLY, CP_BLEND_MIN, CP_BLEND_MAX };
+    for (int i = 0; i < 4; ++i)
+    {
+        CP_Settings_BlendMode(modes[i]);
+        CP_Graphics_DrawRect(40.0f + 40.0f * i, 100, 30, 30);
+    }
+}
+
+// Tint multiplies what is drawn, weighted by the tint's alpha: white
+// squares tinted red and half-strength blue, and a white image tinted green.
+static void Scn_SettingsTint(void)
+{
+    CP_Graphics_ClearBackground(BLACK);
+    CP_Settings_NoStroke();
+    CP_Settings_Fill(WHITE);
+    CP_Settings_Tint(CP_Color_Create(255, 0, 0, 255));
+    CP_Graphics_DrawRect(50, 50, 40, 40);
+    CP_Settings_Tint(CP_Color_Create(0, 0, 255, 128));
+    CP_Graphics_DrawRect(150, 50, 40, 40);
+
+    CP_Color white[4] = { WHITE, WHITE, WHITE, WHITE };
+    CP_Image image = CP_Image_CreateFromData(2, 2, (unsigned char*)white);
+    CP_Settings_Tint(CP_Color_Create(0, 255, 0, 255));
+    CP_Image_Draw(image, 100, 150, 40, 40, 255);
+    CP_Image_Free(&image);
+    CP_Settings_NoTint();
+}
+
+// A 2x2 image: red, green / blue, yellow
+static CP_Image CreateFourColorImage(void)
+{
+    CP_Color pixels[4] = {
+        CP_Color_Create(255, 0, 0, 255), CP_Color_Create(0, 255, 0, 255),
+        CP_Color_Create(0, 0, 255, 255), CP_Color_Create(255, 255, 0, 255),
+    };
+    return CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+}
+
+// The image drawn 100x100, nearest on the left half of the canvas and
+// linear on the right. Nearest keeps four solid colors; linear blends them
+// in the middle.
+static void Scn_ImageFilterModes(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageMode(CP_POSITION_CORNER);
+    CP_Image image = CreateFourColorImage();
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+    CP_Image_Draw(image, 0, 50, 100, 100, 255);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_LINEAR);
+    CP_Image_Draw(image, 100, 50, 100, 100, 255);
+    CP_Image_Free(&image);
+}
+
+// The image drawn once per wrap mode as an 80x80 tile, with a source
+// rectangle twice the image's size: the image fills the tile's top-left
+// 40x40, and the rest shows what the wrap mode does past the image's edge.
+// Tiles: clamp (10, 10), clamp to edge (110, 10), repeat (10, 110),
+// mirror (110, 110).
+static void Scn_ImageWrapModes(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageMode(CP_POSITION_CORNER);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+    CP_Image image = CreateFourColorImage();
+    const CP_IMAGE_WRAP_MODE modes[4] = {
+        CP_IMAGE_WRAP_CLAMP, CP_IMAGE_WRAP_CLAMP_EDGE, CP_IMAGE_WRAP_REPEAT, CP_IMAGE_WRAP_MIRROR
+    };
+    for (int i = 0; i < 4; ++i)
+    {
+        CP_Settings_ImageWrapMode(modes[i]);
+        CP_Image_DrawSubImage(image, 10.0f + 100.0f * (i % 2), 10.0f + 100.0f * (i / 2), 80, 80, 0, 0, 4, 4, 255);
+    }
+    CP_Image_Free(&image);
+    CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_CLAMP);
+}
+
+// Settings carry over to the next frame, as in Processing (NanoVG resets
+// them every frame unless patched). One frame sets the text size; the next
+// draws a capital H without setting it. At size 150, Exo 2's H is 103.5
+// pixels tall; at NanoVG's reset size of 16 it would be 11.
+static void Scn_SettingsLastFrameSetsTextSize(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_TextSize(150.0f);
+}
+
+static void Scn_SettingsCarryToNextFrame(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(BLACK);
+    CP_Font_Set(CP_Font_GetDefault());
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
+    CP_Font_DrawText("H", 20, 150);
+}
+
 static void Scn_SettingsSaveRestore(void)
 {
     CP_Graphics_ClearBackground(WHITE);
@@ -355,6 +487,52 @@ static void Scn_ImageSubImage(void)
     CP_Image_Free(&img);
 }
 
+// A PNG with 16 bits per channel, as paint programs often save: the same
+// 4x4 quadrants as quadrants.png. stb_image before 2.11 couldn't load
+// these at all (CProcessing had 2.10 until 3.0).
+static void Scn_Image16Bit(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+    CP_Settings_ImageMode(CP_POSITION_CENTER);
+    CP_Image img = CP_Image_Load("Assets/quadrants16.png");
+    tier2_scalars.image16BitWidth = CP_Image_GetWidth(img);
+    CP_Image_Draw(img, 100, 100, 80, 80, 255);
+    CP_Image_Free(&img);
+}
+
+// More images than CProcessing's lists start out holding (12), so they have
+// to grow. GCC and Clang builds used to write past the old list when one
+// grew, which the ASan CI job reports. Then load a file, which looks through
+// every image already in the list, and free them all in the same frame.
+#define MANY_IMAGES 40
+
+static void Scn_ImageMany(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+    CP_Settings_ImageMode(CP_POSITION_CORNER);
+
+    CP_Color pixels[4] = { BLUE, BLUE, BLUE, BLUE };
+    CP_Image images[MANY_IMAGES];
+    for (int i = 0; i < MANY_IMAGES; ++i)
+    {
+        images[i] = CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+        tier2_scalars.manyImagesCreated += images[i] != NULL;
+        CP_Image_Draw(images[i], (float)(i % 8) * 20, (float)(i / 8) * 20, 10, 10, 255);
+    }
+
+    CP_Image fromFile = CP_Image_Load("Assets/quadrants.png");
+    tier2_scalars.manyImagesFileWidth = CP_Image_GetWidth(fromFile);
+    CP_Image_Free(&fromFile);
+
+    for (int i = 0; i < MANY_IMAGES; ++i)
+    {
+        CP_Image_Free(&images[i]);
+        tier2_scalars.manyImagesFreed += images[i] == NULL;
+    }
+}
+
 // ---- CP_Font (Phase E) ----
 // Bounding-box/occupancy checks rather than pixel-perfect glyph
 // comparisons, per 06-test-suite-plan.md's Tier 2 notes -- exact glyph
@@ -380,6 +558,243 @@ static void Scn_FontLoadFree(void)
     CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
     CP_Font_DrawText("I", 40, 40);
     CP_Font_Free(&customFont);
+}
+
+// ---- OpenType fonts with CFF outlines (v3) ----
+// A .otf font whose glyphs are CFF outlines: the official OpenType build
+// of Exo 2, the default font. stb_truetype before 1.13 couldn't load these
+// (CProcessing had 1.09 until 3.0). Same metrics as the .ttf, so its
+// capital H at size 100 is 69 pixels tall too.
+static void Scn_FontOpenType(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(BLACK);
+    CP_Font font = CP_Font_Load("Assets/Exo2-Regular.otf");
+    tier2_scalars.openTypeFontLoaded = font != NULL;
+    CP_Font_Set(font);
+    CP_Settings_TextSize(100.0f);
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
+    CP_Font_DrawText("H", 20, 150);
+    CP_Font_Free(&font);
+    CP_Font_Set(CP_Font_GetDefault());
+}
+
+// ---- Freeing a font keeps the others working (v3) ----
+// A font's handle is its index in NanoVG's font list, and CP_Font_Free used
+// to remove a font by moving the ones after it down. Text in a font loaded
+// after the freed one then drew in the wrong font, or not at all. Three
+// fonts (the same file under three names): draw with the second and third,
+// free the first, draw the same again, and compare. Then a font loaded
+// after the free must work too; it is what the scenario captures.
+
+static CP_Color fontFreeBefore[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+static CP_Color fontFreeAfter[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+
+static void DrawWithTwoFonts(CP_Font upper, CP_Font lower)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Font_Set(upper);
+    CP_Font_DrawText("Hello", 100, 50);
+    CP_Font_Set(lower);
+    CP_Font_DrawText("Hello", 100, 150);
+}
+
+static void Scn_FontFreeKeepsOthers(void)
+{
+    CP_Settings_Fill(BLACK);
+    CP_Settings_TextSize(40.0f);
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+    CP_Font first = CP_Font_Load("Assets/Exo2-Regular.ttf");
+    CP_Font second = CP_Font_Load("Assets/./Exo2-Regular.ttf");
+    CP_Font third = CP_Font_Load("Assets/../Assets/Exo2-Regular.ttf");
+    tier2_scalars.fontFreeLoaded = (first != NULL) + (second != NULL) + (third != NULL);
+
+    DrawWithTwoFonts(second, third);
+    CaptureInto(fontFreeBefore);
+    CP_Font_Free(&first);
+    DrawWithTwoFonts(second, third);
+    CaptureInto(fontFreeAfter);
+
+    for (int i = 0; i < TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE; ++i)
+    {
+        tier2_scalars.fontFreeInkBefore += fontFreeBefore[i].r < 128;
+        tier2_scalars.fontFreeMismatched += (fontFreeBefore[i].r < 128) != (fontFreeAfter[i].r < 128);
+    }
+
+    CP_Font later = CP_Font_Load("Assets/./../Assets/Exo2-Regular.ttf");
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Font_Set(later);
+    CP_Font_DrawText("Hello", 100, 100);
+
+    CP_Font_Free(&second);
+    CP_Font_Free(&third);
+    CP_Font_Free(&later);
+    CP_Font_Set(CP_Font_GetDefault());
+}
+
+// ---- Text animated by size or by scale (v3) ----
+// Students often change the text size, or the scale the text is drawn at,
+// every frame: a sine wave from 10 to 100, say. Every new size needs new
+// glyph bitmaps in NanoVG's glyph atlas, so the atlas fills up every few
+// seconds and NanoVG moves on to a fresh atlas texture, usually partway
+// through a string. That frame's text used to vanish, be cut off, or show
+// garbage.
+//
+// Each step below stands in for one such frame: draw the text at the next
+// size and capture it, then draw exactly the same thing again and capture
+// that. A screenshot ends the NanoVG frame, as the end of a real frame does.
+// The redraw is always right, since every glyph it needs is already in the
+// current atlas, so the first draw must match it. Comparing two draws from
+// the same run keeps this independent of how a given GPU renders glyphs.
+
+#define SWEEP_FRAMES 240
+// Many different glyphs, so the atlas fills quickly
+#define SWEEP_TEXT "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+// A channel that differs by more than this is a real difference, not
+// filtering noise.
+#define SWEEP_CHANNEL_TOLERANCE 64
+// Frames almost always match exactly, but on a real GPU about one run in
+// twenty had a single pixel off, on a frame with no atlas switch. A broken
+// frame loses whole glyphs: typically thousands of pixels, and at least 16
+// (the "A" alone at size 10).
+#define SWEEP_STRAY_PIXELS 4
+
+static CP_Color sweepDraw[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+static CP_Color sweepRedraw[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+
+static void DrawSweepText(float textSize, float scale)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ResetMatrix();
+    CP_Settings_Translate(4, 4);
+    CP_Settings_Scale(scale, scale);
+    CP_Settings_TextSize(textSize);
+    CP_Font_DrawText(SWEEP_TEXT, 0, 0);
+}
+
+static void RunTextSweep(Tier2TextSweep* result, bool animateScale)
+{
+    CP_Settings_Fill(BLACK);
+    CP_Font_Set(CP_Font_GetDefault());
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
+
+    result->frames = SWEEP_FRAMES;
+    result->firstBadFrame = -1;
+    for (int frame = 0; frame < SWEEP_FRAMES; ++frame)
+    {
+        // 0 to 1 and back, about three times over the sweep. Either way the
+        // text ends up 10 to 100 pixels tall.
+        float wave = 0.5f - 0.5f * cosf(frame * 0.08f);
+        float textSize = animateScale ? 25.0f : 10.0f + 90.0f * wave;
+        float scale = animateScale ? 0.4f + 3.6f * wave : 1.0f;
+
+        DrawSweepText(textSize, scale);
+        CaptureInto(sweepDraw);
+        DrawSweepText(textSize, scale);
+        CaptureInto(sweepRedraw);
+
+        int differing = 0;
+        bool inked = false;
+        for (int i = 0; i < TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE; ++i)
+        {
+            for (int c = 0; c < 3; ++c)
+            {
+                if (abs(sweepDraw[i].rgba[c] - sweepRedraw[i].rgba[c]) > SWEEP_CHANNEL_TOLERANCE)
+                {
+                    ++differing;
+                    break;
+                }
+            }
+            inked = inked || sweepRedraw[i].r < 128;
+        }
+
+        if (differing > result->worstPixels)
+        {
+            result->worstPixels = differing;
+        }
+        if (differing > SWEEP_STRAY_PIXELS)
+        {
+            ++result->badFrames;
+            if (result->firstBadFrame < 0)
+            {
+                result->firstBadFrame = frame;
+            }
+        }
+        if (!inked)
+        {
+            ++result->blankFrames;
+        }
+    }
+}
+
+static void Scn_FontSizeSweep(void)
+{
+    RunTextSweep(&tier2_scalars.textSizeSweep, false);
+}
+
+static void Scn_FontScaleSweep(void)
+{
+    RunTextSweep(&tier2_scalars.textScaleSweep, true);
+}
+
+// ---- Text size is the em size (v3) ----
+// CP_Settings_TextSize sets the font's em size in pixels, as Processing and
+// CSS do (NanoVG upstream 69e1a47). Exo 2's capital H is 690 units tall in
+// a 1000-unit em, so at size 100 it is 69 pixels tall. Before v3 the size
+// was the font's whole height, ascender to descender (1200 units), which
+// made the H 57.5 pixels tall.
+static void Scn_FontEmSize(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(BLACK);
+    CP_Font_Set(CP_Font_GetDefault());
+    CP_Settings_TextSize(100.0f);
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
+    CP_Font_DrawText("H", 20, 150);
+}
+
+// ---- Large text (v3) ----
+// Fontstash rasterizes each glyph in a fixed scratch buffer. On 32-bit
+// builds the 2018 NanoVG's buffer ran out for glyphs of a few hundred
+// pixels: text at size 600 tripped an assert in stb_truetype in Debug
+// builds and drew nothing in Release (fixed by the NanoVG update). An @ at
+// size 600, centered, so its middle strokes fall on the canvas. This only
+// fails on 32-bit (x86) builds; 64-bit ones always had room.
+static void Scn_FontLarge(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(BLACK);
+    CP_Font_Set(CP_Font_GetDefault());
+    CP_Settings_TextSize(600.0f);
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+    CP_Font_DrawText("@", 100, 100);
+}
+
+// ---- Mirrored and flipped text (v3) ----
+// NanoVG culls back faces, and a mirroring transform turns each glyph's
+// quad around, so text drawn with CP_Settings_Scale(-1, 1), the usual way
+// to flip a sprite, or (1, -1) vanished (fixed in NanoVG upstream 621e0b8).
+// Three bands, each centered on its own line: the text as is (y = 33),
+// mirrored about x = 100 (y = 100), and flipped about y = 167.
+static void DrawTextTransformed(float y, float scaleX, float scaleY)
+{
+    CP_Settings_ResetMatrix();
+    CP_Settings_Translate(100, y);
+    CP_Settings_Scale(scaleX, scaleY);
+    CP_Font_DrawText("Hello", 0, 0);
+}
+
+static void Scn_FontMirrored(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(BLACK);
+    CP_Font_Set(CP_Font_GetDefault());
+    CP_Settings_TextSize(40.0f);
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+    DrawTextTransformed(33, 1, 1);
+    DrawTextTransformed(100, -1, 1);
+    DrawTextTransformed(167, 1, -1);
+    CP_Settings_ResetMatrix();
 }
 
 // ---- CP_System / CP_Engine (Phase E) ----
@@ -632,11 +1047,26 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SETTINGS_RESETMATRIX] = Scn_SettingsResetMatrix,
     [SCN_SETTINGS_APPLYMATRIX] = Scn_SettingsApplyMatrix,
     [SCN_SETTINGS_BLENDMODE_ADD] = Scn_SettingsBlendModeAdd,
+    [SCN_SETTINGS_BLEND_MODES] = Scn_SettingsBlendModes,
+    [SCN_SETTINGS_TINT] = Scn_SettingsTint,
+    [SCN_IMAGE_FILTER_MODES] = Scn_ImageFilterModes,
+    [SCN_IMAGE_WRAP_MODES] = Scn_ImageWrapModes,
+    [SCN_SETTINGS_LAST_FRAME_SETS_TEXT_SIZE] = Scn_SettingsLastFrameSetsTextSize,
+    [SCN_SETTINGS_CARRY_TO_NEXT_FRAME] = Scn_SettingsCarryToNextFrame,
     [SCN_SETTINGS_SAVE_RESTORE] = Scn_SettingsSaveRestore,
     [SCN_IMAGE_LOAD_AND_DRAW] = Scn_ImageLoadAndDraw,
     [SCN_IMAGE_SUBIMAGE] = Scn_ImageSubImage,
+    [SCN_IMAGE_16_BIT] = Scn_Image16Bit,
+    [SCN_IMAGE_MANY] = Scn_ImageMany,
     [SCN_FONT_DRAWTEXT] = Scn_FontDrawText,
     [SCN_FONT_LOAD_FREE] = Scn_FontLoadFree,
+    [SCN_FONT_FREE_KEEPS_OTHERS] = Scn_FontFreeKeepsOthers,
+    [SCN_FONT_OPENTYPE] = Scn_FontOpenType,
+    [SCN_FONT_SIZE_SWEEP] = Scn_FontSizeSweep,
+    [SCN_FONT_SCALE_SWEEP] = Scn_FontScaleSweep,
+    [SCN_FONT_EM_SIZE] = Scn_FontEmSize,
+    [SCN_FONT_LARGE] = Scn_FontLarge,
+    [SCN_FONT_MIRRORED] = Scn_FontMirrored,
     [SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
     [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
     [SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,

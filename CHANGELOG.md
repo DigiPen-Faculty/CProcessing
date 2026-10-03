@@ -30,6 +30,12 @@ Each change says what to do in an existing project.
   connected controller, so code that uses index 0 for the first controller
   is unaffected. Xbox controllers work as before on Windows, and most other
   controllers now work too.
+- **Text is 20% larger at the same `CP_Settings_TextSize`** with the default
+  font. The size is now the font's em size in pixels, as in Processing, CSS
+  and most other tools; before, it was the font's full height from
+  ascender to descender. Line spacing in `CP_Font_DrawTextBox` grows to
+  match. To keep the old look, multiply text sizes by 0.83 (for other
+  fonts, by the em size divided by the ascender-to-descender height).
 
 ### New
 
@@ -43,6 +49,9 @@ Each change says what to do in an existing project.
   console also makes each `printf` appear immediately. The template's
   `main.c` has a commented-out call to try it.
 - `CP_System_GetCursorVisible()`, the getter for `CP_System_ShowCursor`.
+- `CP_Image_Load` loads PNGs with 16 bits per channel, which many paint
+  programs save, and `CP_Font_Load` loads OpenType fonts with CFF outlines,
+  common for `.otf` files. Before, both failed to load.
 - `CP_VERSION_MAJOR`, `CP_VERSION_MINOR` and `CP_VERSION_PATCH` macros in
   `cprocessing_common.h`.
 - **Templates for Linux and macOS:** `CProcessingTemplate-linux-x64.zip` and
@@ -55,13 +64,19 @@ Each change says what to do in an existing project.
   solution. See [BUILDING.md](BUILDING.md).
 - **A new demo program** with a demo menu: press 1-4 to switch demos, F for
   fullscreen, C to show or hide the console, Escape to quit.
-- **Automated tests** (157 unit tests and 56 rendering and engine tests) and
+- **Automated tests** (157 unit tests and 70 rendering and engine tests) and
   continuous integration on Windows, Linux and macOS.
 
 ### Changed
 
 - The same versions of GLFW (3.5.1), SoLoud and miniaudio (0.11.25) are used
   on every platform. See [DEPENDENCIES.md](DEPENDENCIES.md).
+- NanoVG, which CProcessing draws with, is updated from a 2018 copy to its
+  latest version, keeping CProcessing's own changes to it. They are listed
+  in `Processing_Sample/CProcessing/nanovg/CPROCESSING.md`. The image and
+  font loaders it uses, stb_image and stb_truetype, are updated from 2016
+  versions to 2.30 and 1.26, with many fixes for crashes on unusual or
+  damaged files.
 - Every platform draws into an offscreen canvas that is copied to the window
   each frame. Drawing still persists between frames as before.
 - `CP_System_ShowCursor` and `CP_System_SetWindowTitle` can be called before
@@ -82,6 +97,23 @@ Each change says what to do in an existing project.
 - Screenshots on high-DPI displays captured the wrong region.
 - `CP_System_GetDisplayRefreshRate` crashed when called before
   `CP_Engine_Run`.
+- Text whose size or scale changes every frame (text pulsing on a sine
+  wave, say) vanished, was cut off or showed stray letters for a single
+  frame every few seconds. Programs that draw a lot of text at many
+  different sizes also slowly leaked video memory.
+- Linux and macOS builds could crash or corrupt memory once more than 12
+  images or sounds, or more than 16 fonts, were loaded at the same time.
+- `CP_Graphics_DrawPoint` was hidden by `CP_Settings_NoFill` and still
+  drawn after `CP_Settings_NoStroke`. A point now follows the stroke
+  settings like a line does, as documented: `CP_Settings_NoStroke` hides
+  it, and `CP_Settings_NoFill` doesn't.
+- Text drawn mirrored or upside down, for example after
+  `CP_Settings_Scale(-1, 1)` to flip a sprite, didn't appear at all.
+- Text at negative coordinates could be shifted by a pixel.
+- In 32-bit (x86) builds, large text (around size 600 and up) stopped the
+  program with an assertion in Debug builds and didn't appear in Release.
+- After `CP_Font_Free`, text in fonts loaded after the freed one was drawn
+  in the wrong font, or not at all.
 
 ## Earlier releases
 
