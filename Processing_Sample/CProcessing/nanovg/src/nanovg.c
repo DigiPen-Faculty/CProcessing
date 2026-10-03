@@ -421,8 +421,13 @@ void nvgEndFrame(NVGcontext* ctx)
 {
 	ctx->params.renderFlush(ctx->params.userPtr);
 	if (ctx->fontImageIdx != 0) {
+		// (CProcessing: this is upstream NanoVG's version. The one here before
+		// cleared every slot after the ones it kept, so after a frame that
+		// switched atlases twice, the next frame that switched once lost a
+		// spare atlas texture without deleting it: 4 MB of GPU memory each.)
 		int fontImage = ctx->fontImages[ctx->fontImageIdx];
 		int i, j, iw, ih;
+		ctx->fontImages[ctx->fontImageIdx] = 0;
 		// delete images that smaller than current one
 		if (fontImage == 0)
 			return;
@@ -430,20 +435,19 @@ void nvgEndFrame(NVGcontext* ctx)
 		for (i = j = 0; i < ctx->fontImageIdx; i++) {
 			if (ctx->fontImages[i] != 0) {
 				int nw, nh;
-				nvgImageSize(ctx, ctx->fontImages[i], &nw, &nh);
+				int image = ctx->fontImages[i];
+				ctx->fontImages[i] = 0;
+				nvgImageSize(ctx, image, &nw, &nh);
 				if (nw < iw || nh < ih)
-					nvgDeleteImage(ctx, ctx->fontImages[i]);
+					nvgDeleteImage(ctx, image);
 				else
-					ctx->fontImages[j++] = ctx->fontImages[i];
+					ctx->fontImages[j++] = image;
 			}
 		}
 		// make current font image to first
-		ctx->fontImages[j++] = ctx->fontImages[0];
+		ctx->fontImages[j] = ctx->fontImages[0];
 		ctx->fontImages[0] = fontImage;
 		ctx->fontImageIdx = 0;
-		// clear all images after j
-		for (i = j; i < NVG_MAX_FONTIMAGES; i++)
-			ctx->fontImages[i] = 0;
 	}
 }
 
@@ -2568,12 +2572,19 @@ float nvgText(NVGcontext* ctx, float x, float y, const char* string, const char*
 	while (fonsTextIterNext(ctx->fs, &iter, &q)) {
 		float c[4*2];
 		if (iter.prevGlyphIndex == -1) { // can not retrieve glyph?
-			if (!nvg__allocTextAtlas(ctx))
-				break; // no memory :(
+			// The atlas is full. Draw the glyphs gathered so far before
+			// switching atlases: their texture coordinates point into the
+			// current atlas texture, and nvg__renderText draws with whichever
+			// one is current. (CProcessing: this used to switch first, so
+			// text whose size or scale changes every frame vanished, was cut
+			// off or showed stray glyphs for a frame every few seconds.
+			// Upstream NanoVG has the same order.)
 			if (nverts != 0) {
 				nvg__renderText(ctx, verts, nverts);
 				nverts = 0;
 			}
+			if (!nvg__allocTextAtlas(ctx))
+				break; // no memory :(
 			iter = prevIter;
 			fonsTextIterNext(ctx->fs, &iter, &q); // try again
 			if (iter.prevGlyphIndex == -1) // still can not find glyph?

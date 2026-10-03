@@ -60,7 +60,11 @@ vect_at_##NAME(vect_##NAME *v, size_t pos)								\
 void																			\
 vect_push_##NAME(vect_##NAME *v, TYPE value)									\
 {																				\
-	v->data[vect_push((vect_t *)v)] = value;									\
+	/* vect_push can move the data, so read v->data only after it returns. */	\
+	/* C leaves the order open in v->data[vect_push(v)]; GCC and Clang */		\
+	/* read v->data first, then write to the old, freed array. */				\
+	size_t pos = vect_push((vect_t *)v);										\
+	v->data[pos] = value;														\
 }																				\
 void																			\
 vect_set_##NAME(vect_##NAME *v, size_t pos, TYPE value)					\

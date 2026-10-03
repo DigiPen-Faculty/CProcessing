@@ -55,7 +55,7 @@ Each change says what to do in an existing project.
   solution. See [BUILDING.md](BUILDING.md).
 - **A new demo program** with a demo menu: press 1-4 to switch demos, F for
   fullscreen, C to show or hide the console, Escape to quit.
-- **Automated tests** (157 unit tests and 56 rendering and engine tests) and
+- **Automated tests** (157 unit tests and 59 rendering and engine tests) and
   continuous integration on Windows, Linux and macOS.
 
 ### Changed
@@ -82,6 +82,12 @@ Each change says what to do in an existing project.
 - Screenshots on high-DPI displays captured the wrong region.
 - `CP_System_GetDisplayRefreshRate` crashed when called before
   `CP_Engine_Run`.
+- Text whose size or scale changes every frame (text pulsing on a sine
+  wave, say) vanished, was cut off or showed stray letters for a single
+  frame every few seconds. Programs that draw a lot of text at many
+  different sizes also slowly leaked video memory.
+- Linux and macOS builds could crash or corrupt memory once more than 12
+  images or sounds, or more than 16 fonts, were loaded at the same time.
 
 ## Earlier releases
 

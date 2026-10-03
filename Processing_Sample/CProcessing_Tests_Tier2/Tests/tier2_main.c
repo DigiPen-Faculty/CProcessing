@@ -71,10 +71,13 @@ int main(void)
     RUN_TEST(test_tier2_image_createfromdata_roundtrips_exactly);
     RUN_TEST(test_tier2_image_updatepixeldata_roundtrips_exactly);
     RUN_TEST(test_tier2_image_drawsubimage_selects_correct_region);
+    RUN_TEST(test_tier2_image_many_images_load_draw_and_free);
 
     // test_tier2_font.c
     RUN_TEST(test_tier2_font_drawtext_occupies_expected_region);
     RUN_TEST(test_tier2_font_load_free_renders_with_custom_font);
+    RUN_TEST(test_tier2_font_text_animated_by_size_draws_every_frame);
+    RUN_TEST(test_tier2_font_text_animated_by_scale_draws_every_frame);
 
     // test_tier2_system_engine.c
     RUN_TEST(test_tier2_system_window_size_matches_what_was_set);

@@ -57,3 +57,14 @@ void test_tier2_image_drawsubimage_selects_correct_region(void)
     assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_SUBIMAGE, 75, 75));
     assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_IMAGE_SUBIMAGE, 20, 20));
 }
+
+void test_tier2_image_many_images_load_draw_and_free(void)
+{
+    // See Scn_ImageMany: 40 images, more than the image list starts with.
+    TEST_ASSERT_EQUAL_INT(40, tier2_scalars.manyImagesCreated);
+    TEST_ASSERT_EQUAL_INT(4, tier2_scalars.manyImagesFileWidth);
+    TEST_ASSERT_EQUAL_INT(40, tier2_scalars.manyImagesFreed);
+    // The first and the last were drawn: 10x10 squares at (0,0) and (140,80)
+    assertColorWithin(2, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_IMAGE_MANY, 5, 5));
+    assertColorWithin(2, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_IMAGE_MANY, 145, 85));
+}

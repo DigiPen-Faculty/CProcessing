@@ -49,8 +49,11 @@ typedef enum
     SCN_SETTINGS_SAVE_RESTORE,
     SCN_IMAGE_LOAD_AND_DRAW,
     SCN_IMAGE_SUBIMAGE,
+    SCN_IMAGE_MANY,
     SCN_FONT_DRAWTEXT,
     SCN_FONT_LOAD_FREE,
+    SCN_FONT_SIZE_SWEEP,
+    SCN_FONT_SCALE_SWEEP,
     SCN_SYSTEM_ENGINE_STATE,
     SCN_SOUND_ROUNDTRIP,
     SCN_INPUT_QUIESCENT_DEFAULTS,
@@ -66,6 +69,16 @@ typedef enum
 
 extern CP_Color tier2_snapshots[SCN_COUNT][TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 
+// Results of one animated-text sweep (see Scn_FontSizeSweep)
+typedef struct
+{
+    int frames;
+    int badFrames;          // the text didn't match an immediate redraw
+    int blankFrames;        // the redraw had no text on the canvas at all
+    int firstBadFrame;      // -1 when there were none
+    int worstPixels;        // most pixels that differed in any one frame
+} Tier2TextSweep;
+
 // Non-pixel results: CP_Image round-trips, CP_System/CP_Engine state, and
 // CP_Sound round-trips that don't fit the screenshot model. Populated
 // during the same single scripted engine run as tier2_snapshots, for the
@@ -79,6 +92,9 @@ typedef struct
     int quadImageHeight;
     CP_Color createFromDataReadback[4];
     CP_Color updatePixelDataReadback[4];
+    int manyImagesCreated;          // see Scn_ImageMany
+    int manyImagesFreed;            // handles set to NULL by CP_Image_Free
+    int manyImagesFileWidth;
 
     // CP_System / CP_Engine
     int windowWidthAfterSet;
@@ -110,6 +126,10 @@ typedef struct
 
     // CP_System_GetWindowHandle
     CP_BOOL windowHandleIsNull;
+
+    // Text animated by size and by scale (see Scn_FontSizeSweep)
+    Tier2TextSweep textSizeSweep;
+    Tier2TextSweep textScaleSweep;
 
     // CP_Image_Screenshot of sub-regions (see Scn_ScreenshotSubregion)
     int subTopRightWidth;

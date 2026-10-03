@@ -10,7 +10,9 @@
 // All coordinates below were computed by hand against the actual source
 // (CP_Graphics.c, CP_Setting.c) rather than assumed -- see the Phase D
 // commit message for the worked geometry on the rotation/transform cases.
+#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "tier2_capture.h"
 
 CP_Color tier2_snapshots[SCN_COUNT][TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
@@ -35,11 +37,16 @@ static int firstScenarioFrame = -1;
 #define WARMUP_FRAMES 15
 #define MAX_WARMUP_FRAMES 600
 
-static void CaptureCurrentFrame(Tier2Scenario scenario)
+static void CaptureInto(CP_Color* pixels)
 {
     CP_Image shot = CP_Image_Screenshot(0, 0, TIER2_CANVAS_SIZE, TIER2_CANVAS_SIZE);
-    CP_Image_GetPixelData(shot, tier2_snapshots[scenario]);
+    CP_Image_GetPixelData(shot, pixels);
     CP_Image_Free(&shot);
+}
+
+static void CaptureCurrentFrame(Tier2Scenario scenario)
+{
+    CaptureInto(tier2_snapshots[scenario]);
 }
 
 // Known-good baseline so each scenario starts from the same state
@@ -355,6 +362,38 @@ static void Scn_ImageSubImage(void)
     CP_Image_Free(&img);
 }
 
+// More images than CProcessing's lists start out holding (12), so they have
+// to grow. GCC and Clang builds used to write past the old list when one
+// grew, which the ASan CI job reports. Then load a file, which looks through
+// every image already in the list, and free them all in the same frame.
+#define MANY_IMAGES 40
+
+static void Scn_ImageMany(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+    CP_Settings_ImageMode(CP_POSITION_CORNER);
+
+    CP_Color pixels[4] = { BLUE, BLUE, BLUE, BLUE };
+    CP_Image images[MANY_IMAGES];
+    for (int i = 0; i < MANY_IMAGES; ++i)
+    {
+        images[i] = CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+        tier2_scalars.manyImagesCreated += images[i] != NULL;
+        CP_Image_Draw(images[i], (float)(i % 8) * 20, (float)(i / 8) * 20, 10, 10, 255);
+    }
+
+    CP_Image fromFile = CP_Image_Load("Assets/quadrants.png");
+    tier2_scalars.manyImagesFileWidth = CP_Image_GetWidth(fromFile);
+    CP_Image_Free(&fromFile);
+
+    for (int i = 0; i < MANY_IMAGES; ++i)
+    {
+        CP_Image_Free(&images[i]);
+        tier2_scalars.manyImagesFreed += images[i] == NULL;
+    }
+}
+
 // ---- CP_Font (Phase E) ----
 // Bounding-box/occupancy checks rather than pixel-perfect glyph
 // comparisons, per 06-test-suite-plan.md's Tier 2 notes -- exact glyph
@@ -380,6 +419,111 @@ static void Scn_FontLoadFree(void)
     CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
     CP_Font_DrawText("I", 40, 40);
     CP_Font_Free(&customFont);
+}
+
+// ---- Text animated by size or by scale (v3) ----
+// Students often change the text size, or the scale the text is drawn at,
+// every frame: a sine wave from 10 to 100, say. Every new size needs new
+// glyph bitmaps in NanoVG's glyph atlas, so the atlas fills up every few
+// seconds and NanoVG moves on to a fresh atlas texture, usually partway
+// through a string. That frame's text used to vanish, be cut off, or show
+// garbage.
+//
+// Each step below stands in for one such frame: draw the text at the next
+// size and capture it, then draw exactly the same thing again and capture
+// that. A screenshot ends the NanoVG frame, as the end of a real frame does.
+// The redraw is always right, since every glyph it needs is already in the
+// current atlas, so the first draw must match it. Comparing two draws from
+// the same run keeps this independent of how a given GPU renders glyphs.
+
+#define SWEEP_FRAMES 240
+// Many different glyphs, so the atlas fills quickly
+#define SWEEP_TEXT "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+// A channel that differs by more than this is a real difference, not
+// filtering noise.
+#define SWEEP_CHANNEL_TOLERANCE 64
+// Frames almost always match exactly, but on a real GPU about one run in
+// twenty had a single pixel off, on a frame with no atlas switch. A broken
+// frame loses whole glyphs: typically thousands of pixels, and at least 16
+// (the "A" alone at size 10).
+#define SWEEP_STRAY_PIXELS 4
+
+static CP_Color sweepDraw[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+static CP_Color sweepRedraw[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+
+static void DrawSweepText(float textSize, float scale)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ResetMatrix();
+    CP_Settings_Translate(4, 4);
+    CP_Settings_Scale(scale, scale);
+    CP_Settings_TextSize(textSize);
+    CP_Font_DrawText(SWEEP_TEXT, 0, 0);
+}
+
+static void RunTextSweep(Tier2TextSweep* result, bool animateScale)
+{
+    CP_Settings_Fill(BLACK);
+    CP_Font_Set(CP_Font_GetDefault());
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
+
+    result->frames = SWEEP_FRAMES;
+    result->firstBadFrame = -1;
+    for (int frame = 0; frame < SWEEP_FRAMES; ++frame)
+    {
+        // 0 to 1 and back, about three times over the sweep. Either way the
+        // text ends up 10 to 100 pixels tall.
+        float wave = 0.5f - 0.5f * cosf(frame * 0.08f);
+        float textSize = animateScale ? 25.0f : 10.0f + 90.0f * wave;
+        float scale = animateScale ? 0.4f + 3.6f * wave : 1.0f;
+
+        DrawSweepText(textSize, scale);
+        CaptureInto(sweepDraw);
+        DrawSweepText(textSize, scale);
+        CaptureInto(sweepRedraw);
+
+        int differing = 0;
+        bool inked = false;
+        for (int i = 0; i < TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE; ++i)
+        {
+            for (int c = 0; c < 3; ++c)
+            {
+                if (abs(sweepDraw[i].rgba[c] - sweepRedraw[i].rgba[c]) > SWEEP_CHANNEL_TOLERANCE)
+                {
+                    ++differing;
+                    break;
+                }
+            }
+            inked = inked || sweepRedraw[i].r < 128;
+        }
+
+        if (differing > result->worstPixels)
+        {
+            result->worstPixels = differing;
+        }
+        if (differing > SWEEP_STRAY_PIXELS)
+        {
+            ++result->badFrames;
+            if (result->firstBadFrame < 0)
+            {
+                result->firstBadFrame = frame;
+            }
+        }
+        if (!inked)
+        {
+            ++result->blankFrames;
+        }
+    }
+}
+
+static void Scn_FontSizeSweep(void)
+{
+    RunTextSweep(&tier2_scalars.textSizeSweep, false);
+}
+
+static void Scn_FontScaleSweep(void)
+{
+    RunTextSweep(&tier2_scalars.textScaleSweep, true);
 }
 
 // ---- CP_System / CP_Engine (Phase E) ----
@@ -635,8 +779,11 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SETTINGS_SAVE_RESTORE] = Scn_SettingsSaveRestore,
     [SCN_IMAGE_LOAD_AND_DRAW] = Scn_ImageLoadAndDraw,
     [SCN_IMAGE_SUBIMAGE] = Scn_ImageSubImage,
+    [SCN_IMAGE_MANY] = Scn_ImageMany,
     [SCN_FONT_DRAWTEXT] = Scn_FontDrawText,
     [SCN_FONT_LOAD_FREE] = Scn_FontLoadFree,
+    [SCN_FONT_SIZE_SWEEP] = Scn_FontSizeSweep,
+    [SCN_FONT_SCALE_SWEEP] = Scn_FontScaleSweep,
     [SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
     [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
     [SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,

@@ -38,10 +38,13 @@ void test_tier2_image_draw_places_quadrants_correctly(void);
 void test_tier2_image_createfromdata_roundtrips_exactly(void);
 void test_tier2_image_updatepixeldata_roundtrips_exactly(void);
 void test_tier2_image_drawsubimage_selects_correct_region(void);
+void test_tier2_image_many_images_load_draw_and_free(void);
 
 // test_tier2_font.c -- Tier 2: CP_Font (bounding-box/occupancy checks).
 void test_tier2_font_drawtext_occupies_expected_region(void);
 void test_tier2_font_load_free_renders_with_custom_font(void);
+void test_tier2_font_text_animated_by_size_draws_every_frame(void);
+void test_tier2_font_text_animated_by_scale_draws_every_frame(void);
 
 // test_tier2_system_engine.c -- Tier 2: CP_System + CP_Engine lifecycle.
 void test_tier2_system_window_size_matches_what_was_set(void);
