@@ -75,6 +75,7 @@ int main(void)
     RUN_TEST(test_tier2_image_updatepixeldata_roundtrips_exactly);
     RUN_TEST(test_tier2_image_drawsubimage_selects_correct_region);
     RUN_TEST(test_tier2_image_many_images_load_draw_and_free);
+    RUN_TEST(test_tier2_image_16_bit_png_loads_and_draws);
     RUN_TEST(test_tier2_image_filter_mode_nearest_and_linear);
     RUN_TEST(test_tier2_image_wrap_modes);
 
@@ -85,6 +86,7 @@ int main(void)
     RUN_TEST(test_tier2_font_text_animated_by_size_draws_every_frame);
     RUN_TEST(test_tier2_font_text_animated_by_scale_draws_every_frame);
     RUN_TEST(test_tier2_font_text_size_is_the_em_size);
+    RUN_TEST(test_tier2_font_opentype_cff_font_loads_and_draws);
     RUN_TEST(test_tier2_font_large_text_draws);
     RUN_TEST(test_tier2_font_text_mirrored_and_flipped_draws);
 

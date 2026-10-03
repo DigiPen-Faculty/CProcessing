@@ -58,6 +58,16 @@ void test_tier2_image_drawsubimage_selects_correct_region(void)
     assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_IMAGE_SUBIMAGE, 20, 20));
 }
 
+void test_tier2_image_16_bit_png_loads_and_draws(void)
+{
+    // See Scn_Image16Bit: drawn like quadrants.png, 80x80 centered
+    TEST_ASSERT_EQUAL_INT(4, tier2_scalars.image16BitWidth);
+    assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_IMAGE_16_BIT, 80, 80));
+    assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_16_BIT, 120, 80));
+    assertColorWithin(2, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_IMAGE_16_BIT, 80, 120));
+    assertColorWithin(2, CP_Color_Create(255, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_16_BIT, 120, 120));
+}
+
 void test_tier2_image_filter_mode_nearest_and_linear(void)
 {
     // See Scn_ImageFilterModes. Nearest: four solid colors meeting in the

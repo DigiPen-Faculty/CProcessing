@@ -56,10 +56,12 @@ typedef enum
     SCN_SETTINGS_SAVE_RESTORE,
     SCN_IMAGE_LOAD_AND_DRAW,
     SCN_IMAGE_SUBIMAGE,
+    SCN_IMAGE_16_BIT,
     SCN_IMAGE_MANY,
     SCN_FONT_DRAWTEXT,
     SCN_FONT_LOAD_FREE,
     SCN_FONT_FREE_KEEPS_OTHERS,
+    SCN_FONT_OPENTYPE,
     SCN_FONT_SIZE_SWEEP,
     SCN_FONT_SCALE_SWEEP,
     SCN_FONT_EM_SIZE,
@@ -106,6 +108,7 @@ typedef struct
     int manyImagesCreated;          // see Scn_ImageMany
     int manyImagesFreed;            // handles set to NULL by CP_Image_Free
     int manyImagesFileWidth;
+    int image16BitWidth;            // see Scn_Image16Bit
 
     // CP_System / CP_Engine
     int windowWidthAfterSet;
@@ -142,6 +145,7 @@ typedef struct
     int fontFreeLoaded;             // fonts loaded, of 3
     int fontFreeInkBefore;          // ink pixels before freeing the first
     int fontFreeMismatched;         // pixels that changed after freeing it
+    CP_BOOL openTypeFontLoaded;     // see Scn_FontOpenType
 
     // Text animated by size and by scale (see Scn_FontSizeSweep)
     Tier2TextSweep textSizeSweep;

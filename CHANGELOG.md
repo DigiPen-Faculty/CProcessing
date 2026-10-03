@@ -49,6 +49,9 @@ Each change says what to do in an existing project.
   console also makes each `printf` appear immediately. The template's
   `main.c` has a commented-out call to try it.
 - `CP_System_GetCursorVisible()`, the getter for `CP_System_ShowCursor`.
+- `CP_Image_Load` loads PNGs with 16 bits per channel, which many paint
+  programs save, and `CP_Font_Load` loads OpenType fonts with CFF outlines,
+  common for `.otf` files. Before, both failed to load.
 - `CP_VERSION_MAJOR`, `CP_VERSION_MINOR` and `CP_VERSION_PATCH` macros in
   `cprocessing_common.h`.
 - **Templates for Linux and macOS:** `CProcessingTemplate-linux-x64.zip` and
@@ -61,7 +64,7 @@ Each change says what to do in an existing project.
   solution. See [BUILDING.md](BUILDING.md).
 - **A new demo program** with a demo menu: press 1-4 to switch demos, F for
   fullscreen, C to show or hide the console, Escape to quit.
-- **Automated tests** (157 unit tests and 68 rendering and engine tests) and
+- **Automated tests** (157 unit tests and 70 rendering and engine tests) and
   continuous integration on Windows, Linux and macOS.
 
 ### Changed
@@ -70,7 +73,10 @@ Each change says what to do in an existing project.
   on every platform. See [DEPENDENCIES.md](DEPENDENCIES.md).
 - NanoVG, which CProcessing draws with, is updated from a 2018 copy to its
   latest version, keeping CProcessing's own changes to it. They are listed
-  in `Processing_Sample/CProcessing/nanovg/CPROCESSING.md`.
+  in `Processing_Sample/CProcessing/nanovg/CPROCESSING.md`. The image and
+  font loaders it uses, stb_image and stb_truetype, are updated from 2016
+  versions to 2.30 and 1.26, with many fixes for crashes on unusual or
+  damaged files.
 - Every platform draws into an offscreen canvas that is copied to the window
   each frame. Drawing still persists between frames as before.
 - `CP_System_ShowCursor` and `CP_System_SetWindowTitle` can be called before

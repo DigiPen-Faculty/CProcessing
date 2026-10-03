@@ -487,6 +487,20 @@ static void Scn_ImageSubImage(void)
     CP_Image_Free(&img);
 }
 
+// A PNG with 16 bits per channel, as paint programs often save: the same
+// 4x4 quadrants as quadrants.png. stb_image before 2.11 couldn't load
+// these at all (CProcessing had 2.10 until 3.0).
+static void Scn_Image16Bit(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+    CP_Settings_ImageMode(CP_POSITION_CENTER);
+    CP_Image img = CP_Image_Load("Assets/quadrants16.png");
+    tier2_scalars.image16BitWidth = CP_Image_GetWidth(img);
+    CP_Image_Draw(img, 100, 100, 80, 80, 255);
+    CP_Image_Free(&img);
+}
+
 // More images than CProcessing's lists start out holding (12), so they have
 // to grow. GCC and Clang builds used to write past the old list when one
 // grew, which the ASan CI job reports. Then load a file, which looks through
@@ -544,6 +558,25 @@ static void Scn_FontLoadFree(void)
     CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
     CP_Font_DrawText("I", 40, 40);
     CP_Font_Free(&customFont);
+}
+
+// ---- OpenType fonts with CFF outlines (v3) ----
+// A .otf font whose glyphs are CFF outlines: the official OpenType build
+// of Exo 2, the default font. stb_truetype before 1.13 couldn't load these
+// (CProcessing had 1.09 until 3.0). Same metrics as the .ttf, so its
+// capital H at size 100 is 69 pixels tall too.
+static void Scn_FontOpenType(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(BLACK);
+    CP_Font font = CP_Font_Load("Assets/Exo2-Regular.otf");
+    tier2_scalars.openTypeFontLoaded = font != NULL;
+    CP_Font_Set(font);
+    CP_Settings_TextSize(100.0f);
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
+    CP_Font_DrawText("H", 20, 150);
+    CP_Font_Free(&font);
+    CP_Font_Set(CP_Font_GetDefault());
 }
 
 // ---- Freeing a font keeps the others working (v3) ----
@@ -1023,10 +1056,12 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SETTINGS_SAVE_RESTORE] = Scn_SettingsSaveRestore,
     [SCN_IMAGE_LOAD_AND_DRAW] = Scn_ImageLoadAndDraw,
     [SCN_IMAGE_SUBIMAGE] = Scn_ImageSubImage,
+    [SCN_IMAGE_16_BIT] = Scn_Image16Bit,
     [SCN_IMAGE_MANY] = Scn_ImageMany,
     [SCN_FONT_DRAWTEXT] = Scn_FontDrawText,
     [SCN_FONT_LOAD_FREE] = Scn_FontLoadFree,
     [SCN_FONT_FREE_KEEPS_OTHERS] = Scn_FontFreeKeepsOthers,
+    [SCN_FONT_OPENTYPE] = Scn_FontOpenType,
     [SCN_FONT_SIZE_SWEEP] = Scn_FontSizeSweep,
     [SCN_FONT_SCALE_SWEEP] = Scn_FontScaleSweep,
     [SCN_FONT_EM_SIZE] = Scn_FontEmSize,

@@ -42,6 +42,7 @@ void test_tier2_image_createfromdata_roundtrips_exactly(void);
 void test_tier2_image_updatepixeldata_roundtrips_exactly(void);
 void test_tier2_image_drawsubimage_selects_correct_region(void);
 void test_tier2_image_many_images_load_draw_and_free(void);
+void test_tier2_image_16_bit_png_loads_and_draws(void);
 void test_tier2_image_filter_mode_nearest_and_linear(void);
 void test_tier2_image_wrap_modes(void);
 
@@ -52,6 +53,7 @@ void test_tier2_font_free_keeps_other_fonts_working(void);
 void test_tier2_font_text_animated_by_size_draws_every_frame(void);
 void test_tier2_font_text_animated_by_scale_draws_every_frame(void);
 void test_tier2_font_text_size_is_the_em_size(void);
+void test_tier2_font_opentype_cff_font_loads_and_draws(void);
 void test_tier2_font_large_text_draws(void);
 void test_tier2_font_text_mirrored_and_flipped_draws(void);
 

@@ -12,14 +12,36 @@ applies, can see exactly what is here.
 |---|---|
 | Upstream | https://github.com/memononen/nanovg |
 | Commit | **`ce3bf745eb2d2dbc14a50bf2446783f691ac4353`** (2026-02-19) |
-| Files taken | `src/` (`nanovg.c`, `nanovg.h`, `nanovg_gl.h`, `nanovg_gl_utils.h`, `fontstash.h`, `stb_image.h`, `stb_truetype.h`), `LICENSE.txt`, `README.md` |
-| Not taken | `example/`, `obsolete/`, `premake4.lua`, `.github/`: not used by CProcessing |
+| Files taken | `src/nanovg.c`, `nanovg.h`, `nanovg_gl.h`, `nanovg_gl_utils.h`, `fontstash.h`; `LICENSE.txt`, `README.md` |
+| Not taken | `example/`, `obsolete/`, `premake4.lua`, `.github/`: not used by CProcessing. `src/stb_image.h` and `src/stb_truetype.h`: see below |
 
 Upstream has no releases or tags, so a commit is the only way to pin it. Its
 README says it "is not actively maintained", and it changes rarely: seven
 source changes from 2021 to 2026.
 
-`stb_image.h` and `stb_truetype.h` are the copies upstream NanoVG bundles.
+### stb_image and stb_truetype
+
+NanoVG loads images with stb_image and fonts with stb_truetype, and bundles
+copies of both: stb_image 2.10 from 2016, which upstream never updated, and
+stb_truetype 1.24. CProcessing replaces them with current versions from the
+stb repository, unmodified:
+
+| | |
+|---|---|
+| Upstream | https://github.com/nothings/stb |
+| Commit | **`2c980bb59875b0d32144a71867fbdebb2f77cd20`** (2026-08-01) |
+| Versions | `stb_image.h` **2.30**, `stb_truetype.h` **1.26** |
+
+Since 2.10 and 1.24 they gained 16-bit PNGs, OpenType fonts with CFF
+outlines (`.otf`; already in 1.24, missing from the 1.09 CProcessing had
+before 3.0) and many fixes for crashes on unusual or damaged files. NanoVG
+uses only their long-stable functions (`stbi_load`, `stbtt_InitFont`, ...),
+so they drop in.
+
+`STBI_WINDOWS_UTF8` is deliberately not defined: with it, stb_image would
+read file names as UTF-8 on Windows, while CProcessing's fonts and sounds
+open files with plain `fopen`. File names would then behave differently
+depending on the kind of file.
 
 ### Why this commit, and what it changed (CProcessing 3.0)
 
@@ -79,12 +101,15 @@ The OpenGL back end, `nanovg_gl.h`, is header-only. It is compiled once, in
 `Source/nanovg_gl3.c`; the rest of CProcessing includes it for the
 declarations only.
 
-## Updating to a newer upstream commit
+## Updating
+
+### NanoVG
 
 1. Merge each patched file three ways, with the current pin as the base,
    CProcessing's file as one side and the new upstream file as the other:
    `git merge-file ours.c base.c theirs.c`. Copy the files that have no
-   patches over directly.
+   patches over directly, but not upstream's `stb_image.h` and
+   `stb_truetype.h` (see above).
 2. Resolve conflicts, keep every patch marked with `// CProcessing:`, and
    remove any patch that upstream now covers.
 3. Update the commit in this file, in `tools/nanovg-diff.sh` and in
@@ -93,4 +118,12 @@ declarations only.
 4. Build with both build systems and run both test tiers. Tier 2 covers each
    patch: tint, image filter and wrap, blend modes, fonts, and settings that
    last across frames and screenshots. It also covers the upstream fixes
-   above, including the text size.
+   above, including the text size and large text, which only fails in a
+   32-bit (x86) build, so run that one too.
+
+### stb_image and stb_truetype
+
+Copy both files from a newer stb commit, unchanged, and update the commit
+and versions here, in `tools/nanovg-diff.sh` and in `DEPENDENCIES.md`.
+Then build and test as above; Tier 2 loads a 16-bit PNG and an `.otf`
+font, and checks images and text throughout.

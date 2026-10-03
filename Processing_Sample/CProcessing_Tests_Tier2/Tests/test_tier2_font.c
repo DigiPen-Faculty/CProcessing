@@ -76,15 +76,16 @@ static CP_BOOL IsInk(CP_Color c)
     return c.r < 128;
 }
 
-void test_tier2_font_text_size_is_the_em_size(void)
+// The height in pixels of the ink in a scenario's capture: the rows from
+// the first with any ink to the last. 0 if there is none.
+static int InkHeight(Tier2Scenario scenario)
 {
-    // See Scn_FontEmSize: a capital H at size 100 is 69 pixels tall
     int top = -1, bottom = -1;
     for (int y = 0; y < TIER2_CANVAS_SIZE; ++y)
     {
         for (int x = 0; x < TIER2_CANVAS_SIZE; ++x)
         {
-            if (IsInk(tier2_SamplePixel(SCN_FONT_EM_SIZE, x, y)))
+            if (IsInk(tier2_SamplePixel(scenario, x, y)))
             {
                 if (top < 0) top = y;
                 bottom = y;
@@ -92,8 +93,20 @@ void test_tier2_font_text_size_is_the_em_size(void)
             }
         }
     }
-    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, top);
-    TEST_ASSERT_INT_WITHIN(2, 69, bottom - top + 1);
+    return top < 0 ? 0 : bottom - top + 1;
+}
+
+void test_tier2_font_text_size_is_the_em_size(void)
+{
+    // See Scn_FontEmSize: a capital H at size 100 is 69 pixels tall
+    TEST_ASSERT_INT_WITHIN(2, 69, InkHeight(SCN_FONT_EM_SIZE));
+}
+
+void test_tier2_font_opentype_cff_font_loads_and_draws(void)
+{
+    // See Scn_FontOpenType: the .otf build of Exo 2 draws like the .ttf
+    TEST_ASSERT_TRUE(tier2_scalars.openTypeFontLoaded);
+    TEST_ASSERT_INT_WITHIN(2, 69, InkHeight(SCN_FONT_OPENTYPE));
 }
 
 void test_tier2_font_large_text_draws(void)
