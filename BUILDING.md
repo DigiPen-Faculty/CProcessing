@@ -102,6 +102,14 @@ enough:
 xvfb-run -a ctest --test-dir build -L tier2 --output-on-failure
 ```
 
+On Windows without a GPU, such as a virtual machine or a CI runner, use
+Mesa's software renderer: copy `opengl32.dll`, `libglapi.dll` and
+`libgallium_wgl.dll` from a [Mesa for Windows](https://github.com/pal1000/mesa-dist-win/releases)
+release (`x64` or `x86` folder, matching the build) next to
+`CProcessing_Tests_Tier2.exe`, and set `GALLIUM_DRIVER=llvmpipe`. CI runs
+Tier 2 this way for both the 64-bit and 32-bit builds (see
+`.github/workflows/tests.yml`).
+
 ### Options
 
 Pass options to the configure step with `-D`, for example
