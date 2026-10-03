@@ -312,6 +312,113 @@ static void Scn_SettingsBlendModeAdd(void)
     CP_Graphics_DrawRect(120, 100, 60, 60); // spans x:[90,150]; overlap x:[90,110]
 }
 
+// ---- Settings that CProcessing patches into NanoVG ----
+// See Processing_Sample/CProcessing/nanovg/CPROCESSING.md. Each of these
+// guards a patch, so an update of NanoVG that loses one fails here.
+
+// The blend modes that need a blend equation, over a (200, 100, 50)
+// background, each with a (100, 100, 100) square:
+// subtract (background minus square), multiply, min and max.
+static void Scn_SettingsBlendModes(void)
+{
+    CP_Graphics_ClearBackground(CP_Color_Create(200, 100, 50, 255));
+    CP_Settings_NoStroke();
+    CP_Settings_Fill(CP_Color_Create(100, 100, 100, 255));
+    const CP_BLEND_MODE modes[4] = { CP_BLEND_SUBTRACT, CP_BLEND_MULTIPLY, CP_BLEND_MIN, CP_BLEND_MAX };
+    for (int i = 0; i < 4; ++i)
+    {
+        CP_Settings_BlendMode(modes[i]);
+        CP_Graphics_DrawRect(40.0f + 40.0f * i, 100, 30, 30);
+    }
+}
+
+// Tint multiplies what is drawn, weighted by the tint's alpha: white
+// squares tinted red and half-strength blue, and a white image tinted green.
+static void Scn_SettingsTint(void)
+{
+    CP_Graphics_ClearBackground(BLACK);
+    CP_Settings_NoStroke();
+    CP_Settings_Fill(WHITE);
+    CP_Settings_Tint(CP_Color_Create(255, 0, 0, 255));
+    CP_Graphics_DrawRect(50, 50, 40, 40);
+    CP_Settings_Tint(CP_Color_Create(0, 0, 255, 128));
+    CP_Graphics_DrawRect(150, 50, 40, 40);
+
+    CP_Color white[4] = { WHITE, WHITE, WHITE, WHITE };
+    CP_Image image = CP_Image_CreateFromData(2, 2, (unsigned char*)white);
+    CP_Settings_Tint(CP_Color_Create(0, 255, 0, 255));
+    CP_Image_Draw(image, 100, 150, 40, 40, 255);
+    CP_Image_Free(&image);
+    CP_Settings_NoTint();
+}
+
+// A 2x2 image: red, green / blue, yellow
+static CP_Image CreateFourColorImage(void)
+{
+    CP_Color pixels[4] = {
+        CP_Color_Create(255, 0, 0, 255), CP_Color_Create(0, 255, 0, 255),
+        CP_Color_Create(0, 0, 255, 255), CP_Color_Create(255, 255, 0, 255),
+    };
+    return CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+}
+
+// The image drawn 100x100, nearest on the left half of the canvas and
+// linear on the right. Nearest keeps four solid colors; linear blends them
+// in the middle.
+static void Scn_ImageFilterModes(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageMode(CP_POSITION_CORNER);
+    CP_Image image = CreateFourColorImage();
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+    CP_Image_Draw(image, 0, 50, 100, 100, 255);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_LINEAR);
+    CP_Image_Draw(image, 100, 50, 100, 100, 255);
+    CP_Image_Free(&image);
+}
+
+// The image drawn once per wrap mode as an 80x80 tile, with a source
+// rectangle twice the image's size: the image fills the tile's top-left
+// 40x40, and the rest shows what the wrap mode does past the image's edge.
+// Tiles: clamp (10, 10), clamp to edge (110, 10), repeat (10, 110),
+// mirror (110, 110).
+static void Scn_ImageWrapModes(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageMode(CP_POSITION_CORNER);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+    CP_Image image = CreateFourColorImage();
+    const CP_IMAGE_WRAP_MODE modes[4] = {
+        CP_IMAGE_WRAP_CLAMP, CP_IMAGE_WRAP_CLAMP_EDGE, CP_IMAGE_WRAP_REPEAT, CP_IMAGE_WRAP_MIRROR
+    };
+    for (int i = 0; i < 4; ++i)
+    {
+        CP_Settings_ImageWrapMode(modes[i]);
+        CP_Image_DrawSubImage(image, 10.0f + 100.0f * (i % 2), 10.0f + 100.0f * (i / 2), 80, 80, 0, 0, 4, 4, 255);
+    }
+    CP_Image_Free(&image);
+    CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_CLAMP);
+}
+
+// Settings carry over to the next frame, as in Processing (NanoVG resets
+// them every frame unless patched). One frame sets the text size; the next
+// draws a capital H without setting it. At size 150, Exo 2's H is 103.5
+// pixels tall; at NanoVG's reset size of 16 it would be 11.
+static void Scn_SettingsLastFrameSetsTextSize(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_TextSize(150.0f);
+}
+
+static void Scn_SettingsCarryToNextFrame(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(BLACK);
+    CP_Font_Set(CP_Font_GetDefault());
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
+    CP_Font_DrawText("H", 20, 150);
+}
+
 static void Scn_SettingsSaveRestore(void)
 {
     CP_Graphics_ClearBackground(WHITE);
@@ -542,6 +649,49 @@ static void Scn_FontSizeSweep(void)
 static void Scn_FontScaleSweep(void)
 {
     RunTextSweep(&tier2_scalars.textScaleSweep, true);
+}
+
+// ---- Text size is the em size (v3) ----
+// CP_Settings_TextSize sets the font's em size in pixels, as Processing and
+// CSS do (NanoVG upstream 69e1a47). Exo 2's capital H is 690 units tall in
+// a 1000-unit em, so at size 100 it is 69 pixels tall. Before v3 the size
+// was the font's whole height, ascender to descender (1200 units), which
+// made the H 57.5 pixels tall.
+static void Scn_FontEmSize(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(BLACK);
+    CP_Font_Set(CP_Font_GetDefault());
+    CP_Settings_TextSize(100.0f);
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
+    CP_Font_DrawText("H", 20, 150);
+}
+
+// ---- Mirrored and flipped text (v3) ----
+// NanoVG culls back faces, and a mirroring transform turns each glyph's
+// quad around, so text drawn with CP_Settings_Scale(-1, 1), the usual way
+// to flip a sprite, or (1, -1) vanished (fixed in NanoVG upstream 621e0b8).
+// Three bands, each centered on its own line: the text as is (y = 33),
+// mirrored about x = 100 (y = 100), and flipped about y = 167.
+static void DrawTextTransformed(float y, float scaleX, float scaleY)
+{
+    CP_Settings_ResetMatrix();
+    CP_Settings_Translate(100, y);
+    CP_Settings_Scale(scaleX, scaleY);
+    CP_Font_DrawText("Hello", 0, 0);
+}
+
+static void Scn_FontMirrored(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(BLACK);
+    CP_Font_Set(CP_Font_GetDefault());
+    CP_Settings_TextSize(40.0f);
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+    DrawTextTransformed(33, 1, 1);
+    DrawTextTransformed(100, -1, 1);
+    DrawTextTransformed(167, 1, -1);
+    CP_Settings_ResetMatrix();
 }
 
 // ---- CP_System / CP_Engine (Phase E) ----
@@ -794,6 +944,12 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SETTINGS_RESETMATRIX] = Scn_SettingsResetMatrix,
     [SCN_SETTINGS_APPLYMATRIX] = Scn_SettingsApplyMatrix,
     [SCN_SETTINGS_BLENDMODE_ADD] = Scn_SettingsBlendModeAdd,
+    [SCN_SETTINGS_BLEND_MODES] = Scn_SettingsBlendModes,
+    [SCN_SETTINGS_TINT] = Scn_SettingsTint,
+    [SCN_IMAGE_FILTER_MODES] = Scn_ImageFilterModes,
+    [SCN_IMAGE_WRAP_MODES] = Scn_ImageWrapModes,
+    [SCN_SETTINGS_LAST_FRAME_SETS_TEXT_SIZE] = Scn_SettingsLastFrameSetsTextSize,
+    [SCN_SETTINGS_CARRY_TO_NEXT_FRAME] = Scn_SettingsCarryToNextFrame,
     [SCN_SETTINGS_SAVE_RESTORE] = Scn_SettingsSaveRestore,
     [SCN_IMAGE_LOAD_AND_DRAW] = Scn_ImageLoadAndDraw,
     [SCN_IMAGE_SUBIMAGE] = Scn_ImageSubImage,
@@ -802,6 +958,8 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_FONT_LOAD_FREE] = Scn_FontLoadFree,
     [SCN_FONT_SIZE_SWEEP] = Scn_FontSizeSweep,
     [SCN_FONT_SCALE_SWEEP] = Scn_FontScaleSweep,
+    [SCN_FONT_EM_SIZE] = Scn_FontEmSize,
+    [SCN_FONT_MIRRORED] = Scn_FontMirrored,
     [SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
     [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
     [SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,

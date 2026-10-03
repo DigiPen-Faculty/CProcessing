@@ -884,7 +884,7 @@ void CP_FrameStart(void)
 	// follow any window size change the window system has applied
 	CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height);
 
-	nvgBeginFrame(_CORE.nvg, _CORE.window_width, _CORE.window_height, _CORE.pixel_ratio);
+	nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
 }
 
 void CP_FrameEnd(void)

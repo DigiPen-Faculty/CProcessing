@@ -58,3 +58,73 @@ void test_tier2_font_text_animated_by_scale_draws_every_frame(void)
 {
     AssertSweepDrewEveryFrame(&tier2_scalars.textScaleSweep);
 }
+
+static CP_BOOL IsInk(CP_Color c)
+{
+    return c.r < 128;
+}
+
+void test_tier2_font_text_size_is_the_em_size(void)
+{
+    // See Scn_FontEmSize: a capital H at size 100 is 69 pixels tall
+    int top = -1, bottom = -1;
+    for (int y = 0; y < TIER2_CANVAS_SIZE; ++y)
+    {
+        for (int x = 0; x < TIER2_CANVAS_SIZE; ++x)
+        {
+            if (IsInk(tier2_SamplePixel(SCN_FONT_EM_SIZE, x, y)))
+            {
+                if (top < 0) top = y;
+                bottom = y;
+                break;
+            }
+        }
+    }
+    TEST_ASSERT_GREATER_OR_EQUAL_INT(0, top);
+    TEST_ASSERT_INT_WITHIN(2, 69, bottom - top + 1);
+}
+
+// Counts the ink in a band of Scn_FontMirrored, and the pixels where the
+// band doesn't match the plain text (rows 0-66) mirrored or flipped.
+static void CompareBand(int band, int* ink, int* mismatched)
+{
+    *ink = 0;
+    *mismatched = 0;
+    for (int y = 0; y < 67; ++y)
+    {
+        for (int x = 0; x < TIER2_CANVAS_SIZE; ++x)
+        {
+            CP_BOOL plain = IsInk(tier2_SamplePixel(SCN_FONT_MIRRORED, x, y));
+            CP_BOOL other;
+            if (band == 1) // mirrored about x = 100, centered on y = 100
+                other = IsInk(tier2_SamplePixel(SCN_FONT_MIRRORED, 199 - x, y + 67));
+            else           // flipped about y = 167
+                other = IsInk(tier2_SamplePixel(SCN_FONT_MIRRORED, x, 199 - y));
+            *ink += other;
+            *mismatched += plain != other;
+        }
+    }
+}
+
+void test_tier2_font_text_mirrored_and_flipped_draws(void)
+{
+    // See Scn_FontMirrored. The plain text has ink...
+    int plainInk = 0;
+    for (int y = 0; y < 67; ++y)
+        for (int x = 0; x < TIER2_CANVAS_SIZE; ++x)
+            plainInk += IsInk(tier2_SamplePixel(SCN_FONT_MIRRORED, x, y));
+    TEST_ASSERT_GREATER_THAN_INT(300, plainInk);
+
+    // ...and the mirrored and flipped copies are its mirror images, give or
+    // take antialiasing at the edges. (They used to have no ink at all.)
+    for (int band = 1; band <= 2; ++band)
+    {
+        int ink, mismatched;
+        CompareBand(band, &ink, &mismatched);
+        char message[96];
+        snprintf(message, sizeof message, "band %d: %d ink pixels, %d differ from the plain text (%d ink)",
+                 band, ink, mismatched, plainInk);
+        TEST_ASSERT_GREATER_THAN_INT_MESSAGE(plainInk * 9 / 10, ink, message);
+        TEST_ASSERT_LESS_THAN_INT_MESSAGE(plainInk / 10, mismatched, message);
+    }
+}

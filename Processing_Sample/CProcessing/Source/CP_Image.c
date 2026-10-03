@@ -353,7 +353,7 @@ CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 
 	glReadPixels(readX, readY, readW, readH, GL_RGBA, GL_UNSIGNED_BYTE, readBuffer);
 
-	nvgBeginFrame(CORE->nvg, CORE->window_width, CORE->window_height, CORE->pixel_ratio);
+	nvgBeginFrame(CORE->nvg, (float)CORE->window_width, (float)CORE->window_height, CORE->pixel_ratio);
 
 	// flip rows (GL is bottom-up) and, for hi-dpi, sample down to w x h
 	for (int row = 0; row < h; ++row)

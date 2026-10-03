@@ -24,8 +24,11 @@
 #include "nanovg.h"
 #define FONTSTASH_IMPLEMENTATION
 #include "fontstash.h"
+
+#ifndef NVG_NO_STB
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#endif
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4100)  // unreferenced formal parameter
@@ -42,7 +45,10 @@
 #define NVG_INIT_POINTS_SIZE 128
 #define NVG_INIT_PATHS_SIZE 16
 #define NVG_INIT_VERTS_SIZE 256
+
+#ifndef NVG_MAX_STATES
 #define NVG_MAX_STATES 32
+#endif
 
 #define NVG_KAPPA90 0.5522847493f	// Length proportional to radius of a cubic bezier handle for 90deg arcs.
 
@@ -70,7 +76,7 @@ struct NVGstate {
 	int shapeAntiAlias;
 	NVGpaint fill;
 	NVGpaint stroke;
-	NVGcolor tint;
+	NVGcolor tint;				// CProcessing: nvgTintColor
 	float strokeWidth;
 	float miterLimit;
 	int lineJoin;
@@ -84,8 +90,8 @@ struct NVGstate {
 	float fontBlur;
 	int textAlign;
 	int fontId;
-	int textureFilterMode;
-	int textureWrapMode;
+	int textureFilterMode;		// CProcessing: nvgTextureFilter
+	int textureWrapMode;		// CProcessing: nvgTextureWrap
 };
 typedef struct NVGstate NVGstate;
 
@@ -153,6 +159,21 @@ static float nvg__clampf(float a, float mn, float mx) { return a < mn ? mn : (a 
 static float nvg__cross(float dx0, float dy0, float dx1, float dy1) { return dx1*dy0 - dx0*dy1; }
 static float nvg__lerpf(float a, float b, float t) { t = nvg__clampf(t, 0, 1.0f); return (1.0f - t) * a + t * b; }
 
+// CProcessing: multiplies a paint's colors by the tint set with
+// nvgTintColor, weighted by the tint's alpha (CP_Settings_Tint).
+static void nvg__applyTint(NVGpaint* paint, NVGcolor tint)
+{
+	float r = nvg__lerpf(1.0f, tint.r, tint.a);
+	float g = nvg__lerpf(1.0f, tint.g, tint.a);
+	float b = nvg__lerpf(1.0f, tint.b, tint.a);
+	paint->innerColor.r *= r;
+	paint->innerColor.g *= g;
+	paint->innerColor.b *= b;
+	paint->outerColor.r *= r;
+	paint->outerColor.g *= g;
+	paint->outerColor.b *= b;
+}
+
 static float nvg__normalize(float *x, float* y)
 {
 	float d = nvg__sqrtf((*x)*(*x) + (*y)*(*y));
@@ -212,9 +233,11 @@ static void nvg__setDevicePixelRatio(NVGcontext* ctx, float ratio)
 static NVGcompositeOperationState nvg__compositeOperationState(int op)
 {
 	int sfactor, dfactor;
+	// CProcessing: blend equations, and the NVG_BLEND_* operations behind
+	// CP_Settings_BlendMode
 	int equation = NVG_BLEND_EQUATION_ADD;
 
-	if (op == NVG_SOURCE_OVER || op == NVG_BLEND_ALPHA)
+	if (op == NVG_SOURCE_OVER || op == NVG_BLEND_ALPHA)	// CProcessing: NVG_BLEND_ALPHA
 	{
 		sfactor = NVG_ONE;
 		dfactor = NVG_ONE_MINUS_SRC_ALPHA;
@@ -254,7 +277,7 @@ static NVGcompositeOperationState nvg__compositeOperationState(int op)
 		sfactor = NVG_ONE_MINUS_DST_ALPHA;
 		dfactor = NVG_SRC_ALPHA;
 	}
-	else if (op == NVG_LIGHTER || op == NVG_BLEND_ADD)
+	else if (op == NVG_LIGHTER || op == NVG_BLEND_ADD)	// CProcessing: NVG_BLEND_ADD
 	{
 		sfactor = NVG_ONE;
 		dfactor = NVG_ONE;
@@ -269,6 +292,7 @@ static NVGcompositeOperationState nvg__compositeOperationState(int op)
 		sfactor = NVG_ONE_MINUS_DST_ALPHA;
 		dfactor = NVG_ONE_MINUS_SRC_ALPHA;
 	}
+	// CProcessing: the remaining NVG_BLEND_* operations
 	else if (op == NVG_BLEND_MULTIPLY)
 	{
 		sfactor = NVG_ZERO;
@@ -299,7 +323,7 @@ static NVGcompositeOperationState nvg__compositeOperationState(int op)
 	}
 
 	NVGcompositeOperationState state;
-	state.blendEquation = equation;
+	state.blendEquation = equation;	// CProcessing
 	state.srcRGB = sfactor;
 	state.dstRGB = dfactor;
 	state.srcAlpha = sfactor;
@@ -392,15 +416,18 @@ void nvgDeleteInternal(NVGcontext* ctx)
 	free(ctx);
 }
 
-void nvgBeginFrame(NVGcontext* ctx, int windowWidth, int windowHeight, float devicePixelRatio)
+void nvgBeginFrame(NVGcontext* ctx, float windowWidth, float windowHeight, float devicePixelRatio)
 {
 /*	printf("Tris: draws:%d  fill:%d  stroke:%d  text:%d  TOT:%d\n",
 		ctx->drawCallCount, ctx->fillTriCount, ctx->strokeTriCount, ctx->textTriCount,
 		ctx->fillTriCount+ctx->strokeTriCount+ctx->textTriCount);*/
 
-	//ctx->nstates = 0;
-	//nvgSave(ctx);
-	//nvgReset(ctx);	// TODO: remove these lines to maintain graphics state settings across frames (blend, stroke, fill, etc.)
+	// CProcessing: keep the drawing state (fill, stroke, blend mode, transform,
+	// ...) from one frame to the next, as Processing does. Upstream resets it
+	// here every frame with:
+	//	ctx->nstates = 0;
+	//	nvgSave(ctx);
+	//	nvgReset(ctx);
 
 	nvg__setDevicePixelRatio(ctx, devicePixelRatio);
 
@@ -421,13 +448,9 @@ void nvgEndFrame(NVGcontext* ctx)
 {
 	ctx->params.renderFlush(ctx->params.userPtr);
 	if (ctx->fontImageIdx != 0) {
-		// (CProcessing: this is upstream NanoVG's version. The one here before
-		// cleared every slot after the ones it kept, so after a frame that
-		// switched atlases twice, the next frame that switched once lost a
-		// spare atlas texture without deleting it: 4 MB of GPU memory each.)
 		int fontImage = ctx->fontImages[ctx->fontImageIdx];
-		int i, j, iw, ih;
 		ctx->fontImages[ctx->fontImageIdx] = 0;
+		int i, j, iw, ih;
 		// delete images that smaller than current one
 		if (fontImage == 0)
 			return;
@@ -678,7 +701,7 @@ void nvgReset(NVGcontext* ctx)
 
 	nvg__setPaintColor(&state->fill, nvgRGBA(255,255,255,255));
 	nvg__setPaintColor(&state->stroke, nvgRGBA(0,0,0,255));
-	state->tint = nvgRGBA(255, 255, 255, 255);
+	state->tint = nvgRGBA(255, 255, 255, 255);	// CProcessing: no tint
 	state->compositeOperation = nvg__compositeOperationState(NVG_SOURCE_OVER);
 	state->shapeAntiAlias = 1;
 	state->strokeWidth = 1.0f;
@@ -697,8 +720,8 @@ void nvgReset(NVGcontext* ctx)
 	state->fontBlur = 0.0f;
 	state->textAlign = NVG_ALIGN_LEFT | NVG_ALIGN_BASELINE;
 	state->fontId = 0;
-	state->textureFilterMode = NVG_TEXTURE_FILTER_LINEAR;
-	state->textureWrapMode = NVG_TEXTURE_WRAP_CLAMP;
+	state->textureFilterMode = NVG_TEXTURE_FILTER_LINEAR;	// CProcessing
+	state->textureWrapMode = NVG_TEXTURE_WRAP_CLAMP;		// CProcessing
 }
 
 // State setting
@@ -824,6 +847,8 @@ void nvgFillPaint(NVGcontext* ctx, NVGpaint paint)
 	nvgTransformMultiply(state->fill.xform, state->xform);
 }
 
+// CProcessing: tint, image filter and image wrap settings
+// (CP_Settings_Tint, CP_Settings_ImageFilterMode, CP_Settings_ImageWrapMode)
 void nvgTintColor(NVGcontext* ctx, NVGcolor color)
 {
 	NVGstate* state = nvg__getState(ctx);
@@ -842,6 +867,7 @@ void nvgTextureWrap(NVGcontext* ctx, int wrapMode)
 	state->textureWrapMode = wrapMode;
 }
 
+#ifndef NVG_NO_STB
 int nvgCreateImage(NVGcontext* ctx, const char* filename, int imageFlags)
 {
 	int w, h, n, image;
@@ -850,6 +876,7 @@ int nvgCreateImage(NVGcontext* ctx, const char* filename, int imageFlags)
 	stbi_convert_iphone_png_to_rgb(1);
 	img = stbi_load(filename, &w, &h, &n, 4);
 	if (img == NULL) {
+//		printf("Failed to load %s - %s\n", filename, stbi_failure_reason());
 		return 0;
 	}
 	image = nvgCreateImageRGBA(ctx, w, h, imageFlags, img);
@@ -860,14 +887,18 @@ int nvgCreateImage(NVGcontext* ctx, const char* filename, int imageFlags)
 int nvgCreateImageMem(NVGcontext* ctx, int imageFlags, unsigned char* data, int ndata)
 {
 	int w, h, n, image;
+	stbi_set_unpremultiply_on_load(1);
+	stbi_convert_iphone_png_to_rgb(1);
 	unsigned char* img = stbi_load_from_memory(data, ndata, &w, &h, &n, 4);
 	if (img == NULL) {
+//		printf("Failed to load %s - %s\n", filename, stbi_failure_reason());
 		return 0;
 	}
 	image = nvgCreateImageRGBA(ctx, w, h, imageFlags, img);
 	stbi_image_free(img);
 	return image;
 }
+#endif
 
 int nvgCreateImageRGBA(NVGcontext* ctx, int w, int h, int imageFlags, const unsigned char* data)
 {
@@ -1088,7 +1119,7 @@ void nvgGlobalCompositeBlendFunc(NVGcontext* ctx, int sfactor, int dfactor)
 void nvgGlobalCompositeBlendFuncSeparate(NVGcontext* ctx, int srcRGB, int dstRGB, int srcAlpha, int dstAlpha)
 {
 	NVGcompositeOperationState op;
-	op.blendEquation = NVG_BLEND_EQUATION_ADD;
+	op.blendEquation = NVG_BLEND_EQUATION_ADD;	// CProcessing
 	op.srcRGB = srcRGB;
 	op.dstRGB = dstRGB;
 	op.srcAlpha = srcAlpha;
@@ -1782,7 +1813,7 @@ static int nvg__expandStroke(NVGcontext* ctx, float w, float fringe, int lineCap
 
 	w += aa * 0.5f;
 
-	// Disable the gradient used for antialiasing when antialiasing is not used. 
+	// Disable the gradient used for antialiasing when antialiasing is not used.
 	if (aa == 0.0f) {
 		u0 = 0.5f;
 		u1 = 0.5f;
@@ -2282,17 +2313,12 @@ void nvgFill(NVGcontext* ctx)
 	else
 		nvg__expandFill(ctx, 0.0f, NVG_MITER, 2.4f);
 
-	// Apply global tint
-	fillPaint.innerColor.r *= nvg__lerpf(1.0f, state->tint.r, state->tint.a);
-	fillPaint.innerColor.g *= nvg__lerpf(1.0f, state->tint.g, state->tint.a);
-	fillPaint.innerColor.b *= nvg__lerpf(1.0f, state->tint.b, state->tint.a);
-	fillPaint.outerColor.r *= nvg__lerpf(1.0f, state->tint.r, state->tint.a);
-	fillPaint.outerColor.g *= nvg__lerpf(1.0f, state->tint.g, state->tint.a);
-	fillPaint.outerColor.b *= nvg__lerpf(1.0f, state->tint.b, state->tint.a);
+	nvg__applyTint(&fillPaint, state->tint);	// CProcessing: nvgTintColor
 
 	// Apply global alpha
 	fillPaint.innerColor.a *= state->alpha;
 	fillPaint.outerColor.a *= state->alpha;
+	// CProcessing: per-draw image filter and wrap (nvgTextureFilter/Wrap)
 	fillPaint.textureFilterMode = state->textureFilterMode;
 	fillPaint.textureWrapMode = state->textureWrapMode;
 
@@ -2316,7 +2342,8 @@ void nvgStroke(NVGcontext* ctx)
 	NVGpaint strokePaint = state->stroke;
 	const NVGpath* path;
 	int i;
-	
+
+
 	if (strokeWidth < ctx->fringeWidth) {
 		// If the stroke width is less than pixel size, use alpha to emulate coverage.
 		// Since coverage is area, scale by alpha*alpha.
@@ -2326,13 +2353,7 @@ void nvgStroke(NVGcontext* ctx)
 		strokeWidth = ctx->fringeWidth;
 	}
 
-	// Apply global tint
-	strokePaint.innerColor.r *= nvg__lerpf(1.0f, state->tint.r, state->tint.a);
-	strokePaint.innerColor.g *= nvg__lerpf(1.0f, state->tint.g, state->tint.a);
-	strokePaint.innerColor.b *= nvg__lerpf(1.0f, state->tint.b, state->tint.a);
-	strokePaint.outerColor.r *= nvg__lerpf(1.0f, state->tint.r, state->tint.a);
-	strokePaint.outerColor.g *= nvg__lerpf(1.0f, state->tint.g, state->tint.a);
-	strokePaint.outerColor.b *= nvg__lerpf(1.0f, state->tint.b, state->tint.a);
+	nvg__applyTint(&strokePaint, state->tint);	// CProcessing: nvgTintColor
 
 	// Apply global alpha
 	strokePaint.innerColor.a *= state->alpha;
@@ -2357,14 +2378,24 @@ void nvgStroke(NVGcontext* ctx)
 }
 
 // Add fonts
-int nvgCreateFont(NVGcontext* ctx, const char* name, const char* path)
+int nvgCreateFont(NVGcontext* ctx, const char* name, const char* filename)
 {
-	return fonsAddFont(ctx->fs, name, path);
+	return fonsAddFont(ctx->fs, name, filename, 0);
+}
+
+int nvgCreateFontAtIndex(NVGcontext* ctx, const char* name, const char* filename, const int fontIndex)
+{
+	return fonsAddFont(ctx->fs, name, filename, fontIndex);
 }
 
 int nvgCreateFontMem(NVGcontext* ctx, const char* name, unsigned char* data, int ndata, int freeData)
 {
-	return fonsAddFontMem(ctx->fs, name, data, ndata, freeData);
+	return fonsAddFontMem(ctx->fs, name, data, ndata, freeData, 0);
+}
+
+int nvgCreateFontMemAtIndex(NVGcontext* ctx, const char* name, unsigned char* data, int ndata, int freeData, const int fontIndex)
+{
+	return fonsAddFontMem(ctx->fs, name, data, ndata, freeData, fontIndex);
 }
 
 int nvgFindFont(NVGcontext* ctx, const char* name)
@@ -2373,6 +2404,7 @@ int nvgFindFont(NVGcontext* ctx, const char* name)
 	return fonsGetFontByName(ctx->fs, name);
 }
 
+// CProcessing: removes and frees a loaded font (CP_Font_Free)
 void nvgFreeFont(NVGcontext* ctx, const char* name)
 {
 	FONSfont* font = fons__remFont(ctx->fs, name);
@@ -2388,6 +2420,16 @@ int nvgAddFallbackFontId(NVGcontext* ctx, int baseFont, int fallbackFont)
 int nvgAddFallbackFont(NVGcontext* ctx, const char* baseFont, const char* fallbackFont)
 {
 	return nvgAddFallbackFontId(ctx, nvgFindFont(ctx, baseFont), nvgFindFont(ctx, fallbackFont));
+}
+
+void nvgResetFallbackFontsId(NVGcontext* ctx, int baseFont)
+{
+	fonsResetFallbackFont(ctx->fs, baseFont);
+}
+
+void nvgResetFallbackFonts(NVGcontext* ctx, const char* baseFont)
+{
+	nvgResetFallbackFontsId(ctx, nvgFindFont(ctx, baseFont));
 }
 
 // State setting
@@ -2494,22 +2536,22 @@ static void nvg__renderText(NVGcontext* ctx, NVGvertex* verts, int nverts)
 	// Render triangles.
 	paint.image = ctx->fontImages[ctx->fontImageIdx];
 
-	// Apply global tint
-	paint.innerColor.r *= nvg__lerpf(1.0f, state->tint.r, state->tint.a);
-	paint.innerColor.g *= nvg__lerpf(1.0f, state->tint.g, state->tint.a);
-	paint.innerColor.b *= nvg__lerpf(1.0f, state->tint.b, state->tint.a);
-	paint.outerColor.r *= nvg__lerpf(1.0f, state->tint.r, state->tint.a);
-	paint.outerColor.g *= nvg__lerpf(1.0f, state->tint.g, state->tint.a);
-	paint.outerColor.b *= nvg__lerpf(1.0f, state->tint.b, state->tint.a);
+	nvg__applyTint(&paint, state->tint);	// CProcessing: nvgTintColor
 
 	// Apply global alpha
 	paint.innerColor.a *= state->alpha;
 	paint.outerColor.a *= state->alpha;
 
-	ctx->params.renderTriangles(ctx->params.userPtr, &paint, state->compositeOperation, &state->scissor, verts, nverts);
+	ctx->params.renderTriangles(ctx->params.userPtr, &paint, state->compositeOperation, &state->scissor, verts, nverts, ctx->fringeWidth);
 
 	ctx->drawCallCount++;
 	ctx->textTriCount += nverts/3;
+}
+
+static int nvg__isTransformFlipped(const float *xform)
+{
+	float det = xform[0] * xform[3] - xform[2] * xform[1];
+	return( det < 0);
 }
 
 float nvgText(NVGcontext* ctx, float x, float y, const char* string, const char* end)
@@ -2522,6 +2564,7 @@ float nvgText(NVGcontext* ctx, float x, float y, const char* string, const char*
 	float invscale = 1.0f / scale;
 	int cverts = 0;
 	int nverts = 0;
+	int isFlipped = nvg__isTransformFlipped(state->xform);
 
 	if (end == NULL)
 		end = string + strlen(string);
@@ -2543,13 +2586,6 @@ float nvgText(NVGcontext* ctx, float x, float y, const char* string, const char*
 	while (fonsTextIterNext(ctx->fs, &iter, &q)) {
 		float c[4*2];
 		if (iter.prevGlyphIndex == -1) { // can not retrieve glyph?
-			// The atlas is full. Draw the glyphs gathered so far before
-			// switching atlases: their texture coordinates point into the
-			// current atlas texture, and nvg__renderText draws with whichever
-			// one is current. (CProcessing: this used to switch first, so
-			// text whose size or scale changes every frame vanished, was cut
-			// off or showed stray glyphs for a frame every few seconds.
-			// Upstream NanoVG has the same order.)
 			if (nverts != 0) {
 				nvg__renderText(ctx, verts, nverts);
 				nverts = 0;
@@ -2562,6 +2598,12 @@ float nvgText(NVGcontext* ctx, float x, float y, const char* string, const char*
 				break;
 		}
 		prevIter = iter;
+		if(isFlipped) {
+			float tmp;
+
+			tmp = q.y0; q.y0 = q.y1; q.y1 = tmp;
+			tmp = q.t0; q.t0 = q.t1; q.t1 = tmp;
+		}
 		// Transform corners.
 		nvgTransformPoint(&c[0],&c[1], state->xform, q.x0*invscale, q.y0*invscale);
 		nvgTransformPoint(&c[2],&c[3], state->xform, q.x1*invscale, q.y0*invscale);
@@ -2592,7 +2634,7 @@ void nvgTextBox(NVGcontext* ctx, float x, float y, float breakRowWidth, const ch
 	NVGtextRow rows[2];
 	int nrows = 0, i;
 	int oldAlign = state->textAlign;
-	int haling = state->textAlign & (NVG_ALIGN_LEFT | NVG_ALIGN_CENTER | NVG_ALIGN_RIGHT);
+	int halign = state->textAlign & (NVG_ALIGN_LEFT | NVG_ALIGN_CENTER | NVG_ALIGN_RIGHT);
 	int valign = state->textAlign & (NVG_ALIGN_TOP | NVG_ALIGN_MIDDLE | NVG_ALIGN_BOTTOM | NVG_ALIGN_BASELINE);
 	float lineh = 0;
 
@@ -2605,11 +2647,11 @@ void nvgTextBox(NVGcontext* ctx, float x, float y, float breakRowWidth, const ch
 	while ((nrows = nvgTextBreakLines(ctx, string, end, breakRowWidth, rows, 2))) {
 		for (i = 0; i < nrows; i++) {
 			NVGtextRow* row = &rows[i];
-			if (haling & NVG_ALIGN_LEFT)
+			if (halign & NVG_ALIGN_LEFT)
 				nvgText(ctx, x, y, row->start, row->end);
-			else if (haling & NVG_ALIGN_CENTER)
+			else if (halign & NVG_ALIGN_CENTER)
 				nvgText(ctx, x + breakRowWidth*0.5f - row->width*0.5f, y, row->start, row->end);
-			else if (haling & NVG_ALIGN_RIGHT)
+			else if (halign & NVG_ALIGN_RIGHT)
 				nvgText(ctx, x + breakRowWidth - row->width, y, row->start, row->end);
 			y += lineh * state->lineHeight;
 		}
@@ -2774,7 +2816,7 @@ int nvgTextBreakLines(NVGcontext* ctx, const char* string, const char* end, floa
 					rowStartX = iter.x;
 					rowStart = iter.str;
 					rowEnd = iter.next;
-					rowWidth = iter.nextx - rowStartX; // q.x1 - rowStartX;
+					rowWidth = iter.nextx - rowStartX;
 					rowMinX = q.x0 - rowStartX;
 					rowMaxX = q.x1 - rowStartX;
 					wordStart = iter.str;
@@ -2804,7 +2846,7 @@ int nvgTextBreakLines(NVGcontext* ctx, const char* string, const char* end, floa
 				if ((ptype == NVG_SPACE && (type == NVG_CHAR || type == NVG_CJK_CHAR)) || type == NVG_CJK_CHAR) {
 					wordStart = iter.str;
 					wordStartX = iter.x;
-					wordMinX = q.x0 - rowStartX;
+					wordMinX = q.x0;
 				}
 
 				// Break to new line when a character is beyond break width.
@@ -2841,13 +2883,13 @@ int nvgTextBreakLines(NVGcontext* ctx, const char* string, const char* end, floa
 						nrows++;
 						if (nrows >= maxRows)
 							return nrows;
+						// Update row
 						rowStartX = wordStartX;
 						rowStart = wordStart;
 						rowEnd = iter.next;
 						rowWidth = iter.nextx - rowStartX;
-						rowMinX = wordMinX;
+						rowMinX = wordMinX - rowStartX;
 						rowMaxX = q.x1 - rowStartX;
-						// No change to the word start
 					}
 					// Set null break point
 					breakEnd = rowStart;
@@ -2910,7 +2952,7 @@ void nvgTextBoxBounds(NVGcontext* ctx, float x, float y, float breakRowWidth, co
 	float invscale = 1.0f / scale;
 	int nrows = 0, i;
 	int oldAlign = state->textAlign;
-	int haling = state->textAlign & (NVG_ALIGN_LEFT | NVG_ALIGN_CENTER | NVG_ALIGN_RIGHT);
+	int halign = state->textAlign & (NVG_ALIGN_LEFT | NVG_ALIGN_CENTER | NVG_ALIGN_RIGHT);
 	int valign = state->textAlign & (NVG_ALIGN_TOP | NVG_ALIGN_MIDDLE | NVG_ALIGN_BOTTOM | NVG_ALIGN_BASELINE);
 	float lineh = 0, rminy = 0, rmaxy = 0;
 	float minx, miny, maxx, maxy;
@@ -2942,11 +2984,11 @@ void nvgTextBoxBounds(NVGcontext* ctx, float x, float y, float breakRowWidth, co
 			NVGtextRow* row = &rows[i];
 			float rminx, rmaxx, dx = 0;
 			// Horizontal bounds
-			if (haling & NVG_ALIGN_LEFT)
+			if (halign & NVG_ALIGN_LEFT)
 				dx = 0;
-			else if (haling & NVG_ALIGN_CENTER)
+			else if (halign & NVG_ALIGN_CENTER)
 				dx = breakRowWidth*0.5f - row->width*0.5f;
-			else if (haling & NVG_ALIGN_RIGHT)
+			else if (halign & NVG_ALIGN_RIGHT)
 				dx = breakRowWidth - row->width;
 			rminx = x + row->minx + dx;
 			rmaxx = x + row->maxx + dx;

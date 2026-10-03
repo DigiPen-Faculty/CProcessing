@@ -30,6 +30,12 @@ Each change says what to do in an existing project.
   connected controller, so code that uses index 0 for the first controller
   is unaffected. Xbox controllers work as before on Windows, and most other
   controllers now work too.
+- **Text is 20% larger at the same `CP_Settings_TextSize`** with the default
+  font. The size is now the font's em size in pixels, as in Processing, CSS
+  and most other tools; before, it was the font's full height from
+  ascender to descender. Line spacing in `CP_Font_DrawTextBox` grows to
+  match. To keep the old look, multiply text sizes by 0.83 (for other
+  fonts, by the em size divided by the ascender-to-descender height).
 
 ### New
 
@@ -55,13 +61,16 @@ Each change says what to do in an existing project.
   solution. See [BUILDING.md](BUILDING.md).
 - **A new demo program** with a demo menu: press 1-4 to switch demos, F for
   fullscreen, C to show or hide the console, Escape to quit.
-- **Automated tests** (157 unit tests and 59 rendering and engine tests) and
+- **Automated tests** (157 unit tests and 66 rendering and engine tests) and
   continuous integration on Windows, Linux and macOS.
 
 ### Changed
 
 - The same versions of GLFW (3.5.1), SoLoud and miniaudio (0.11.25) are used
   on every platform. See [DEPENDENCIES.md](DEPENDENCIES.md).
+- NanoVG, which CProcessing draws with, is updated from a 2018 copy to its
+  latest version, keeping CProcessing's own changes to it. They are listed
+  in `Processing_Sample/CProcessing/nanovg/CPROCESSING.md`.
 - Every platform draws into an offscreen canvas that is copied to the window
   each frame. Drawing still persists between frames as before.
 - `CP_System_ShowCursor` and `CP_System_SetWindowTitle` can be called before
@@ -92,6 +101,9 @@ Each change says what to do in an existing project.
   drawn after `CP_Settings_NoStroke`. A point now follows the stroke
   settings like a line does, as documented: `CP_Settings_NoStroke` hides
   it, and `CP_Settings_NoFill` doesn't.
+- Text drawn mirrored or upside down, for example after
+  `CP_Settings_Scale(-1, 1)` to flip a sprite, didn't appear at all.
+- Text at negative coordinates could be shifted by a pixel.
 
 ## Earlier releases
 

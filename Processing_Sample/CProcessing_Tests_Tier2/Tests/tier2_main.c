@@ -64,6 +64,9 @@ int main(void)
     RUN_TEST(test_tier2_settings_applymatrix_applies_the_given_matrix);
     RUN_TEST(test_tier2_settings_blendmode_add_sums_overlapping_colors);
     RUN_TEST(test_tier2_settings_save_restore_round_trips_fill_and_transform);
+    RUN_TEST(test_tier2_settings_blend_modes_with_equations);
+    RUN_TEST(test_tier2_settings_tint_multiplies_shapes_and_images);
+    RUN_TEST(test_tier2_settings_carry_over_to_the_next_frame);
 
     // test_tier2_image.c
     RUN_TEST(test_tier2_image_load_reports_correct_dimensions);
@@ -72,12 +75,16 @@ int main(void)
     RUN_TEST(test_tier2_image_updatepixeldata_roundtrips_exactly);
     RUN_TEST(test_tier2_image_drawsubimage_selects_correct_region);
     RUN_TEST(test_tier2_image_many_images_load_draw_and_free);
+    RUN_TEST(test_tier2_image_filter_mode_nearest_and_linear);
+    RUN_TEST(test_tier2_image_wrap_modes);
 
     // test_tier2_font.c
     RUN_TEST(test_tier2_font_drawtext_occupies_expected_region);
     RUN_TEST(test_tier2_font_load_free_renders_with_custom_font);
     RUN_TEST(test_tier2_font_text_animated_by_size_draws_every_frame);
     RUN_TEST(test_tier2_font_text_animated_by_scale_draws_every_frame);
+    RUN_TEST(test_tier2_font_text_size_is_the_em_size);
+    RUN_TEST(test_tier2_font_text_mirrored_and_flipped_draws);
 
     // test_tier2_system_engine.c
     RUN_TEST(test_tier2_system_window_size_matches_what_was_set);
