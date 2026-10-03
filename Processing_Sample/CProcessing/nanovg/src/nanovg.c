@@ -2404,11 +2404,11 @@ int nvgFindFont(NVGcontext* ctx, const char* name)
 	return fonsGetFontByName(ctx->fs, name);
 }
 
-// CProcessing: removes and frees a loaded font (CP_Font_Free)
+// CProcessing: removes and frees a loaded font (CP_Font_Free). Other fonts
+// keep their handles; see fons__remFont.
 void nvgFreeFont(NVGcontext* ctx, const char* name)
 {
-	FONSfont* font = fons__remFont(ctx->fs, name);
-	fons__freeFont(font);
+	fons__remFont(ctx->fs, name);
 }
 
 int nvgAddFallbackFontId(NVGcontext* ctx, int baseFont, int fallbackFont)

@@ -546,6 +546,59 @@ static void Scn_FontLoadFree(void)
     CP_Font_Free(&customFont);
 }
 
+// ---- Freeing a font keeps the others working (v3) ----
+// A font's handle is its index in NanoVG's font list, and CP_Font_Free used
+// to remove a font by moving the ones after it down. Text in a font loaded
+// after the freed one then drew in the wrong font, or not at all. Three
+// fonts (the same file under three names): draw with the second and third,
+// free the first, draw the same again, and compare. Then a font loaded
+// after the free must work too; it is what the scenario captures.
+
+static CP_Color fontFreeBefore[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+static CP_Color fontFreeAfter[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+
+static void DrawWithTwoFonts(CP_Font upper, CP_Font lower)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Font_Set(upper);
+    CP_Font_DrawText("Hello", 100, 50);
+    CP_Font_Set(lower);
+    CP_Font_DrawText("Hello", 100, 150);
+}
+
+static void Scn_FontFreeKeepsOthers(void)
+{
+    CP_Settings_Fill(BLACK);
+    CP_Settings_TextSize(40.0f);
+    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+    CP_Font first = CP_Font_Load("Assets/Exo2-Regular.ttf");
+    CP_Font second = CP_Font_Load("Assets/./Exo2-Regular.ttf");
+    CP_Font third = CP_Font_Load("Assets/../Assets/Exo2-Regular.ttf");
+    tier2_scalars.fontFreeLoaded = (first != NULL) + (second != NULL) + (third != NULL);
+
+    DrawWithTwoFonts(second, third);
+    CaptureInto(fontFreeBefore);
+    CP_Font_Free(&first);
+    DrawWithTwoFonts(second, third);
+    CaptureInto(fontFreeAfter);
+
+    for (int i = 0; i < TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE; ++i)
+    {
+        tier2_scalars.fontFreeInkBefore += fontFreeBefore[i].r < 128;
+        tier2_scalars.fontFreeMismatched += (fontFreeBefore[i].r < 128) != (fontFreeAfter[i].r < 128);
+    }
+
+    CP_Font later = CP_Font_Load("Assets/./../Assets/Exo2-Regular.ttf");
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Font_Set(later);
+    CP_Font_DrawText("Hello", 100, 100);
+
+    CP_Font_Free(&second);
+    CP_Font_Free(&third);
+    CP_Font_Free(&later);
+    CP_Font_Set(CP_Font_GetDefault());
+}
+
 // ---- Text animated by size or by scale (v3) ----
 // Students often change the text size, or the scale the text is drawn at,
 // every frame: a sine wave from 10 to 100, say. Every new size needs new
@@ -956,6 +1009,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_IMAGE_MANY] = Scn_ImageMany,
     [SCN_FONT_DRAWTEXT] = Scn_FontDrawText,
     [SCN_FONT_LOAD_FREE] = Scn_FontLoadFree,
+    [SCN_FONT_FREE_KEEPS_OTHERS] = Scn_FontFreeKeepsOthers,
     [SCN_FONT_SIZE_SWEEP] = Scn_FontSizeSweep,
     [SCN_FONT_SCALE_SWEEP] = Scn_FontScaleSweep,
     [SCN_FONT_EM_SIZE] = Scn_FontEmSize,

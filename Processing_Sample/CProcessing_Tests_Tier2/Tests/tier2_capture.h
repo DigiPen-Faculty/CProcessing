@@ -59,6 +59,7 @@ typedef enum
     SCN_IMAGE_MANY,
     SCN_FONT_DRAWTEXT,
     SCN_FONT_LOAD_FREE,
+    SCN_FONT_FREE_KEEPS_OTHERS,
     SCN_FONT_SIZE_SWEEP,
     SCN_FONT_SCALE_SWEEP,
     SCN_FONT_EM_SIZE,
@@ -135,6 +136,11 @@ typedef struct
 
     // CP_System_GetWindowHandle
     CP_BOOL windowHandleIsNull;
+
+    // Freeing a font (see Scn_FontFreeKeepsOthers)
+    int fontFreeLoaded;             // fonts loaded, of 3
+    int fontFreeInkBefore;          // ink pixels before freeing the first
+    int fontFreeMismatched;         // pixels that changed after freeing it
 
     // Text animated by size and by scale (see Scn_FontSizeSweep)
     Tier2TextSweep textSizeSweep;

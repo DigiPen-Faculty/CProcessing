@@ -59,7 +59,7 @@ that isn't listed here.
 | **Image wrap per draw:** `nvgTextureWrap` (clamp to border, clamp to edge, repeat, mirror) | `nanovg.c`, `nanovg.h`, `nanovg_gl.h` | `CP_Settings_ImageWrapMode` | Upstream only has repeat X/Y flags set at creation, and no mirror or clamp-to-border. |
 | **Blend modes:** blend equations (`NVGblendEquation`), the `NVG_BLEND_*` composite operations, `glBlendEquation` in the GL back end | `nanovg.c`, `nanovg.h`, `nanovg_gl.h` | `CP_Settings_BlendMode` | Subtract, min and max need a blend equation, which upstream's GL back end never sets. |
 | **Settings last across frames:** `nvgBeginFrame` doesn't reset the drawing state | `nanovg.c` | Processing's model: fill, stroke, blend mode and so on carry over to the next frame | Upstream resets the state at the start of every frame. |
-| **Freeing fonts:** `nvgFreeFont`, and `fons__remFont` in fontstash | `nanovg.c`, `nanovg.h`, `fontstash.h` | `CP_Font_Free` | Fontstash has no way to remove a font. |
+| **Freeing fonts:** `nvgFreeFont`, and `fons__remFont` in fontstash. A freed font's data and glyphs are released, but it keeps its slot as an empty font, because a font's handle is its index: moving later fonts down would break every handle to them. | `nanovg.c`, `nanovg.h`, `fontstash.h` | `CP_Font_Free` | Fontstash has no way to remove a font. |
 
 Things that used to be patches here and now live in CProcessing's own code:
 

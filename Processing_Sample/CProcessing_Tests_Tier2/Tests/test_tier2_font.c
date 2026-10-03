@@ -36,6 +36,18 @@ void test_tier2_font_load_free_renders_with_custom_font(void)
     TEST_ASSERT_FALSE(RegionHasInk(SCN_FONT_LOAD_FREE, 150, 150, 195, 195));
 }
 
+void test_tier2_font_free_keeps_other_fonts_working(void)
+{
+    // See Scn_FontFreeKeepsOthers
+    TEST_ASSERT_EQUAL_INT(3, tier2_scalars.fontFreeLoaded);
+    TEST_ASSERT_GREATER_THAN_INT(300, tier2_scalars.fontFreeInkBefore);
+    // Text in the two fonts loaded after the freed one looks the same
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, tier2_scalars.fontFreeMismatched,
+                                  "pixels changed after freeing an earlier font");
+    // And a font loaded after the free draws too
+    TEST_ASSERT_TRUE(RegionHasInk(SCN_FONT_FREE_KEEPS_OTHERS, 40, 80, 160, 120));
+}
+
 // See Scn_FontSizeSweep: every frame of text animated through new sizes
 // must look exactly like an immediate redraw of the same frame.
 static void AssertSweepDrewEveryFrame(const Tier2TextSweep* sweep)

@@ -81,6 +81,7 @@ int main(void)
     // test_tier2_font.c
     RUN_TEST(test_tier2_font_drawtext_occupies_expected_region);
     RUN_TEST(test_tier2_font_load_free_renders_with_custom_font);
+    RUN_TEST(test_tier2_font_free_keeps_other_fonts_working);
     RUN_TEST(test_tier2_font_text_animated_by_size_draws_every_frame);
     RUN_TEST(test_tier2_font_text_animated_by_scale_draws_every_frame);
     RUN_TEST(test_tier2_font_text_size_is_the_em_size);

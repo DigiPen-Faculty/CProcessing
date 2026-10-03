@@ -913,23 +913,38 @@ error:
 	return FONS_INVALID;
 }
 
-// CProcessing: removes a font, for nvgFreeFont (CP_Font_Free)
-static FONSfont* fons__remFont(FONScontext* stash, const char* name)
+// CProcessing: removes a font, for nvgFreeFont (CP_Font_Free). Its data and
+// glyphs are freed, but it keeps its slot as an empty font: a font's handle is
+// its index, so moving the fonts after it down would make every handle to
+// them (in CProcessing and in NanoVG's state) point at the wrong font. Text in
+// an empty font draws nothing, since fontstash skips fonts without data, and
+// it can't be found by name. The slot itself is freed with the context.
+static void fons__remFont(FONScontext* stash, const char* name)
 {
 	int idx = fonsGetFontByName(stash, name);
+	int i, j;
+	FONSfont* font;
 
 	if (idx == FONS_INVALID)
-		return NULL;
+		return;
 
-	FONSfont* font = stash->fonts[idx];
+	font = stash->fonts[idx];
+	if (font->glyphs) free(font->glyphs);
+	if (font->freeData && font->data) free(font->data);
+	memset(font, 0, sizeof(FONSfont));
+	for (i = 0; i < FONS_HASH_LUT_SIZE; ++i)
+		font->lut[i] = -1;
 
-	char* dest = (char*)stash->fonts + (sizeof(FONSfont*) * idx);
-	char* src = dest + sizeof(FONSfont*);
-	size_t num_bytes = sizeof(FONSfont*) * (stash->cfonts - idx - 1);
-	memmove(dest, src, num_bytes);
-	stash->nfonts--;
-
-	return font;
+	// No other font may fall back to it
+	for (i = 0; i < stash->nfonts; ++i) {
+		FONSfont* other = stash->fonts[i];
+		for (j = 0; j < other->nfallbacks; ) {
+			if (other->fallbacks[j] == idx)
+				other->fallbacks[j] = other->fallbacks[--other->nfallbacks];
+			else
+				++j;
+		}
+	}
 }
 
 int fonsAddFont(FONScontext* stash, const char* name, const char* path, int fontIndex)

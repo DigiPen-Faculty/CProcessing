@@ -48,6 +48,7 @@ void test_tier2_image_wrap_modes(void);
 // test_tier2_font.c -- Tier 2: CP_Font (bounding-box/occupancy checks).
 void test_tier2_font_drawtext_occupies_expected_region(void);
 void test_tier2_font_load_free_renders_with_custom_font(void);
+void test_tier2_font_free_keeps_other_fonts_working(void);
 void test_tier2_font_text_animated_by_size_draws_every_frame(void);
 void test_tier2_font_text_animated_by_scale_draws_every_frame(void);
 void test_tier2_font_text_size_is_the_em_size(void);
