@@ -57,6 +57,7 @@ static void ResetToBaseline(void)
     CP_Settings_Fill(WHITE);
     CP_Settings_Stroke(BLACK);
     CP_Settings_StrokeWeight(3.0f);
+    CP_Settings_LineCapMode(CP_LINE_CAP_BUTT);
     CP_Settings_RectMode(CP_POSITION_CENTER);
     CP_Settings_EllipseMode(CP_POSITION_CENTER);
     CP_Settings_BlendMode(CP_BLEND_ALPHA);
@@ -71,20 +72,37 @@ static void Scn_ClearBackground(void)
     tier2_scalars.frameCountEarly = CP_System_GetFrameCount();
 }
 
+// A point follows the line settings, as the wiki documents: the stroke
+// color, the stroke weight as its size, and the line cap as its shape. It
+// has no fill. See test_tier2_graphics_drawpoint_follows_stroke_settings.
 static void Scn_DrawPoint(void)
 {
     CP_Graphics_ClearBackground(WHITE);
-    // CP_Graphics_DrawPoint is gated on DI->fill (must be enabled for
-    // anything to draw at all -- CP_Graphics.c:100-112), but nanovg's
-    // nvgFillPoint renders it with useStrokePaint=1 (nanovg.c:2331-2334),
-    // i.e. the pixels that actually appear are colored by the current
-    // *stroke* color/width, not the fill color. Undocumented, verified by
-    // running this scenario against both colors and checking which one
-    // shows up -- asserted explicitly in test_tier2_graphics_drawpoint.
-    CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255)); // must be enabled, but should NOT be the rendered color
-    CP_Settings_Stroke(RED); // this is the color that actually renders
-    CP_Settings_StrokeWeight(20.0f); // nvgPoint sizes itself off strokeWidth
-    CP_Graphics_DrawPoint(100, 100);
+    CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255));
+    CP_Settings_Stroke(RED);
+    CP_Settings_StrokeWeight(20.0f);
+
+    // Round cap: a circle 20 across. Square cap: a 20x20 square.
+    CP_Settings_LineCapMode(CP_LINE_CAP_ROUND);
+    CP_Graphics_DrawPoint(50, 50);
+    CP_Settings_LineCapMode(CP_LINE_CAP_SQUARE);
+    CP_Graphics_DrawPoint(150, 50);
+
+    // Drawing a point leaves the fill color alone
+    CP_Settings_NoStroke();
+    CP_Graphics_DrawRect(100, 100, 20, 20);
+
+    // No stroke hides a point; no fill doesn't
+    CP_Graphics_DrawPoint(100, 150);
+    CP_Settings_Stroke(RED);
+    CP_Settings_NoFill();
+    CP_Graphics_DrawPoint(50, 150);
+
+    // A stroke color undone by CP_Settings_Restore is undone for points too
+    CP_Settings_Save();
+    CP_Settings_Stroke(CP_Color_Create(0, 0, 255, 255));
+    CP_Settings_Restore();
+    CP_Graphics_DrawPoint(150, 150);
 }
 
 static void Scn_DrawLine(void)

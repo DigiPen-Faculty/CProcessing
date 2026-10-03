@@ -385,7 +385,22 @@ CP_API void CP_Image_GetPixelData(CP_Image img, CP_Color* pixelDataOutput)
         return;
     }
 
-    nvgGetImagePixelsRGBA(CORE->nvg, img->handle, (unsigned char*)pixelDataOutput);
+    // nvglImageHandleGL3 doesn't check the handle, so make sure NanoVG
+    // knows the image first: nvgImageSize leaves the size alone if not.
+    int w = 0, h = 0;
+    nvgImageSize(CORE->nvg, img->handle, &w, &h);
+    if (w <= 0 || h <= 0)
+    {
+        return;
+    }
+
+    // Read the pixels back from the image's OpenGL texture, leaving the
+    // texture binding as NanoVG had it
+    GLint previousTexture = 0;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousTexture);
+    glBindTexture(GL_TEXTURE_2D, nvglImageHandleGL3(CORE->nvg, img->handle));
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelDataOutput);
+    glBindTexture(GL_TEXTURE_2D, (GLuint)previousTexture);
 }
 
 CP_API void CP_Image_UpdatePixelData(CP_Image img, CP_Color* pixelDataInput)

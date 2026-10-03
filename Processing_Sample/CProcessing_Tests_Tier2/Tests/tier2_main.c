@@ -38,7 +38,7 @@ int main(void)
 
     // test_tier2_graphics.c
     RUN_TEST(test_tier2_graphics_clearbackground_fills_whole_canvas);
-    RUN_TEST(test_tier2_graphics_drawpoint_is_colored_by_stroke_not_fill);
+    RUN_TEST(test_tier2_graphics_drawpoint_follows_stroke_settings);
     RUN_TEST(test_tier2_graphics_drawline);
     RUN_TEST(test_tier2_graphics_drawlineadvanced_rotates_90_degrees);
     RUN_TEST(test_tier2_graphics_drawrect);

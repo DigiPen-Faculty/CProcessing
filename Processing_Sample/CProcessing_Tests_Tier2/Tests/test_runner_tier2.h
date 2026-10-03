@@ -5,7 +5,7 @@
 
 // test_tier2_graphics.c -- Tier 2: CP_Graphics (shape primitives).
 void test_tier2_graphics_clearbackground_fills_whole_canvas(void);
-void test_tier2_graphics_drawpoint_is_colored_by_stroke_not_fill(void);
+void test_tier2_graphics_drawpoint_follows_stroke_settings(void);
 void test_tier2_graphics_drawline(void);
 void test_tier2_graphics_drawlineadvanced_rotates_90_degrees(void);
 void test_tier2_graphics_drawrect(void);

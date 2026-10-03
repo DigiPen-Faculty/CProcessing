@@ -874,11 +874,6 @@ int nvgCreateImageRGBA(NVGcontext* ctx, int w, int h, int imageFlags, const unsi
 	return ctx->params.renderCreateTexture(ctx->params.userPtr, NVG_TEXTURE_RGBA, w, h, imageFlags, data);
 }
 
-int nvgGetImagePixelsRGBA(NVGcontext* ctx, int image, unsigned char* data)
-{
-	return ctx->params.renderGetTexturePixelData(ctx->params.userPtr, image, data);
-}
-
 void nvgUpdateImage(NVGcontext* ctx, int image, const unsigned char* data)
 {
 	int w, h;
@@ -2252,20 +2247,6 @@ void nvgCircle(NVGcontext* ctx, float cx, float cy, float r)
 	nvgEllipse(ctx, cx,cy, r,r);
 }
 
-void nvgPoint(NVGcontext* ctx, float x, float y)
-{
-	NVGstate* state = nvg__getState(ctx);
-	float halfWidth = state->strokeWidth * 0.5f;
-	if (state->lineCap == NVG_ROUND)
-	{
-		nvgCircle(ctx, x + 0.5f, y + 0.5f, halfWidth);
-	}
-	else
-	{
-		nvgRect(ctx, x + 0.5f - halfWidth, y + 0.5f - halfWidth, state->strokeWidth, state->strokeWidth);
-	}
-}
-
 void nvgDebugDumpPathCache(NVGcontext* ctx)
 {
 	const NVGpath* path;
@@ -2288,11 +2269,11 @@ void nvgDebugDumpPathCache(NVGcontext* ctx)
 	}
 }
 
-void nvgFillInternal(NVGcontext* ctx, int useStrokePaint)
+void nvgFill(NVGcontext* ctx)
 {
 	NVGstate* state = nvg__getState(ctx);
 	const NVGpath* path;
-	NVGpaint fillPaint = useStrokePaint ? state->stroke : state->fill;
+	NVGpaint fillPaint = state->fill;
 	int i;
 
 	nvg__flattenPaths(ctx);
@@ -2325,16 +2306,6 @@ void nvgFillInternal(NVGcontext* ctx, int useStrokePaint)
 		ctx->fillTriCount += path->nstroke-2;
 		ctx->drawCallCount += 2;
 	}
-}
-
-void nvgFill(NVGcontext* ctx)
-{
-	nvgFillInternal(ctx, 0);
-}
-
-void nvgFillPoint(NVGcontext* ctx)
-{
-	nvgFillInternal(ctx, 1);
 }
 
 void nvgStroke(NVGcontext* ctx)

@@ -914,21 +914,6 @@ static int glnvg__renderUpdateTexture(void* uptr, int image, int x, int y, int w
 	return 1;
 }
 
-static int glnvg__renderGetTexturePixelData(void* uptr, int image, unsigned char* data)
-{
-	GLNVGcontext* gl = (GLNVGcontext*)uptr;
-	GLNVGtexture* tex = glnvg__findTexture(gl, image);
-	if (tex == NULL) return 0;
-
-	GLint currentTextureID = 0;
-	glGetIntegerv(GL_TEXTURE_BINDING_2D, &currentTextureID);
-	glBindTexture(GL_TEXTURE_2D, tex->tex);
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	glBindTexture(GL_TEXTURE_2D, currentTextureID);
-
-	return 1;
-}
-
 static int glnvg__renderGetTextureSize(void* uptr, int image, int* w, int* h)
 {
 	GLNVGcontext* gl = (GLNVGcontext*)uptr;
@@ -1056,10 +1041,7 @@ static void glnvg__setUniforms(GLNVGcontext* gl, int uniformOffset, int image)
 
 static void glnvg__renderViewport(void* uptr, int width, int height, float devicePixelRatio)
 {
-    // DFH -- Prevent compiler whining
-    UNREFERENCED_PARAMETER(devicePixelRatio);
-	
-    NVG_NOTUSED(devicePixelRatio);
+	NVG_NOTUSED(devicePixelRatio);
 	GLNVGcontext* gl = (GLNVGcontext*)uptr;
 	gl->view[0] = (float)width;
 	gl->view[1] = (float)height;
@@ -1668,7 +1650,6 @@ NVGcontext* nvgCreateGLES3(int flags)
 	params.renderCreateTexture = glnvg__renderCreateTexture;
 	params.renderDeleteTexture = glnvg__renderDeleteTexture;
 	params.renderUpdateTexture = glnvg__renderUpdateTexture;
-	params.renderGetTexturePixelData = glnvg__renderGetTexturePixelData;
 	params.renderGetTextureSize = glnvg__renderGetTextureSize;
 	params.renderViewport = glnvg__renderViewport;
 	params.renderCancel = glnvg__renderCancel;

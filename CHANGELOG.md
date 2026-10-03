@@ -88,6 +88,10 @@ Each change says what to do in an existing project.
   different sizes also slowly leaked video memory.
 - Linux and macOS builds could crash or corrupt memory once more than 12
   images or sounds, or more than 16 fonts, were loaded at the same time.
+- `CP_Graphics_DrawPoint` was hidden by `CP_Settings_NoFill` and still
+  drawn after `CP_Settings_NoStroke`. A point now follows the stroke
+  settings like a line does, as documented: `CP_Settings_NoStroke` hides
+  it, and `CP_Settings_NoFill` doesn't.
 
 ## Earlier releases
 

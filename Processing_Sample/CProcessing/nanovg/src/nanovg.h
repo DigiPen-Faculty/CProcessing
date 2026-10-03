@@ -416,9 +416,6 @@ int nvgCreateImageMem(NVGcontext* ctx, int imageFlags, unsigned char* data, int 
 // Returns handle to the image.
 int nvgCreateImageRGBA(NVGcontext* ctx, int w, int h, int imageFlags, const unsigned char* data);
 
-// Access the pixel data from a loaded texture
-int nvgGetImagePixelsRGBA(NVGcontext* ctx, int image, unsigned char* data);
-
 // Updates image data specified by image handle.
 void nvgUpdateImage(NVGcontext* ctx, int image, const unsigned char* data);
 
@@ -542,17 +539,11 @@ void nvgEllipse(NVGcontext* ctx, float cx, float cy, float rx, float ry);
 // Creates new circle shaped sub-path.
 void nvgCircle(NVGcontext* ctx, float cx, float cy, float r);
 
-// Creates a rect or circle shaped sub-path based on line cap mode
-void nvgPoint(NVGcontext* ctx, float cx, float cy);
-
 // Fills the current path with current fill style.
 void nvgFill(NVGcontext* ctx);
 
 // Fills the current path with current stroke style.
 void nvgStroke(NVGcontext* ctx);
-
-// Fills the current path with stroke style override.
-void nvgFillPoint(NVGcontext* ctx);
 
 
 //
@@ -701,7 +692,6 @@ struct NVGparams {
 	int (*renderCreateTexture)(void* uptr, int type, int w, int h, int imageFlags, const unsigned char* data);
 	int (*renderDeleteTexture)(void* uptr, int image);
 	int (*renderUpdateTexture)(void* uptr, int image, int x, int y, int w, int h, const unsigned char* data);
-	int (*renderGetTexturePixelData)(void* uptr, int image, unsigned char* data);
 	int (*renderGetTextureSize)(void* uptr, int image, int* w, int* h);
 	void (*renderViewport)(void* uptr, int width, int height, float devicePixelRatio);
 	void (*renderCancel)(void* uptr);

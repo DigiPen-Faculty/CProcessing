@@ -225,8 +225,20 @@
     <ClInclude Include="Source\vect.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GLAD\glad.c" />
-    <ClCompile Include="nanovg\src\nanovg.c" />
+    <!-- Vendored third-party sources are compiled as-is, without warnings
+         (CMakeLists.txt does the same). See DEPENDENCIES.md. -->
+    <ClCompile Include="GLAD\glad.c">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="nanovg\src\nanovg.c">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="Source\nanovg_gl3.c">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="Source\tinycthread.c">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
     <ClCompile Include="Source\CP_Color.c" />
     <ClCompile Include="Source\CP_File.c" />
     <ClCompile Include="Source\CP_Graphics.c" />
@@ -239,15 +251,7 @@
     <ClCompile Include="Source\CP_Sound.c" />
     <ClCompile Include="Source\CP_Text.c" />
     <ClCompile Include="Source\CP_System.c" />
-    <ClCompile Include="Source\tinycthread.c" />
     <ClCompile Include="Source\vect.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="nanovg\src\nanovg.h.gch" />
-    <None Include="nanovg\src\nanovg_gl.h.gch" />
-    <None Include="nanovg\src\nanovg_gl_utils.h.gch" />
-    <None Include="nanovg\src\stb_image.h.gch" />
-    <None Include="nanovg\src\stb_truetype.h.gch" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
