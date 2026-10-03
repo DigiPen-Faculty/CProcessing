@@ -4,10 +4,10 @@ Notable changes in each CProcessing release. Version numbers are
 major.minor.patch. The major number goes up when existing projects may need
 changes to build with the new version.
 
-## 3.0.0 (unreleased)
+## 3.0.0 (2026-10-03)
 
 CProcessing now runs on Windows, Linux and macOS, with the same API and the
-same behavior everywhere.
+same behavior everywhere. macOS support is a preview in this release.
 
 ### Breaking changes
 
@@ -39,9 +39,10 @@ Each change says what to do in an existing project.
 
 ### New
 
-- **Linux and macOS support.** The library, demos and tests build and run on
-  Linux (X11 and Wayland). macOS builds cleanly but has not been tested on a
-  Mac yet; please report problems.
+- **Linux support, and macOS as a preview.** The library, demos and tests
+  build and run on Linux (X11 and Wayland). On macOS they build and the unit
+  tests pass, but CProcessing hasn't been tested on a real Mac yet; please
+  [report problems](https://github.com/DigiPen-Faculty/CProcessing/issues).
 - **A console for `printf` debugging:** `CP_System_ShowConsole(CP_BOOL show)`
   and `CP_System_GetConsoleVisible()`. On Windows it opens a console window,
   or uses the terminal the program was started from. On Linux and macOS,

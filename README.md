@@ -4,7 +4,7 @@
 * It's a framework that provides simple implementations for many of the common things used in 2D games all within the C programming language.
 * Graphics, Audio, Input, Fonts, Colors, Math (Vectors and Matrices), Random
 * It is a DLL that can be incorporated into projects across many platforms and accessed from many different programming languages.
-* It runs on Windows, Linux and macOS.
+* It runs on Windows, Linux and macOS. macOS support is a preview in 3.0.
 * It was patterned after Processing (Java) and P5.js (JavaScript)
  
 ## What can you do with it?
@@ -15,6 +15,7 @@
 ## What's next?
 * Grab a copy of the [Latest Release](https://github.com/DigiPen-Faculty/CProcessing/releases):
   `CProcessingTemplate.zip` for Visual Studio on Windows, or the CMake starter project for Linux (`CProcessingTemplate-linux-x64.zip`) or macOS (`CProcessingTemplate-macos.zip`).
+  The macOS package is a preview: it builds and passes the unit tests, but hasn't been tested on a real Mac yet. Please [report problems](https://github.com/DigiPen-Faculty/CProcessing/issues).
 * Read through the [Documentation](https://github.com/DigiPen-Faculty/CProcessing/wiki).
 * See what changed in each release in the [Changelog](CHANGELOG.md).
 * Have fun building awesome stuff!

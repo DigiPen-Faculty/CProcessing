@@ -1,7 +1,7 @@
 # CProcessing starter project (CMake)
 
-A starting point for a CProcessing game on Windows, Linux or macOS, built
-with CMake. On Windows with Visual Studio, most students use the Visual
+A starting point for a CProcessing game on Windows, Linux or macOS (a
+preview; see the macOS section below), built with CMake. On Windows with Visual Studio, most students use the Visual
 Studio template instead (`CProcessingTemplate.zip` on the
 [Releases page](https://github.com/DigiPen-Faculty/CProcessing/releases)).
 
@@ -58,7 +58,9 @@ game in `build/bin`, so assets load.
 
 ## macOS: "can't be opened"
 
-macOS support is new. Please report anything that doesn't work.
+macOS support is a preview in CProcessing 3.0: it builds and passes its
+unit tests, but hasn't been tested on a real Mac yet. Please
+[report anything that doesn't work](https://github.com/DigiPen-Faculty/CProcessing/issues).
 
 If macOS refuses to open `libCProcessing.dylib` from a downloaded package
 (for example "cannot be opened because the developer cannot be verified"),
