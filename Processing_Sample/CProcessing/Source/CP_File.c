@@ -14,29 +14,32 @@
 #include <errno.h>
 #include "Internal_File.h"
 
-// for access
-#ifndef _UNISTD_H
-#define _UNISTD_H    1
-#endif
-#include <stdlib.h>   // _access
-#include <io.h>       // _access 
 #include <sys/stat.h> // stat
-#include <direct.h>   // _mkdir
 
+#if defined(_WIN32)
+	#include <stdlib.h>   // _access
+	#include <io.h>       // _access
+	#include <direct.h>   // _mkdir
 
-//------------------------------------------------------------------------------
-// Defines:
-//------------------------------------------------------------------------------
+	/* Values for the second argument to access.
+	These may be OR'd together.  */
+	#ifndef R_OK
+		#define R_OK    4       /* Test for read permission.  */
+	#endif
+	#ifndef W_OK
+		#define W_OK    2       /* Test for write permission.  */
+	#endif
+	//#define   X_OK    1       /* execute permission - unsupported in windows*/
+	#ifndef F_OK
+		#define F_OK    0       /* Test for existence.  */
+	#endif
 
-/* Values for the second argument to access.
-These may be OR'd together.  */
-#define R_OK    4       /* Test for read permission.  */
-#define W_OK    2       /* Test for write permission.  */
-//#define   X_OK    1       /* execute permission - unsupported in windows*/
-#define F_OK    0       /* Test for existence.  */
-
-
-#define access _access
+	#define access _access
+	#define CP_MAKE_DIR(path) _mkdir(path)
+#else
+	#include <unistd.h>   // access
+	#define CP_MAKE_DIR(path) mkdir(path, 0755)
+#endif
 
 //------------------------------------------------------------------------------
 // Private Consts:
@@ -105,7 +108,8 @@ int file_dirExists(const char * dirpath)
 
 int file_makedir(const char * dirpath)
 {
-    if (_mkdir(dirpath))
+    // _mkdir/mkdir return 0 on success
+    if (CP_MAKE_DIR(dirpath) == 0)
     {
         return CP_OK;
     }

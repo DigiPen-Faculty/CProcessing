@@ -38,13 +38,13 @@ void DrawGamepadData(int posX, int posY, int i)
 
 	//-------------------------
 	// INDEX and DEFAULT
-	char buffer[20] = { 0 };
-	sprintf_s(buffer, _countof(buffer), "Gamepad: %d", i + 1);
+	char buffer[32] = { 0 };
+	snprintf(buffer, sizeof(buffer), "Gamepad: %d", i + 1);
 	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
 	CP_Font_DrawText(buffer, 10, 30);
 	if (defaultId == i)
 	{
-		CP_Font_DrawText("Default", 10, 50);
+		CP_Font_DrawText("Default", 10, 60);
 	}
 
 	//-------------------------

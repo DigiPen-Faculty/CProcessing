@@ -102,12 +102,29 @@ CP_API void CP_Graphics_DrawPoint(float x, float y)
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
-	// Point path and fill
-	if (DI->fill)
+	// A point follows the line settings, like CP_Graphics_DrawLine: the
+	// stroke color, the stroke weight as its size, and the line cap as its
+	// shape (round caps make a circle, butt and square caps a square).
+	if (DI->stroke)
 	{
+		const CP_Color stroke = DI->stroke_color;
+		const CP_Color fill = DI->fill_color;
+		const float size = DI->stroke_weight;
+
 		nvgBeginPath(CORE->nvg);
-		nvgPoint(CORE->nvg, x, y);
-		nvgFillPoint(CORE->nvg);
+		if (DI->line_cap == CP_LINE_CAP_ROUND)
+		{
+			nvgCircle(CORE->nvg, x + 0.5f, y + 0.5f, size * 0.5f);
+		}
+		else
+		{
+			nvgRect(CORE->nvg, x + 0.5f - size * 0.5f, y + 0.5f - size * 0.5f, size, size);
+		}
+
+		// Fill the point with the stroke color, then put the fill color back
+		nvgFillColor(CORE->nvg, nvgRGBA(stroke.r, stroke.g, stroke.b, stroke.a));
+		nvgFill(CORE->nvg);
+		nvgFillColor(CORE->nvg, nvgRGBA(fill.r, fill.g, fill.b, fill.a));
 	}
 }
 

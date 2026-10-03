@@ -63,7 +63,10 @@
     <ClInclude Include="Source\Internal_Noise.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="Source\Internal_InputLogic.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Internal_Platform.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
     <ClInclude Include="inc\cprocessing.h">
@@ -89,13 +92,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\CP_Random.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="nanovg\src\nanovg.c">
+      <Filter>NanoVG</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\nanovg_gl3.c">
       <Filter>NanoVG</Filter>
     </ClCompile>
     <ClCompile Include="Source\CP_Graphics.c">
@@ -140,22 +143,5 @@
     <ClCompile Include="GLAD\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="nanovg\src\nanovg.h.gch">
-      <Filter>NanoVG</Filter>
-    </None>
-    <None Include="nanovg\src\nanovg_gl.h.gch">
-      <Filter>NanoVG</Filter>
-    </None>
-    <None Include="nanovg\src\nanovg_gl_utils.h.gch">
-      <Filter>NanoVG</Filter>
-    </None>
-    <None Include="nanovg\src\stb_image.h.gch">
-      <Filter>NanoVG</Filter>
-    </None>
-    <None Include="nanovg\src\stb_truetype.h.gch">
-      <Filter>NanoVG</Filter>
-    </None>
   </ItemGroup>
 </Project>

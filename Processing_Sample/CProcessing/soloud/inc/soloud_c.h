@@ -60,6 +60,18 @@ enum SOLOUD_ENUMS
 	SOLOUD_ENABLE_VISUALIZATION = 2,
 	SOLOUD_LEFT_HANDED_3D = 4,
 	SOLOUD_NO_FPU_REGISTER_CHANGE = 8,
+	SOLOUD_WAVE_SQUARE = 0,
+	SOLOUD_WAVE_SAW = 1,
+	SOLOUD_WAVE_SIN = 2,
+	SOLOUD_WAVE_TRIANGLE = 3,
+	SOLOUD_WAVE_BOUNCE = 4,
+	SOLOUD_WAVE_JAWS = 5,
+	SOLOUD_WAVE_HUMPS = 6,
+	SOLOUD_WAVE_FSQUARE = 7,
+	SOLOUD_WAVE_FSAW = 8,
+	SOLOUD_RESAMPLER_POINT = 0,
+	SOLOUD_RESAMPLER_LINEAR = 1,
+	SOLOUD_RESAMPLER_CATMULLROM = 2,
 	BASSBOOSTFILTER_WET = 0,
 	BASSBOOSTFILTER_BOOST = 1,
 	BIQUADRESONANTFILTER_LOWPASS = 0,
@@ -120,6 +132,7 @@ enum SOLOUD_ENUMS
 typedef void * AlignedFloatBuffer;
 typedef void * TinyAlignedFloatBuffer;
 typedef void * Soloud;
+typedef void * Ay;
 typedef void * AudioCollider;
 typedef void * AudioAttenuator;
 typedef void * AudioSource;
@@ -198,16 +211,20 @@ unsigned int Soloud_getVoiceCount(Soloud * aSoloud);
 int Soloud_isValidVoiceHandle(Soloud * aSoloud, unsigned int aVoiceHandle);
 float Soloud_getRelativePlaySpeed(Soloud * aSoloud, unsigned int aVoiceHandle);
 float Soloud_getPostClipScaler(Soloud * aSoloud);
+unsigned int Soloud_getMainResampler(Soloud * aSoloud);
 float Soloud_getGlobalVolume(Soloud * aSoloud);
 unsigned int Soloud_getMaxActiveVoiceCount(Soloud * aSoloud);
 int Soloud_getLooping(Soloud * aSoloud, unsigned int aVoiceHandle);
+int Soloud_getAutoStop(Soloud * aSoloud, unsigned int aVoiceHandle);
 double Soloud_getLoopPoint(Soloud * aSoloud, unsigned int aVoiceHandle);
 void Soloud_setLoopPoint(Soloud * aSoloud, unsigned int aVoiceHandle, double aLoopPoint);
 void Soloud_setLooping(Soloud * aSoloud, unsigned int aVoiceHandle, int aLooping);
+void Soloud_setAutoStop(Soloud * aSoloud, unsigned int aVoiceHandle, int aAutoStop);
 int Soloud_setMaxActiveVoiceCount(Soloud * aSoloud, unsigned int aVoiceCount);
 void Soloud_setInaudibleBehavior(Soloud * aSoloud, unsigned int aVoiceHandle, int aMustTick, int aKill);
 void Soloud_setGlobalVolume(Soloud * aSoloud, float aVolume);
 void Soloud_setPostClipScaler(Soloud * aSoloud, float aScaler);
+void Soloud_setMainResampler(Soloud * aSoloud, unsigned int aResampler);
 void Soloud_setPause(Soloud * aSoloud, unsigned int aVoiceHandle, int aPause);
 void Soloud_setPauseAll(Soloud * aSoloud, int aPause);
 int Soloud_setRelativePlaySpeed(Soloud * aSoloud, unsigned int aVoiceHandle, float aSpeed);
@@ -215,7 +232,7 @@ void Soloud_setProtectVoice(Soloud * aSoloud, unsigned int aVoiceHandle, int aPr
 void Soloud_setSamplerate(Soloud * aSoloud, unsigned int aVoiceHandle, float aSamplerate);
 void Soloud_setPan(Soloud * aSoloud, unsigned int aVoiceHandle, float aPan);
 void Soloud_setPanAbsolute(Soloud * aSoloud, unsigned int aVoiceHandle, float aLVolume, float aRVolume);
-void Soloud_setPanAbsoluteEx(Soloud * aSoloud, unsigned int aVoiceHandle, float aLVolume, float aRVolume, float aLBVolume /* = 0 */, float aRBVolume /* = 0 */, float aCVolume /* = 0 */, float aSVolume /* = 0 */);
+void Soloud_setChannelVolume(Soloud * aSoloud, unsigned int aVoiceHandle, unsigned int aChannel, float aVolume);
 void Soloud_setVolume(Soloud * aSoloud, unsigned int aVoiceHandle, float aVolume);
 void Soloud_setDelaySamples(Soloud * aSoloud, unsigned int aVoiceHandle, unsigned int aSamples);
 void Soloud_fadeVolume(Soloud * aSoloud, unsigned int aVoiceHandle, float aTo, double aTime);
@@ -258,6 +275,28 @@ void Soloud_set3dSourceAttenuation(Soloud * aSoloud, unsigned int aVoiceHandle, 
 void Soloud_set3dSourceDopplerFactor(Soloud * aSoloud, unsigned int aVoiceHandle, float aDopplerFactor);
 void Soloud_mix(Soloud * aSoloud, float * aBuffer, unsigned int aSamples);
 void Soloud_mixSigned16(Soloud * aSoloud, short * aBuffer, unsigned int aSamples);
+
+/*
+ * Ay
+ */
+void Ay_destroy(Ay * aAy);
+Ay * Ay_create();
+void Ay_setVolume(Ay * aAy, float aVolume);
+void Ay_setLooping(Ay * aAy, int aLoop);
+void Ay_setAutoStop(Ay * aAy, int aAutoStop);
+void Ay_set3dMinMaxDistance(Ay * aAy, float aMinDistance, float aMaxDistance);
+void Ay_set3dAttenuation(Ay * aAy, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
+void Ay_set3dDopplerFactor(Ay * aAy, float aDopplerFactor);
+void Ay_set3dListenerRelative(Ay * aAy, int aListenerRelative);
+void Ay_set3dDistanceDelay(Ay * aAy, int aDistanceDelay);
+void Ay_set3dCollider(Ay * aAy, AudioCollider * aCollider);
+void Ay_set3dColliderEx(Ay * aAy, AudioCollider * aCollider, int aUserData /* = 0 */);
+void Ay_set3dAttenuator(Ay * aAy, AudioAttenuator * aAttenuator);
+void Ay_setInaudibleBehavior(Ay * aAy, int aMustTick, int aKill);
+void Ay_setLoopPoint(Ay * aAy, double aLoopPoint);
+double Ay_getLoopPoint(Ay * aAy);
+void Ay_setFilter(Ay * aAy, unsigned int aFilterId, Filter * aFilter);
+void Ay_stop(Ay * aAy);
 
 /*
  * BassboostFilter
@@ -304,8 +343,11 @@ float * Bus_calcFFT(Bus * aBus);
 float * Bus_getWave(Bus * aBus);
 float Bus_getApproximateVolume(Bus * aBus, unsigned int aChannel);
 unsigned int Bus_getActiveVoiceCount(Bus * aBus);
+unsigned int Bus_getResampler(Bus * aBus);
+void Bus_setResampler(Bus * aBus, unsigned int aResampler);
 void Bus_setVolume(Bus * aBus, float aVolume);
 void Bus_setLooping(Bus * aBus, int aLoop);
+void Bus_setAutoStop(Bus * aBus, int aAutoStop);
 void Bus_set3dMinMaxDistance(Bus * aBus, float aMinDistance, float aMaxDistance);
 void Bus_set3dAttenuation(Bus * aBus, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
 void Bus_set3dDopplerFactor(Bus * aBus, float aDopplerFactor);
@@ -398,13 +440,14 @@ int LofiFilter_setParams(LofiFilter * aLofiFilter, float aSampleRate, float aBit
 void Monotone_destroy(Monotone * aMonotone);
 Monotone * Monotone_create();
 int Monotone_setParams(Monotone * aMonotone, int aHardwareChannels);
-int Monotone_setParamsEx(Monotone * aMonotone, int aHardwareChannels, int aWaveform /* = SoLoud::Misc::WAVE_SQUARE */);
+int Monotone_setParamsEx(Monotone * aMonotone, int aHardwareChannels, int aWaveform /* = Soloud::WAVE_SQUARE */);
 int Monotone_load(Monotone * aMonotone, const char * aFilename);
 int Monotone_loadMem(Monotone * aMonotone, const unsigned char * aMem, unsigned int aLength);
 int Monotone_loadMemEx(Monotone * aMonotone, const unsigned char * aMem, unsigned int aLength, int aCopy /* = false */, int aTakeOwnership /* = true */);
 int Monotone_loadFile(Monotone * aMonotone, File * aFile);
 void Monotone_setVolume(Monotone * aMonotone, float aVolume);
 void Monotone_setLooping(Monotone * aMonotone, int aLoop);
+void Monotone_setAutoStop(Monotone * aMonotone, int aAutoStop);
 void Monotone_set3dMinMaxDistance(Monotone * aMonotone, float aMinDistance, float aMaxDistance);
 void Monotone_set3dAttenuation(Monotone * aMonotone, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
 void Monotone_set3dDopplerFactor(Monotone * aMonotone, float aDopplerFactor);
@@ -428,6 +471,7 @@ void Noise_setOctaveScale(Noise * aNoise, float aOct0, float aOct1, float aOct2,
 void Noise_setType(Noise * aNoise, int aType);
 void Noise_setVolume(Noise * aNoise, float aVolume);
 void Noise_setLooping(Noise * aNoise, int aLoop);
+void Noise_setAutoStop(Noise * aNoise, int aAutoStop);
 void Noise_set3dMinMaxDistance(Noise * aNoise, float aMinDistance, float aMaxDistance);
 void Noise_set3dAttenuation(Noise * aNoise, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
 void Noise_set3dDopplerFactor(Noise * aNoise, float aDopplerFactor);
@@ -453,6 +497,7 @@ int Openmpt_loadMemEx(Openmpt * aOpenmpt, const unsigned char * aMem, unsigned i
 int Openmpt_loadFile(Openmpt * aOpenmpt, File * aFile);
 void Openmpt_setVolume(Openmpt * aOpenmpt, float aVolume);
 void Openmpt_setLooping(Openmpt * aOpenmpt, int aLoop);
+void Openmpt_setAutoStop(Openmpt * aOpenmpt, int aAutoStop);
 void Openmpt_set3dMinMaxDistance(Openmpt * aOpenmpt, float aMinDistance, float aMaxDistance);
 void Openmpt_set3dAttenuation(Openmpt * aOpenmpt, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
 void Openmpt_set3dDopplerFactor(Openmpt * aOpenmpt, float aDopplerFactor);
@@ -480,6 +525,7 @@ int Queue_setParams(Queue * aQueue, float aSamplerate);
 int Queue_setParamsEx(Queue * aQueue, float aSamplerate, unsigned int aChannels /* = 2 */);
 void Queue_setVolume(Queue * aQueue, float aVolume);
 void Queue_setLooping(Queue * aQueue, int aLoop);
+void Queue_setAutoStop(Queue * aQueue, int aAutoStop);
 void Queue_set3dMinMaxDistance(Queue * aQueue, float aMinDistance, float aMaxDistance);
 void Queue_set3dAttenuation(Queue * aQueue, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
 void Queue_set3dDopplerFactor(Queue * aQueue, float aDopplerFactor);
@@ -519,6 +565,7 @@ int Sfxr_loadParamsFile(Sfxr * aSfxr, File * aFile);
 int Sfxr_loadPreset(Sfxr * aSfxr, int aPresetNo, int aRandSeed);
 void Sfxr_setVolume(Sfxr * aSfxr, float aVolume);
 void Sfxr_setLooping(Sfxr * aSfxr, int aLoop);
+void Sfxr_setAutoStop(Sfxr * aSfxr, int aAutoStop);
 void Sfxr_set3dMinMaxDistance(Sfxr * aSfxr, float aMinDistance, float aMaxDistance);
 void Sfxr_set3dAttenuation(Sfxr * aSfxr, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
 void Sfxr_set3dDopplerFactor(Sfxr * aSfxr, float aDopplerFactor);
@@ -543,6 +590,7 @@ int Speech_setParams(Speech * aSpeech);
 int Speech_setParamsEx(Speech * aSpeech, unsigned int aBaseFrequency /* = 1330 */, float aBaseSpeed /* = 10.0f */, float aBaseDeclination /* = 0.5f */, int aBaseWaveform /* = KW_TRIANGLE */);
 void Speech_setVolume(Speech * aSpeech, float aVolume);
 void Speech_setLooping(Speech * aSpeech, int aLoop);
+void Speech_setAutoStop(Speech * aSpeech, int aAutoStop);
 void Speech_set3dMinMaxDistance(Speech * aSpeech, float aMinDistance, float aMaxDistance);
 void Speech_set3dAttenuation(Speech * aSpeech, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
 void Speech_set3dDopplerFactor(Speech * aSpeech, float aDopplerFactor);
@@ -563,13 +611,12 @@ void Speech_stop(Speech * aSpeech);
 void TedSid_destroy(TedSid * aTedSid);
 TedSid * TedSid_create();
 int TedSid_load(TedSid * aTedSid, const char * aFilename);
-int TedSid_loadToMem(TedSid * aTedSid, const char * aFilename);
 int TedSid_loadMem(TedSid * aTedSid, const unsigned char * aMem, unsigned int aLength);
 int TedSid_loadMemEx(TedSid * aTedSid, const unsigned char * aMem, unsigned int aLength, int aCopy /* = false */, int aTakeOwnership /* = true */);
-int TedSid_loadFileToMem(TedSid * aTedSid, File * aFile);
 int TedSid_loadFile(TedSid * aTedSid, File * aFile);
 void TedSid_setVolume(TedSid * aTedSid, float aVolume);
 void TedSid_setLooping(TedSid * aTedSid, int aLoop);
+void TedSid_setAutoStop(TedSid * aTedSid, int aAutoStop);
 void TedSid_set3dMinMaxDistance(TedSid * aTedSid, float aMinDistance, float aMaxDistance);
 void TedSid_set3dAttenuation(TedSid * aTedSid, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
 void TedSid_set3dDopplerFactor(TedSid * aTedSid, float aDopplerFactor);
@@ -595,6 +642,7 @@ void Vic_setRegister(Vic * aVic, int reg, unsigned char value);
 unsigned char Vic_getRegister(Vic * aVic, int reg);
 void Vic_setVolume(Vic * aVic, float aVolume);
 void Vic_setLooping(Vic * aVic, int aLoop);
+void Vic_setAutoStop(Vic * aVic, int aAutoStop);
 void Vic_set3dMinMaxDistance(Vic * aVic, float aMinDistance, float aMaxDistance);
 void Vic_set3dAttenuation(Vic * aVic, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
 void Vic_set3dDopplerFactor(Vic * aVic, float aDopplerFactor);
@@ -617,6 +665,7 @@ Vizsn * Vizsn_create();
 void Vizsn_setText(Vizsn * aVizsn, char * aText);
 void Vizsn_setVolume(Vizsn * aVizsn, float aVolume);
 void Vizsn_setLooping(Vizsn * aVizsn, int aLoop);
+void Vizsn_setAutoStop(Vizsn * aVizsn, int aAutoStop);
 void Vizsn_set3dMinMaxDistance(Vizsn * aVizsn, float aMinDistance, float aMaxDistance);
 void Vizsn_set3dAttenuation(Vizsn * aVizsn, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
 void Vizsn_set3dDopplerFactor(Vizsn * aVizsn, float aDopplerFactor);
@@ -649,6 +698,7 @@ int Wav_loadRawWaveEx(Wav * aWav, float * aMem, unsigned int aLength, float aSam
 double Wav_getLength(Wav * aWav);
 void Wav_setVolume(Wav * aWav, float aVolume);
 void Wav_setLooping(Wav * aWav, int aLoop);
+void Wav_setAutoStop(Wav * aWav, int aAutoStop);
 void Wav_set3dMinMaxDistance(Wav * aWav, float aMinDistance, float aMaxDistance);
 void Wav_set3dAttenuation(Wav * aWav, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
 void Wav_set3dDopplerFactor(Wav * aWav, float aDopplerFactor);
@@ -689,6 +739,7 @@ int WavStream_loadFileToMem(WavStream * aWavStream, File * aFile);
 double WavStream_getLength(WavStream * aWavStream);
 void WavStream_setVolume(WavStream * aWavStream, float aVolume);
 void WavStream_setLooping(WavStream * aWavStream, int aLoop);
+void WavStream_setAutoStop(WavStream * aWavStream, int aAutoStop);
 void WavStream_set3dMinMaxDistance(WavStream * aWavStream, float aMinDistance, float aMaxDistance);
 void WavStream_set3dAttenuation(WavStream * aWavStream, unsigned int aAttenuationModel, float aAttenuationRolloffFactor);
 void WavStream_set3dDopplerFactor(WavStream * aWavStream, float aDopplerFactor);

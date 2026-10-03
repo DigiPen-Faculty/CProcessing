@@ -150,6 +150,8 @@ struct GLNVGtexture {
 };
 typedef struct GLNVGtexture GLNVGtexture;
 
+// CProcessing: per-draw image filter and wrap modes (values match
+// NVGtextureFilterMode and NVGtextureWrapMode)
 enum GLNVGtextureFilterMode {
 	GLNVG_TEXTURE_FILTER_NEAREST,
 	GLNVG_TEXTURE_FILTER_LINEAR
@@ -164,7 +166,7 @@ enum GLNVGtextureWrapMode {
 
 struct GLNVGblend
 {
-	GLenum blendEquation;
+	GLenum blendEquation;	// CProcessing
 	GLenum srcRGB;
 	GLenum dstRGB;
 	GLenum srcAlpha;
@@ -188,8 +190,8 @@ struct GLNVGcall {
 	int triangleOffset;
 	int triangleCount;
 	int uniformOffset;
-	int textureFilterMode;
-	int textureWrapMode;
+	int textureFilterMode;	// CProcessing
+	int textureWrapMode;	// CProcessing
 	GLNVGblend blendFunc;
 };
 typedef struct GLNVGcall GLNVGcall;
@@ -283,6 +285,8 @@ struct GLNVGcontext {
 	GLuint stencilFuncMask;
 	GLNVGblend blendFunc;
 	#endif
+
+	int dummyTex;
 };
 typedef struct GLNVGcontext GLNVGcontext;
 
@@ -342,26 +346,26 @@ static void glnvg__stencilFunc(GLNVGcontext* gl, GLenum func, GLint ref, GLuint 
 	glStencilFunc(func, ref, mask);
 #endif
 }
-
 static void glnvg__blendFuncSeparate(GLNVGcontext* gl, const GLNVGblend* blend)
 {
 #if NANOVG_GL_USE_STATE_FILTER
-	if ((gl->blendFunc.blendEquation != blend->blendEquation) ||
+	if ((gl->blendFunc.blendEquation != blend->blendEquation) ||	// CProcessing
 		(gl->blendFunc.srcRGB != blend->srcRGB) ||
 		(gl->blendFunc.dstRGB != blend->dstRGB) ||
 		(gl->blendFunc.srcAlpha != blend->srcAlpha) ||
 		(gl->blendFunc.dstAlpha != blend->dstAlpha)) {
 
 		gl->blendFunc = *blend;
-		glBlendEquation(blend->blendEquation);
-		glBlendFuncSeparate(blend->srcRGB, blend->dstRGB, blend->srcAlpha, blend->dstAlpha);
+		glBlendEquation(blend->blendEquation);	// CProcessing
+		glBlendFuncSeparate(blend->srcRGB, blend->dstRGB, blend->srcAlpha,blend->dstAlpha);
 	}
 #else
-	glBlendEquation(blend->blendEquation);
+	glBlendEquation(blend->blendEquation);	// CProcessing
 	glBlendFuncSeparate(blend->srcRGB, blend->dstRGB, blend->srcAlpha,blend->dstAlpha);
 #endif
 }
 
+// CProcessing: apply the per-draw image filter and wrap to the bound texture
 static void glnvg__setTextureFilter(const GLuint textureFilter)
 {
 	if(textureFilter == GLNVG_TEXTURE_FILTER_NEAREST) {
@@ -550,6 +554,8 @@ static void glnvg__getUniforms(GLNVGshader* shader)
 	shader->loc[GLNVG_LOC_FRAG] = glGetUniformLocation(shader->prog, "frag");
 #endif
 }
+
+static int glnvg__renderCreateTexture(void* uptr, int type, int w, int h, int imageFlags, const unsigned char* data);
 
 static int glnvg__renderCreate(void* uptr)
 {
@@ -751,6 +757,10 @@ static int glnvg__renderCreate(void* uptr)
 #endif
 	gl->fragSize = sizeof(GLNVGfragUniforms) + align - sizeof(GLNVGfragUniforms) % align;
 
+	// Some platforms does not allow to have samples to unset textures.
+	// Create empty one which is bound when there's no texture specified.
+	gl->dummyTex = glnvg__renderCreateTexture(gl, NVG_TEXTURE_ALPHA, 1, 1, 0, NULL);
+
 	glnvg__checkError(gl, "create done");
 
 	glFinish();
@@ -863,6 +873,7 @@ static int glnvg__renderCreateTexture(void* uptr, int type, int w, int h, int im
 	return tex->id;
 }
 
+
 static int glnvg__renderDeleteTexture(void* uptr, int image)
 {
 	GLNVGcontext* gl = (GLNVGcontext*)uptr;
@@ -910,21 +921,6 @@ static int glnvg__renderUpdateTexture(void* uptr, int image, int x, int y, int w
 #endif
 
 	glnvg__bindTexture(gl, 0);
-
-	return 1;
-}
-
-static int glnvg__renderGetTexturePixelData(void* uptr, int image, unsigned char* data)
-{
-	GLNVGcontext* gl = (GLNVGcontext*)uptr;
-	GLNVGtexture* tex = glnvg__findTexture(gl, image);
-	if (tex == NULL) return 0;
-
-	GLint currentTextureID = 0;
-	glGetIntegerv(GL_TEXTURE_BINDING_2D, &currentTextureID);
-	glBindTexture(GL_TEXTURE_2D, tex->tex);
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	glBindTexture(GL_TEXTURE_2D, currentTextureID);
 
 	return 1;
 }
@@ -1038,6 +1034,7 @@ static GLNVGfragUniforms* nvg__fragUniformPtr(GLNVGcontext* gl, int i);
 
 static void glnvg__setUniforms(GLNVGcontext* gl, int uniformOffset, int image)
 {
+	GLNVGtexture* tex = NULL;
 #if NANOVG_GL_USE_UNIFORMBUFFER
 	glBindBufferRange(GL_UNIFORM_BUFFER, GLNVG_FRAG_BINDING, gl->fragBuf, uniformOffset, sizeof(GLNVGfragUniforms));
 #else
@@ -1046,23 +1043,22 @@ static void glnvg__setUniforms(GLNVGcontext* gl, int uniformOffset, int image)
 #endif
 
 	if (image != 0) {
-		GLNVGtexture* tex = glnvg__findTexture(gl, image);
-		glnvg__bindTexture(gl, tex != NULL ? tex->tex : 0);
-		glnvg__checkError(gl, "tex paint tex");
-	} else {
-		glnvg__bindTexture(gl, 0);
+		tex = glnvg__findTexture(gl, image);
 	}
+	// If no image is set, use empty texture
+	if (tex == NULL) {
+		tex = glnvg__findTexture(gl, gl->dummyTex);
+	}
+	glnvg__bindTexture(gl, tex != NULL ? tex->tex : 0);
+	glnvg__checkError(gl, "tex paint tex");
 }
 
-static void glnvg__renderViewport(void* uptr, int width, int height, float devicePixelRatio)
+static void glnvg__renderViewport(void* uptr, float width, float height, float devicePixelRatio)
 {
-    // DFH -- Prevent compiler whining
-    UNREFERENCED_PARAMETER(devicePixelRatio);
-	
-    NVG_NOTUSED(devicePixelRatio);
+	NVG_NOTUSED(devicePixelRatio);
 	GLNVGcontext* gl = (GLNVGcontext*)uptr;
-	gl->view[0] = (float)width;
-	gl->view[1] = (float)height;
+	gl->view[0] = width;
+	gl->view[1] = height;
 }
 
 static void glnvg__fill(GLNVGcontext* gl, GLNVGcall* call)
@@ -1092,7 +1088,7 @@ static void glnvg__fill(GLNVGcontext* gl, GLNVGcall* call)
 
 	glnvg__setUniforms(gl, call->uniformOffset + gl->fragSize, call->image);
 	glnvg__checkError(gl, "fill fill");
-	glnvg__setTextureFilter(call->textureFilterMode);
+	glnvg__setTextureFilter(call->textureFilterMode);	// CProcessing
 	glnvg__setTextureWrap(call->textureWrapMode);
 
 	if (gl->flags & NVG_ANTIALIAS) {
@@ -1118,15 +1114,15 @@ static void glnvg__convexFill(GLNVGcontext* gl, GLNVGcall* call)
 
 	glnvg__setUniforms(gl, call->uniformOffset, call->image);
 	glnvg__checkError(gl, "convex fill");
-	glnvg__setTextureFilter(call->textureFilterMode);
+	glnvg__setTextureFilter(call->textureFilterMode);	// CProcessing
 	glnvg__setTextureWrap(call->textureWrapMode);
 
-	for (i = 0; i < npaths; i++)
+	for (i = 0; i < npaths; i++) {
 		glDrawArrays(GL_TRIANGLE_FAN, paths[i].fillOffset, paths[i].fillCount);
-	if (gl->flags & NVG_ANTIALIAS) {
 		// Draw fringes
-		for (i = 0; i < npaths; i++)
+		if (paths[i].strokeCount > 0) {
 			glDrawArrays(GL_TRIANGLE_STRIP, paths[i].strokeOffset, paths[i].strokeCount);
+		}
 	}
 }
 
@@ -1193,6 +1189,7 @@ static void glnvg__renderCancel(void* uptr) {
 	gl->nuniforms = 0;
 }
 
+// CProcessing: blend equations
 static GLenum glnvg_convertBlendFuncEquation(int equation)
 {
 	if (equation == NVG_BLEND_EQUATION_ADD)
@@ -1236,18 +1233,18 @@ static GLenum glnvg_convertBlendFuncFactor(int factor)
 static GLNVGblend glnvg__blendCompositeOperation(NVGcompositeOperationState op)
 {
 	GLNVGblend blend;
-	blend.blendEquation = glnvg_convertBlendFuncEquation(op.blendEquation);
+	blend.blendEquation = glnvg_convertBlendFuncEquation(op.blendEquation);	// CProcessing
 	blend.srcRGB = glnvg_convertBlendFuncFactor(op.srcRGB);
 	blend.dstRGB = glnvg_convertBlendFuncFactor(op.dstRGB);
 	blend.srcAlpha = glnvg_convertBlendFuncFactor(op.srcAlpha);
 	blend.dstAlpha = glnvg_convertBlendFuncFactor(op.dstAlpha);
-	if (blend.blendEquation == GL_INVALID_ENUM ||
+	if (blend.blendEquation == GL_INVALID_ENUM ||	// CProcessing
 		blend.srcRGB == GL_INVALID_ENUM ||
 		blend.dstRGB == GL_INVALID_ENUM ||
 		blend.srcAlpha == GL_INVALID_ENUM ||
 		blend.dstAlpha == GL_INVALID_ENUM)
 	{
-		blend.blendEquation = GL_FUNC_ADD;
+		blend.blendEquation = GL_FUNC_ADD;	// CProcessing
 		blend.srcRGB = GL_ONE;
 		blend.dstRGB = GL_ONE_MINUS_SRC_ALPHA;
 		blend.srcAlpha = GL_ONE;
@@ -1284,7 +1281,7 @@ static void glnvg__renderFlush(void* uptr)
 		gl->stencilFunc = GL_ALWAYS;
 		gl->stencilFuncRef = 0;
 		gl->stencilFuncMask = 0xffffffff;
-		gl->blendFunc.blendEquation = GL_INVALID_ENUM;
+		gl->blendFunc.blendEquation = GL_INVALID_ENUM;	// CProcessing
 		gl->blendFunc.srcRGB = GL_INVALID_ENUM;
 		gl->blendFunc.srcAlpha = GL_INVALID_ENUM;
 		gl->blendFunc.dstRGB = GL_INVALID_ENUM;
@@ -1318,7 +1315,7 @@ static void glnvg__renderFlush(void* uptr)
 
 		for (i = 0; i < gl->ncalls; i++) {
 			GLNVGcall* call = &gl->calls[i];
-			glnvg__blendFuncSeparate(gl, &call->blendFunc);
+			glnvg__blendFuncSeparate(gl,&call->blendFunc);
 			if (call->type == GLNVG_FILL)
 				glnvg__fill(gl, call);
 			else if (call->type == GLNVG_CONVEXFILL)
@@ -1452,8 +1449,8 @@ static void glnvg__renderFill(void* uptr, NVGpaint* paint, NVGcompositeOperation
 	call->pathCount = npaths;
 	call->image = paint->image;
 	call->blendFunc = glnvg__blendCompositeOperation(compositeOperation);
-	call->textureFilterMode = paint->textureFilterMode;
-	call->textureWrapMode = paint->textureWrapMode;
+	call->textureFilterMode = paint->textureFilterMode;	// CProcessing
+	call->textureWrapMode = paint->textureWrapMode;		// CProcessing
 
 	if (npaths == 1 && paths[0].convex)
 	{
@@ -1533,8 +1530,8 @@ static void glnvg__renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOperati
 	call->pathCount = npaths;
 	call->image = paint->image;
 	call->blendFunc = glnvg__blendCompositeOperation(compositeOperation);
-	call->textureFilterMode = paint->textureFilterMode;
-	call->textureWrapMode = paint->textureWrapMode;
+	call->textureFilterMode = paint->textureFilterMode;	// CProcessing
+	call->textureWrapMode = paint->textureWrapMode;		// CProcessing
 
 	// Allocate vertices for all the paths.
 	maxverts = glnvg__maxVertCount(paths, npaths);
@@ -1577,7 +1574,7 @@ error:
 }
 
 static void glnvg__renderTriangles(void* uptr, NVGpaint* paint, NVGcompositeOperationState compositeOperation, NVGscissor* scissor,
-								   const NVGvertex* verts, int nverts)
+								   const NVGvertex* verts, int nverts, float fringe)
 {
 	GLNVGcontext* gl = (GLNVGcontext*)uptr;
 	GLNVGcall* call = glnvg__allocCall(gl);
@@ -1588,8 +1585,8 @@ static void glnvg__renderTriangles(void* uptr, NVGpaint* paint, NVGcompositeOper
 	call->type = GLNVG_TRIANGLES;
 	call->image = paint->image;
 	call->blendFunc = glnvg__blendCompositeOperation(compositeOperation);
-	call->textureFilterMode = paint->textureFilterMode;
-	call->textureWrapMode = paint->textureWrapMode;
+	call->textureFilterMode = paint->textureFilterMode;	// CProcessing
+	call->textureWrapMode = paint->textureWrapMode;		// CProcessing
 
 	// Allocate vertices for all the paths.
 	call->triangleOffset = glnvg__allocVerts(gl, nverts);
@@ -1602,7 +1599,7 @@ static void glnvg__renderTriangles(void* uptr, NVGpaint* paint, NVGcompositeOper
 	call->uniformOffset = glnvg__allocFragUniforms(gl, 1);
 	if (call->uniformOffset == -1) goto error;
 	frag = nvg__fragUniformPtr(gl, call->uniformOffset);
-	glnvg__convertPaint(gl, frag, paint, scissor, 1.0f, 1.0f, -1.0f);
+	glnvg__convertPaint(gl, frag, paint, scissor, 1.0f, fringe, -1.0f);
 	frag->type = NSVG_SHADER_IMG;
 
 	return;
@@ -1668,7 +1665,6 @@ NVGcontext* nvgCreateGLES3(int flags)
 	params.renderCreateTexture = glnvg__renderCreateTexture;
 	params.renderDeleteTexture = glnvg__renderDeleteTexture;
 	params.renderUpdateTexture = glnvg__renderUpdateTexture;
-	params.renderGetTexturePixelData = glnvg__renderGetTexturePixelData;
 	params.renderGetTextureSize = glnvg__renderGetTextureSize;
 	params.renderViewport = glnvg__renderViewport;
 	params.renderCancel = glnvg__renderCancel;

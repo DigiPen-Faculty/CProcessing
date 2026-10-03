@@ -1,0 +1,9 @@
+# UndefinedBehaviorSanitizer suppressions for the CI sanitizer build.
+# Only third-party code belongs here; anything in CProcessing itself must be
+# fixed instead.
+#
+# SoLoud: AlignedFloatBuffer::clear() calls memset(NULL, 0, 0) on a buffer
+# that was never allocated (reached through the "nosound" fallback backend on
+# machines without an audio device). Zero bytes are written, so it is
+# harmless, but passing NULL to memset is formally undefined.
+nonnull-attribute:soloud.cpp

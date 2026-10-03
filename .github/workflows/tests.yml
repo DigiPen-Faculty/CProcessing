@@ -1,0 +1,222 @@
+name: Tests
+
+# Build and test CProcessing on every pull request and every push to main.
+#
+#   windows-msbuild   The Visual Studio solution students and faculty use:
+#                     whole solution (library, demos, tests) for x64 and x86,
+#                     then Tier 1.
+#   windows-tier2     Tier 2 (real engine, pixel-sampling) for the Visual
+#                     Studio build, using Mesa's llvmpipe software OpenGL
+#                     since hosted Windows runners have no GPU.
+#   linux             CMake + GCC and Clang (+ an ASan/UBSan build): Tier 1,
+#                     and Tier 2 under a virtual X server (Xvfb + llvmpipe).
+#   windows-cmake     CMake + MSVC: Tier 1 and Tier 2 (Mesa llvmpipe).
+#   macos             CMake + Apple Clang: build and Tier 1. (Tier 2 can't
+#                     run on hosted macOS runners; see that job.)
+#   starter           The CMake starter project (Processing_Empty_CMake),
+#                     building CProcessing from this checkout, then running
+#                     the game for a few seconds under Xvfb.
+#
+# Tier 1 needs no window or GL context. Tier 2 opens a real window and GL
+# context and screenshots what it draws (see CProcessing_Tests_Tier2).
+#
+# The Windows jobs use windows-2025, whose image has Visual Studio 2026: the
+# solution's projects use its platform toolset, v145.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows-msbuild:
+    runs-on: windows-2025
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: x64
+            outDir: x64
+          - platform: x86
+            outDir: Win32
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Build solution (${{ matrix.platform }})
+        working-directory: Processing_Sample
+        shell: cmd
+        run: msbuild Processing_Sample.sln /p:Configuration=Debug /p:Platform=${{ matrix.platform }} /m /v:minimal
+
+      - name: Run Tier 1 tests (${{ matrix.platform }})
+        working-directory: Processing_Sample
+        shell: cmd
+        run: ${{ matrix.outDir }}\Debug\CProcessing_Tests.exe
+
+  # Hosted Windows runners have no GPU, so the system opengl32.dll only offers
+  # OpenGL 1.1. Mesa's llvmpipe (a drop-in opengl32.dll placed next to the
+  # executable) provides a real OpenGL 3.3+ context in software. This exact
+  # setup (Mesa 23.3.5 release-msvc, GALLIUM_DRIVER=llvmpipe) passes the whole
+  # Tier 2 suite locally. It stays non-gating until it has been seen passing
+  # on hosted runners a few times; then drop continue-on-error.
+  windows-tier2:
+    runs-on: windows-2025
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Build CProcessing_Tests_Tier2 (x64)
+        working-directory: Processing_Sample
+        shell: cmd
+        run: msbuild Processing_Sample.sln /t:CProcessing_Tests_Tier2 /p:Configuration=Debug /p:Platform=x64 /m /v:minimal
+
+      - name: Install Mesa (llvmpipe software OpenGL)
+        uses: f3d-app/install-mesa-windows-action@v1
+        with:
+          path: ${{ github.workspace }}/Processing_Sample/x64/Debug/Tier2
+
+      - name: Run Tier 2 tests (x64)
+        working-directory: Processing_Sample/x64/Debug/Tier2
+        shell: cmd
+        run: CProcessing_Tests_Tier2.exe
+
+  linux:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: gcc
+            cc: gcc
+            cxx: g++
+            build_type: Debug
+            flags: ""
+          - name: clang
+            cc: clang
+            cxx: clang++
+            build_type: Release
+            flags: ""
+          - name: asan
+            cc: gcc
+            cxx: g++
+            build_type: Debug
+            flags: "-fsanitize=address,undefined -fno-omit-frame-pointer"
+    name: linux (${{ matrix.name }})
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ninja-build clang \
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev \
+            libwayland-dev libxkbcommon-dev wayland-protocols \
+            libgl1-mesa-dev libgl1-mesa-dri xvfb xauth
+
+      - name: Configure
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: >
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCPROCESSING_WARNINGS_AS_ERRORS=ON
+          "-DCMAKE_C_FLAGS=${{ matrix.flags }}"
+          "-DCMAKE_CXX_FLAGS=${{ matrix.flags }}"
+          "-DCMAKE_EXE_LINKER_FLAGS=${{ matrix.flags }}"
+          "-DCMAKE_SHARED_LINKER_FLAGS=${{ matrix.flags }}"
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Tier 1
+        env:
+          ASAN_OPTIONS: detect_leaks=0
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1:suppressions=${{ github.workspace }}/.github/sanitizers/ubsan.supp
+        run: ctest --test-dir build -L tier1 --output-on-failure
+
+      - name: Tier 2 (Xvfb + llvmpipe)
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          # GPU driver internals allocate/leak by design; don't fail on them
+          ASAN_OPTIONS: detect_leaks=0
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1:suppressions=${{ github.workspace }}/.github/sanitizers/ubsan.supp
+        run: xvfb-run -a -s "-screen 0 1280x1024x24" ctest --test-dir build -L tier2 --output-on-failure
+
+  windows-cmake:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Configure
+        run: cmake -S . -B build -A x64 -DCPROCESSING_WARNINGS_AS_ERRORS=ON
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Tier 1
+        run: ctest --test-dir build -C Release -L tier1 --output-on-failure
+
+      - name: Install Mesa (llvmpipe software OpenGL)
+        uses: f3d-app/install-mesa-windows-action@v1
+        with:
+          path: ${{ github.workspace }}/build/bin/Release
+
+      - name: Tier 2 (Mesa llvmpipe)
+        # Same setup as windows-tier2: non-gating until seen passing on
+        # hosted runners.
+        continue-on-error: true
+        run: ctest --test-dir build -C Release -L tier2 --output-on-failure
+
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCPROCESSING_WARNINGS_AS_ERRORS=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Tier 1
+        run: ctest --test-dir build -L tier1 --output-on-failure
+
+      # No Tier 2 here: hosted macOS runners are virtual machines without a
+      # GPU, and on macOS GLFW only accepts a hardware-accelerated OpenGL
+      # renderer, so the window can't be created ("NSGL: Failed to find a
+      # suitable pixel format"). Tier 2 is still built above; run it on a
+      # real Mac.
+
+  starter:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends             libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev             libwayland-dev libxkbcommon-dev wayland-protocols             libgl1-mesa-dev libgl1-mesa-dri xvfb xauth
+
+      - name: Build the starter project
+        # FETCHCONTENT_SOURCE_DIR_CPROCESSING uses this checkout instead of
+        # downloading the release named in its CMakeLists.txt
+        run: |
+          cmake -S Processing_Empty_CMake -B starter-build -DCMAKE_BUILD_TYPE=Debug             -DCPROCESSING_WARNINGS_AS_ERRORS=ON             "-DFETCHCONTENT_SOURCE_DIR_CPROCESSING=${{ github.workspace }}"
+          cmake --build starter-build --parallel
+          ls starter-build/bin
+
+      - name: Run the game for 5 seconds (Xvfb, software OpenGL)
+        working-directory: starter-build/bin
+        run: |
+          status=0
+          LIBGL_ALWAYS_SOFTWARE=1 timeout 5 xvfb-run -a ./MyGame || status=$?
+          if [ "$status" != 124 ]; then
+            echo "::error::MyGame exited before the 5 seconds were up (status $status)"; exit 1
+          fi

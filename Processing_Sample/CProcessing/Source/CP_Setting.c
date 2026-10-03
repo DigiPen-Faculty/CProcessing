@@ -50,6 +50,7 @@ int isValidPositionMode(CP_POSITION_MODE mode)
 CP_API void CP_Settings_Fill(CP_Color c)
 {
 	nvgFillColor(GetCPCore()->nvg, nvgRGBA(c.r, c.g, c.b, c.a));
+	GetDrawInfo()->fill_color = c;
 
 	// Enable fill
 	GetDrawInfo()->fill = TRUE;
@@ -63,6 +64,7 @@ CP_API void CP_Settings_NoFill(void)
 CP_API void CP_Settings_Stroke(CP_Color c)
 {
 	nvgStrokeColor(GetCPCore()->nvg, nvgRGBA(c.r, c.g, c.b, c.a));
+	GetDrawInfo()->stroke_color = c;
 
 	// Enable stroke
 	GetDrawInfo()->stroke = TRUE;
@@ -76,6 +78,7 @@ CP_API void CP_Settings_NoStroke(void)
 CP_API void CP_Settings_StrokeWeight(float weight)
 {
 	nvgStrokeWidth(GetCPCore()->nvg, weight);
+	GetDrawInfo()->stroke_weight = weight;
 }
 
 CP_API void CP_Settings_Tint(CP_Color c)
@@ -100,6 +103,7 @@ CP_API void CP_Settings_LineCapMode(CP_LINE_CAP_MODE capMode)
 		capMode == CP_LINE_CAP_SQUARE)
 	{
 		nvgLineCap(GetCPCore()->nvg, capMode);
+		GetDrawInfo()->line_cap = capMode;
 	}
 }
 
@@ -180,7 +184,7 @@ CP_API void CP_Settings_TextSize(float size)
 
 CP_API void CP_Settings_TextAlignment(CP_TEXT_ALIGN_HORIZONTAL h, CP_TEXT_ALIGN_VERTICAL v)
 {
-	int flags = h | v;
+	int flags = (int)h | (int)v;
 	CP_CorePtr CORE = GetCPCore();
 	if (!CORE || !CORE->nvg) return;
 	nvgTextAlign(CORE->nvg, flags);

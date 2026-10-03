@@ -128,26 +128,22 @@ GOTO :init
 		ECHO **  Copying inc and lib to the Empty project  **
 		REM collect inc and lib folders and remove extra files
 
-		IF NOT EXIST .\CProcessingOutput MKDIR .\CProcessingOutput
-		DEL .\CProcessingOutput\*.* /f /q
-		XCOPY .\Processing_Sample\CProcessing\inc\* .\CProcessingOutput\inc\ /s /r /y /q
+		IF EXIST .\CProcessingOutput RMDIR .\CProcessingOutput /s /q
+		MKDIR .\CProcessingOutput
+		XCOPY .\Processing_Sample\CProcessing\inc\cprocessing*.h .\CProcessingOutput\inc\ /r /y /q
 		XCOPY .\Processing_Sample\CProcessing\lib\* .\CProcessingOutput\lib\ /s /r /y /q
-		CD .\CProcessingOutput\lib\x64
-		FOR %%e in (exp iobj ipdb pdb ilk) do (
-			IF EXIST *.%%e DEL *.%%e
+		REM the built-in default font's license must travel with the library
+		COPY .\Processing_Sample\Assets\Exo2_license.txt .\CProcessingOutput\ /y
+		REM keep only the .dll and .lib files
+		FOR %%a in (x64 x86) do (
+			FOR %%e in (exp iobj ipdb pdb ilk) do (
+				IF EXIST .\CProcessingOutput\lib\%%a\*.%%e DEL .\CProcessingOutput\lib\%%a\*.%%e
+			)
 		)
-		CD ..\x86
-		FOR %%e in (exp iobj ipdb pdb ilk) do (
-			IF EXIST *.%%e DEL *.%%e
-		)
-		CD ..\..\inc
-		DEL soloud*.*
-		DEL glfw*.*
-		CD ..\..\
 
 		REM clear empty project and copy latest inc and lib to the Empty project
-		IF NOT EXIST .\Processing_Empty\CProcessing\ MKDIR .\Processing_Empty\CProcessing\
-		DEL .\Processing_Empty\CProcessing\*.* /f /q
+		IF EXIST .\Processing_Empty\CProcessing\ RMDIR .\Processing_Empty\CProcessing\ /s /q
+		MKDIR .\Processing_Empty\CProcessing\
 		XCOPY .\CProcessingOutput\* .\Processing_Empty\CProcessing\ /s /r /y /q
 	)
 

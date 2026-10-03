@@ -184,7 +184,7 @@ void DancingLinesDemoUpdate(void)
 			lineColor.r = 127;
 			lineColor.g = 127;
 			lineColor.b = 127;
-			lineColor.a = (unsigned char)(255.0f * min(1.0f, (mouseProximityDistance - max(distXMouse, distYMouse)) / (mouseProximityDistance * 0.3f)));
+			lineColor.a = (unsigned char)(255.0f * fminf(1.0f, (mouseProximityDistance - fmaxf(distXMouse, distYMouse)) / (mouseProximityDistance * 0.3f)));
 			CP_Settings_Stroke(lineColor);
 			CP_Graphics_DrawLine(particles[i].pos.x, particles[i].pos.y, CP_Input_GetMouseX(), CP_Input_GetMouseY());
 		}
@@ -199,7 +199,7 @@ void DancingLinesDemoUpdate(void)
 				lineColor.r = particles[i].color->r + particles[j].color->r;
 				lineColor.g = particles[i].color->g + particles[j].color->g;
 				lineColor.b = particles[i].color->b + particles[j].color->b;
-				lineColor.a = (unsigned char)(255.0f * min(1.0f, (lineProximityDistance - max(distX, distY)) / (lineProximityDistance * 0.3f)));
+				lineColor.a = (unsigned char)(255.0f * fminf(1.0f, (lineProximityDistance - fmaxf(distX, distY)) / (lineProximityDistance * 0.3f)));
 				CP_Settings_Stroke(lineColor);
 				CP_Graphics_DrawLine(particles[i].pos.x, particles[i].pos.y, particles[j].pos.x, particles[j].pos.y);
 			}

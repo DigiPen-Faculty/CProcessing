@@ -36,8 +36,12 @@
 // Acknowledgment:
 //
 // NanoVG by Mikko Mononen
-// FMOD Studio by Firelight Technologies Pty Ltd.
-// 
+// SoLoud by Jari Komppa
+// GLFW by Marcus Geelnard and Camilla Loewy
+// miniaudio by David Reid
+// Exo 2 font (built in as the default font) by Natanael Gama,
+//   licensed under the SIL Open Font License 1.1
+//
 //---------------------------------------------------------
 
 #pragma once
@@ -73,10 +77,13 @@ CP_API int				CP_System_GetWindowHeight			(void);
 CP_API int				CP_System_GetDisplayWidth			(void);
 CP_API int				CP_System_GetDisplayHeight			(void);
 CP_API int				CP_System_GetDisplayRefreshRate		(void);
-CP_API HWND				CP_System_GetWindowHandle			(void);
+CP_API CP_WindowHandle	CP_System_GetWindowHandle			(void);
 CP_API void				CP_System_SetWindowTitle			(const char* title);
 CP_API CP_BOOL			CP_System_GetWindowFocus			(void);
 CP_API void				CP_System_ShowCursor				(CP_BOOL show);
+CP_API CP_BOOL			CP_System_GetCursorVisible			(void);
+CP_API void				CP_System_ShowConsole				(CP_BOOL show);
+CP_API CP_BOOL			CP_System_GetConsoleVisible			(void);
 CP_API unsigned 		CP_System_GetFrameCount				(void);
 CP_API float			CP_System_GetFrameRate				(void);
 CP_API void				CP_System_SetFrameRate				(float fps);

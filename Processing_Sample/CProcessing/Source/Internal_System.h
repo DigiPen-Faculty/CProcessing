@@ -15,12 +15,15 @@
 extern "C" {
 #endif
 
+#include "Internal_Platform.h"
 #include "glad.h"
 #include "glfw3.h"
 
-// NanoVG
-#define NANOVG_GL3_IMPLEMENTATION
+// NanoVG and its OpenGL 3 back end: declarations only. The back end itself
+// is compiled once, in nanovg_gl3.c.
+#define NANOVG_GL3 1
 #include "nanovg.h"
+#include "nanovg_gl.h"
 
 #include "Internal_Color.h"
 #include "Internal_File.h"
@@ -48,6 +51,11 @@ typedef struct CP_DrawInfo
     int stroke;
     int fill;
     CP_Matrix camera;
+    // Copies of settings NanoVG keeps privately, for CP_Graphics_DrawPoint
+    CP_Color fill_color;
+    CP_Color stroke_color;
+    float stroke_weight;
+    CP_LINE_CAP_MODE line_cap;
 } CP_DrawInfo;
 typedef CP_DrawInfo* CP_DrawInfoPtr;
 //////////////////
@@ -57,7 +65,7 @@ typedef struct CP_Core
 {
     NVGcontext* nvg;
     GLFWwindow* window;
-	HWND hwnd;
+	CP_WindowHandle hwnd;
 	int window_width;
 	int window_height;
     int canvas_width;

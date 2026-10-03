@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -112,7 +112,6 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)CProcessing\lib\x86\CProcessingd.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)CProcessing\lib\x86\soloud_d.dll" "$(OutDir)" /s /r /y /q
 xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -140,7 +139,6 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)CProcessing\lib\x86\CProcessing.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)CProcessing\lib\x86\soloud.dll" "$(OutDir)" /s /r /y /q
 xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -164,7 +162,6 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)CProcessing\lib\x64\CProcessingd.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)CProcessing\lib\x64\soloud_d.dll" "$(OutDir)" /s /r /y /q
 xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -192,7 +189,6 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)CProcessing\lib\x64\CProcessing.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)CProcessing\lib\x64\soloud.dll" "$(OutDir)" /s /r /y /q
 xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -203,12 +199,6 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     <ClCompile Include="Demos\GridWaveDemo.c" />
     <ClCompile Include="Demos\NoiseDemo.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="test_code.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Demos\DancingLinesDemo.h" />
