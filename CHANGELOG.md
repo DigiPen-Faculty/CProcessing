@@ -4,6 +4,18 @@ Notable changes in each CProcessing release. Version numbers are
 major.minor.patch. The major number goes up when existing projects may need
 changes to build with the new version.
 
+## 3.0.1 (unreleased)
+
+Fixes from the first tests on a real Mac.
+
+### Fixed
+
+- **macOS: the window stayed black.** On macOS 26 on Apple silicon, the
+  window opened at the right size but nothing drawn in it ever appeared.
+  CProcessing drew everything correctly, but macOS didn't display the copy
+  of the drawing into the window. The drawing is now put into the window in
+  a way macOS displays, on every platform.
+
 ## 3.0.0 (2026-10-03)
 
 CProcessing now runs on Windows, Linux and macOS, with the same API and the
