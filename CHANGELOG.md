@@ -15,6 +15,15 @@ Fixes from the first tests on a real Mac.
   CProcessing drew everything correctly, but macOS didn't display the copy
   of the drawing into the window. The drawing is now put into the window in
   a way macOS displays, on every platform.
+- **High-DPI displays: `CP_System_GetWindowWidth` and
+  `CP_System_GetWindowHeight` returned the size in screen pixels**, twice
+  the drawing coordinates on a Retina Mac, so drawing at
+  `CP_System_GetWindowWidth() / 2` landed on the right edge instead of the
+  middle. They now return the size in the coordinates you draw in, which
+  the mouse position also uses. On Windows the values don't change.
+- On high-DPI displays, `CP_Image_Screenshot` now averages the screen pixels
+  behind each screenshot pixel, instead of keeping one of them, so a
+  screenshot looks smooth like the window.
 
 ## 3.0.0 (2026-10-03)
 

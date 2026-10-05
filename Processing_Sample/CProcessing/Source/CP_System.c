@@ -527,14 +527,17 @@ CP_API void CP_System_FullscreenAdvanced(int targetWidth, int targetHeight)
 	CP_SetWindowSizeInternal(targetWidth, targetHeight, true);
 }
 
+// The window size in the coordinates everything is drawn in, which is also
+// what the mouse position uses. On hi-dpi displays (e.g. 2x on a Retina Mac)
+// the window has more pixels than that; the canvas is that many pixels.
 CP_API int CP_System_GetWindowWidth(void)
 {
-	return _CORE.canvas_width;
+	return _CORE.window_width;
 }
 
 CP_API int CP_System_GetWindowHeight(void)
 {
-	return _CORE.canvas_height;
+	return _CORE.window_height;
 }
 
 CP_API int CP_System_GetDisplayWidth(void)
