@@ -4,9 +4,12 @@ Notable changes in each CProcessing release. Version numbers are
 major.minor.patch. The major number goes up when existing projects may need
 changes to build with the new version.
 
-## 3.0.1 (unreleased)
+## 3.0.1 (2026-10-06)
 
-Fixes from the first tests on a real Mac.
+Fixes from the first tests on a real Mac. On macOS, use 3.0.1 or later:
+with 3.0.0, the window stays black. macOS support is still a preview:
+drawing, the demos and the automated tests now work on an Apple silicon Mac
+(macOS 26), but sound, gamepads and Intel Macs haven't been confirmed yet.
 
 ### Fixed
 
