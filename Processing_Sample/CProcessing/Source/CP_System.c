@@ -132,8 +132,8 @@ static void CP_FramebufferSizeCallback(GLFWwindow* window, int width, int height
 // CANVAS:
 //		CProcessing, like Processing, does not clear the screen between frames:
 //		whatever was drawn stays until it is drawn over. Every frame is drawn
-//		into a persistent offscreen framebuffer (the "canvas") that is drawn
-//		into a normal double-buffered window at the end of the frame.
+//		into a persistent offscreen framebuffer (the "canvas") that is copied
+//		to a normal double-buffered window at the end of the frame.
 //		Screenshots read back from the canvas.
 //
 //		(CProcessing used to draw straight into a single-buffered window on
@@ -141,110 +141,17 @@ static void CP_FramebufferSizeCallback(GLFWwindow* window, int width, int height
 //		Wayland/EGL has none, and macOS core profile contexts are unreliable
 //		with them - so the canvas is used on every platform for consistency.)
 //
-//		The canvas reaches the window as a texture drawn over the whole window,
-//		not with glBlitFramebuffer. On macOS 26 (Apple silicon, "4.1 Metal"),
-//		a blit into the window's framebuffer never reaches the screen, and the
-//		window stays black: OpenGL reads the copied picture back, and reports
-//		no error, but only draw calls are displayed.
+//		After the copy, the window's own framebuffer (0) stays bound through
+//		the swap, and the canvas is bound again at the start of the next frame:
+//		on macOS, a frame swapped while another framebuffer is bound is never
+//		displayed, and the window stays black (SDL documents the same for
+//		SDL_GL_SwapWindow).
 
 static GLuint _canvasFramebuffer = 0;
-static GLuint _canvasColorTexture = 0;
+static GLuint _canvasColorBuffer = 0;
 static GLuint _canvasDepthStencilBuffer = 0;
 static int _canvasBufferWidth = 0;
 static int _canvasBufferHeight = 0;
-
-// The shader program and vertices that draw the canvas into the window
-static GLuint _presentProgram = 0;
-static GLuint _presentVertexArray = 0;
-static GLuint _presentVertexBuffer = 0;
-
-static GLuint CP_Canvas_CompileShader(GLenum type, const char* source)
-{
-	GLuint shader = glCreateShader(type);
-	glShaderSource(shader, 1, &source, NULL);
-	glCompileShader(shader);
-	GLint compiled = GL_FALSE;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-	if (!compiled)
-	{
-		char log[512] = "";
-		glGetShaderInfoLog(shader, sizeof(log), NULL, log);
-		printf("CProcessing: could not compile the canvas shader: %s\n", log);
-		glDeleteShader(shader);
-		return 0;
-	}
-	return shader;
-}
-
-// Create what CP_Canvas_Present draws with: a shader that copies the canvas
-// texture, and one triangle that covers the whole viewport
-static bool CP_Canvas_CreatePresenter(void)
-{
-	static const char* vertexSource =
-		"#version 150 core\n"
-		"in vec2 position;\n"
-		"out vec2 uv;\n"
-		"void main()\n"
-		"{\n"
-		"	uv = position * 0.5 + 0.5;\n"
-		"	gl_Position = vec4(position, 0.0, 1.0);\n"
-		"}\n";
-	// The window is opaque, so alpha is set to 1 rather than copied
-	static const char* fragmentSource =
-		"#version 150 core\n"
-		"uniform sampler2D canvas;\n"
-		"in vec2 uv;\n"
-		"out vec4 color;\n"
-		"void main()\n"
-		"{\n"
-		"	color = vec4(texture(canvas, uv).rgb, 1.0);\n"
-		"}\n";
-
-	GLuint vertexShader = CP_Canvas_CompileShader(GL_VERTEX_SHADER, vertexSource);
-	GLuint fragmentShader = CP_Canvas_CompileShader(GL_FRAGMENT_SHADER, fragmentSource);
-	if (!vertexShader || !fragmentShader)
-	{
-		glDeleteShader(vertexShader);
-		glDeleteShader(fragmentShader);
-		return false;
-	}
-
-	GLuint program = glCreateProgram();
-	glAttachShader(program, vertexShader);
-	glAttachShader(program, fragmentShader);
-	glBindAttribLocation(program, 0, "position");
-	glLinkProgram(program);
-	glDeleteShader(vertexShader);	// freed along with the program
-	glDeleteShader(fragmentShader);
-	GLint linked = GL_FALSE;
-	glGetProgramiv(program, GL_LINK_STATUS, &linked);
-	if (!linked)
-	{
-		char log[512] = "";
-		glGetProgramInfoLog(program, sizeof(log), NULL, log);
-		printf("CProcessing: could not link the canvas shader: %s\n", log);
-		glDeleteProgram(program);
-		return false;
-	}
-	glUseProgram(program);
-	glUniform1i(glGetUniformLocation(program, "canvas"), 0);	// texture unit 0
-	glUseProgram(0);
-	_presentProgram = program;
-
-	// One triangle, (-1,-1) (3,-1) (-1,3), covers the viewport; the parts
-	// outside it are clipped
-	static const float corners[6] = { -1.0f, -1.0f, 3.0f, -1.0f, -1.0f, 3.0f };
-	glGenVertexArrays(1, &_presentVertexArray);
-	glBindVertexArray(_presentVertexArray);
-	glGenBuffers(1, &_presentVertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, _presentVertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(corners), corners, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	return true;
-}
 
 static void CP_Canvas_Destroy(void)
 {
@@ -252,19 +159,18 @@ static void CP_Canvas_Destroy(void)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDeleteFramebuffers(1, &_canvasFramebuffer);
-		glDeleteTextures(1, &_canvasColorTexture);
+		glDeleteRenderbuffers(1, &_canvasColorBuffer);
 		glDeleteRenderbuffers(1, &_canvasDepthStencilBuffer);
 	}
-	_canvasFramebuffer = _canvasColorTexture = _canvasDepthStencilBuffer = 0;
+	_canvasFramebuffer = _canvasColorBuffer = _canvasDepthStencilBuffer = 0;
 	_canvasBufferWidth = _canvasBufferHeight = 0;
+}
 
-	if (_presentProgram)
-	{
-		glDeleteProgram(_presentProgram);
-		glDeleteVertexArrays(1, &_presentVertexArray);
-		glDeleteBuffers(1, &_presentVertexBuffer);
-	}
-	_presentProgram = _presentVertexArray = _presentVertexBuffer = 0;
+// Make the canvas the target of everything CProcessing draws
+static void CP_Canvas_Bind(void)
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
+	glViewport(0, 0, _canvasBufferWidth, _canvasBufferHeight);
 }
 
 // (Re)create the canvas at the given size, keeping whatever was already drawn
@@ -284,17 +190,10 @@ static bool CP_Canvas_Resize(int width, int height)
 	glGenFramebuffers(1, &framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
-	// a texture, so CP_Canvas_Present can draw with it; nearest filtering
-	// copies its pixels exactly
-	glGenTextures(1, &color);
-	glBindTexture(GL_TEXTURE_2D, color);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color, 0);
+	glGenRenderbuffers(1, &color);
+	glBindRenderbuffer(GL_RENDERBUFFER, color);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color);
 
 	// NanoVG needs a stencil buffer for fills and stencil strokes
 	glGenRenderbuffers(1, &depthStencil);
@@ -308,7 +207,7 @@ static bool CP_Canvas_Resize(int width, int height)
 		printf("CProcessing: could not create the %d x %d drawing canvas.\n", width, height);
 		glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
 		glDeleteFramebuffers(1, &framebuffer);
-		glDeleteTextures(1, &color);
+		glDeleteRenderbuffers(1, &color);
 		glDeleteRenderbuffers(1, &depthStencil);
 		return false;
 	}
@@ -327,23 +226,23 @@ static bool CP_Canvas_Resize(int width, int height)
 		glBlitFramebuffer(0, _canvasBufferHeight - copyHeight, copyWidth, _canvasBufferHeight,
 			0, height - copyHeight, copyWidth, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		glDeleteFramebuffers(1, &_canvasFramebuffer);
-		glDeleteTextures(1, &_canvasColorTexture);
+		glDeleteRenderbuffers(1, &_canvasColorBuffer);
 		glDeleteRenderbuffers(1, &_canvasDepthStencilBuffer);
 	}
 
 	_canvasFramebuffer = framebuffer;
-	_canvasColorTexture = color;
+	_canvasColorBuffer = color;
 	_canvasDepthStencilBuffer = depthStencil;
 	_canvasBufferWidth = width;
 	_canvasBufferHeight = height;
 
-	// everything CProcessing draws goes to the canvas
-	glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
-	glViewport(0, 0, width, height);
+	CP_Canvas_Bind();
 	return true;
 }
 
-// Draw the canvas into the window's back buffer (call before swapping)
+// Copy the canvas to the window's back buffer (call before swapping). This
+// leaves the window's framebuffer bound for the swap; CP_Canvas_Bind goes
+// back to the canvas.
 static void CP_Canvas_Present(void)
 {
 	if (!_canvasFramebuffer)
@@ -353,34 +252,13 @@ static void CP_Canvas_Present(void)
 	int windowFbWidth = 0, windowFbHeight = 0;
 	glfwGetFramebufferSize(_CORE.window, &windowFbWidth, &windowFbHeight);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, _canvasFramebuffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glDisable(GL_SCISSOR_TEST);
-	glDisable(GL_BLEND);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_STENCIL_TEST);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-	// Black where the canvas doesn't reach (only between a window resize and
-	// the canvas following it at the start of the next frame)
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	// One canvas pixel per window pixel, anchored to the top-left corner
-	glViewport(0, windowFbHeight - _canvasBufferHeight, _canvasBufferWidth, _canvasBufferHeight);
-	glUseProgram(_presentProgram);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, _canvasColorTexture);
-	glBindVertexArray(_presentVertexArray);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glBindVertexArray(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glUseProgram(0);
-
-	// back to drawing into the canvas (NanoVG sets its own blending and
-	// culling each frame)
-	glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
-	glViewport(0, 0, _canvasBufferWidth, _canvasBufferHeight);
+	glBlitFramebuffer(0, 0, _canvasBufferWidth, _canvasBufferHeight,
+		0, windowFbHeight - _canvasBufferHeight, _canvasBufferWidth, windowFbHeight,
+		GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 CP_CorePtr GetCPCore(void)
@@ -448,7 +326,9 @@ CP_API void CP_Engine_Run(void)
 		CP_FrameEnd();
 	}
 
-	// Exit the current state when the program is terminating
+	// Exit the current state when the program is terminating (anything it
+	// draws or screenshots uses the canvas, as during a frame)
+	CP_Canvas_Bind();
 	if (_currState.exit) _currState.exit();
 
 	CP_Shutdown();
@@ -933,9 +813,8 @@ void CP_Initialize(void)
 	// Update and render
 	glViewport(0, 0, _CORE.canvas_width, _CORE.canvas_height);
 
-	// Create the persistent drawing canvas (also binds it and sets the
-	// viewport), and what draws it into the window
-	if (!CP_Canvas_CreatePresenter() || !CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height))
+	// Create the persistent drawing canvas (also binds it and sets the viewport)
+	if (!CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height))
 	{
 		CP_InitializeFailed();
 		return;
@@ -1020,8 +899,10 @@ void CP_FrameStart(void)
 		CP_DeferredSetWindowSizeInternal(_deferredWidth, _deferredHeight, _deferredFullscreen);
 	}
 
-	// follow any window size change the window system has applied
+	// follow any window size change the window system has applied, and draw
+	// into the canvas again (the last frame ended with the window bound)
 	CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height);
+	CP_Canvas_Bind();
 
 	nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
 }
@@ -1029,7 +910,7 @@ void CP_FrameStart(void)
 void CP_FrameEnd(void)
 {
 	nvgEndFrame(_CORE.nvg);
-	CP_Canvas_Present();
+	CP_Canvas_Present();	// leaves the window's framebuffer bound, as macOS needs for the swap
 	glfwSwapBuffers(_CORE.window);
 	glFlush();
 	glfwPollEvents();

@@ -12,9 +12,10 @@ Fixes from the first tests on a real Mac.
 
 - **macOS: the window stayed black.** On macOS 26 on Apple silicon, the
   window opened at the right size but nothing drawn in it ever appeared.
-  CProcessing drew everything correctly, but macOS didn't display the copy
-  of the drawing into the window. The drawing is now put into the window in
-  a way macOS displays, on every platform.
+  CProcessing drew everything correctly, but when it showed each frame, its
+  offscreen drawing surface was still selected instead of the window, and
+  macOS then displays nothing. It now selects the window first, on every
+  platform.
 - **High-DPI displays: `CP_System_GetWindowWidth` and
   `CP_System_GetWindowHeight` returned the size in screen pixels**, twice
   the drawing coordinates on a Retina Mac, so drawing at
