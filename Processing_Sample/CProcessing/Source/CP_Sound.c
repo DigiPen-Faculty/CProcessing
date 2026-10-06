@@ -290,14 +290,17 @@ CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_
 	unsigned int voice = Soloud_playEx(_soloud_system, sound->sound, volume * voice_groups[group].volume, 0, TRUE, 0);
 	Soloud_addVoiceToGroup(_soloud_system, voice_groups[group].handle, voice);
 
-	// Set the pitch if it is not 1.0
-	// (0.5 is half pitch, 2.0 is double pitch)
-	if (pitch != 1.0f)
+	// The voice plays at its own pitch times its group's pitch
+	// (0.5 is half pitch, 2.0 is double pitch). Joining a group doesn't give
+	// a voice the group's pitch (a SoLoud voice group is only a list of
+	// voices), so it's set here even when the sound's own pitch is 1.0.
+	// New voices start at 1.0, so only a different speed needs setting.
+	if (pitch < 0.0f)
+		pitch = 0.0f;
+	const float speed = pitch * voice_groups[group].pitch;
+	if (speed != 1.0f)
 	{
-		if (pitch < 0.0f)
-			pitch = 0.0f;
-
-		result = Soloud_setRelativePlaySpeed(_soloud_system, voice, pitch * voice_groups[group].pitch);
+		result = Soloud_setRelativePlaySpeed(_soloud_system, voice, speed);
 	}
 
 	// Resume playing the sound

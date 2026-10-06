@@ -4,6 +4,16 @@ Notable changes in each CProcessing release. Version numbers are
 major.minor.patch. The major number goes up when existing projects may need
 changes to build with the new version.
 
+## 3.0.2 (unreleased)
+
+### Fixed
+
+- **`CP_Sound_SetGroupPitch` was ignored by sounds played at their own
+  pitch of 1.0**, which includes every `CP_Sound_Play`: they played at
+  normal pitch whatever the group's pitch was. A sound now always plays at
+  its own pitch times its group's pitch, as it already did for any other
+  pitch.
+
 ## 3.0.1 (2026-10-06)
 
 Fixes from the first tests on a real Mac. On macOS, use 3.0.1 or later:
