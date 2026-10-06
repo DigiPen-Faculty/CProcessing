@@ -40,7 +40,7 @@ else()
     endif()
     include(FetchContent)
     FetchContent_Declare(cprocessing
-        URL https://github.com/DigiPen-Faculty/CProcessing/archive/refs/tags/v3.0.0.tar.gz)
+        URL https://github.com/DigiPen-Faculty/CProcessing/archive/refs/tags/v3.0.1.tar.gz)
     FetchContent_MakeAvailable(cprocessing)
 endif()
 

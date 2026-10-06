@@ -140,6 +140,12 @@ static void CP_FramebufferSizeCallback(GLFWwindow* window, int width, int height
 //		Windows instead. Single-buffered windows are not available everywhere -
 //		Wayland/EGL has none, and macOS core profile contexts are unreliable
 //		with them - so the canvas is used on every platform for consistency.)
+//
+//		After the copy, the window's own framebuffer (0) stays bound through
+//		the swap, and the canvas is bound again at the start of the next frame:
+//		on macOS, a frame swapped while another framebuffer is bound is never
+//		displayed, and the window stays black (SDL documents the same for
+//		SDL_GL_SwapWindow).
 
 static GLuint _canvasFramebuffer = 0;
 static GLuint _canvasColorBuffer = 0;
@@ -158,6 +164,13 @@ static void CP_Canvas_Destroy(void)
 	}
 	_canvasFramebuffer = _canvasColorBuffer = _canvasDepthStencilBuffer = 0;
 	_canvasBufferWidth = _canvasBufferHeight = 0;
+}
+
+// Make the canvas the target of everything CProcessing draws
+static void CP_Canvas_Bind(void)
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
+	glViewport(0, 0, _canvasBufferWidth, _canvasBufferHeight);
 }
 
 // (Re)create the canvas at the given size, keeping whatever was already drawn
@@ -223,13 +236,13 @@ static bool CP_Canvas_Resize(int width, int height)
 	_canvasBufferWidth = width;
 	_canvasBufferHeight = height;
 
-	// everything CProcessing draws goes to the canvas
-	glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
-	glViewport(0, 0, width, height);
+	CP_Canvas_Bind();
 	return true;
 }
 
-// Copy the canvas to the window's back buffer (call before swapping)
+// Copy the canvas to the window's back buffer (call before swapping). This
+// leaves the window's framebuffer bound for the swap; CP_Canvas_Bind goes
+// back to the canvas.
 static void CP_Canvas_Present(void)
 {
 	if (!_canvasFramebuffer)
@@ -245,7 +258,7 @@ static void CP_Canvas_Present(void)
 	glBlitFramebuffer(0, 0, _canvasBufferWidth, _canvasBufferHeight,
 		0, windowFbHeight - _canvasBufferHeight, _canvasBufferWidth, windowFbHeight,
 		GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 CP_CorePtr GetCPCore(void)
@@ -313,7 +326,9 @@ CP_API void CP_Engine_Run(void)
 		CP_FrameEnd();
 	}
 
-	// Exit the current state when the program is terminating
+	// Exit the current state when the program is terminating (anything it
+	// draws or screenshots uses the canvas, as during a frame)
+	CP_Canvas_Bind();
 	if (_currState.exit) _currState.exit();
 
 	CP_Shutdown();
@@ -392,14 +407,17 @@ CP_API void CP_System_FullscreenAdvanced(int targetWidth, int targetHeight)
 	CP_SetWindowSizeInternal(targetWidth, targetHeight, true);
 }
 
+// The window size in the coordinates everything is drawn in, which is also
+// what the mouse position uses. On hi-dpi displays (e.g. 2x on a Retina Mac)
+// the window has more pixels than that; the canvas is that many pixels.
 CP_API int CP_System_GetWindowWidth(void)
 {
-	return _CORE.canvas_width;
+	return _CORE.window_width;
 }
 
 CP_API int CP_System_GetWindowHeight(void)
 {
-	return _CORE.canvas_height;
+	return _CORE.window_height;
 }
 
 CP_API int CP_System_GetDisplayWidth(void)
@@ -881,8 +899,10 @@ void CP_FrameStart(void)
 		CP_DeferredSetWindowSizeInternal(_deferredWidth, _deferredHeight, _deferredFullscreen);
 	}
 
-	// follow any window size change the window system has applied
+	// follow any window size change the window system has applied, and draw
+	// into the canvas again (the last frame ended with the window bound)
 	CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height);
+	CP_Canvas_Bind();
 
 	nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
 }
@@ -890,7 +910,7 @@ void CP_FrameStart(void)
 void CP_FrameEnd(void)
 {
 	nvgEndFrame(_CORE.nvg);
-	CP_Canvas_Present();
+	CP_Canvas_Present();	// leaves the window's framebuffer bound, as macOS needs for the swap
 	glfwSwapBuffers(_CORE.window);
 	glFlush();
 	glfwPollEvents();

@@ -56,15 +56,22 @@ Tools extensions when asked. Pick a compiler ("kit") when CMake Tools asks.
 Then use **Build** and **Debug** in the status bar. The debugger starts the
 game in `build/bin`, so assets load.
 
-## macOS: "can't be opened"
+## macOS
 
-macOS support is a preview in CProcessing 3.0: it builds and passes its
-unit tests, but hasn't been tested on a real Mac yet. Please
+macOS support is a preview. Since CProcessing 3.0.1, drawing, the demos and
+the automated tests work on an Apple silicon Mac (macOS 26), but sound,
+gamepads and Intel Macs haven't been confirmed yet. Please
 [report anything that doesn't work](https://github.com/DigiPen-Faculty/CProcessing/issues).
 
-If macOS refuses to open `libCProcessing.dylib` from a downloaded package
-(for example "cannot be opened because the developer cannot be verified"),
-remove the download quarantine from this folder and build again:
+### "Apple could not verify libCProcessing.dylib is free of malware"
+
+macOS may refuse to open `libCProcessing.dylib` from a downloaded package,
+with a message like "Apple could not verify 'libCProcessing.dylib' is free
+of malware that may harm your Mac or compromise your privacy" (older macOS
+versions say it "cannot be opened because the developer cannot be
+verified"). The library isn't signed by Apple, so macOS blocks it because it
+came from the internet. Remove the download quarantine from this folder and
+build again:
 
 ```sh
 xattr -dr com.apple.quarantine .

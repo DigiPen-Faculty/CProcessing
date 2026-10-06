@@ -355,14 +355,40 @@ CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 
 	nvgBeginFrame(CORE->nvg, (float)CORE->window_width, (float)CORE->window_height, CORE->pixel_ratio);
 
-	// flip rows (GL is bottom-up) and, for hi-dpi, sample down to w x h
+	// Flip rows (GL is bottom-up) and, for hi-dpi, scale down to w x h: each
+	// pixel is the average of the framebuffer pixels it covers (a 2x2 block on
+	// a Retina Mac), so the screenshot looks like the window, and a mirrored
+	// drawing gives a mirrored screenshot. At ratio 1 this is a plain copy.
 	for (int row = 0; row < h; ++row)
 	{
-		const int srcRow = readH - 1 - (int)(row * ((float)readH / h));
+		// framebuffer rows covered, counted from the top
+		const int top = (int)((long long)row * readH / h);
+		int bottom = (int)((long long)(row + 1) * readH / h);
+		if (bottom <= top) bottom = top + 1;
 		for (int col = 0; col < w; ++col)
 		{
-			const int srcCol = (int)(col * ((float)readW / w));
-			memcpy(&buffer[((size_t)row * w + col) * 4], &readBuffer[((size_t)srcRow * readW + srcCol) * 4], 4);
+			const int left = (int)((long long)col * readW / w);
+			int right = (int)((long long)(col + 1) * readW / w);
+			if (right <= left) right = left + 1;
+
+			unsigned sum[4] = { 0, 0, 0, 0 };
+			for (int srcRow = top; srcRow < bottom; ++srcRow)
+			{
+				const unsigned char* src = &readBuffer[((size_t)(readH - 1 - srcRow) * readW + left) * 4];
+				for (int srcCol = left; srcCol < right; ++srcCol, src += 4)
+				{
+					sum[0] += src[0];
+					sum[1] += src[1];
+					sum[2] += src[2];
+					sum[3] += src[3];
+				}
+			}
+			const unsigned count = (unsigned)((bottom - top) * (right - left));
+			unsigned char* dst = &buffer[((size_t)row * w + col) * 4];
+			for (int c = 0; c < 4; ++c)
+			{
+				dst[c] = (unsigned char)((sum[c] + count / 2) / count);
+			}
 		}
 	}
 
