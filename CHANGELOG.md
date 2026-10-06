@@ -4,6 +4,31 @@ Notable changes in each CProcessing release. Version numbers are
 major.minor.patch. The major number goes up when existing projects may need
 changes to build with the new version.
 
+## 3.0.1 (2026-10-06)
+
+Fixes from the first tests on a real Mac. On macOS, use 3.0.1 or later:
+with 3.0.0, the window stays black. macOS support is still a preview:
+drawing, the demos and the automated tests now work on an Apple silicon Mac
+(macOS 26), but sound, gamepads and Intel Macs haven't been confirmed yet.
+
+### Fixed
+
+- **macOS: the window stayed black.** On macOS 26 on Apple silicon, the
+  window opened at the right size but nothing drawn in it ever appeared.
+  CProcessing drew everything correctly, but when it showed each frame, its
+  offscreen drawing surface was still selected instead of the window, and
+  macOS then displays nothing. It now selects the window first, on every
+  platform.
+- **High-DPI displays: `CP_System_GetWindowWidth` and
+  `CP_System_GetWindowHeight` returned the size in screen pixels**, twice
+  the drawing coordinates on a Retina Mac, so drawing at
+  `CP_System_GetWindowWidth() / 2` landed on the right edge instead of the
+  middle. They now return the size in the coordinates you draw in, which
+  the mouse position also uses. On Windows the values don't change.
+- On high-DPI displays, `CP_Image_Screenshot` now averages the screen pixels
+  behind each screenshot pixel, instead of keeping one of them, so a
+  screenshot looks smooth like the window.
+
 ## 3.0.0 (2026-10-03)
 
 CProcessing now runs on Windows, Linux and macOS, with the same API and the
