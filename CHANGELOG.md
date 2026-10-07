@@ -20,6 +20,13 @@ changes to build with the new version.
   now also looked for next to the program when they aren't found from the
   current folder. Running from a terminal or from Visual Studio works as
   before.
+- **With more than one monitor, fullscreen always used the primary
+  monitor**, whichever monitor the window was on, and leaving fullscreen
+  moved the window there. Fullscreen now uses the monitor the window is
+  on, a window is centered on that monitor, and
+  `CP_System_GetDisplayWidth`, `CP_System_GetDisplayHeight` and
+  `CP_System_GetDisplayRefreshRate` describe it. With one monitor nothing
+  changes.
 
 ## 3.0.1 (2026-10-06)
 
