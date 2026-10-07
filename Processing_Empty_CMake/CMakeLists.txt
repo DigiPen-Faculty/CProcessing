@@ -8,8 +8,8 @@
 #   ./MyGame                (MyGame.exe on Windows)
 #
 # The game is built into build/bin, next to the CProcessing library and a
-# copy of the Assets folder. Run it from there: CProcessing loads assets
-# relative to the current working directory.
+# copy of the Assets folder. CProcessing looks for assets from the current
+# working directory, and then next to the game, so it finds them there.
 #
 # Where CProcessing comes from:
 #   - The Linux and macOS release packages include a CProcessing folder next
