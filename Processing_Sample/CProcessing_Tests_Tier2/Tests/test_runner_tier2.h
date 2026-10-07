@@ -88,3 +88,4 @@ void test_tier2_screenshot_subregion_is_not_flipped(void);
 void test_tier2_missing_files_load_as_null(void);
 void test_tier2_null_handles_are_ignored(void);
 void test_tier2_window_handle_is_available(void);
+void test_tier2_assets_load_from_next_to_the_program(void);

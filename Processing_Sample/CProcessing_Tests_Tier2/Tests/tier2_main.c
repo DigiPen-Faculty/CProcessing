@@ -142,6 +142,7 @@ int main(void)
     RUN_TEST(test_tier2_missing_files_load_as_null);
     RUN_TEST(test_tier2_null_handles_are_ignored);
     RUN_TEST(test_tier2_window_handle_is_available);
+    RUN_TEST(test_tier2_assets_load_from_next_to_the_program);
 
     return UNITY_END();
 }

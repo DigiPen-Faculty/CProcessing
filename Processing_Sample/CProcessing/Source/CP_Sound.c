@@ -15,6 +15,7 @@
 #include <string.h>
 #include "cprocessing.h"
 #include "Internal_Sound.h"
+#include "Internal_File.h"
 #include "vect.h"
 
 //------------------------------------------------------------------------------
@@ -176,12 +177,14 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 		return NULL;
 	}
 
-	// Create the SoLoud sound
+	// Create the SoLoud sound, from the current folder or else next to the program
+	char resolved[CP_PATH_MAX];
+	const char* path = file_resolveAssetPath(filepath, resolved, sizeof(resolved));
 	if (streamFromDisc)
 	{
 		// TODO: move error checking up here so we can release SL memory
 		WavStream* wavstream = WavStream_create();
-		result = WavStream_load(wavstream, filepath);
+		result = WavStream_load(wavstream, path);
 		sound->sound = (AudioSource*)wavstream;
 		sound->type = SL_AUDIOSOURCE_STREAM;
 	}
@@ -189,7 +192,7 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 	{
 		// TODO: move error checking up here so we can release SL memory
 		Wav* wav = Wav_create();
-		result = Wav_load(wav, filepath);
+		result = Wav_load(wav, path);
 		sound->sound = (AudioSource*)wav;
 		sound->type = SL_AUDIOSOURCE_WAV;
 	}

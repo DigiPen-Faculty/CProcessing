@@ -69,6 +69,18 @@ void test_tier2_null_handles_are_ignored(void)
     TEST_ASSERT_TRUE(tier2_scalars.survivedNullCalls);
 }
 
+void test_tier2_assets_load_from_next_to_the_program(void)
+{
+    // See Scn_AssetsNextToProgram: relative paths, from an empty folder
+    TEST_ASSERT_TRUE_MESSAGE(tier2_scalars.assetFolderEntered, "couldn't move to an empty folder");
+    TEST_ASSERT_TRUE_MESSAGE(tier2_scalars.assetImageLoaded, "image");
+    TEST_ASSERT_TRUE_MESSAGE(tier2_scalars.assetFontLoaded, "font");
+    if (tier2_scalars.assetSoundAvailable)
+    {
+        TEST_ASSERT_TRUE_MESSAGE(tier2_scalars.assetSoundLoaded, "sound");
+    }
+}
+
 void test_tier2_window_handle_is_available(void)
 {
 #if defined(_WIN32) || defined(__APPLE__)
