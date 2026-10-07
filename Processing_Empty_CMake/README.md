@@ -39,9 +39,10 @@ cd build/bin
 ./MyGame          # MyGame.exe on Windows
 ```
 
-After editing `main.c`, run `cmake --build build` again. Always start the
-game from `build/bin`, because CProcessing loads assets relative to the
-current folder.
+After editing `main.c`, run `cmake --build build` again. CProcessing looks
+for assets from the current folder, and then next to the game, so the
+`Assets` folder in `build/bin` is found however the game is started, from a
+terminal or by double-clicking it.
 
 ## Seeing `printf` output
 
@@ -58,10 +59,16 @@ game in `build/bin`, so assets load.
 
 ## macOS
 
-macOS support is a preview. Since CProcessing 3.0.1, drawing, the demos and
-the automated tests work on an Apple silicon Mac (macOS 26), but sound,
-gamepads and Intel Macs haven't been confirmed yet. Please
+macOS support is a preview. Since CProcessing 3.0.1, drawing, sound,
+screenshots, the demos and the automated tests work on an Apple silicon Mac
+(macOS 26), but gamepads and Intel Macs haven't been confirmed yet. Please
 [report anything that doesn't work](https://github.com/DigiPen-Faculty/CProcessing/issues).
+
+### Gamepads
+
+Connect an Xbox controller over **Bluetooth**. On a USB cable, macOS doesn't
+recognize it as a game controller, so CProcessing can't see it, even if a
+gamepad test website can (browsers include their own Xbox driver).
 
 ### "Apple could not verify libCProcessing.dylib is free of malware"
 

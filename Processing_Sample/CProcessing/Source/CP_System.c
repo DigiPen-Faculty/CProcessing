@@ -8,6 +8,7 @@
 
 #include "cprocessing.h"
 #include "Internal_System.h"
+#include "Internal_Monitor.h"
 #include "tinycthread.h"
 #include <stdio.h>
 #if !defined(_WIN32)
@@ -86,6 +87,70 @@ static void CP_SetWindowPosIfSupported(GLFWwindow* window, int x, int y)
 		return;
 	}
 	glfwSetWindowPos(window, x, y);
+}
+
+// A monitor's rectangle in screen coordinates: its position and the size of
+// its current video mode
+static CP_ScreenRect CP_MonitorRect(GLFWmonitor* monitor)
+{
+	CP_ScreenRect rect = { 0, 0, 0, 0 };
+	const GLFWvidmode* mode = monitor ? glfwGetVideoMode(monitor) : NULL;
+	if (mode)
+	{
+		glfwGetMonitorPos(monitor, &rect.x, &rect.y);
+		rect.width = mode->width;
+		rect.height = mode->height;
+	}
+	return rect;
+}
+
+// The monitor the window is on: the one it's fullscreen on, or else the one
+// with the largest part of the window on it. Fullscreen, the display size and
+// centering all use it. The primary monitor before the window exists, on
+// Wayland (where a window can't find out its position), and when the window
+// isn't on any monitor.
+static GLFWmonitor* CP_WindowMonitor(void)
+{
+	GLFWmonitor* primary = glfwGetPrimaryMonitor();
+	if (!_CORE.window)
+	{
+		return primary;
+	}
+	GLFWmonitor* fullscreenMonitor = glfwGetWindowMonitor(_CORE.window);
+	if (fullscreenMonitor)
+	{
+		return fullscreenMonitor;
+	}
+	if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND)
+	{
+		return primary;
+	}
+
+	CP_ScreenRect window = { 0, 0, 0, 0 };
+	glfwGetWindowPos(_CORE.window, &window.x, &window.y);
+	glfwGetWindowSize(_CORE.window, &window.width, &window.height);
+
+	int count = 0;
+	GLFWmonitor** monitors = glfwGetMonitors(&count);
+	CP_ScreenRect rects[16];
+	count = count < 16 ? count : 16;
+	for (int i = 0; i < count; ++i)
+	{
+		rects[i] = CP_MonitorRect(monitors[i]);
+	}
+	const int most = CP_Monitor_MostOfWindow(window, rects, count);
+	return most >= 0 ? monitors[most] : primary;
+}
+
+// Store the size of a monitor's current video mode as the display size
+static void CP_UpdateDisplaySize(GLFWmonitor* monitor)
+{
+	const GLFWvidmode* mode = monitor ? glfwGetVideoMode(monitor) : NULL;
+	if (mode)
+	{
+		_CORE.native_width = mode->width;
+		_CORE.native_height = mode->height;
+	}
 }
 
 static void CP_UpdatePixelRatio(void)
@@ -420,13 +485,22 @@ CP_API int CP_System_GetWindowHeight(void)
 	return _CORE.window_height;
 }
 
+// The size of the monitor the window is on (see CP_WindowMonitor)
 CP_API int CP_System_GetDisplayWidth(void)
 {
+	if (_CORE.window)
+	{
+		CP_UpdateDisplaySize(CP_WindowMonitor());
+	}
 	return _CORE.native_width;
 }
 
 CP_API int CP_System_GetDisplayHeight(void)
 {
+	if (_CORE.window)
+	{
+		CP_UpdateDisplaySize(CP_WindowMonitor());
+	}
 	return _CORE.native_height;
 }
 
@@ -437,7 +511,7 @@ CP_API int CP_System_GetDisplayRefreshRate(void)
 	{
 		return 0;
 	}
-	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	GLFWmonitor* monitor = CP_WindowMonitor();
 	const GLFWvidmode* mode = monitor ? glfwGetVideoMode(monitor) : NULL;
 	return mode ? mode->refreshRate : 0;
 }
@@ -803,10 +877,8 @@ void CP_Initialize(void)
 	}
 	else
 	{
-		// set the window to the middle of the screen
-		structure = glfwGetVideoMode(glfwGetPrimaryMonitor());	// already requested above
-		windowPosX = (structure->width / 2) - (_CORE.window_width / 2);
-		windowPosY = (structure->height / 2) - (_CORE.window_height / 2);
+		// set the window to the middle of the primary monitor
+		CP_Monitor_Center(CP_MonitorRect(glfwGetPrimaryMonitor()), _CORE.window_width, _CORE.window_height, &windowPosX, &windowPosY);
 	}
 	CP_SetWindowPosIfSupported(_CORE.window, windowPosX, windowPosY);
 
@@ -1004,6 +1076,12 @@ void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFull
 		return;
 	}
 
+	// Fullscreen goes to the monitor the window is on now, and a window is
+	// centered on it. (Leaving fullscreen, that's the monitor it was
+	// fullscreen on.)
+	GLFWmonitor* monitor = CP_WindowMonitor();
+	CP_UpdateDisplaySize(monitor);
+
 	if (isFullscreen && new_width == 0 && new_height == 0)
 	{
 		// force full screen values
@@ -1028,11 +1106,10 @@ void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFull
 	}
 	else
 	{
-		// set the window to the middle of the screen
-		windowPosX = (int)(_CORE.native_width / 2.0f) - (int)(new_width / 2.0f);
-		windowPosY = (int)(_CORE.native_height / 2.0f) - (int)(new_height / 2.0f);
+		// set the window to the middle of the monitor
+		CP_Monitor_Center(CP_MonitorRect(monitor), new_width, new_height, &windowPosX, &windowPosY);
 	}
-	glfwSetWindowMonitor(_CORE.window, isFullscreen ? glfwGetPrimaryMonitor() : NULL, windowPosX, windowPosY, new_width, new_height, 60);
+	glfwSetWindowMonitor(_CORE.window, isFullscreen ? monitor : NULL, windowPosX, windowPosY, new_width, new_height, 60);
 	if (!isFullscreen)
 	{
 		// returning from fullscreen needs a size refresh to properly include window decoration dimensions

@@ -72,6 +72,11 @@ int file_exists(const char * filepath);
 int file_dirExists(const char * dirpath);
 // Make a directory
 int file_makedir(const char * dirpath);
+// The path to open an image, font or sound file with: the path as given if
+// the file is there (an absolute path, or relative to the current folder);
+// else, for a relative path, the same path next to the program, written into
+// buffer, if the file is there. Unchanged if it's in neither place.
+const char * file_resolveAssetPath(const char * filepath, char * buffer, size_t bufferSize);
 
 #ifdef __cplusplus
 }

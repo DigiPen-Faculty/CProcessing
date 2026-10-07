@@ -15,6 +15,22 @@
 #include <stdlib.h>
 #include "tier2_capture.h"
 
+// For Scn_AssetsNextToProgram, which runs in another folder for a moment
+#if defined(_WIN32)
+    #include <direct.h>
+    #define tier2_getcwd _getcwd
+    #define tier2_chdir _chdir
+    #define tier2_mkdir(path) _mkdir(path)
+    #define tier2_rmdir _rmdir
+#else
+    #include <sys/stat.h>
+    #include <unistd.h>
+    #define tier2_getcwd getcwd
+    #define tier2_chdir chdir
+    #define tier2_mkdir(path) mkdir(path, 0755)
+    #define tier2_rmdir rmdir
+#endif
+
 CP_Color tier2_snapshots[SCN_COUNT][TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 Tier2Scalars tier2_scalars = { 0 };
 
@@ -1020,6 +1036,44 @@ static void Scn_SystemWindowSettings(void)
     tier2_scalars.consoleVisibleAfterReshow = CP_System_GetConsoleVisible();
 }
 
+// ---- Assets next to the program (3.0.2) ----
+// A program double-clicked in macOS Finder starts in the home folder, not in
+// its own folder, so relative asset paths are also looked for next to the
+// program. This moves to an empty folder, where "Assets/..." doesn't exist,
+// loads one file of each kind, and moves back. The paths start with "./"
+// because the other scenarios loaded these files as "Assets/...", and loading
+// a path that's already loaded returns that file without opening anything.
+#define TIER2_EMPTY_FOLDER "tier2_empty_folder"
+
+static void Scn_AssetsNextToProgram(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+
+    // CI runners may have no audio device, and then no sound loads at all
+    tier2_scalars.assetSoundAvailable = CP_Sound_Load("Assets/beep.wav") != NULL;
+
+    char previousFolder[4096];
+    if (tier2_getcwd(previousFolder, sizeof previousFolder) == NULL)
+    {
+        return;
+    }
+    tier2_mkdir(TIER2_EMPTY_FOLDER);    // it may be left over from an interrupted run
+    tier2_scalars.assetFolderEntered = tier2_chdir(TIER2_EMPTY_FOLDER) == 0;
+
+    CP_Image image = CP_Image_Load("./Assets/quadrants.png");
+    CP_Font font = CP_Font_Load("./Assets/Exo2-Regular.ttf");
+    CP_Sound sound = CP_Sound_Load("./Assets/beep.wav");
+    tier2_scalars.assetImageLoaded = image != NULL;
+    tier2_scalars.assetFontLoaded = font != NULL;
+    tier2_scalars.assetSoundLoaded = sound != NULL;
+
+    tier2_chdir(previousFolder);
+    tier2_rmdir(TIER2_EMPTY_FOLDER);
+    CP_Image_Free(&image);
+    CP_Font_Free(&font);
+    CP_Sound_Free(&sound);
+}
+
 typedef void (*ScenarioFunc)(void);
 
 static const ScenarioFunc kScenarios[SCN_COUNT] = {
@@ -1075,6 +1129,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SCREENSHOT_SUBREGION] = Scn_ScreenshotSubregion,
     [SCN_ERROR_PATHS] = Scn_ErrorPaths,
     [SCN_SYSTEM_WINDOW_SETTINGS] = Scn_SystemWindowSettings,
+    [SCN_ASSETS_NEXT_TO_PROGRAM] = Scn_AssetsNextToProgram,
 };
 
 static void HarnessInit(void)

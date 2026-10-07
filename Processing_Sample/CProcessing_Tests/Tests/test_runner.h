@@ -145,6 +145,16 @@ void test_platform_stringcopy_null_source_gives_empty_string(void);
 void test_platform_stringcopy_zero_size_writes_nothing(void);
 void test_platform_path_buffer_is_large_enough(void);
 
+// test_internal_monitor.c -- Tier 1: which monitor a window is on (Internal_Monitor.h).
+void test_monitor_window_inside_one_monitor(void);
+void test_monitor_window_across_two_monitors_picks_the_larger_part(void);
+void test_monitor_window_split_evenly_picks_the_earlier_monitor(void);
+void test_monitor_window_below_a_shorter_monitor(void);
+void test_monitor_window_on_no_monitor(void);
+void test_monitor_left_of_the_primary_has_negative_coordinates(void);
+void test_monitor_center_on_the_primary_monitor_matches_the_old_formula(void);
+void test_monitor_center_on_a_second_monitor(void);
+
 // test_cp_input_logic.c -- Tier 1: pure CP_Input logic (Internal_InputLogic.h).
 void test_inputlogic_triggered_truth_table(void);
 void test_inputlogic_released_truth_table(void);

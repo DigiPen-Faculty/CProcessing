@@ -159,6 +159,16 @@ int main(void)
     RUN_TEST(test_platform_stringcopy_zero_size_writes_nothing);
     RUN_TEST(test_platform_path_buffer_is_large_enough);
 
+    // test_internal_monitor.c
+    RUN_TEST(test_monitor_window_inside_one_monitor);
+    RUN_TEST(test_monitor_window_across_two_monitors_picks_the_larger_part);
+    RUN_TEST(test_monitor_window_split_evenly_picks_the_earlier_monitor);
+    RUN_TEST(test_monitor_window_below_a_shorter_monitor);
+    RUN_TEST(test_monitor_window_on_no_monitor);
+    RUN_TEST(test_monitor_left_of_the_primary_has_negative_coordinates);
+    RUN_TEST(test_monitor_center_on_the_primary_monitor_matches_the_old_formula);
+    RUN_TEST(test_monitor_center_on_a_second_monitor);
+
     // test_cp_input_logic.c
     RUN_TEST(test_inputlogic_triggered_truth_table);
     RUN_TEST(test_inputlogic_released_truth_table);

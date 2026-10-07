@@ -79,8 +79,9 @@ Visual Studio generators. That folder holds the CProcessing library, the
 
 ### Run the demos
 
-CProcessing loads assets relative to the **current working directory**, so
-run from the output folder:
+CProcessing looks for assets from the **current working directory**, and
+then next to the program, so the demos find their `Assets` folder however
+they're started. From a terminal:
 
 ```sh
 cd build/bin
@@ -181,14 +182,20 @@ To build against a local copy of CProcessing instead of the download, add
 - **Gamepads** use GLFW's gamepad mappings on every platform: Xbox
   controllers on Windows, plus most controllers on Linux and macOS. Buttons
   follow the Xbox layout.
+- **macOS: connect Xbox controllers over Bluetooth.** On a USB cable,
+  macOS doesn't recognize an Xbox controller as a game controller: it speaks
+  Microsoft's own protocol there, not the standard one (HID) that GLFW uses
+  on macOS. Browsers and Steam include their own Xbox drivers, so a
+  controller that works there can still be invisible to CProcessing on a
+  cable. Over Bluetooth, macOS supports it, and so does GLFW.
 - **No audio device** (a headless machine, or a VM without sound) is not an
   error. Sounds still load and "play" silently.
 - **One library file.** GLFW, SoLoud and miniaudio are linked into the
   CProcessing library itself. A game needs only `CProcessing.dll`
   (`libCProcessing.so` / `libCProcessing.dylib`) next to it.
-- **macOS** is a preview. Since 3.0.1, drawing, the demos and both test
-  tiers work on an Apple silicon Mac (macOS 26); sound, gamepads and Intel
-  Macs haven't been confirmed yet. CI builds it and runs Tier 1 only: Tier 2
+- **macOS** is a preview. Since 3.0.1, drawing, sound, screenshots, the
+  demos and both test tiers work on an Apple silicon Mac (macOS 26);
+  gamepads and Intel Macs haven't been confirmed yet. CI builds it and runs Tier 1 only: Tier 2
   and the demos need a GPU, which GitHub's hosted macOS runners don't have.
   Please report anything that misbehaves there.
 
