@@ -502,6 +502,31 @@ CP_API CP_BOOL CP_System_GetCursorVisible(void)
 	return _cursorVisible;
 }
 
+CP_API void CP_System_SetCursorMode(CP_CURSOR_MODE mode)
+{
+	if (_CORE.window)
+	{
+		switch (mode) {
+			case CURSOR_MODE_NORMAL:
+				glfwSetInputMode(_CORE.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+				_cursorVisible = TRUE;
+				break;
+			case CURSOR_MODE_HIDDEN:
+				glfwSetInputMode(_CORE.window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+				_cursorVisible = FALSE;
+				break;
+			case CURSOR_MODE_CAPTURED:
+				glfwSetInputMode(_CORE.window, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+				_cursorVisible = TRUE;
+				break;
+			case CURSOR_MODE_DISABLED:
+				glfwSetInputMode(_CORE.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				_cursorVisible = FALSE;
+				break;
+		}
+	}
+}
+
 
 //---------------------------------------------------------
 // CONSOLE:
