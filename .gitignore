@@ -78,3 +78,11 @@ Processing_Sample/CProcessing_Tests_Tier2/Intermediate/
 
 # CMake build folders (see BUILDING.md and Processing_Empty_CMake)
 build/
+
+# Offline documentation build output
+docs/offline/.venv/
+docs/offline/work/
+docs/offline/output/
+docs/offline/__pycache__/
+!docs/offline/build.cmd
+!docs/offline/student/*.cmd

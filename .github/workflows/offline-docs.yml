@@ -1,0 +1,39 @@
+name: Build offline documentation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 9 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: docs/offline/requirements.txt
+
+      - name: Build student package and PDF
+        shell: pwsh
+        run: ./docs/offline/build.ps1
+
+      - name: Upload offline documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: CProcessing-offline-documentation
+          path: |
+            docs/offline/output/CProcessing-Offline-Documentation.zip
+            docs/offline/output/CProcessing-Documentation.pdf
+          if-no-files-found: error
+          retention-days: 90
