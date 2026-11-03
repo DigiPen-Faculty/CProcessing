@@ -37,3 +37,8 @@ jobs:
             docs/offline/output/CProcessing-Documentation.pdf
           if-no-files-found: error
           retention-days: 90
+
+      # After the upload, so the documentation is still published when the
+      # wiki has drifted from the API; the failed run is the reminder.
+      - name: Check the wiki against the API
+        run: python tools/wiki-audit.py docs/offline/work/wiki-source
