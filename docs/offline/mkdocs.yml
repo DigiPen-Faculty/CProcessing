@@ -1,0 +1,50 @@
+site_name: CProcessing Documentation
+site_description: Offline API reference for CProcessing
+site_url: http://127.0.0.1:8765/
+docs_dir: work/wiki
+site_dir: work/site
+use_directory_urls: false
+strict: true
+
+theme:
+  name: material
+  language: en
+  features:
+    - content.code.copy
+    - navigation.indexes
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+  palette:
+    primary: deep purple
+    accent: amber
+
+plugins:
+  - search
+  - print-site:
+      print_page_title: Complete CProcessing Documentation
+      add_to_navigation: true
+
+markdown_extensions:
+  - attr_list
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - API Reference:
+      - Engine: Engine.md
+      - System: System.md
+      - Settings: Settings.md
+      - Color: Color.md
+      - Graphics: Graphics.md
+      - Image: Image.md
+      - Sound: Sound.md
+      - Font: Font.md
+      - Input: Input.md
+      - Math: Math.md
+      - Vector: Vector.md
+      - Matrix: Matrix.md
+      - Random: Random.md
+      - Types: Types.md
