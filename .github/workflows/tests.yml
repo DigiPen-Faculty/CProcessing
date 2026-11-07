@@ -89,13 +89,10 @@ jobs:
 
   # The same for the 32-bit build. f3d-app/install-mesa-windows-action only
   # installs 64-bit Mesa, so the 32-bit DLLs come from the same Mesa release
-  # (downloaded, checked against its SHA-256, and unpacked here). This setup
-  # passes the whole Tier 2 suite locally, on x86 Debug and Release. It stays
-  # non-gating until it has been seen passing on hosted runners a few times,
-  # as the x64 job was; then drop continue-on-error.
+  # (downloaded, checked against its SHA-256, and unpacked here). Gating since
+  # it passed on hosted runners in every run from October to November 2026.
   windows-tier2-x86:
     runs-on: windows-2025
-    continue-on-error: true
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
