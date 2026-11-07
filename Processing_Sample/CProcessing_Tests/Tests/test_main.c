@@ -168,6 +168,9 @@ int main(void)
     RUN_TEST(test_monitor_left_of_the_primary_has_negative_coordinates);
     RUN_TEST(test_monitor_center_on_the_primary_monitor_matches_the_old_formula);
     RUN_TEST(test_monitor_center_on_a_second_monitor);
+    RUN_TEST(test_monitor_center_includes_the_title_bar);
+    RUN_TEST(test_monitor_center_too_big_keeps_the_title_bar_on_screen);
+    RUN_TEST(test_monitor_overlap);
 
     // test_cp_input_logic.c
     RUN_TEST(test_inputlogic_triggered_truth_table);
