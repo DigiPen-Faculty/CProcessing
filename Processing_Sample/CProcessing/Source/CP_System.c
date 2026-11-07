@@ -153,6 +153,33 @@ static void CP_UpdateDisplaySize(GLFWmonitor* monitor)
 	}
 }
 
+// The position that centers the window, title bar and borders included, in
+// the part of a monitor windows can use: on macOS below the menu bar and
+// above the Dock, on Windows above the taskbar
+static void CP_CenterWindowOn(GLFWmonitor* monitor, int width, int height, int* x, int* y)
+{
+	const CP_ScreenRect monitorRect = CP_MonitorRect(monitor);
+	CP_ScreenRect workarea = { 0, 0, 0, 0 };
+	if (monitor)
+	{
+		glfwGetMonitorWorkarea(monitor, &workarea.x, &workarea.y, &workarea.width, &workarea.height);
+	}
+	// Right after a video mode change, macOS can still report the work area
+	// for the old mode, so only the part on the monitor counts
+	CP_ScreenRect area = CP_Monitor_Overlap(workarea, monitorRect);
+	if (area.width <= 0 || area.height <= 0)
+	{
+		area = monitorRect;
+	}
+
+	CP_ScreenFrame frame = { 0, 0, 0, 0 };
+	if (_CORE.window)
+	{
+		glfwGetWindowFrameSize(_CORE.window, &frame.left, &frame.top, &frame.right, &frame.bottom);
+	}
+	CP_Monitor_Center(area, width, height, frame, x, y);
+}
+
 static void CP_UpdatePixelRatio(void)
 {
 	if (_CORE.window_width > 0 && _CORE.canvas_width > 0)
@@ -878,7 +905,7 @@ void CP_Initialize(void)
 	else
 	{
 		// set the window to the middle of the primary monitor
-		CP_Monitor_Center(CP_MonitorRect(glfwGetPrimaryMonitor()), _CORE.window_width, _CORE.window_height, &windowPosX, &windowPosY);
+		CP_CenterWindowOn(glfwGetPrimaryMonitor(), _CORE.window_width, _CORE.window_height, &windowPosX, &windowPosY);
 	}
 	CP_SetWindowPosIfSupported(_CORE.window, windowPosX, windowPosY);
 
@@ -1080,6 +1107,15 @@ void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFull
 	// centered on it. (Leaving fullscreen, that's the monitor it was
 	// fullscreen on.)
 	GLFWmonitor* monitor = CP_WindowMonitor();
+	if (!isFullscreen && glfwGetWindowMonitor(_CORE.window))
+	{
+		// Leave fullscreen before measuring the monitor. Fullscreen at a size
+		// other than the monitor's own switches the monitor to the closest
+		// video mode until the window leaves fullscreen, and a window centered
+		// on that mode's size ends up off center on the desktop.
+		const CP_ScreenRect fullscreenRect = CP_MonitorRect(monitor);
+		glfwSetWindowMonitor(_CORE.window, NULL, fullscreenRect.x, fullscreenRect.y, new_width, new_height, GLFW_DONT_CARE);
+	}
 	CP_UpdateDisplaySize(monitor);
 
 	if (isFullscreen && new_width == 0 && new_height == 0)
@@ -1104,10 +1140,11 @@ void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFull
 		windowPosX = _CORE.window_posX;
 		windowPosY = _CORE.window_posY;
 	}
-	else
+	else if (!isFullscreen)
 	{
-		// set the window to the middle of the monitor
-		CP_Monitor_Center(CP_MonitorRect(monitor), new_width, new_height, &windowPosX, &windowPosY);
+		// set the window to the middle of the monitor (fullscreen ignores the
+		// position)
+		CP_CenterWindowOn(monitor, new_width, new_height, &windowPosX, &windowPosY);
 	}
 	glfwSetWindowMonitor(_CORE.window, isFullscreen ? monitor : NULL, windowPosX, windowPosY, new_width, new_height, 60);
 	if (!isFullscreen)

@@ -154,6 +154,9 @@ void test_monitor_window_on_no_monitor(void);
 void test_monitor_left_of_the_primary_has_negative_coordinates(void);
 void test_monitor_center_on_the_primary_monitor_matches_the_old_formula(void);
 void test_monitor_center_on_a_second_monitor(void);
+void test_monitor_center_includes_the_title_bar(void);
+void test_monitor_center_too_big_keeps_the_title_bar_on_screen(void);
+void test_monitor_overlap(void);
 
 // test_cp_input_logic.c -- Tier 1: pure CP_Input logic (Internal_InputLogic.h).
 void test_inputlogic_triggered_truth_table(void);

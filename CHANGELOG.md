@@ -27,6 +27,14 @@ changes to build with the new version.
   `CP_System_GetDisplayWidth`, `CP_System_GetDisplayHeight` and
   `CP_System_GetDisplayRefreshRate` describe it. With one monitor nothing
   changes.
+- **Leaving fullscreen could put the window off center or partly off the
+  screen** when fullscreen used a size other than the monitor's own, as
+  `CP_System_FullscreenAdvanced(1280, 720)` does. The window was centered
+  on the fullscreen size before the monitor went back to its normal
+  resolution. It's now centered on the monitor's normal resolution, and a
+  centered window's title bar now counts too: the whole window is centered
+  in the part of the screen the macOS menu bar and Dock, or the Windows
+  taskbar, don't cover, so its title bar is never under the menu bar.
 
 ## 3.0.1 (2026-10-06)
 

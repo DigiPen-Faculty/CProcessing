@@ -25,6 +25,23 @@ typedef struct CP_ScreenRect
 	int height;
 } CP_ScreenRect;
 
+// The part of two rectangles that overlaps, with a width and height of 0 if
+// they don't overlap
+static inline CP_ScreenRect CP_Monitor_Overlap(CP_ScreenRect a, CP_ScreenRect b)
+{
+	const int left = a.x > b.x ? a.x : b.x;
+	const int top = a.y > b.y ? a.y : b.y;
+	const int right = a.x + a.width < b.x + b.width ? a.x + a.width : b.x + b.width;
+	const int bottom = a.y + a.height < b.y + b.height ? a.y + a.height : b.y + b.height;
+	CP_ScreenRect overlap = { left, top, 0, 0 };
+	if (right > left && bottom > top)
+	{
+		overlap.width = right - left;
+		overlap.height = bottom - top;
+	}
+	return overlap;
+}
+
 // The index of the monitor with the largest part of the window on it, or -1
 // if none of the window is on any monitor. A tie goes to the earlier monitor.
 static inline int CP_Monitor_MostOfWindow(CP_ScreenRect window, const CP_ScreenRect* monitors, int count)
@@ -33,29 +50,40 @@ static inline int CP_Monitor_MostOfWindow(CP_ScreenRect window, const CP_ScreenR
 	long long bestArea = 0;
 	for (int i = 0; i < count; ++i)
 	{
-		const CP_ScreenRect m = monitors[i];
-		const int left = window.x > m.x ? window.x : m.x;
-		const int top = window.y > m.y ? window.y : m.y;
-		const int right = window.x + window.width < m.x + m.width ? window.x + window.width : m.x + m.width;
-		const int bottom = window.y + window.height < m.y + m.height ? window.y + window.height : m.y + m.height;
-		if (right > left && bottom > top)
+		const CP_ScreenRect overlap = CP_Monitor_Overlap(window, monitors[i]);
+		const long long area = (long long)overlap.width * (long long)overlap.height;
+		if (area > bestArea)
 		{
-			const long long area = (long long)(right - left) * (long long)(bottom - top);
-			if (area > bestArea)
-			{
-				bestArea = area;
-				best = i;
-			}
+			bestArea = area;
+			best = i;
 		}
 	}
 	return best;
 }
 
-// The position that centers a window of the given size on a monitor
-static inline void CP_Monitor_Center(CP_ScreenRect monitor, int width, int height, int* x, int* y)
+// The size of a window's title bar and borders on each side of its content
+typedef struct CP_ScreenFrame
 {
-	*x = monitor.x + monitor.width / 2 - width / 2;
-	*y = monitor.y + monitor.height / 2 - height / 2;
+	int left;
+	int top;
+	int right;
+	int bottom;
+} CP_ScreenFrame;
+
+// The position of a window's content that centers the whole window, title bar
+// and borders included, in an area of the screen. A window too big for the
+// area goes at the area's top or left edge instead, so its title bar is on
+// the screen where it can be grabbed.
+static inline void CP_Monitor_Center(CP_ScreenRect area, int width, int height, CP_ScreenFrame frame, int* x, int* y)
+{
+	const int outerWidth = frame.left + width + frame.right;
+	const int outerHeight = frame.top + height + frame.bottom;
+	int left = area.x + area.width / 2 - outerWidth / 2;
+	int top = area.y + area.height / 2 - outerHeight / 2;
+	left = left > area.x ? left : area.x;
+	top = top > area.y ? top : area.y;
+	*x = left + frame.left;
+	*y = top + frame.top;
 }
 
 #ifdef __cplusplus
