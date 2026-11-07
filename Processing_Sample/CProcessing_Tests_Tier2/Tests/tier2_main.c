@@ -121,6 +121,7 @@ int main(void)
     RUN_TEST(test_tier2_system_window_queries_before_run_report_no_window);
     RUN_TEST(test_tier2_system_cursor_hidden_before_run_stays_hidden);
     RUN_TEST(test_tier2_system_cursor_getter_follows_showcursor);
+    RUN_TEST(test_tier2_system_cursor_mode_getters_follow_setcursormode);
     RUN_TEST(test_tier2_system_console_hide_then_show_round_trips);
     RUN_TEST(test_tier2_system_console_printf_keeps_working);
 

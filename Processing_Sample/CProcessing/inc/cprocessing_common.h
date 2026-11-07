@@ -397,10 +397,10 @@ typedef enum CP_GAMEPAD
 
 typedef enum CP_CURSOR_MODE
 {
-	CURSOR_MODE_NORMAL,
-	CURSOR_MODE_HIDDEN,
-	CURSOR_MODE_CAPTURED,
-	CURSOR_MODE_DISABLED,
+	CP_CURSOR_NORMAL,	// Default, visible and free to leave the window
+	CP_CURSOR_HIDDEN,	// Hidden over the window
+	CP_CURSOR_CAPTURED,	// Visible and kept in the window (not on macOS)
+	CP_CURSOR_DISABLED	// Hidden and unlimited, for mouse look: use the mouse delta
 } CP_CURSOR_MODE;
 
 

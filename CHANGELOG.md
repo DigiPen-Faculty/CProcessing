@@ -4,7 +4,20 @@ Notable changes in each CProcessing release. Version numbers are
 major.minor.patch. The major number goes up when existing projects may need
 changes to build with the new version.
 
-## 3.0.2 (unreleased)
+## 3.1.0 (unreleased)
+
+### Added
+
+- **`CP_System_SetCursorMode` and `CP_System_GetCursorMode`**, contributed
+  by [@rezarg](https://github.com/rezarg). Besides normal and hidden, the
+  cursor can be captured (visible and kept in the window) or disabled
+  (hidden, with unlimited movement for mouse look: use
+  `CP_Input_GetMouseDeltaX` and `CP_Input_GetMouseDeltaY`, since the mouse
+  position keeps going past the window's edges). Like
+  `CP_System_ShowCursor`, it can be called before `CP_Engine_Run`.
+  `CP_System_ShowCursor` now sets the normal or hidden mode. On macOS a
+  captured cursor isn't kept in the window yet, because GLFW doesn't
+  support it there.
 
 ### Fixed
 

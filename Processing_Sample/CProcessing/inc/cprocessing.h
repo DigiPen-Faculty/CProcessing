@@ -83,6 +83,7 @@ CP_API CP_BOOL			CP_System_GetWindowFocus			(void);
 CP_API void				CP_System_ShowCursor				(CP_BOOL show);
 CP_API CP_BOOL			CP_System_GetCursorVisible			(void);
 CP_API void				CP_System_SetCursorMode				(CP_CURSOR_MODE mode);
+CP_API CP_CURSOR_MODE	CP_System_GetCursorMode				(void);
 CP_API void				CP_System_ShowConsole				(CP_BOOL show);
 CP_API CP_BOOL			CP_System_GetConsoleVisible			(void);
 CP_API unsigned 		CP_System_GetFrameCount				(void);

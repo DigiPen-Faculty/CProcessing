@@ -44,7 +44,7 @@ CP_BOOL _deferredFullscreen = FALSE;
 
 // Window settings that may be requested before the window exists; they are
 // stored here and applied when CP_Initialize creates the window
-static CP_BOOL _cursorVisible = TRUE;
+static CP_CURSOR_MODE _cursorMode = CP_CURSOR_NORMAL;
 static char _windowTitle[256] = "CProcessing Application";
 
 typedef struct GameStateFuncs
@@ -557,48 +557,61 @@ CP_API CP_BOOL CP_System_GetWindowFocus(void)
 	return _CORE.window && glfwGetWindowAttrib(_CORE.window, GLFW_FOCUSED) ? TRUE : FALSE;
 }
 
-static void CP_ApplyCursorVisible(void)
+static void CP_ApplyCursorMode(void)
 {
-	glfwSetInputMode(_CORE.window, GLFW_CURSOR, _cursorVisible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+	int mode = GLFW_CURSOR_NORMAL;
+	switch (_cursorMode)
+	{
+	case CP_CURSOR_HIDDEN:
+		mode = GLFW_CURSOR_HIDDEN;
+		break;
+	case CP_CURSOR_CAPTURED:
+		// GLFW can't keep the cursor in the window on macOS yet, and reports
+		// an error when asked to, so the cursor is just left free there
+		mode = glfwGetPlatform() == GLFW_PLATFORM_COCOA ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_CAPTURED;
+		break;
+	case CP_CURSOR_DISABLED:
+		mode = GLFW_CURSOR_DISABLED;
+		break;
+	default:
+		break;
+	}
+	glfwSetInputMode(_CORE.window, GLFW_CURSOR, mode);
+
+	// Mouse movement without the operating system's acceleration, for mouse
+	// look. GLFW only uses it while the cursor is disabled.
+	if (glfwRawMouseMotionSupported())
+	{
+		glfwSetInputMode(_CORE.window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+	}
 }
 
 CP_API void CP_System_ShowCursor(CP_BOOL show)
 {
-	_cursorVisible = show ? TRUE : FALSE;
-	if (_CORE.window)
-	{
-		CP_ApplyCursorVisible();
-	}
+	CP_System_SetCursorMode(show ? CP_CURSOR_NORMAL : CP_CURSOR_HIDDEN);
 }
 
 CP_API CP_BOOL CP_System_GetCursorVisible(void)
 {
-	return _cursorVisible;
+	return _cursorMode == CP_CURSOR_NORMAL || _cursorMode == CP_CURSOR_CAPTURED ? TRUE : FALSE;
 }
 
 CP_API void CP_System_SetCursorMode(CP_CURSOR_MODE mode)
 {
+	if ((unsigned)mode > (unsigned)CP_CURSOR_DISABLED)
+	{
+		return;
+	}
+	_cursorMode = mode;
 	if (_CORE.window)
 	{
-		switch (mode) {
-			case CURSOR_MODE_NORMAL:
-				glfwSetInputMode(_CORE.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-				_cursorVisible = TRUE;
-				break;
-			case CURSOR_MODE_HIDDEN:
-				glfwSetInputMode(_CORE.window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-				_cursorVisible = FALSE;
-				break;
-			case CURSOR_MODE_CAPTURED:
-				glfwSetInputMode(_CORE.window, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
-				_cursorVisible = TRUE;
-				break;
-			case CURSOR_MODE_DISABLED:
-				glfwSetInputMode(_CORE.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-				_cursorVisible = FALSE;
-				break;
-		}
+		CP_ApplyCursorMode();
 	}
+}
+
+CP_API CP_CURSOR_MODE CP_System_GetCursorMode(void)
+{
+	return _cursorMode;
 }
 
 
@@ -927,7 +940,7 @@ void CP_Initialize(void)
 	glfwSetScrollCallback(_CORE.window, CP_Input_MouseWheelCallback);
 
 	// Apply a cursor setting requested before the window existed
-	CP_ApplyCursorVisible();
+	CP_ApplyCursorMode();
 
 	// Track size changes the window system applies after the fact
 	glfwSetWindowSizeCallback(_CORE.window, CP_WindowSizeCallback);
