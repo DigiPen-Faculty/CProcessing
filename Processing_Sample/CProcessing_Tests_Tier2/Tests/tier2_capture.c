@@ -1009,7 +1009,8 @@ static void Scn_ErrorPaths(void)
 // ---- Cursor and console (v3) ----
 // The cursor was hidden before CP_Engine_Run (tier2_RunCaptureOnce), and
 // HarnessInit checked that it still was once the window existed. Here the
-// getter must follow each ShowCursor call.
+// getters must follow each ShowCursor and SetCursorMode call. (What each mode
+// does to the real cursor is checked by hand.)
 //
 // The console can only be checked loosely: whether there is one to show
 // depends on how the tests were started (from a terminal, an IDE, Explorer
@@ -1026,7 +1027,17 @@ static void Scn_SystemWindowSettings(void)
     CP_System_ShowCursor(FALSE);
     CP_System_ShowCursor(FALSE);    // repeating a call is harmless
     tier2_scalars.cursorVisibleAfterHide = CP_System_GetCursorVisible();
+
+    CP_System_SetCursorMode(CP_CURSOR_DISABLED);
+    tier2_scalars.cursorModeAfterDisable = CP_System_GetCursorMode();
+    tier2_scalars.cursorVisibleWhileDisabled = CP_System_GetCursorVisible();
+    CP_System_SetCursorMode(CP_CURSOR_CAPTURED);
+    tier2_scalars.cursorModeAfterCapture = CP_System_GetCursorMode();
+    tier2_scalars.cursorVisibleWhileCaptured = CP_System_GetCursorVisible();
+    CP_System_SetCursorMode((CP_CURSOR_MODE)99);    // not a mode: ignored
+    tier2_scalars.cursorModeAfterInvalid = CP_System_GetCursorMode();
     CP_System_ShowCursor(TRUE);
+    tier2_scalars.cursorModeAfterShow = CP_System_GetCursorMode();
 
     CP_System_ShowConsole(FALSE);
     CP_System_ShowConsole(FALSE);
@@ -1187,6 +1198,7 @@ void tier2_RunCaptureOnce(void)
     // return "nothing yet", and none of it may crash
     CP_System_ShowCursor(FALSE);
     tier2_scalars.cursorVisibleBeforeRun = CP_System_GetCursorVisible();
+    tier2_scalars.cursorModeBeforeRun = CP_System_GetCursorMode();
     CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture");
     tier2_scalars.windowFocusBeforeRun = CP_System_GetWindowFocus();
     tier2_scalars.displayRefreshRateBeforeRun = CP_System_GetDisplayRefreshRate();

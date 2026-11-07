@@ -62,6 +62,19 @@ void test_tier2_system_cursor_getter_follows_showcursor(void)
     TEST_ASSERT_EQUAL_UINT(FALSE, tier2_scalars.cursorVisibleAfterHide);
 }
 
+void test_tier2_system_cursor_mode_getters_follow_setcursormode(void)
+{
+    // ShowCursor(FALSE) before CP_Engine_Run is the hidden mode
+    TEST_ASSERT_EQUAL_INT(CP_CURSOR_HIDDEN, tier2_scalars.cursorModeBeforeRun);
+    TEST_ASSERT_EQUAL_INT(CP_CURSOR_DISABLED, tier2_scalars.cursorModeAfterDisable);
+    TEST_ASSERT_EQUAL_UINT(FALSE, tier2_scalars.cursorVisibleWhileDisabled);
+    // reported as set on every platform, though macOS can't keep it in the window
+    TEST_ASSERT_EQUAL_INT(CP_CURSOR_CAPTURED, tier2_scalars.cursorModeAfterCapture);
+    TEST_ASSERT_EQUAL_UINT(TRUE, tier2_scalars.cursorVisibleWhileCaptured);
+    TEST_ASSERT_EQUAL_INT(CP_CURSOR_CAPTURED, tier2_scalars.cursorModeAfterInvalid);
+    TEST_ASSERT_EQUAL_INT(CP_CURSOR_NORMAL, tier2_scalars.cursorModeAfterShow);
+}
+
 void test_tier2_system_console_hide_then_show_round_trips(void)
 {
     TEST_ASSERT_TRUE(tier2_scalars.consoleVisibleBeforeRun == TRUE || tier2_scalars.consoleVisibleBeforeRun == FALSE);

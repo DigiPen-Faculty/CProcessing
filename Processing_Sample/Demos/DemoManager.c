@@ -83,6 +83,15 @@ void DemoManagerPreupdate(void)
 		}
 	}
 
+	// M will cycle the cursor mode: normal, hidden, captured, disabled
+	if (CP_Input_KeyTriggered(KEY_M))
+	{
+		static const char* modeNames[] = { "normal", "hidden", "captured", "disabled" };
+		CP_CURSOR_MODE mode = (CP_CURSOR_MODE)((CP_System_GetCursorMode() + 1) % 4);
+		CP_System_SetCursorMode(mode);
+		printf("Cursor mode: %s\n", modeNames[mode]);
+	}
+
 	// C will show or hide the console, where printf output appears
 	if (CP_Input_KeyTriggered(KEY_C))
 	{

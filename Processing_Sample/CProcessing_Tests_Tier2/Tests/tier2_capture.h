@@ -171,6 +171,13 @@ typedef struct
     CP_BOOL cursorVisibleAtStart;
     CP_BOOL cursorVisibleAfterShow;
     CP_BOOL cursorVisibleAfterHide;
+    CP_CURSOR_MODE cursorModeBeforeRun;
+    CP_CURSOR_MODE cursorModeAfterDisable;
+    CP_BOOL cursorVisibleWhileDisabled;
+    CP_CURSOR_MODE cursorModeAfterCapture;
+    CP_BOOL cursorVisibleWhileCaptured;
+    CP_CURSOR_MODE cursorModeAfterInvalid;
+    CP_CURSOR_MODE cursorModeAfterShow;
     CP_BOOL windowFocusBeforeRun;
     int displayRefreshRateBeforeRun;
     CP_BOOL consoleVisibleBeforeRun;
