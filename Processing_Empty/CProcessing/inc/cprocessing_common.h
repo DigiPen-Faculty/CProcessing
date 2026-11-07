@@ -18,8 +18,8 @@ extern "C"
 // (CMakeLists.txt reads the project version from these lines)
 
 #define CP_VERSION_MAJOR 3
-#define CP_VERSION_MINOR 0
-#define CP_VERSION_PATCH 1
+#define CP_VERSION_MINOR 1
+#define CP_VERSION_PATCH 0
 
 
 //---------------------------------------------------------
@@ -394,6 +394,14 @@ typedef enum CP_GAMEPAD
 	GAMEPAD_X,
 	GAMEPAD_Y
 } CP_GAMEPAD;
+
+typedef enum CP_CURSOR_MODE
+{
+	CP_CURSOR_NORMAL,	// Default, visible and free to leave the window
+	CP_CURSOR_HIDDEN,	// Hidden over the window
+	CP_CURSOR_CAPTURED,	// Visible and kept in the window (not on macOS)
+	CP_CURSOR_DISABLED	// Hidden and unlimited, for mouse look: use the mouse delta
+} CP_CURSOR_MODE;
 
 
 #ifdef __cplusplus
