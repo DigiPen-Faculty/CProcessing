@@ -134,12 +134,18 @@ CP_API float CP_Random_Noise(float x, float y, float z)
 		zD = fmod(zD, repeatNoise);
 	}
 
-	int xi = (int)xD & 255;						// Calculate the "unit cube" that the point asked will be located in
-	int yi = (int)yD & 255;						// The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
-	int zi = (int)zD & 255;						// plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
-	double xf = xD - (int)xD;					// We also fade the location to smooth the result.
-	double yf = yD - (int)yD;
-	double zf = zD - (int)zD;
+	// Round down, not toward zero: (int)-0.5 is 0, which put negative
+	// coordinates in the wrong unit cube and made the noise jump at -1, -2, ...
+	const double xFloor = floor(xD);
+	const double yFloor = floor(yD);
+	const double zFloor = floor(zD);
+
+	int xi = (int)xFloor & 255;					// Calculate the "unit cube" that the point asked will be located in
+	int yi = (int)yFloor & 255;					// The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
+	int zi = (int)zFloor & 255;					// plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
+	double xf = xD - xFloor;					// We also fade the location to smooth the result.
+	double yf = yD - yFloor;
+	double zf = zD - zFloor;
 	double u = fade(xf);
 	double v = fade(yf);
 	double w = fade(zf);

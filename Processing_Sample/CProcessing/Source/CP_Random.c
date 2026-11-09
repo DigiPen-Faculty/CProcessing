@@ -96,7 +96,26 @@ CP_API uint32_t CP_Random_RangeInt(unsigned int lowerBound, unsigned int upperBo
 		lowerBound = upperBound;
 		upperBound = temp;
 	}
-	return lowerBound + internalRand() % ((upperBound - lowerBound) + 1);
+
+	// The full range of 2^32 values: (upper - lower) + 1 would wrap to 0
+	const uint32_t range = upperBound - lowerBound;
+	if (range == UINT32_MAX)
+	{
+		return internalRand();
+	}
+
+	// internalRand() % count favors the low numbers when count doesn't divide
+	// 2^32 evenly. Throwing away the first 2^32 % count values makes it even.
+	// That's under count values out of 2^32, so for ordinary ranges a draw is
+	// almost never thrown away, and seeded sequences stay the same.
+	const uint32_t count = range + 1;
+	const uint32_t threshold = (0u - count) % count;	// = 2^32 % count
+	uint32_t r;
+	do
+	{
+		r = internalRand();
+	} while (r < threshold);
+	return lowerBound + r % count;
 }
 
 CP_API float CP_Random_GetFloat(void)

@@ -39,6 +39,14 @@ changes to build with the new version.
 - Release builds of CProcessing no longer ask for an OpenGL debug context
   or check for an OpenGL error after every drawing step, which could slow
   drawing down on some graphics drivers. Debug builds still do both.
+- **`CP_Random_Noise` was wrong for negative coordinates:** it returned
+  values far outside 0 to 1 and jumped at every negative whole number. It
+  now gives the same smooth noise there as for positive coordinates.
+  Values at positive coordinates are unchanged.
+- **`CP_Random_RangeInt(0, 4294967295)`, the whole range, crashed** with
+  a division by zero. Large ranges also favored the lower numbers; every
+  number in the range is now equally likely. Seeded sequences for
+  ordinary ranges are unchanged.
 - **Text with characters outside plain English, such as ©, é or ü, came out
   wrong on Windows** when typed straight into a string in your code, for
   example `CP_Font_DrawText("Café", ...)`. Visual Studio read source files

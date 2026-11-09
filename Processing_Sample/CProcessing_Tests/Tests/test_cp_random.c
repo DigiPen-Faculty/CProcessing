@@ -98,6 +98,37 @@ void test_random_rangeint_equal_bounds_returns_that_value(void)
 
 // ---- CP_Random_GetFloat / RangeFloat ----
 
+void test_random_rangeint_full_range_does_not_divide_by_zero(void)
+{
+    // (upper - lower) + 1 is 2^32 here, which wrapped to 0 and divided by
+    // zero; any value is a valid answer
+    CP_Random_Seed(7);
+    for (int i = 0; i < 100; ++i)
+    {
+        (void)CP_Random_RangeInt(0u, 0xFFFFFFFFu);
+        (void)CP_Random_RangeInt(0xFFFFFFFFu, 0u);
+    }
+    TEST_PASS();
+}
+
+void test_random_rangeint_large_range_is_even(void)
+{
+    // A range of 3 * 2^30 values doesn't divide 2^32. Taking the random
+    // number modulo the range made the first 2^30 values twice as likely:
+    // a 1/2 share instead of 1/3.
+    const unsigned int upper = 3u * (1u << 30) - 1u;
+    int low = 0;
+    CP_Random_Seed(11);
+    for (int i = 0; i < 30000; ++i)
+    {
+        if (CP_Random_RangeInt(0u, upper) < (1u << 30))
+        {
+            ++low;
+        }
+    }
+    TEST_ASSERT_FLOAT_WITHIN(0.03f, 1.0f / 3.0f, (float)low / 30000.0f);
+}
+
 void test_random_getfloat_stays_within_0_and_1(void)
 {
     CP_Random_Seed(6);
@@ -238,6 +269,33 @@ void test_noise_different_seeds_can_diverge(void)
     float b = CP_Random_Noise(1.25f, 2.5f, 3.75f);
 
     TEST_ASSERT_NOT_EQUAL_FLOAT(a, b);
+}
+
+void test_noise_is_smooth_across_negative_coordinates(void)
+{
+    // Rounding toward zero instead of down put negative coordinates in the
+    // wrong cell, so the noise jumped at every negative whole number. Two
+    // points 0.001 apart must give close values everywhere, on every axis.
+    CP_Random_NoiseSeed(3);
+    for (int axis = 0; axis < 3; ++axis)
+    {
+        float worst = 0.0f;
+        float previous = 0.0f;
+        for (int i = -3000; i <= 3000; ++i)
+        {
+            const float t = (float)i * 0.001f;
+            const float x = axis == 0 ? t : 0.37f;
+            const float y = axis == 1 ? t : 0.61f;
+            const float z = axis == 2 ? t : 0.23f;
+            const float value = CP_Random_Noise(x, y, z);
+            if (i > -3000 && fabsf(value - previous) > worst)
+            {
+                worst = fabsf(value - previous);
+            }
+            previous = value;
+        }
+        TEST_ASSERT_LESS_THAN_FLOAT(0.01f, worst);
+    }
 }
 
 void test_noise_same_coordinate_is_continuous_with_its_neighbor(void)

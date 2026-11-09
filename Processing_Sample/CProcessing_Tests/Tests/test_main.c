@@ -151,6 +151,9 @@ int main(void)
     RUN_TEST(test_noise_is_deterministic_for_same_seed_and_coordinates);
     RUN_TEST(test_noise_different_seeds_can_diverge);
     RUN_TEST(test_noise_same_coordinate_is_continuous_with_its_neighbor);
+    RUN_TEST(test_noise_is_smooth_across_negative_coordinates);
+    RUN_TEST(test_random_rangeint_full_range_does_not_divide_by_zero);
+    RUN_TEST(test_random_rangeint_large_range_is_even);
 
     // test_internal_platform.c
     RUN_TEST(test_platform_stringcopy_copies_short_string);
