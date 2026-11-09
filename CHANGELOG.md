@@ -47,6 +47,13 @@ changes to build with the new version.
   a division by zero. Large ranges also favored the lower numbers; every
   number in the range is now equally likely. Seeded sequences for
   ordinary ranges are unchanged.
+- **Loading the same image, font or sound twice and freeing one of them
+  freed it for both.** Loading a file that's already loaded gives back the
+  same handle, so two parts of a program that each loaded
+  `"Assets/player.png"` shared one image, and the first `CP_Image_Free`
+  broke the other. A file now stays loaded until every load of it has been
+  freed. `CP_Sound_Load` and `CP_Sound_LoadStream` on the same file also
+  gave back whichever was loaded first; they're now separate sounds.
 - **Text with characters outside plain English, such as ©, é or ü, came out
   wrong on Windows** when typed straight into a string in your code, for
   example `CP_Font_DrawText("Café", ...)`. Visual Studio read source files

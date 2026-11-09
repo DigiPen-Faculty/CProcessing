@@ -40,6 +40,7 @@ typedef struct CP_Image_Struct
     int w;                   // width of the image
     int h;                   // height of the image
     int load_error;          // was there an error loading the image
+    int ref_count;           // loads of this file not yet freed (CP_Image_Free frees at 0)
 } CP_Image_Struct;
 
 //------------------------------------------------------------------------------

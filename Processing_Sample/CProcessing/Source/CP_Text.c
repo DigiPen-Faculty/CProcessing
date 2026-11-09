@@ -50,6 +50,8 @@ static CP_Font CP_Font_IsLoaded(const char* filepath)
 
 static void CP_Font_AddHandle(CP_Font font)
 {
+	// a new font, used once so far
+	font->ref_count = 1;
 	vect_push_CP_Font(font_vector, font);
 }
 
@@ -63,10 +65,12 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 		return NULL;
 	}
 
-	// Check if the font is already loaded
+	// Check if the font is already loaded: share it, and count the load so
+	// one CP_Font_Free doesn't free it for every other load of the file
 	new_font = CP_Font_IsLoaded(filepath);
 	if (new_font)
 	{
+		++new_font->ref_count;
 		return new_font;
 	}
 
@@ -180,6 +184,13 @@ CP_API void CP_Font_Free(CP_Font* font)
 			if (i == 0)
 			{
 				// don't allow the unloading of the built-in default font Exo2-Regular.ttf
+				return;
+			}
+
+			// another load of the same file still uses it
+			if (--(*font)->ref_count > 0)
+			{
+				*font = NULL;
 				return;
 			}
 

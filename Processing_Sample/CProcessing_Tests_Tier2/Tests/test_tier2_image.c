@@ -11,6 +11,32 @@ static void assertColorWithin(unsigned char tolerance, CP_Color expected, CP_Col
     TEST_ASSERT_UINT8_WITHIN(tolerance, expected.b, actual.b);
 }
 
+// See Scn_SharedAssets: loads of the same file share it until the last
+// one is freed
+void test_tier2_shared_image_survives_freeing_one_load(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.sharedImageSame);
+    TEST_ASSERT_TRUE(tier2_scalars.sharedImageFirstCleared);
+    TEST_ASSERT_TRUE(tier2_scalars.sharedImageReloadSame);
+    TEST_ASSERT_TRUE(tier2_scalars.emptyPathLoadIsNull);
+    // The image was drawn over the whole canvas after the first free: red
+    // top left quadrant, yellow bottom right
+    assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_SHARED_ASSETS, 50, 50));
+    assertColorWithin(2, CP_Color_Create(255, 255, 0, 255), tier2_SamplePixel(SCN_SHARED_ASSETS, 150, 150));
+}
+
+void test_tier2_shared_font_and_sound_survive_freeing_one_load(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.sharedFontSame);
+    TEST_ASSERT_TRUE(tier2_scalars.sharedFontReloadSame);
+    if (!tier2_scalars.soundAvailable)
+    {
+        TEST_IGNORE_MESSAGE("no audio device: sounds don't load");
+    }
+    TEST_ASSERT_TRUE(tier2_scalars.soundAndStreamDiffer);
+    TEST_ASSERT_TRUE(tier2_scalars.sharedSoundReloadSame);
+}
+
 void test_tier2_image_load_reports_correct_dimensions(void)
 {
     TEST_ASSERT_EQUAL_INT(4, tier2_scalars.quadImageWidth);

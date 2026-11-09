@@ -52,6 +52,7 @@ typedef struct CP_Sound_Struct
 	char filepath[CP_PATH_MAX];
     AudioSource* sound;
 	SL_AUDIOSOURCE_TYPE type;
+	int ref_count;		// loads of this file not yet freed (CP_Sound_Free frees at 0)
 } CP_Sound_Struct;
 
 typedef struct CP_VoiceGroup_Struct

@@ -38,6 +38,7 @@ typedef struct CP_Font_Struct
     int handle;
     char filepath[CP_PATH_MAX];
     int load_error;
+    int ref_count;      // loads of this file not yet freed (CP_Font_Free frees at 0)
 } CP_Font_Struct;
 
 //------------------------------------------------------------------------------

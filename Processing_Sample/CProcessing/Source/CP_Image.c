@@ -37,7 +37,8 @@ static CP_Image CP_CheckIfImageIsLoaded(const char* filepath)
 	for (unsigned i = 0; i < image_vector->size; ++i)
 	{
 		CP_Image const image = vect_at_CP_Image(image_vector, i);
-		if (image && !strcmp(filepath, image->filepath))
+		// images made from data or screenshots have no path to match
+		if (image && image->filepath[0] != '\0' && !strcmp(filepath, image->filepath))
 		{
 			return image;
 		}
@@ -48,7 +49,8 @@ static CP_Image CP_CheckIfImageIsLoaded(const char* filepath)
 
 static void CP_AddImageHandle(CP_Image img)
 {
-	// push a new image
+	// push a new image, used once so far
+	img->ref_count = 1;
 	vect_push_CP_Image(image_vector, img);
 }
 
@@ -177,10 +179,12 @@ CP_API CP_Image CP_Image_Load(const char* filepath)
 		return NULL;
 	}
 
-	// Check if the image is already loaded
+	// Check if the image is already loaded: share it, and count the load so
+	// one CP_Image_Free doesn't free it for every other load of the file
 	img = CP_CheckIfImageIsLoaded(filepath);
 	if (img)
 	{
+		++img->ref_count;
 		return img;
 	}
 
@@ -228,6 +232,13 @@ CP_API void CP_Image_Free(CP_Image* img)
 	{
 		if (vect_at_CP_Image(image_vector, i) == *img)
 		{
+			// another load of the same file still uses it
+			if (--(*img)->ref_count > 0)
+			{
+				*img = NULL;
+				return;
+			}
+
 			// remove the image from the list and place on the free queue
 			vect_rem_CP_Image(image_vector, i);
 			vect_push_CP_Image(free_image_queue, *img);

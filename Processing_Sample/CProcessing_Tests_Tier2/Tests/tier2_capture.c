@@ -559,6 +559,56 @@ static void Scn_ImageMany(void)
     }
 }
 
+// Loading a file that's already loaded returns the same handle. Freeing one
+// of those loads must leave the file loaded for the other: before, the
+// first CP_Image_Free freed it for both. Loading the file again after that
+// free must therefore give back the handle still in use, not a new copy.
+static void Scn_SharedAssets(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageMode(CP_POSITION_CORNER);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+
+    CP_Image first = CP_Image_Load("Assets/quadrants.png");
+    CP_Image second = CP_Image_Load("Assets/quadrants.png");
+    tier2_scalars.sharedImageSame = first != NULL && first == second;
+    CP_Image_Free(&first);
+    tier2_scalars.sharedImageFirstCleared = first == NULL;
+    CP_Image third = CP_Image_Load("Assets/quadrants.png");
+    tier2_scalars.sharedImageReloadSame = third != NULL && third == second;
+    CP_Image_Draw(second, 0, 0, 200, 200, 255);
+
+    // Images made from data have no path, so an empty path can't find them
+    CP_Color pixels[4] = { RED, RED, RED, RED };
+    CP_Image fromData = CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+    tier2_scalars.emptyPathLoadIsNull = CP_Image_Load("") == NULL;
+    CP_Image_Free(&fromData);
+    CP_Image_Free(&second);
+    CP_Image_Free(&third);
+
+    CP_Font font1 = CP_Font_Load("Assets/Exo2-Regular.otf");
+    CP_Font font2 = CP_Font_Load("Assets/Exo2-Regular.otf");
+    tier2_scalars.sharedFontSame = font1 != NULL && font1 == font2;
+    CP_Font_Free(&font1);
+    CP_Font font3 = CP_Font_Load("Assets/Exo2-Regular.otf");
+    tier2_scalars.sharedFontReloadSame = font3 != NULL && font3 == font2;
+    CP_Font_Free(&font2);
+    CP_Font_Free(&font3);
+
+    // Without an audio device sounds don't load, and the test is skipped
+    CP_Sound sound1 = CP_Sound_Load("Assets/beep.wav");
+    tier2_scalars.soundAvailable = sound1 != NULL;
+    CP_Sound stream = CP_Sound_LoadStream("Assets/beep.wav");
+    tier2_scalars.soundAndStreamDiffer = sound1 != NULL && stream != NULL && stream != sound1;
+    CP_Sound sound2 = CP_Sound_Load("Assets/beep.wav");
+    CP_Sound_Free(&sound1);
+    CP_Sound sound3 = CP_Sound_Load("Assets/beep.wav");
+    tier2_scalars.sharedSoundReloadSame = sound3 != NULL && sound3 == sound2;
+    CP_Sound_Free(&sound2);
+    CP_Sound_Free(&sound3);
+    CP_Sound_Free(&stream);
+}
+
 // ---- CP_Font (Phase E) ----
 // Bounding-box/occupancy checks rather than pixel-perfect glyph
 // comparisons, per 06-test-suite-plan.md's Tier 2 notes -- exact glyph
@@ -1145,6 +1195,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_IMAGE_SUBIMAGE] = Scn_ImageSubImage,
     [SCN_IMAGE_16_BIT] = Scn_Image16Bit,
     [SCN_IMAGE_MANY] = Scn_ImageMany,
+    [SCN_SHARED_ASSETS] = Scn_SharedAssets,
     [SCN_FONT_DRAWTEXT] = Scn_FontDrawText,
     [SCN_FONT_LOAD_FREE] = Scn_FontLoadFree,
     [SCN_FONT_FREE_KEEPS_OTHERS] = Scn_FontFreeKeepsOthers,

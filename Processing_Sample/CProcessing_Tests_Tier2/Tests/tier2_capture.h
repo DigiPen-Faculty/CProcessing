@@ -62,6 +62,7 @@ typedef enum
     SCN_IMAGE_SUBIMAGE,
     SCN_IMAGE_16_BIT,
     SCN_IMAGE_MANY,
+    SCN_SHARED_ASSETS,
     SCN_FONT_DRAWTEXT,
     SCN_FONT_LOAD_FREE,
     SCN_FONT_FREE_KEEPS_OTHERS,
@@ -126,6 +127,17 @@ typedef struct
     float millisSample;
     float secondsSample;
     float frameRateSample;
+    // Loading one file twice shares it; freeing one load keeps it for the
+    // other (Scn_SharedAssets). "Reload" is a load after that first free.
+    bool sharedImageSame;
+    bool sharedImageFirstCleared;
+    bool sharedImageReloadSame;
+    bool emptyPathLoadIsNull;
+    bool sharedFontSame;
+    bool sharedFontReloadSame;
+    bool soundAvailable;
+    bool soundAndStreamDiffer;
+    bool sharedSoundReloadSame;
     bool frameRateNoLimitSet;      // SetFrameRate(0) and (-30) ran
     CP_BOOL windowFocusSample;
     int displayWidth;
