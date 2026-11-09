@@ -3,7 +3,8 @@
 // author:	Justin Chambers
 // brief:	Header used to manage the DLL export/import declarations
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //---------------------------------------------------------
 
 #include "cprocessing.h"
@@ -23,7 +24,7 @@
 #ifdef USE_XORSHIFT
 static const uint32_t MAX_RAND_INT = UINT32_MAX;
 // The state array must be initialized to not be all zero
-uint32_t state[4];
+static uint32_t state[4];
 #else
 static const uint32_t MAX_RAND_INT = RAND_MAX;
 #endif
@@ -33,7 +34,7 @@ static const uint32_t MAX_RAND_INT = RAND_MAX;
 //------------------------------------------------------------------------------
 
 #ifdef USE_XORSHIFT
-void xorshiftSeed(int seed)
+static void xorshiftSeed(int seed)
 {
 	srand(seed);
 	for (unsigned index = 0; index < 4; ++index)
@@ -45,7 +46,7 @@ void xorshiftSeed(int seed)
 	}
 }
 
-uint32_t xorshift128(void)
+static uint32_t xorshift128(void)
 {
 	// Algorithm "xor128" from p. 5 of Marsaglia, "Xorshift RNGs"
 	uint32_t s, t = state[3];
@@ -95,7 +96,26 @@ CP_API uint32_t CP_Random_RangeInt(unsigned int lowerBound, unsigned int upperBo
 		lowerBound = upperBound;
 		upperBound = temp;
 	}
-	return lowerBound + internalRand() % ((upperBound - lowerBound) + 1);
+
+	// The full range of 2^32 values: (upper - lower) + 1 would wrap to 0
+	const uint32_t range = upperBound - lowerBound;
+	if (range == UINT32_MAX)
+	{
+		return internalRand();
+	}
+
+	// internalRand() % count favors the low numbers when count doesn't divide
+	// 2^32 evenly. Throwing away the first 2^32 % count values makes it even.
+	// That's under count values out of 2^32, so for ordinary ranges a draw is
+	// almost never thrown away, and seeded sequences stay the same.
+	const uint32_t count = range + 1;
+	const uint32_t threshold = (0u - count) % count;	// = 2^32 % count
+	uint32_t r;
+	do
+	{
+		r = internalRand();
+	} while (r < threshold);
+	return lowerBound + r % count;
 }
 
 CP_API float CP_Random_GetFloat(void)

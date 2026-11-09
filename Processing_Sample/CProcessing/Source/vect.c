@@ -3,7 +3,8 @@
 // author:	Daniel Hamilton
 // brief:	Vector data structure
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 #include "vect.h"

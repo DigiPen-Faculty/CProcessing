@@ -3,9 +3,10 @@
 // author:	Daniel Hamilton, Andrea Ellinger, Justin Chambers
 // brief:	Internal structs and functions for Sound
 //
-// INTERNAL USE ONLY, DO NOT DISTRIBUTE
+// Internal header: not part of the public API.
 //
-// Copyright © 2025 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 #pragma once
@@ -51,6 +52,7 @@ typedef struct CP_Sound_Struct
 	char filepath[CP_PATH_MAX];
     AudioSource* sound;
 	SL_AUDIOSOURCE_TYPE type;
+	int ref_count;		// loads of this file not yet freed (CP_Sound_Free frees at 0)
 } CP_Sound_Struct;
 
 typedef struct CP_VoiceGroup_Struct

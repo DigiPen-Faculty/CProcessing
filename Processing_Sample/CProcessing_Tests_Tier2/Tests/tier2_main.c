@@ -88,6 +88,7 @@ int main(void)
     RUN_TEST(test_tier2_settings_blend_modes_with_equations);
     RUN_TEST(test_tier2_settings_tint_multiplies_shapes_and_images);
     RUN_TEST(test_tier2_settings_carry_over_to_the_next_frame);
+    RUN_TEST(test_tier2_settings_made_before_run_are_kept);
 
     // test_tier2_image.c
     RUN_TEST(test_tier2_image_load_reports_correct_dimensions);
@@ -99,6 +100,9 @@ int main(void)
     RUN_TEST(test_tier2_image_16_bit_png_loads_and_draws);
     RUN_TEST(test_tier2_image_filter_mode_nearest_and_linear);
     RUN_TEST(test_tier2_image_wrap_modes);
+    RUN_TEST(test_tier2_shared_image_survives_freeing_one_load);
+    RUN_TEST(test_tier2_shared_font_and_sound_survive_freeing_one_load);
+    RUN_TEST(test_tier2_assets_still_loaded_are_reported_at_exit);
 
     // test_tier2_font.c
     RUN_TEST(test_tier2_font_drawtext_occupies_expected_region);
@@ -114,6 +118,7 @@ int main(void)
     // test_tier2_system_engine.c
     RUN_TEST(test_tier2_system_window_size_matches_what_was_set);
     RUN_TEST(test_tier2_system_frame_count_advances);
+    RUN_TEST(test_tier2_system_frame_rate_zero_means_no_limit);
     RUN_TEST(test_tier2_system_timing_getters_are_sane);
     RUN_TEST(test_tier2_system_window_focus_is_a_valid_bool);
     RUN_TEST(test_tier2_system_display_info_is_positive);

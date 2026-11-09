@@ -13,9 +13,10 @@
 //			Only GLFW's *constants* and the GLFWgamepadstate struct are used
 //			from glfw3.h; no GLFW functions are called.
 //
-// INTERNAL USE ONLY, DO NOT DISTRIBUTE
+// Internal header: not part of the public API.
 //
-// Copyright (c) 2026 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 #pragma once

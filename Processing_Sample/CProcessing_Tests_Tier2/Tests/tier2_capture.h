@@ -22,6 +22,10 @@
 
 typedef enum
 {
+    // Must stay first: it draws with the settings made before CP_Engine_Run,
+    // so it runs before anything else changes them (and without the
+    // baseline reset every other scenario gets)
+    SCN_SETTINGS_BEFORE_RUN,
     SCN_CLEAR_BACKGROUND,
     SCN_DRAW_POINT,
     SCN_DRAW_LINE,
@@ -58,6 +62,7 @@ typedef enum
     SCN_IMAGE_SUBIMAGE,
     SCN_IMAGE_16_BIT,
     SCN_IMAGE_MANY,
+    SCN_SHARED_ASSETS,
     SCN_FONT_DRAWTEXT,
     SCN_FONT_LOAD_FREE,
     SCN_FONT_FREE_KEEPS_OTHERS,
@@ -68,6 +73,8 @@ typedef enum
     SCN_FONT_LARGE,
     SCN_FONT_MIRRORED,
     SCN_SYSTEM_ENGINE_STATE,
+    // Not last: the frames after it show the frame limiter didn't hang
+    SCN_SYSTEM_FRAME_RATE_NO_LIMIT,
     SCN_SOUND_ROUNDTRIP,
     SCN_INPUT_QUIESCENT_DEFAULTS,
     // Cross-platform work: these two must stay consecutive -- the second
@@ -120,6 +127,18 @@ typedef struct
     float millisSample;
     float secondsSample;
     float frameRateSample;
+    // Loading one file twice shares it; freeing one load keeps it for the
+    // other (Scn_SharedAssets). "Reload" is a load after that first free.
+    bool sharedImageSame;
+    bool sharedImageFirstCleared;
+    bool sharedImageReloadSame;
+    bool emptyPathLoadIsNull;
+    bool sharedFontSame;
+    bool sharedFontReloadSame;
+    bool soundAvailable;
+    bool soundAndStreamDiffer;
+    bool sharedSoundReloadSame;
+    bool frameRateNoLimitSet;      // SetFrameRate(0) and (-30) ran
     CP_BOOL windowFocusSample;
     int displayWidth;
     int displayHeight;
@@ -196,6 +215,10 @@ typedef struct
     // How many scenarios were captured: SCN_COUNT unless the engine couldn't
     // start (no window or OpenGL context) or stopped early
     int scenariosCaptured;
+
+    // What CProcessing printed on stderr while shutting down: the assets
+    // still loaded (see LeaveAssetsLoadedForTheExitReport)
+    char exitReport[4096];
 } Tier2Scalars;
 
 extern Tier2Scalars tier2_scalars;

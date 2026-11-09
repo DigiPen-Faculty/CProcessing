@@ -3,9 +3,10 @@
 // author:	Daniel Hamilton
 // brief:	Internal Text functions for loading fonts and drawing text
 //
-// INTERNAL USE ONLY, DO NOT DISTRIBUTE
+// Internal header: not part of the public API.
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 #pragma once
@@ -37,6 +38,7 @@ typedef struct CP_Font_Struct
     int handle;
     char filepath[CP_PATH_MAX];
     int load_error;
+    int ref_count;      // loads of this file not yet freed (CP_Font_Free frees at 0)
 } CP_Font_Struct;
 
 //------------------------------------------------------------------------------

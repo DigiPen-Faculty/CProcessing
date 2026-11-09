@@ -11,6 +11,24 @@ static void assertColorWithin(unsigned char tolerance, CP_Color expected, CP_Col
     TEST_ASSERT_UINT8_WITHIN(tolerance, expected.b, actual.b);
 }
 
+// Fill and rect mode were set before CP_Engine_Run (tier2_RunCaptureOnce);
+// see Scn_SettingsBeforeRun
+void test_tier2_settings_made_before_run_are_kept(void)
+{
+    const CP_Color fill = CP_Color_Create(12, 200, 34, 255);
+    const CP_Color blue = CP_Color_Create(0, 0, 255, 255);
+
+    // The fill color set before CP_Engine_Run
+    assertColorWithin(2, fill, tier2_SamplePixel(SCN_SETTINGS_BEFORE_RUN, 100, 100));
+    // CORNER mode set before CP_Engine_Run: (50, 50) is the top left corner...
+    assertColorWithin(2, fill, tier2_SamplePixel(SCN_SETTINGS_BEFORE_RUN, 140, 140));
+    // ...not the center, which would have covered this point instead
+    assertColorWithin(2, blue, tier2_SamplePixel(SCN_SETTINGS_BEFORE_RUN, 25, 25));
+    // The default stroke, black and 3 wide, centered on the left edge (x = 50)
+    assertColorWithin(2, CP_Color_Create(0, 0, 0, 255), tier2_SamplePixel(SCN_SETTINGS_BEFORE_RUN, 49, 100));
+    assertColorWithin(2, fill, tier2_SamplePixel(SCN_SETTINGS_BEFORE_RUN, 54, 100));
+}
+
 void test_tier2_settings_nofill_leaves_interior_untouched(void)
 {
     // Interior: still the ClearBackground color, since fill is off.

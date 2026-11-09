@@ -3,7 +3,8 @@
 // author:	Daniel Hamilton
 // brief:	Create and edit colors
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -41,19 +42,19 @@ static inline int CP_ColorMinInt(int a, int b) { return a < b ? a : b; }
 // Private Function Declarations:
 //------------------------------------------------------------------------------
 
-int clampRGBA(int value)
+static int clampRGBA(int value)
 {
 	return CP_Math_ClampInt(value, 0, 255);
 }
 
-int clampH(int value)
+static int clampH(int value)
 {
 	// special clamp to allow for continual wrapping of hue values
 	int hue = value % 360;
 	return (hue < 0) ? hue + 360 : hue;
 }
 
-int clampSL(int value)
+static int clampSL(int value)
 {
 	return CP_Math_ClampInt(value, 0, 100);
 }

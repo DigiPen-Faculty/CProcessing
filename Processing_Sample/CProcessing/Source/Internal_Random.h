@@ -3,9 +3,10 @@
 // author:	Justin Chambers
 // brief:	Header for all internal random helper functions
 //
-// INTERNAL USE ONLY, DO NOT DISTRIBUTE
+// Internal header: not part of the public API.
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //---------------------------------------------------------
 
 #pragma once

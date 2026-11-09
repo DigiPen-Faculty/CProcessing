@@ -1,6 +1,7 @@
 // Assertions against data tier2_capture.c already captured. See
 // Scn_ImageLoadAndDraw / Scn_ImageSubImage there for how Assets/quadrants.png
 // (a 4x4 fixture: TL=red, TR=green, BL=blue, BR=yellow) was used.
+#include <string.h>
 #include "unity.h"
 #include "tier2_capture.h"
 
@@ -9,6 +10,42 @@ static void assertColorWithin(unsigned char tolerance, CP_Color expected, CP_Col
     TEST_ASSERT_UINT8_WITHIN(tolerance, expected.r, actual.r);
     TEST_ASSERT_UINT8_WITHIN(tolerance, expected.g, actual.g);
     TEST_ASSERT_UINT8_WITHIN(tolerance, expected.b, actual.b);
+}
+
+// See Scn_SharedAssets: loads of the same file share it until the last
+// one is freed
+void test_tier2_shared_image_survives_freeing_one_load(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.sharedImageSame);
+    TEST_ASSERT_TRUE(tier2_scalars.sharedImageFirstCleared);
+    TEST_ASSERT_TRUE(tier2_scalars.sharedImageReloadSame);
+    TEST_ASSERT_TRUE(tier2_scalars.emptyPathLoadIsNull);
+    // The image was drawn over the whole canvas after the first free: red
+    // top left quadrant, yellow bottom right
+    assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_SHARED_ASSETS, 50, 50));
+    assertColorWithin(2, CP_Color_Create(255, 255, 0, 255), tier2_SamplePixel(SCN_SHARED_ASSETS, 150, 150));
+}
+
+void test_tier2_shared_font_and_sound_survive_freeing_one_load(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.sharedFontSame);
+    TEST_ASSERT_TRUE(tier2_scalars.sharedFontReloadSame);
+    if (!tier2_scalars.soundAvailable)
+    {
+        TEST_IGNORE_MESSAGE("no audio device: sounds don't load");
+    }
+    TEST_ASSERT_TRUE(tier2_scalars.soundAndStreamDiffer);
+    TEST_ASSERT_TRUE(tier2_scalars.sharedSoundReloadSame);
+}
+
+// See LeaveAssetsLoadedForTheExitReport: the harness leaves two loads of an
+// image and an image made from data unfreed, and CProcessing lists them
+void test_tier2_assets_still_loaded_are_reported_at_exit(void)
+{
+    const char* report = tier2_scalars.exitReport;
+    TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "still loaded when the program ended"), report);
+    TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "Assets/quadrants16.png: 2 loads not freed"), report);
+    TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "1 made with CP_Image_CreateFromData or CP_Image_Screenshot"), report);
 }
 
 void test_tier2_image_load_reports_correct_dimensions(void)

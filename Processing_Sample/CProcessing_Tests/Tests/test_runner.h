@@ -7,6 +7,7 @@
 // test_smoke.c -- Phase A: proves the harness itself works end to end.
 void test_smoke_truth(void);
 void test_smoke_cprocessing_link(void);
+void test_smoke_source_strings_are_utf8(void);
 
 // test_cp_math.c -- Tier 1: CP_Math (pure functions only).
 void test_math_clampint_below_min_returns_min(void);
@@ -136,6 +137,9 @@ void test_noise_stays_within_0_and_1(void);
 void test_noise_is_deterministic_for_same_seed_and_coordinates(void);
 void test_noise_different_seeds_can_diverge(void);
 void test_noise_same_coordinate_is_continuous_with_its_neighbor(void);
+void test_noise_is_smooth_across_negative_coordinates(void);
+void test_random_rangeint_full_range_does_not_divide_by_zero(void);
+void test_random_rangeint_large_range_is_even(void);
 
 // test_internal_platform.c -- Tier 1: portability helpers (Internal_Platform.h).
 void test_platform_stringcopy_copies_short_string(void);

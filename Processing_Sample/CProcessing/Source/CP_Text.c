@@ -3,13 +3,15 @@
 // author:	Daniel Hamilton, Justin Chambers
 // brief:	Text functions for loading fonts and drawing text
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Include Files:
 //------------------------------------------------------------------------------
 
+#include <limits.h>
 #include "cprocessing.h"
 #include "Internal_Text.h"
 #include "Internal_System.h"
@@ -49,6 +51,8 @@ static CP_Font CP_Font_IsLoaded(const char* filepath)
 
 static void CP_Font_AddHandle(CP_Font font)
 {
+	// a new font, used once so far
+	font->ref_count = 1;
 	vect_push_CP_Font(font_vector, font);
 }
 
@@ -62,10 +66,15 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 		return NULL;
 	}
 
-	// Check if the font is already loaded
+	// Check if the font is already loaded: share it, and count the load so
+	// one CP_Font_Free doesn't free it for every other load of the file
 	new_font = CP_Font_IsLoaded(filepath);
 	if (new_font)
 	{
+		if (new_font->ref_count < INT_MAX)
+		{
+			++new_font->ref_count;
+		}
 		return new_font;
 	}
 
@@ -121,6 +130,21 @@ void CP_Text_Init(void)
 	// load the default font from internal binary resource data
 	// freeData = 0: NanoVG only reads the embedded font data, so casting away const is safe
 	_default_font = CP_Font_LoadInternal("./Assets/Exo2-Regular.ttf", true, (unsigned char*)Exo2_Regular_ttf, Exo2_Regular_ttf_size, 0);
+}
+
+void CP_Text_ReportLoaded(CP_Report* report)
+{
+	if (!font_vector) return;
+
+	for (unsigned i = 0; i < font_vector->size; ++i)
+	{
+		CP_Font font = vect_at_CP_Font(font_vector, i);
+		// the built-in font isn't the program's to free
+		if (font && font != _default_font)
+		{
+			CP_Report_AddAsset(report, "font", font->filepath, font->ref_count);
+		}
+	}
 }
 
 void CP_Text_Shutdown(void)
@@ -179,6 +203,13 @@ CP_API void CP_Font_Free(CP_Font* font)
 			if (i == 0)
 			{
 				// don't allow the unloading of the built-in default font Exo2-Regular.ttf
+				return;
+			}
+
+			// another load of the same file still uses it
+			if (--(*font)->ref_count > 0)
+			{
+				*font = NULL;
 				return;
 			}
 

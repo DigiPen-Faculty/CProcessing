@@ -10,6 +10,14 @@ void test_tier2_system_window_size_matches_what_was_set(void)
     TEST_ASSERT_EQUAL_INT(TIER2_CANVAS_SIZE, tier2_scalars.windowHeightAfterSet);
 }
 
+// Scn_SystemFrameRateNoLimit set the frame rate to 0 and then -30, which
+// mean no limit; every later scenario was still captured
+void test_tier2_system_frame_rate_zero_means_no_limit(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.frameRateNoLimitSet);
+    TEST_ASSERT_EQUAL_INT(SCN_COUNT, tier2_scalars.scenariosCaptured);
+}
+
 void test_tier2_system_frame_count_advances(void)
 {
     TEST_ASSERT_GREATER_THAN_UINT(tier2_scalars.frameCountEarly, tier2_scalars.frameCountLater);

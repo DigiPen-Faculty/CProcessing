@@ -7,7 +7,8 @@
 // documentation link:
 // https://github.com/DigiPen-Faculty/CProcessing/wiki
 //
-// Copyright © 2025 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //---------------------------------------------------------
 
 #include "cprocessing.h"

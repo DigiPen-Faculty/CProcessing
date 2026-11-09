@@ -3,13 +3,15 @@
 // author:	Justin Chambers
 // brief:	Primary implementation of the CProcessing interface
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //---------------------------------------------------------
 
 #include "cprocessing.h"
 #include "Internal_System.h"
 #include "Internal_Monitor.h"
 #include "tinycthread.h"
+#include <stdarg.h>
 #include <stdio.h>
 #if !defined(_WIN32)
 	#include <unistd.h>	// isatty
@@ -37,10 +39,10 @@ static CP_Core _CORE = {
 };
 static bool _isInitialized = false;
 
-CP_BOOL _deferredSizeChange = FALSE;
-int _deferredWidth = 0;
-int _deferredHeight = 0;
-CP_BOOL _deferredFullscreen = FALSE;
+static CP_BOOL _deferredSizeChange = FALSE;
+static int _deferredWidth = 0;
+static int _deferredHeight = 0;
+static CP_BOOL _deferredFullscreen = FALSE;
 
 // Window settings that may be requested before the window exists; they are
 // stored here and applied when CP_Initialize creates the window
@@ -54,12 +56,12 @@ typedef struct GameStateFuncs
 	FunctionPtr exit;
 } GameStateFuncs;
 
-GameStateFuncs _currState = { NULL, NULL, NULL };
-GameStateFuncs _nextState = { NULL, NULL, NULL };
-bool _stateIsChanging = false;
+static GameStateFuncs _currState = { NULL, NULL, NULL };
+static GameStateFuncs _nextState = { NULL, NULL, NULL };
+static bool _stateIsChanging = false;
 
-FunctionPtr _preUpdateFunction = NULL;
-FunctionPtr _postUpdateFunction = NULL;
+static FunctionPtr _preUpdateFunction = NULL;
+static FunctionPtr _postUpdateFunction = NULL;
 
 //------------------------------------------------------------------------------
 // Private Variables:
@@ -73,7 +75,7 @@ static double _frametime = 1.0 / 60.0;
 // Frames since the start of the program
 static unsigned int _frameCount;
 
-void error_callback_glfw(int error, const char* desc)
+static void error_callback_glfw(int error, const char* desc)
 {
 	printf("GLFW error %d: %s\n", error, desc);
 }
@@ -360,6 +362,13 @@ CP_CorePtr GetCPCore(void)
 
 CP_DrawInfoPtr GetDrawInfo(void)
 {
+	// The first draw state gets its defaults the first time it's needed,
+	// which can be a CP_Settings_ call before CP_Engine_Run
+	if (_CORE.nstates == 0)
+	{
+		_CORE.nstates = 1;
+		CP_Settings_InitDefaults(&_CORE.states[0]);
+	}
 	return &_CORE.states[_CORE.nstates - 1];
 }
 
@@ -774,7 +783,9 @@ CP_API float CP_System_GetFrameRate(void)
 
 CP_API void CP_System_SetFrameRate(float fps)
 {
-	_frametimeTarget = 1.0 / fps; // seconds per frame
+	// 0 or less means no limit: run as fast as possible. (1 / 0 used to make
+	// the frame limiter wait forever.)
+	_frametimeTarget = fps > 0.0f ? 1.0 / fps : 0.0; // seconds per frame
 }
 
 CP_API float CP_System_GetDt(void)
@@ -820,19 +831,6 @@ void CP_Initialize(void)
 	_CORE.nvg = NULL;
 	_CORE.window = NULL;
 
-	// Initialize first CP_DrawInfo
-	_CORE.nstates = 1;
-	GetDrawInfo()->rect_mode = CP_POSITION_CENTER;
-	GetDrawInfo()->ellipse_mode = CP_POSITION_CENTER;
-	GetDrawInfo()->image_mode = CP_POSITION_CENTER;
-	GetDrawInfo()->fill = TRUE;
-	GetDrawInfo()->stroke = TRUE;
-	// NanoVG's own defaults (nvgReset)
-	GetDrawInfo()->fill_color = CP_Color_Create(255, 255, 255, 255);
-	GetDrawInfo()->stroke_color = CP_Color_Create(0, 0, 0, 255);
-	GetDrawInfo()->stroke_weight = 1.0f;
-	GetDrawInfo()->line_cap = CP_LINE_CAP_BUTT;
-
 	// Set the error callback first so initialization problems are reported too
 	glfwSetErrorCallback(error_callback_glfw);
 
@@ -867,7 +865,11 @@ void CP_Initialize(void)
 
 	// Create the window
 	glfwDefaultWindowHints();
+#ifndef NDEBUG
+	// A debug context reports OpenGL errors in detail but can be slower,
+	// so only Debug builds ask for one
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+#endif
 	glfwWindowHint(GLFW_DOUBLEBUFFER, 1);	// persistence comes from the canvas framebuffer
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 	glfwWindowHint(GLFW_VISIBLE, 0);
@@ -898,7 +900,13 @@ void CP_Initialize(void)
 		CP_InitializeFailed();
 		return;
 	}
+	// NVG_DEBUG checks for an OpenGL error after each NanoVG draw step, which
+	// can stall the GPU, so only Debug builds turn it on
+#ifndef NDEBUG
 	_CORE.nvg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
+#else
+	_CORE.nvg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+#endif
 	if (_CORE.nvg == NULL)
 	{
 		printf("Could not init nanovg (OpenGL 3.2 or newer is required).\n");
@@ -906,13 +914,9 @@ void CP_Initialize(void)
 		return;
 	}
 
-	// Init default draw settings state items here:
-	CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255));
-	CP_Settings_Stroke(CP_Color_Create(0, 0, 0, 255));
-	CP_Settings_StrokeWeight(3.0f);
-	CP_Settings_LineCapMode(CP_LINE_CAP_BUTT);
-	CP_Settings_LineJointMode(CP_LINE_JOINT_BEVEL);
-	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_LINEAR);
+	// Give NanoVG the draw settings: the defaults (CP_Settings_InitDefaults),
+	// with any CP_Settings_ calls made before CP_Engine_Run
+	CP_Settings_ApplyAll();
 
 	glfwSwapInterval(0);
 	glfwSetTime(0);
@@ -1010,8 +1014,86 @@ void CP_Update(void)
 	CP_Image_Update();
 }
 
+void CP_Report_AddLine(CP_Report* report, const char* format, ...)
+{
+	size_t room = sizeof(report->text) - report->length;
+	va_list args;
+	va_start(args, format);
+	int written = room > 1 ? vsnprintf(report->text + report->length, room, format, args) : -1;
+	va_end(args);
+
+	if (written < 0 || (size_t)written + 1 >= room)
+	{
+		// keep only whole lines
+		report->text[report->length] = '\0';
+		report->truncated = TRUE;
+		return;
+	}
+	report->length += (size_t)written;
+	report->text[report->length++] = '\n';
+	report->text[report->length] = '\0';
+	++report->lines;
+}
+
+void CP_Report_AddAsset(CP_Report* report, const char* kind, const char* filepath, int loads)
+{
+	if (loads == 1)
+	{
+		CP_Report_AddLine(report, "  %-5s  %s: loaded, never freed", kind, filepath);
+	}
+	else
+	{
+		// Thousands of loads usually mean a Load call in an update function
+		CP_Report_AddLine(report, "  %-5s  %s: %d loads not freed%s", kind, filepath, loads,
+			loads >= 60 ? " (is it loaded every frame?)" : "");
+	}
+}
+
+// Tell the programmer about assets they never freed, before CP_Shutdown frees
+// them. Students learn to pair every Load with a Free, and a Load in an update
+// function (which works, since loads of a file share it) shows up here.
+static void CP_ReportLoadedAssets(void)
+{
+	CP_Report report = { 0 };
+	CP_Image_ReportLoaded(&report);
+	CP_Sound_ReportLoaded(&report);
+	CP_Text_ReportLoaded(&report);
+	if (report.lines == 0 && !report.truncated)
+	{
+		return;
+	}
+
+	char message[sizeof(report.text) + 1024];
+	snprintf(message, sizeof(message),
+		"CProcessing: these were still loaded when the program ended:\n"
+		"%s%s"
+		"CProcessing freed them, but every CP_Image_Load, CP_Sound_Load,\n"
+		"CP_Sound_LoadStream and CP_Font_Load needs its own Free, and so does\n"
+		"every image from CP_Image_CreateFromData or CP_Image_Screenshot.\n"
+		"Load assets once, in an init function, and free them in the exit\n"
+		"function: https://github.com/DigiPen-Faculty/CProcessing/wiki/Assets-and-paths\n",
+		report.text, report.truncated ? "  ...and more\n" : "");
+
+	fputs(message, stderr);
+	fflush(stderr);
+#if defined(_WIN32)
+	// Windows programs usually have no console: Visual Studio's Output window
+	OutputDebugStringA(message);
+#if !defined(NDEBUG)
+	// Debug library, started from Visual Studio: make sure it's seen. Never
+	// otherwise, so a game someone double-clicks, or a test run, can't stop here.
+	if (IsDebuggerPresent())
+	{
+		MessageBoxA(NULL, message, "CProcessing: files still loaded", MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND);
+	}
+#endif
+#endif
+}
+
 void CP_Shutdown(void)
 {
+	CP_ReportLoadedAssets();
+
 	CP_Text_Shutdown();
 	CP_Sound_Shutdown();
 	CP_Image_Shutdown();
@@ -1075,8 +1157,8 @@ void CP_FrameRate_FrameStart(void)
 	CP_IncFrameCount();
 }
 
-double averageSleepCycles = 0.002;
-double additionalBuffer = 0.001;	// Sleep() isn't very accurate and we want to make sure we don't over sleep
+static double averageSleepCycles = 0.002;
+static double additionalBuffer = 0.001;	// Sleep() isn't very accurate and we want to make sure we don't over sleep
 
 void CP_FrameRate_FrameEnd(void)
 {
@@ -1184,7 +1266,9 @@ void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFull
 		// position)
 		CP_CenterWindowOn(monitor, new_width, new_height, &windowPosX, &windowPosY);
 	}
-	glfwSetWindowMonitor(_CORE.window, isFullscreen ? monitor : NULL, windowPosX, windowPosY, new_width, new_height, 60);
+	// GLFW_DONT_CARE: in fullscreen, GLFW picks the monitor's highest refresh
+	// rate for the size, rather than always 60 Hz
+	glfwSetWindowMonitor(_CORE.window, isFullscreen ? monitor : NULL, windowPosX, windowPosY, new_width, new_height, GLFW_DONT_CARE);
 	if (!isFullscreen)
 	{
 		// returning from fullscreen needs a size refresh to properly include window decoration dimensions

@@ -4,6 +4,83 @@ Notable changes in each CProcessing release. Version numbers are
 major.minor.patch. The major number goes up when existing projects may need
 changes to build with the new version.
 
+## 3.1.1 (unreleased)
+
+### Added
+
+- **When a program ends, CProcessing lists the images, sounds and fonts
+  it never freed**, with how many loads of each weren't freed, and
+  reminds you that every load needs its own free. (It frees them either
+  way.) The list goes to the terminal or console and, on Windows, to
+  Visual Studio's Output window. With the Debug library, started from
+  Visual Studio's debugger, it also appears in a message box. A load in an
+  update function shows up with thousands of loads: load once, in an init
+  function, and free in the exit function.
+
+### Changed
+
+- **Every CProcessing source file now says it's MIT licensed**, matching
+  `LICENSE`: `SPDX-License-Identifier: MIT` and `Copyright (c) 2019-2026
+  DigiPen Institute of Technology`. Before, the files said "All rights
+  reserved" and the internal headers said "do not distribute", which
+  contradicted the license the project has always been published under.
+- **The template's `main.c` belongs to the student:** its header has
+  places for your name and what the program does, and no longer claims
+  DigiPen's copyright. A course that requires its own header can add it.
+
+### Fixed
+
+- **Calling a `CP_Settings_` or `CP_Graphics_` function before
+  `CP_Engine_Run` could crash or corrupt memory**, for example
+  `CP_Settings_Fill` in `main` before starting the engine. Settings made
+  then are now kept and take effect when the window opens, like
+  `CP_System_SetWindowSize` and `CP_System_ShowCursor` already did.
+  Transforms (`CP_Settings_Translate`, `Rotate`, `Scale`, `ApplyMatrix`,
+  `ResetMatrix`), `CP_Settings_Save`/`Restore` and drawing do nothing
+  before `CP_Engine_Run`, since there's nothing to draw on yet and
+  transforms reset every frame. `CP_Settings_ImageFilterMode` and
+  `CP_Settings_ImageWrapMode` now ignore values that aren't one of their
+  modes, as the other settings do.
+- **`CP_System_SetFrameRate(0)` froze the program.** A frame rate of 0
+  or less now means no limit: frames run as fast as the computer allows.
+- **Fullscreen always switched the monitor to 60 Hz**, even a 120 or
+  144 Hz monitor. It now uses the monitor's highest refresh rate for the
+  size. The frame rate is still set by `CP_System_SetFrameRate` (60 by
+  default).
+- Release builds of CProcessing no longer ask for an OpenGL debug context
+  or check for an OpenGL error after every drawing step, which could slow
+  drawing down on some graphics drivers. Debug builds still do both.
+- **`CP_Random_Noise` was wrong for negative coordinates:** it returned
+  values far outside 0 to 1 and jumped at every negative whole number. It
+  now gives the same smooth noise there as for positive coordinates.
+  Values at positive coordinates are unchanged.
+- **`CP_Random_RangeInt(0, 4294967295)`, the whole range, crashed** with
+  a division by zero. Large ranges also favored the lower numbers; every
+  number in the range is now equally likely. Seeded sequences for
+  ordinary ranges are unchanged.
+- **Loading the same image, font or sound twice and freeing one of them
+  freed it for both.** Loading a file that's already loaded gives back the
+  same handle, so two parts of a program that each loaded
+  `"Assets/player.png"` shared one image, and the first `CP_Image_Free`
+  broke the other. A file now stays loaded until every load of it has been
+  freed. `CP_Sound_Load` and `CP_Sound_LoadStream` on the same file also
+  gave back whichever was loaded first; they're now separate sounds.
+  Since each load now needs its own free, a file loaded every frame in an
+  update function and freed once in the exit function stays loaded until
+  the program ends, and is in the list of assets not freed (see Added).
+- CProcessing no longer exports internal names such as `state`, `p` or
+  `_currState`. Built as a static library (`CPROCESSING_BUILD_SHARED=OFF`),
+  a game with its own global of the same name failed to link.
+- **Text with characters outside plain English, such as ©, é or ü, came out
+  wrong on Windows** when typed straight into a string in your code, for
+  example `CP_Font_DrawText("Café", ...)`. Visual Studio read source files
+  in the computer's own code page, while `CP_Font_DrawText` expects UTF-8.
+  The template, the CMake starter and CProcessing's own projects now pass
+  `/utf-8`, so such text draws as typed. In an existing Visual Studio
+  project, add `/utf-8` under Project Properties > C/C++ > Command Line >
+  Additional Options. Linux and macOS already worked.
+  ([#15](https://github.com/DigiPen-Faculty/CProcessing/issues/15))
+
 ## 3.1.0 (2026-11-07)
 
 macOS is no longer a preview. Drawing, sound, gamepads, screenshots, the

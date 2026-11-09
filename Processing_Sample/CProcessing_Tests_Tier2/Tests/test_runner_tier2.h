@@ -34,9 +34,13 @@ void test_tier2_settings_save_restore_round_trips_fill_and_transform(void);
 void test_tier2_settings_blend_modes_with_equations(void);
 void test_tier2_settings_tint_multiplies_shapes_and_images(void);
 void test_tier2_settings_carry_over_to_the_next_frame(void);
+void test_tier2_settings_made_before_run_are_kept(void);
 
 // test_tier2_image.c -- Tier 2: CP_Image.
 void test_tier2_image_load_reports_correct_dimensions(void);
+void test_tier2_shared_image_survives_freeing_one_load(void);
+void test_tier2_shared_font_and_sound_survive_freeing_one_load(void);
+void test_tier2_assets_still_loaded_are_reported_at_exit(void);
 void test_tier2_image_draw_places_quadrants_correctly(void);
 void test_tier2_image_createfromdata_roundtrips_exactly(void);
 void test_tier2_image_updatepixeldata_roundtrips_exactly(void);
@@ -60,6 +64,7 @@ void test_tier2_font_text_mirrored_and_flipped_draws(void);
 // test_tier2_system_engine.c -- Tier 2: CP_System + CP_Engine lifecycle.
 void test_tier2_system_window_size_matches_what_was_set(void);
 void test_tier2_system_frame_count_advances(void);
+void test_tier2_system_frame_rate_zero_means_no_limit(void);
 void test_tier2_system_timing_getters_are_sane(void);
 void test_tier2_system_window_focus_is_a_valid_bool(void);
 void test_tier2_system_display_info_is_positive(void);

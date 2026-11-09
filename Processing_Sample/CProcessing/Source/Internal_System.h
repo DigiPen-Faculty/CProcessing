@@ -4,9 +4,10 @@
 // brief:	Primary internal header file for the CProcessing interface
 //			Include other internal only resources and headers.
 //
-// INTERNAL USE ONLY, DO NOT DISTRIBUTE
+// Internal header: not part of the public API.
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //---------------------------------------------------------
 
 #pragma once
@@ -51,13 +52,29 @@ typedef struct CP_DrawInfo
     int stroke;
     int fill;
     CP_Matrix camera;
-    // Copies of settings NanoVG keeps privately, for CP_Graphics_DrawPoint
+    // Copies of the settings NanoVG keeps privately. They let CP_Settings_
+    // functions work before CP_Engine_Run, when there's no NanoVG context
+    // yet (CP_Settings_ApplyAll gives them to NanoVG when the window opens),
+    // and CP_Graphics_DrawPoint uses the colors, weight and cap.
     CP_Color fill_color;
     CP_Color stroke_color;
     float stroke_weight;
     CP_LINE_CAP_MODE line_cap;
+    CP_LINE_JOINT_MODE line_joint;
+    CP_Color tint;
+    CP_BOOL anti_alias;
+    CP_BLEND_MODE blend_mode;
+    CP_IMAGE_FILTER_MODE filter_mode;
+    CP_IMAGE_WRAP_MODE wrap_mode;
+    float text_size;
+    int text_align;
 } CP_DrawInfo;
 typedef CP_DrawInfo* CP_DrawInfoPtr;
+
+// The settings a program starts with (CP_Setting.c)
+void CP_Settings_InitDefaults(CP_DrawInfoPtr DI);
+// Gives NanoVG the current settings, once its context exists (CP_Setting.c)
+void CP_Settings_ApplyAll(void);
 //////////////////
 
 //////////////////
@@ -91,6 +108,28 @@ void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFull
 void CP_Initialize(void);
 void CP_Update(void);
 void CP_Shutdown(void);
+
+//////////////////
+// A message for the programmer, built a line at a time: at exit, the assets
+// that were never freed (CP_System.c)
+typedef struct CP_Report
+{
+	char text[4096];
+	size_t length;
+	int lines;
+	CP_BOOL truncated;	// more lines than fit
+} CP_Report;
+
+void CP_Report_AddLine(CP_Report* report, const char* format, ...);
+// "  image  Assets/logo.png: 3 loads not freed", with a hint when there are many
+void CP_Report_AddAsset(CP_Report* report, const char* kind, const char* filepath, int loads);
+
+// Each adds a line to the report for every asset still loaded
+// (CP_Image.c, CP_Sound.c, CP_Text.c)
+void CP_Image_ReportLoaded(CP_Report* report);
+void CP_Sound_ReportLoaded(CP_Report* report);
+void CP_Text_ReportLoaded(CP_Report* report);
+//////////////////
 void CP_FrameStart(void);
 void CP_FrameEnd(void);
 

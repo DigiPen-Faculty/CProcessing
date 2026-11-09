@@ -10,10 +10,24 @@
 // All coordinates below were computed by hand against the actual source
 // (CP_Graphics.c, CP_Setting.c) rather than assumed -- see the Phase D
 // commit message for the worked geometry on the rotation/transform cases.
+#define _CRT_SECURE_NO_WARNINGS     // fopen, in the exit report capture
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "tier2_capture.h"
+#if defined(_WIN32)
+    #include <io.h>
+    #define tier2_dup _dup
+    #define tier2_dup2 _dup2
+    #define tier2_close _close
+    #define tier2_fileno _fileno
+#else
+    #include <unistd.h>
+    #define tier2_dup dup
+    #define tier2_dup2 dup2
+    #define tier2_close close
+    #define tier2_fileno fileno
+#endif
 
 // For Scn_AssetsNextToProgram, which runs in another folder for a moment
 #if defined(_WIN32)
@@ -77,12 +91,22 @@ static void ResetToBaseline(void)
     CP_Settings_RectMode(CP_POSITION_CENTER);
     CP_Settings_EllipseMode(CP_POSITION_CENTER);
     CP_Settings_BlendMode(CP_BLEND_ALPHA);
+    CP_System_SetFrameRate(60.0f);
+}
+
+// Draws with the settings made before CP_Engine_Run (tier2_RunCaptureOnce):
+// a fill of (12, 200, 34) and CORNER rects, kept from before the window
+// existed, and the default stroke, black and 3 wide.
+static void Scn_SettingsBeforeRun(void)
+{
+    CP_Graphics_ClearBackground(BLUE);
+    CP_Graphics_DrawRect(50, 50, 100, 100); // CORNER: spans [50,150] x [50,150]
 }
 
 static void Scn_ClearBackground(void)
 {
     CP_Graphics_ClearBackground(CP_Color_Create(10, 20, 30, 255));
-    // Captured here (the first scenario) and again in Scn_SystemEngineState
+    // Captured here (one of the first scenarios) and again in Scn_SystemEngineState
     // (one of the last) so the test suite can confirm frame count actually
     // advances across the scripted run.
     tier2_scalars.frameCountEarly = CP_System_GetFrameCount();
@@ -549,6 +573,56 @@ static void Scn_ImageMany(void)
     }
 }
 
+// Loading a file that's already loaded returns the same handle. Freeing one
+// of those loads must leave the file loaded for the other: before, the
+// first CP_Image_Free freed it for both. Loading the file again after that
+// free must therefore give back the handle still in use, not a new copy.
+static void Scn_SharedAssets(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageMode(CP_POSITION_CORNER);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+
+    CP_Image first = CP_Image_Load("Assets/quadrants.png");
+    CP_Image second = CP_Image_Load("Assets/quadrants.png");
+    tier2_scalars.sharedImageSame = first != NULL && first == second;
+    CP_Image_Free(&first);
+    tier2_scalars.sharedImageFirstCleared = first == NULL;
+    CP_Image third = CP_Image_Load("Assets/quadrants.png");
+    tier2_scalars.sharedImageReloadSame = third != NULL && third == second;
+    CP_Image_Draw(second, 0, 0, 200, 200, 255);
+
+    // Images made from data have no path, so an empty path can't find them
+    CP_Color pixels[4] = { RED, RED, RED, RED };
+    CP_Image fromData = CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+    tier2_scalars.emptyPathLoadIsNull = CP_Image_Load("") == NULL;
+    CP_Image_Free(&fromData);
+    CP_Image_Free(&second);
+    CP_Image_Free(&third);
+
+    CP_Font font1 = CP_Font_Load("Assets/Exo2-Regular.otf");
+    CP_Font font2 = CP_Font_Load("Assets/Exo2-Regular.otf");
+    tier2_scalars.sharedFontSame = font1 != NULL && font1 == font2;
+    CP_Font_Free(&font1);
+    CP_Font font3 = CP_Font_Load("Assets/Exo2-Regular.otf");
+    tier2_scalars.sharedFontReloadSame = font3 != NULL && font3 == font2;
+    CP_Font_Free(&font2);
+    CP_Font_Free(&font3);
+
+    // Without an audio device sounds don't load, and the test is skipped
+    CP_Sound sound1 = CP_Sound_Load("Assets/beep.wav");
+    tier2_scalars.soundAvailable = sound1 != NULL;
+    CP_Sound stream = CP_Sound_LoadStream("Assets/beep.wav");
+    tier2_scalars.soundAndStreamDiffer = sound1 != NULL && stream != NULL && stream != sound1;
+    CP_Sound sound2 = CP_Sound_Load("Assets/beep.wav");
+    CP_Sound_Free(&sound1);
+    CP_Sound sound3 = CP_Sound_Load("Assets/beep.wav");
+    tier2_scalars.sharedSoundReloadSame = sound3 != NULL && sound3 == sound2;
+    CP_Sound_Free(&sound2);
+    CP_Sound_Free(&sound3);
+    CP_Sound_Free(&stream);
+}
+
 // ---- CP_Font (Phase E) ----
 // Bounding-box/occupancy checks rather than pixel-perfect glyph
 // comparisons, per 06-test-suite-plan.md's Tier 2 notes -- exact glyph
@@ -848,6 +922,17 @@ static void Scn_SystemEngineState(void)
     CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture"); // just must not crash
 }
 
+// A frame rate of 0 or less means no limit. 1 / 0 used to make the frame
+// limiter wait forever, so the scenarios after this one would never be
+// captured. ResetToBaseline puts 60 back for the next one.
+static void Scn_SystemFrameRateNoLimit(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_System_SetFrameRate(0.0f);
+    CP_System_SetFrameRate(-30.0f);
+    tier2_scalars.frameRateNoLimitSet = true;
+}
+
 // ---- CP_Sound (Phase E) ----
 // Per 06-test-suite-plan.md: no reliable way to assert "it sounds
 // correct" automatically, so the realistic goal is load/free/play/pause/
@@ -1061,7 +1146,9 @@ static void Scn_AssetsNextToProgram(void)
     CP_Graphics_ClearBackground(WHITE);
 
     // CI runners may have no audio device, and then no sound loads at all
-    tier2_scalars.assetSoundAvailable = CP_Sound_Load("Assets/beep.wav") != NULL;
+    CP_Sound probe = CP_Sound_Load("Assets/beep.wav");
+    tier2_scalars.assetSoundAvailable = probe != NULL;
+    CP_Sound_Free(&probe);
 
     char previousFolder[4096];
     if (tier2_getcwd(previousFolder, sizeof previousFolder) == NULL)
@@ -1088,6 +1175,7 @@ static void Scn_AssetsNextToProgram(void)
 typedef void (*ScenarioFunc)(void);
 
 static const ScenarioFunc kScenarios[SCN_COUNT] = {
+    [SCN_SETTINGS_BEFORE_RUN] = Scn_SettingsBeforeRun,
     [SCN_CLEAR_BACKGROUND] = Scn_ClearBackground,
     [SCN_DRAW_POINT] = Scn_DrawPoint,
     [SCN_DRAW_LINE] = Scn_DrawLine,
@@ -1123,6 +1211,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_IMAGE_SUBIMAGE] = Scn_ImageSubImage,
     [SCN_IMAGE_16_BIT] = Scn_Image16Bit,
     [SCN_IMAGE_MANY] = Scn_ImageMany,
+    [SCN_SHARED_ASSETS] = Scn_SharedAssets,
     [SCN_FONT_DRAWTEXT] = Scn_FontDrawText,
     [SCN_FONT_LOAD_FREE] = Scn_FontLoadFree,
     [SCN_FONT_FREE_KEEPS_OTHERS] = Scn_FontFreeKeepsOthers,
@@ -1133,6 +1222,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_FONT_LARGE] = Scn_FontLarge,
     [SCN_FONT_MIRRORED] = Scn_FontMirrored,
     [SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
+    [SCN_SYSTEM_FRAME_RATE_NO_LIMIT] = Scn_SystemFrameRateNoLimit,
     [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
     [SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,
     [SCN_PERSIST_FIRST_FRAME] = Scn_PersistFirstFrame,
@@ -1155,6 +1245,8 @@ static void HarnessInit(void)
     frameCount = 0;
     firstScenarioFrame = -1;
 }
+
+static void LeaveAssetsLoadedForTheExitReport(void);
 
 static void HarnessUpdate(void)
 {
@@ -1180,7 +1272,10 @@ static void HarnessUpdate(void)
 
     if (scenarioIndex < SCN_COUNT)
     {
-        ResetToBaseline();
+        if (scenarioIndex != SCN_SETTINGS_BEFORE_RUN)
+        {
+            ResetToBaseline();
+        }
         kScenarios[scenarioIndex]();
         CaptureCurrentFrame((Tier2Scenario)scenarioIndex);
         ++tier2_scalars.scenariosCaptured;
@@ -1188,8 +1283,52 @@ static void HarnessUpdate(void)
 
     if (scenarioIndex >= SCN_COUNT - 1)
     {
+        LeaveAssetsLoadedForTheExitReport();
         CP_Engine_Terminate();
     }
+}
+
+// When it shuts down, CProcessing reports the assets that were never freed,
+// on stderr. On the last frame, leave two loads of an image and an image made
+// from data unfreed, and send stderr to a file until CP_Engine_Run returns
+// (test_tier2_assets_still_loaded_are_reported_at_exit reads it).
+static FILE* exitReportFile = NULL;
+static int savedStderr = -1;
+
+static void LeaveAssetsLoadedForTheExitReport(void)
+{
+    CP_Image_Load("Assets/quadrants16.png");
+    CP_Image_Load("Assets/quadrants16.png");
+    CP_Color pixels[4] = { RED, RED, RED, RED };
+    CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+
+    fflush(stderr);
+    exitReportFile = fopen("tier2_exit_report.txt", "w+");
+    if (exitReportFile)
+    {
+        savedStderr = tier2_dup(tier2_fileno(stderr));
+        tier2_dup2(tier2_fileno(exitReportFile), tier2_fileno(stderr));
+    }
+}
+
+static void ReadExitReport(void)
+{
+    if (!exitReportFile)
+    {
+        return;
+    }
+    fflush(stderr);
+    tier2_dup2(savedStderr, tier2_fileno(stderr));
+    tier2_close(savedStderr);
+
+    rewind(exitReportFile);
+    size_t length = fread(tier2_scalars.exitReport, 1, sizeof(tier2_scalars.exitReport) - 1, exitReportFile);
+    tier2_scalars.exitReport[length] = '\0';
+    fclose(exitReportFile);
+    remove("tier2_exit_report.txt");
+
+    // Still show it in the log
+    fputs(tier2_scalars.exitReport, stderr);
 }
 
 void tier2_RunCaptureOnce(void)
@@ -1209,6 +1348,24 @@ void tier2_RunCaptureOnce(void)
     tier2_scalars.consoleVisibleBeforeRun = CP_System_GetConsoleVisible();
     tier2_scalars.printfAfterShowConsole = printf("Tier 2: capturing scenarios\n");
 
+    // Drawing settings made before the window exists are kept and applied
+    // when it opens (Scn_SettingsBeforeRun checks them). Transforms,
+    // Save/Restore and drawing do nothing yet, and none of it may crash.
+    CP_Settings_Fill(CP_Color_Create(12, 200, 34, 255));
+    CP_Settings_RectMode(CP_POSITION_CORNER);
+    CP_Settings_Translate(30.0f, 30.0f);
+    CP_Settings_Rotate(45.0f);
+    CP_Settings_Save();
+    CP_Settings_Restore();
+    CP_Graphics_ClearBackground(RED);
+    CP_Graphics_DrawRect(10.0f, 10.0f, 20.0f, 20.0f);
+    CP_Graphics_DrawCircle(10.0f, 10.0f, 20.0f);
+    CP_Graphics_BeginShape();
+    CP_Graphics_AddVertex(0.0f, 0.0f);
+    CP_Graphics_AddVertex(10.0f, 0.0f);
+    CP_Graphics_EndShape();
+
     CP_Engine_SetNextGameState(HarnessInit, HarnessUpdate, NULL);
     CP_Engine_Run();
+    ReadExitReport();
 }

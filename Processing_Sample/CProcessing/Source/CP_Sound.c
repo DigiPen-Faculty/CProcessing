@@ -3,19 +3,22 @@
 // author:	Daniel Hamilton, Andrea Ellinger, Justin Chambers
 // brief:	Load, play and manipulate sound files 
 //
-// Copyright © 2025 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Include Files:
 //------------------------------------------------------------------------------
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "cprocessing.h"
 #include "Internal_Sound.h"
 #include "Internal_File.h"
+#include "Internal_System.h"
 #include "vect.h"
 
 //------------------------------------------------------------------------------
@@ -59,7 +62,7 @@ static CP_BOOL CP_IsValidSoundGroup(CP_SOUND_GROUP group)
 	return group >= 0 && group < CP_SOUND_GROUP_MAX;
 }
 
-static CP_Sound CP_CheckIfSoundIsLoaded(const char* filepath)
+static CP_Sound CP_CheckIfSoundIsLoaded(const char* filepath, SL_AUDIOSOURCE_TYPE type)
 {
 	if (!sound_vector)
 	{
@@ -69,7 +72,8 @@ static CP_Sound CP_CheckIfSoundIsLoaded(const char* filepath)
 	for (unsigned i = 0; i < sound_vector->size; ++i)
 	{
 		CP_Sound snd = vect_at_CP_Sound(sound_vector, i);
-		if (snd && !strcmp(filepath, snd->filepath))
+		// a sound loaded whole and the same file streamed are different sounds
+		if (snd && snd->type == type && !strcmp(filepath, snd->filepath))
 		{
 			return snd;
 		}
@@ -121,6 +125,20 @@ void CP_Sound_Update(void)
 
 }
 
+void CP_Sound_ReportLoaded(CP_Report* report)
+{
+	if (!sound_vector) return;
+
+	for (unsigned i = 0; i < sound_vector->size; ++i)
+	{
+		CP_Sound sound = vect_at_CP_Sound(sound_vector, i);
+		if (sound)
+		{
+			CP_Report_AddAsset(report, sound->type == SL_AUDIOSOURCE_STREAM ? "music" : "sound", sound->filepath, sound->ref_count);
+		}
+	}
+}
+
 void CP_Sound_Shutdown(void)
 {
 	if (_soloud_system != NULL)
@@ -162,10 +180,15 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 
 	CP_Sound sound = NULL;
 
-	// Check if the sound is already loaded
-	sound = CP_CheckIfSoundIsLoaded(filepath);
+	// Check if the sound is already loaded: share it, and count the load so
+	// one CP_Sound_Free doesn't free it for every other load of the file
+	sound = CP_CheckIfSoundIsLoaded(filepath, streamFromDisc ? SL_AUDIOSOURCE_STREAM : SL_AUDIOSOURCE_WAV);
 	if (sound)
 	{
+		if (sound->ref_count < INT_MAX)
+		{
+			++sound->ref_count;
+		}
 		return sound;
 	}
 
@@ -206,6 +229,7 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 
 	// Set filepath string for cache checking
 	CP_StringCopy(sound->filepath, CP_PATH_MAX, filepath);
+	sound->ref_count = 1;
 
 	// Add it to the list
 	vect_push_CP_Sound(sound_vector, sound);
@@ -240,6 +264,13 @@ CP_API void CP_Sound_Free(CP_Sound* sound)
 		// Check if this pointer is the same as the one we're looking for
 		if (vect_at_CP_Sound(sound_vector, i) == *sound)
 		{
+			// another load of the same file still uses it
+			if (--(*sound)->ref_count > 0)
+			{
+				*sound = NULL;
+				return;
+			}
+
 			// Remove the sound from the list
 			vect_rem_CP_Sound(sound_vector, i);
 			// Release the sound from SoLoud

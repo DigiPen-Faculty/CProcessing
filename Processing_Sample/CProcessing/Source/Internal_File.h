@@ -3,9 +3,10 @@
 // author:	Daniel Hamilton
 // brief:	Helpful file IO functions
 //
-// INTERNAL USE ONLY, DO NOT DISTRIBUTE
+// Internal header: not part of the public API.
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 #pragma once
@@ -66,12 +67,6 @@ extern "C" {
 // Public Functions:
 //------------------------------------------------------------------------------
 
-// Check if a file exist
-int file_exists(const char * filepath);
-// Check if a folder exists
-int file_dirExists(const char * dirpath);
-// Make a directory
-int file_makedir(const char * dirpath);
 // The path to open an image, font or sound file with: the path as given if
 // the file is there (an absolute path, or relative to the current folder);
 // else, for a relative path, the same path next to the program, written into
