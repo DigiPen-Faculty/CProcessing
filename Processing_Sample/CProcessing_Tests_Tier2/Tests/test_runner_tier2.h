@@ -34,6 +34,7 @@ void test_tier2_settings_save_restore_round_trips_fill_and_transform(void);
 void test_tier2_settings_blend_modes_with_equations(void);
 void test_tier2_settings_tint_multiplies_shapes_and_images(void);
 void test_tier2_settings_carry_over_to_the_next_frame(void);
+void test_tier2_settings_made_before_run_are_kept(void);
 
 // test_tier2_image.c -- Tier 2: CP_Image.
 void test_tier2_image_load_reports_correct_dimensions(void);

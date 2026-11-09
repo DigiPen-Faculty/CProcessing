@@ -79,10 +79,19 @@ static void ResetToBaseline(void)
     CP_Settings_BlendMode(CP_BLEND_ALPHA);
 }
 
+// Draws with the settings made before CP_Engine_Run (tier2_RunCaptureOnce):
+// a fill of (12, 200, 34) and CORNER rects, kept from before the window
+// existed, and the default stroke, black and 3 wide.
+static void Scn_SettingsBeforeRun(void)
+{
+    CP_Graphics_ClearBackground(BLUE);
+    CP_Graphics_DrawRect(50, 50, 100, 100); // CORNER: spans [50,150] x [50,150]
+}
+
 static void Scn_ClearBackground(void)
 {
     CP_Graphics_ClearBackground(CP_Color_Create(10, 20, 30, 255));
-    // Captured here (the first scenario) and again in Scn_SystemEngineState
+    // Captured here (one of the first scenarios) and again in Scn_SystemEngineState
     // (one of the last) so the test suite can confirm frame count actually
     // advances across the scripted run.
     tier2_scalars.frameCountEarly = CP_System_GetFrameCount();
@@ -1088,6 +1097,7 @@ static void Scn_AssetsNextToProgram(void)
 typedef void (*ScenarioFunc)(void);
 
 static const ScenarioFunc kScenarios[SCN_COUNT] = {
+    [SCN_SETTINGS_BEFORE_RUN] = Scn_SettingsBeforeRun,
     [SCN_CLEAR_BACKGROUND] = Scn_ClearBackground,
     [SCN_DRAW_POINT] = Scn_DrawPoint,
     [SCN_DRAW_LINE] = Scn_DrawLine,
@@ -1180,7 +1190,10 @@ static void HarnessUpdate(void)
 
     if (scenarioIndex < SCN_COUNT)
     {
-        ResetToBaseline();
+        if (scenarioIndex != SCN_SETTINGS_BEFORE_RUN)
+        {
+            ResetToBaseline();
+        }
         kScenarios[scenarioIndex]();
         CaptureCurrentFrame((Tier2Scenario)scenarioIndex);
         ++tier2_scalars.scenariosCaptured;
@@ -1208,6 +1221,23 @@ void tier2_RunCaptureOnce(void)
     CP_System_ShowConsole(TRUE);
     tier2_scalars.consoleVisibleBeforeRun = CP_System_GetConsoleVisible();
     tier2_scalars.printfAfterShowConsole = printf("Tier 2: capturing scenarios\n");
+
+    // Drawing settings made before the window exists are kept and applied
+    // when it opens (Scn_SettingsBeforeRun checks them). Transforms,
+    // Save/Restore and drawing do nothing yet, and none of it may crash.
+    CP_Settings_Fill(CP_Color_Create(12, 200, 34, 255));
+    CP_Settings_RectMode(CP_POSITION_CORNER);
+    CP_Settings_Translate(30.0f, 30.0f);
+    CP_Settings_Rotate(45.0f);
+    CP_Settings_Save();
+    CP_Settings_Restore();
+    CP_Graphics_ClearBackground(RED);
+    CP_Graphics_DrawRect(10.0f, 10.0f, 20.0f, 20.0f);
+    CP_Graphics_DrawCircle(10.0f, 10.0f, 20.0f);
+    CP_Graphics_BeginShape();
+    CP_Graphics_AddVertex(0.0f, 0.0f);
+    CP_Graphics_AddVertex(10.0f, 0.0f);
+    CP_Graphics_EndShape();
 
     CP_Engine_SetNextGameState(HarnessInit, HarnessUpdate, NULL);
     CP_Engine_Run();

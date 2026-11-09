@@ -22,6 +22,10 @@
 
 typedef enum
 {
+    // Must stay first: it draws with the settings made before CP_Engine_Run,
+    // so it runs before anything else changes them (and without the
+    // baseline reset every other scenario gets)
+    SCN_SETTINGS_BEFORE_RUN,
     SCN_CLEAR_BACKGROUND,
     SCN_DRAW_POINT,
     SCN_DRAW_LINE,

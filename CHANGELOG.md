@@ -19,6 +19,17 @@ changes to build with the new version.
 
 ### Fixed
 
+- **Calling a `CP_Settings_` or `CP_Graphics_` function before
+  `CP_Engine_Run` could crash or corrupt memory**, for example
+  `CP_Settings_Fill` in `main` before starting the engine. Settings made
+  then are now kept and take effect when the window opens, like
+  `CP_System_SetWindowSize` and `CP_System_ShowCursor` already did.
+  Transforms (`CP_Settings_Translate`, `Rotate`, `Scale`, `ApplyMatrix`,
+  `ResetMatrix`), `CP_Settings_Save`/`Restore` and drawing do nothing
+  before `CP_Engine_Run`, since there's nothing to draw on yet and
+  transforms reset every frame. `CP_Settings_ImageFilterMode` and
+  `CP_Settings_ImageWrapMode` now ignore values that aren't one of their
+  modes, as the other settings do.
 - **Text with characters outside plain English, such as ©, é or ü, came out
   wrong on Windows** when typed straight into a string in your code, for
   example `CP_Font_DrawText("Café", ...)`. Visual Studio read source files

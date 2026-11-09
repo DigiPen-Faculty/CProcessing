@@ -361,6 +361,13 @@ CP_CorePtr GetCPCore(void)
 
 CP_DrawInfoPtr GetDrawInfo(void)
 {
+	// The first draw state gets its defaults the first time it's needed,
+	// which can be a CP_Settings_ call before CP_Engine_Run
+	if (_CORE.nstates == 0)
+	{
+		_CORE.nstates = 1;
+		CP_Settings_InitDefaults(&_CORE.states[0]);
+	}
 	return &_CORE.states[_CORE.nstates - 1];
 }
 
@@ -821,19 +828,6 @@ void CP_Initialize(void)
 	_CORE.nvg = NULL;
 	_CORE.window = NULL;
 
-	// Initialize first CP_DrawInfo
-	_CORE.nstates = 1;
-	GetDrawInfo()->rect_mode = CP_POSITION_CENTER;
-	GetDrawInfo()->ellipse_mode = CP_POSITION_CENTER;
-	GetDrawInfo()->image_mode = CP_POSITION_CENTER;
-	GetDrawInfo()->fill = TRUE;
-	GetDrawInfo()->stroke = TRUE;
-	// NanoVG's own defaults (nvgReset)
-	GetDrawInfo()->fill_color = CP_Color_Create(255, 255, 255, 255);
-	GetDrawInfo()->stroke_color = CP_Color_Create(0, 0, 0, 255);
-	GetDrawInfo()->stroke_weight = 1.0f;
-	GetDrawInfo()->line_cap = CP_LINE_CAP_BUTT;
-
 	// Set the error callback first so initialization problems are reported too
 	glfwSetErrorCallback(error_callback_glfw);
 
@@ -907,13 +901,9 @@ void CP_Initialize(void)
 		return;
 	}
 
-	// Init default draw settings state items here:
-	CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255));
-	CP_Settings_Stroke(CP_Color_Create(0, 0, 0, 255));
-	CP_Settings_StrokeWeight(3.0f);
-	CP_Settings_LineCapMode(CP_LINE_CAP_BUTT);
-	CP_Settings_LineJointMode(CP_LINE_JOINT_BEVEL);
-	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_LINEAR);
+	// Give NanoVG the draw settings: the defaults (CP_Settings_InitDefaults),
+	// with any CP_Settings_ calls made before CP_Engine_Run
+	CP_Settings_ApplyAll();
 
 	glfwSwapInterval(0);
 	glfwSetTime(0);

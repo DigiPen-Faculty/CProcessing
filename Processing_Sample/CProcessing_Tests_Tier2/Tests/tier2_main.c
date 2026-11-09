@@ -88,6 +88,7 @@ int main(void)
     RUN_TEST(test_tier2_settings_blend_modes_with_equations);
     RUN_TEST(test_tier2_settings_tint_multiplies_shapes_and_images);
     RUN_TEST(test_tier2_settings_carry_over_to_the_next_frame);
+    RUN_TEST(test_tier2_settings_made_before_run_are_kept);
 
     // test_tier2_image.c
     RUN_TEST(test_tier2_image_load_reports_correct_dimensions);

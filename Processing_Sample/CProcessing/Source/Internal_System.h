@@ -52,13 +52,29 @@ typedef struct CP_DrawInfo
     int stroke;
     int fill;
     CP_Matrix camera;
-    // Copies of settings NanoVG keeps privately, for CP_Graphics_DrawPoint
+    // Copies of the settings NanoVG keeps privately. They let CP_Settings_
+    // functions work before CP_Engine_Run, when there's no NanoVG context
+    // yet (CP_Settings_ApplyAll gives them to NanoVG when the window opens),
+    // and CP_Graphics_DrawPoint uses the colors, weight and cap.
     CP_Color fill_color;
     CP_Color stroke_color;
     float stroke_weight;
     CP_LINE_CAP_MODE line_cap;
+    CP_LINE_JOINT_MODE line_joint;
+    CP_Color tint;
+    CP_BOOL anti_alias;
+    CP_BLEND_MODE blend_mode;
+    CP_IMAGE_FILTER_MODE filter_mode;
+    CP_IMAGE_WRAP_MODE wrap_mode;
+    float text_size;
+    int text_align;
 } CP_DrawInfo;
 typedef CP_DrawInfo* CP_DrawInfoPtr;
+
+// The settings a program starts with (CP_Setting.c)
+void CP_Settings_InitDefaults(CP_DrawInfoPtr DI);
+// Gives NanoVG the current settings, once its context exists (CP_Setting.c)
+void CP_Settings_ApplyAll(void);
 //////////////////
 
 //////////////////
