@@ -77,6 +77,7 @@ typedef enum
     SCN_SCREENSHOT_SUBREGION,
     SCN_ERROR_PATHS,
     SCN_SYSTEM_WINDOW_SETTINGS,
+    SCN_ASSETS_NEXT_TO_PROGRAM,
     SCN_COUNT
 } Tier2Scenario;
 
@@ -170,6 +171,13 @@ typedef struct
     CP_BOOL cursorVisibleAtStart;
     CP_BOOL cursorVisibleAfterShow;
     CP_BOOL cursorVisibleAfterHide;
+    CP_CURSOR_MODE cursorModeBeforeRun;
+    CP_CURSOR_MODE cursorModeAfterDisable;
+    CP_BOOL cursorVisibleWhileDisabled;
+    CP_CURSOR_MODE cursorModeAfterCapture;
+    CP_BOOL cursorVisibleWhileCaptured;
+    CP_CURSOR_MODE cursorModeAfterInvalid;
+    CP_CURSOR_MODE cursorModeAfterShow;
     CP_BOOL windowFocusBeforeRun;
     int displayRefreshRateBeforeRun;
     CP_BOOL consoleVisibleBeforeRun;
@@ -177,6 +185,13 @@ typedef struct
     CP_BOOL consoleVisibleAfterReshow;
     int printfAfterShowConsole;     // printf's return value: negative on failure
     int printfAfterHideConsole;
+
+    // Loading assets from another folder (see Scn_AssetsNextToProgram)
+    CP_BOOL assetFolderEntered;
+    CP_BOOL assetImageLoaded;
+    CP_BOOL assetFontLoaded;
+    CP_BOOL assetSoundAvailable;    // sound loads at all (not with no audio device)
+    CP_BOOL assetSoundLoaded;
 
     // How many scenarios were captured: SCN_COUNT unless the engine couldn't
     // start (no window or OpenGL context) or stopped early

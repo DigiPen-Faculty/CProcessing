@@ -15,6 +15,7 @@
 #include <string.h>
 #include "cprocessing.h"
 #include "Internal_Sound.h"
+#include "Internal_File.h"
 #include "vect.h"
 
 //------------------------------------------------------------------------------
@@ -176,12 +177,14 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 		return NULL;
 	}
 
-	// Create the SoLoud sound
+	// Create the SoLoud sound, from the current folder or else next to the program
+	char resolved[CP_PATH_MAX];
+	const char* path = file_resolveAssetPath(filepath, resolved, sizeof(resolved));
 	if (streamFromDisc)
 	{
 		// TODO: move error checking up here so we can release SL memory
 		WavStream* wavstream = WavStream_create();
-		result = WavStream_load(wavstream, filepath);
+		result = WavStream_load(wavstream, path);
 		sound->sound = (AudioSource*)wavstream;
 		sound->type = SL_AUDIOSOURCE_STREAM;
 	}
@@ -189,7 +192,7 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 	{
 		// TODO: move error checking up here so we can release SL memory
 		Wav* wav = Wav_create();
-		result = Wav_load(wav, filepath);
+		result = Wav_load(wav, path);
 		sound->sound = (AudioSource*)wav;
 		sound->type = SL_AUDIOSOURCE_WAV;
 	}
@@ -290,14 +293,17 @@ CP_API void CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_
 	unsigned int voice = Soloud_playEx(_soloud_system, sound->sound, volume * voice_groups[group].volume, 0, TRUE, 0);
 	Soloud_addVoiceToGroup(_soloud_system, voice_groups[group].handle, voice);
 
-	// Set the pitch if it is not 1.0
-	// (0.5 is half pitch, 2.0 is double pitch)
-	if (pitch != 1.0f)
+	// The voice plays at its own pitch times its group's pitch
+	// (0.5 is half pitch, 2.0 is double pitch). Joining a group doesn't give
+	// a voice the group's pitch (a SoLoud voice group is only a list of
+	// voices), so it's set here even when the sound's own pitch is 1.0.
+	// New voices start at 1.0, so only a different speed needs setting.
+	if (pitch < 0.0f)
+		pitch = 0.0f;
+	const float speed = pitch * voice_groups[group].pitch;
+	if (speed != 1.0f)
 	{
-		if (pitch < 0.0f)
-			pitch = 0.0f;
-
-		result = Soloud_setRelativePlaySpeed(_soloud_system, voice, pitch * voice_groups[group].pitch);
+		result = Soloud_setRelativePlaySpeed(_soloud_system, voice, speed);
 	}
 
 	// Resume playing the sound

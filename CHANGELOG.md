@@ -4,6 +4,57 @@ Notable changes in each CProcessing release. Version numbers are
 major.minor.patch. The major number goes up when existing projects may need
 changes to build with the new version.
 
+## 3.1.0 (2026-11-07)
+
+macOS is no longer a preview. Drawing, sound, gamepads, screenshots, the
+demos and both test tiers have been tested on an Apple silicon Mac
+(macOS 26). Intel Macs haven't been tested yet. The downloaded macOS
+library still isn't signed by Apple; the starter project's README says how
+to open it.
+
+### Added
+
+- **`CP_System_SetCursorMode` and `CP_System_GetCursorMode`**, contributed
+  by [@rezarg](https://github.com/rezarg). Besides normal and hidden, the
+  cursor can be captured (visible and kept in the window) or disabled
+  (hidden, with unlimited movement for mouse look: use
+  `CP_Input_GetMouseDeltaX` and `CP_Input_GetMouseDeltaY`, since the mouse
+  position keeps going past the window's edges). Like
+  `CP_System_ShowCursor`, it can be called before `CP_Engine_Run`.
+  `CP_System_ShowCursor` now sets the normal or hidden mode. On macOS a
+  captured cursor isn't kept in the window yet, because GLFW doesn't
+  support it there.
+
+### Fixed
+
+- **`CP_Sound_SetGroupPitch` was ignored by sounds played at their own
+  pitch of 1.0**, which includes every `CP_Sound_Play`: they played at
+  normal pitch whatever the group's pitch was. A sound now always plays at
+  its own pitch times its group's pitch, as it already did for any other
+  pitch.
+- **A game started by double-clicking it on macOS couldn't find its
+  Assets.** Finder starts a program in the home folder, not in the
+  program's own folder, and some Linux file managers do the same. Images,
+  fonts and sounds given a relative path, such as `"Assets/jump.wav"`, are
+  now also looked for next to the program when they aren't found from the
+  current folder. Running from a terminal or from Visual Studio works as
+  before.
+- **With more than one monitor, fullscreen always used the primary
+  monitor**, whichever monitor the window was on, and leaving fullscreen
+  moved the window there. Fullscreen now uses the monitor the window is
+  on, a window is centered on that monitor, and
+  `CP_System_GetDisplayWidth`, `CP_System_GetDisplayHeight` and
+  `CP_System_GetDisplayRefreshRate` describe it. With one monitor nothing
+  changes.
+- **Leaving fullscreen could put the window off center or partly off the
+  screen** when fullscreen used a size other than the monitor's own, as
+  `CP_System_FullscreenAdvanced(1280, 720)` does. The window was centered
+  on the fullscreen size before the monitor went back to its normal
+  resolution. It's now centered on the monitor's normal resolution, and a
+  centered window's title bar now counts too: the whole window is centered
+  in the part of the screen the macOS menu bar and Dock, or the Windows
+  taskbar, don't cover, so its title bar is never under the menu bar.
+
 ## 3.0.1 (2026-10-06)
 
 Fixes from the first tests on a real Mac. On macOS, use 3.0.1 or later:

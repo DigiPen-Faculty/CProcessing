@@ -192,8 +192,9 @@ CP_API CP_Image CP_Image_Load(const char* filepath)
 
 	CP_StringCopy(img->filepath, CP_PATH_MAX, filepath);
 
-	// load the image
-	img->handle = nvgCreateImage(CORE->nvg, filepath, 0);
+	// load the image (from the current folder, or else next to the program)
+	char resolved[CP_PATH_MAX];
+	img->handle = nvgCreateImage(CORE->nvg, file_resolveAssetPath(filepath, resolved, sizeof(resolved)), 0);
 
 	if (img->handle == 0)
 	{

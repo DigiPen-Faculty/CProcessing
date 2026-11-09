@@ -238,6 +238,11 @@ if(CPROCESSING_BUILD_TESTS)
         set_target_properties(CProcessing_Tests_Tier2 PROPERTIES C_STANDARD 11 C_EXTENSIONS ON)
     endif()
     cprocessing_copy_assets(CProcessing_Tests_Tier2 "${TIER2_DIR}/Assets")
+    if(TARGET Processing_Demos)
+        # Both copy an Assets folder into the same bin/Assets after linking;
+        # in a parallel build the two copies can collide and fail the build
+        add_dependencies(CProcessing_Tests_Tier2 Processing_Demos)
+    endif()
     add_test(NAME tier2 COMMAND CProcessing_Tests_Tier2
         WORKING_DIRECTORY "$<TARGET_FILE_DIR:CProcessing_Tests_Tier2>")
     set_tests_properties(tier2 PROPERTIES LABELS "tier2;gui" TIMEOUT 120)

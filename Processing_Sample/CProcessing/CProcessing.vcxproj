@@ -215,6 +215,7 @@
     <ClInclude Include="Source\Internal_Input.h" />
     <ClInclude Include="Source\Internal_InputLogic.h" />
     <ClInclude Include="Source\Internal_Math.h" />
+    <ClInclude Include="Source\Internal_Monitor.h" />
     <ClInclude Include="Source\Internal_Noise.h" />
     <ClInclude Include="Source\Internal_Platform.h" />
     <ClInclude Include="Source\Internal_Random.h" />

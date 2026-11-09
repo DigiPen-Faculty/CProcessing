@@ -93,7 +93,9 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 	}
 	else
 	{
-		new_font->handle = nvgCreateFont(CORE->nvg, filepath, filepath);
+		// from the current folder, or else next to the program
+		char resolved[CP_PATH_MAX];
+		new_font->handle = nvgCreateFont(CORE->nvg, filepath, file_resolveAssetPath(filepath, resolved, sizeof(resolved)));
 	}
 
 	if (new_font->handle == FONT_LOAD_ERROR)

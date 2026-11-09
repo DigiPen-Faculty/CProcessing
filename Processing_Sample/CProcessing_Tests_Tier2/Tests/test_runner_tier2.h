@@ -67,6 +67,7 @@ void test_tier2_engine_pre_and_post_update_hooks_fire(void);
 void test_tier2_system_window_queries_before_run_report_no_window(void);
 void test_tier2_system_cursor_hidden_before_run_stays_hidden(void);
 void test_tier2_system_cursor_getter_follows_showcursor(void);
+void test_tier2_system_cursor_mode_getters_follow_setcursormode(void);
 void test_tier2_system_console_hide_then_show_round_trips(void);
 void test_tier2_system_console_printf_keeps_working(void);
 
@@ -88,3 +89,4 @@ void test_tier2_screenshot_subregion_is_not_flipped(void);
 void test_tier2_missing_files_load_as_null(void);
 void test_tier2_null_handles_are_ignored(void);
 void test_tier2_window_handle_is_available(void);
+void test_tier2_assets_load_from_next_to_the_program(void);

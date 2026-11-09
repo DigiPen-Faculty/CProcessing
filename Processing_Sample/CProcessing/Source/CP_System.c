@@ -8,6 +8,7 @@
 
 #include "cprocessing.h"
 #include "Internal_System.h"
+#include "Internal_Monitor.h"
 #include "tinycthread.h"
 #include <stdio.h>
 #if !defined(_WIN32)
@@ -43,7 +44,7 @@ CP_BOOL _deferredFullscreen = FALSE;
 
 // Window settings that may be requested before the window exists; they are
 // stored here and applied when CP_Initialize creates the window
-static CP_BOOL _cursorVisible = TRUE;
+static CP_CURSOR_MODE _cursorMode = CP_CURSOR_NORMAL;
 static char _windowTitle[256] = "CProcessing Application";
 
 typedef struct GameStateFuncs
@@ -86,6 +87,97 @@ static void CP_SetWindowPosIfSupported(GLFWwindow* window, int x, int y)
 		return;
 	}
 	glfwSetWindowPos(window, x, y);
+}
+
+// A monitor's rectangle in screen coordinates: its position and the size of
+// its current video mode
+static CP_ScreenRect CP_MonitorRect(GLFWmonitor* monitor)
+{
+	CP_ScreenRect rect = { 0, 0, 0, 0 };
+	const GLFWvidmode* mode = monitor ? glfwGetVideoMode(monitor) : NULL;
+	if (mode)
+	{
+		glfwGetMonitorPos(monitor, &rect.x, &rect.y);
+		rect.width = mode->width;
+		rect.height = mode->height;
+	}
+	return rect;
+}
+
+// The monitor the window is on: the one it's fullscreen on, or else the one
+// with the largest part of the window on it. Fullscreen, the display size and
+// centering all use it. The primary monitor before the window exists, on
+// Wayland (where a window can't find out its position), and when the window
+// isn't on any monitor.
+static GLFWmonitor* CP_WindowMonitor(void)
+{
+	GLFWmonitor* primary = glfwGetPrimaryMonitor();
+	if (!_CORE.window)
+	{
+		return primary;
+	}
+	GLFWmonitor* fullscreenMonitor = glfwGetWindowMonitor(_CORE.window);
+	if (fullscreenMonitor)
+	{
+		return fullscreenMonitor;
+	}
+	if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND)
+	{
+		return primary;
+	}
+
+	CP_ScreenRect window = { 0, 0, 0, 0 };
+	glfwGetWindowPos(_CORE.window, &window.x, &window.y);
+	glfwGetWindowSize(_CORE.window, &window.width, &window.height);
+
+	int count = 0;
+	GLFWmonitor** monitors = glfwGetMonitors(&count);
+	CP_ScreenRect rects[16];
+	count = count < 16 ? count : 16;
+	for (int i = 0; i < count; ++i)
+	{
+		rects[i] = CP_MonitorRect(monitors[i]);
+	}
+	const int most = CP_Monitor_MostOfWindow(window, rects, count);
+	return most >= 0 ? monitors[most] : primary;
+}
+
+// Store the size of a monitor's current video mode as the display size
+static void CP_UpdateDisplaySize(GLFWmonitor* monitor)
+{
+	const GLFWvidmode* mode = monitor ? glfwGetVideoMode(monitor) : NULL;
+	if (mode)
+	{
+		_CORE.native_width = mode->width;
+		_CORE.native_height = mode->height;
+	}
+}
+
+// The position that centers the window, title bar and borders included, in
+// the part of a monitor windows can use: on macOS below the menu bar and
+// above the Dock, on Windows above the taskbar
+static void CP_CenterWindowOn(GLFWmonitor* monitor, int width, int height, int* x, int* y)
+{
+	const CP_ScreenRect monitorRect = CP_MonitorRect(monitor);
+	CP_ScreenRect workarea = { 0, 0, 0, 0 };
+	if (monitor)
+	{
+		glfwGetMonitorWorkarea(monitor, &workarea.x, &workarea.y, &workarea.width, &workarea.height);
+	}
+	// Right after a video mode change, macOS can still report the work area
+	// for the old mode, so only the part on the monitor counts
+	CP_ScreenRect area = CP_Monitor_Overlap(workarea, monitorRect);
+	if (area.width <= 0 || area.height <= 0)
+	{
+		area = monitorRect;
+	}
+
+	CP_ScreenFrame frame = { 0, 0, 0, 0 };
+	if (_CORE.window)
+	{
+		glfwGetWindowFrameSize(_CORE.window, &frame.left, &frame.top, &frame.right, &frame.bottom);
+	}
+	CP_Monitor_Center(area, width, height, frame, x, y);
 }
 
 static void CP_UpdatePixelRatio(void)
@@ -420,13 +512,22 @@ CP_API int CP_System_GetWindowHeight(void)
 	return _CORE.window_height;
 }
 
+// The size of the monitor the window is on (see CP_WindowMonitor)
 CP_API int CP_System_GetDisplayWidth(void)
 {
+	if (_CORE.window)
+	{
+		CP_UpdateDisplaySize(CP_WindowMonitor());
+	}
 	return _CORE.native_width;
 }
 
 CP_API int CP_System_GetDisplayHeight(void)
 {
+	if (_CORE.window)
+	{
+		CP_UpdateDisplaySize(CP_WindowMonitor());
+	}
 	return _CORE.native_height;
 }
 
@@ -437,7 +538,7 @@ CP_API int CP_System_GetDisplayRefreshRate(void)
 	{
 		return 0;
 	}
-	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	GLFWmonitor* monitor = CP_WindowMonitor();
 	const GLFWvidmode* mode = monitor ? glfwGetVideoMode(monitor) : NULL;
 	return mode ? mode->refreshRate : 0;
 }
@@ -483,23 +584,61 @@ CP_API CP_BOOL CP_System_GetWindowFocus(void)
 	return _CORE.window && glfwGetWindowAttrib(_CORE.window, GLFW_FOCUSED) ? TRUE : FALSE;
 }
 
-static void CP_ApplyCursorVisible(void)
+static void CP_ApplyCursorMode(void)
 {
-	glfwSetInputMode(_CORE.window, GLFW_CURSOR, _cursorVisible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+	int mode = GLFW_CURSOR_NORMAL;
+	switch (_cursorMode)
+	{
+	case CP_CURSOR_HIDDEN:
+		mode = GLFW_CURSOR_HIDDEN;
+		break;
+	case CP_CURSOR_CAPTURED:
+		// GLFW can't keep the cursor in the window on macOS yet, and reports
+		// an error when asked to, so the cursor is just left free there
+		mode = glfwGetPlatform() == GLFW_PLATFORM_COCOA ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_CAPTURED;
+		break;
+	case CP_CURSOR_DISABLED:
+		mode = GLFW_CURSOR_DISABLED;
+		break;
+	default:
+		break;
+	}
+	glfwSetInputMode(_CORE.window, GLFW_CURSOR, mode);
+
+	// Mouse movement without the operating system's acceleration, for mouse
+	// look. GLFW only uses it while the cursor is disabled.
+	if (glfwRawMouseMotionSupported())
+	{
+		glfwSetInputMode(_CORE.window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+	}
 }
 
 CP_API void CP_System_ShowCursor(CP_BOOL show)
 {
-	_cursorVisible = show ? TRUE : FALSE;
-	if (_CORE.window)
-	{
-		CP_ApplyCursorVisible();
-	}
+	CP_System_SetCursorMode(show ? CP_CURSOR_NORMAL : CP_CURSOR_HIDDEN);
 }
 
 CP_API CP_BOOL CP_System_GetCursorVisible(void)
 {
-	return _cursorVisible;
+	return _cursorMode == CP_CURSOR_NORMAL || _cursorMode == CP_CURSOR_CAPTURED ? TRUE : FALSE;
+}
+
+CP_API void CP_System_SetCursorMode(CP_CURSOR_MODE mode)
+{
+	if ((unsigned)mode > (unsigned)CP_CURSOR_DISABLED)
+	{
+		return;
+	}
+	_cursorMode = mode;
+	if (_CORE.window)
+	{
+		CP_ApplyCursorMode();
+	}
+}
+
+CP_API CP_CURSOR_MODE CP_System_GetCursorMode(void)
+{
+	return _cursorMode;
 }
 
 
@@ -803,10 +942,8 @@ void CP_Initialize(void)
 	}
 	else
 	{
-		// set the window to the middle of the screen
-		structure = glfwGetVideoMode(glfwGetPrimaryMonitor());	// already requested above
-		windowPosX = (structure->width / 2) - (_CORE.window_width / 2);
-		windowPosY = (structure->height / 2) - (_CORE.window_height / 2);
+		// set the window to the middle of the primary monitor
+		CP_CenterWindowOn(glfwGetPrimaryMonitor(), _CORE.window_width, _CORE.window_height, &windowPosX, &windowPosY);
 	}
 	CP_SetWindowPosIfSupported(_CORE.window, windowPosX, windowPosY);
 
@@ -830,7 +967,7 @@ void CP_Initialize(void)
 	glfwSetScrollCallback(_CORE.window, CP_Input_MouseWheelCallback);
 
 	// Apply a cursor setting requested before the window existed
-	CP_ApplyCursorVisible();
+	CP_ApplyCursorMode();
 
 	// Track size changes the window system applies after the fact
 	glfwSetWindowSizeCallback(_CORE.window, CP_WindowSizeCallback);
@@ -1004,6 +1141,21 @@ void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFull
 		return;
 	}
 
+	// Fullscreen goes to the monitor the window is on now, and a window is
+	// centered on it. (Leaving fullscreen, that's the monitor it was
+	// fullscreen on.)
+	GLFWmonitor* monitor = CP_WindowMonitor();
+	if (!isFullscreen && glfwGetWindowMonitor(_CORE.window))
+	{
+		// Leave fullscreen before measuring the monitor. Fullscreen at a size
+		// other than the monitor's own switches the monitor to the closest
+		// video mode until the window leaves fullscreen, and a window centered
+		// on that mode's size ends up off center on the desktop.
+		const CP_ScreenRect fullscreenRect = CP_MonitorRect(monitor);
+		glfwSetWindowMonitor(_CORE.window, NULL, fullscreenRect.x, fullscreenRect.y, new_width, new_height, GLFW_DONT_CARE);
+	}
+	CP_UpdateDisplaySize(monitor);
+
 	if (isFullscreen && new_width == 0 && new_height == 0)
 	{
 		// force full screen values
@@ -1026,13 +1178,13 @@ void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFull
 		windowPosX = _CORE.window_posX;
 		windowPosY = _CORE.window_posY;
 	}
-	else
+	else if (!isFullscreen)
 	{
-		// set the window to the middle of the screen
-		windowPosX = (int)(_CORE.native_width / 2.0f) - (int)(new_width / 2.0f);
-		windowPosY = (int)(_CORE.native_height / 2.0f) - (int)(new_height / 2.0f);
+		// set the window to the middle of the monitor (fullscreen ignores the
+		// position)
+		CP_CenterWindowOn(monitor, new_width, new_height, &windowPosX, &windowPosY);
 	}
-	glfwSetWindowMonitor(_CORE.window, isFullscreen ? glfwGetPrimaryMonitor() : NULL, windowPosX, windowPosY, new_width, new_height, 60);
+	glfwSetWindowMonitor(_CORE.window, isFullscreen ? monitor : NULL, windowPosX, windowPosY, new_width, new_height, 60);
 	if (!isFullscreen)
 	{
 		// returning from fullscreen needs a size refresh to properly include window decoration dimensions
