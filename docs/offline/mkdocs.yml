@@ -35,6 +35,8 @@ markdown_extensions:
   - toc:
       permalink: true
 
+# Only used when the wiki has no _Sidebar.md: build.ps1 builds with a copy of
+# this file whose nav comes from the sidebar (prepare_wiki.py --config)
 nav:
   - Home: index.md
   - API Reference:
