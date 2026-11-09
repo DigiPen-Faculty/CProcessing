@@ -115,6 +115,7 @@ int main(void)
     // test_tier2_system_engine.c
     RUN_TEST(test_tier2_system_window_size_matches_what_was_set);
     RUN_TEST(test_tier2_system_frame_count_advances);
+    RUN_TEST(test_tier2_system_frame_rate_zero_means_no_limit);
     RUN_TEST(test_tier2_system_timing_getters_are_sane);
     RUN_TEST(test_tier2_system_window_focus_is_a_valid_bool);
     RUN_TEST(test_tier2_system_display_info_is_positive);

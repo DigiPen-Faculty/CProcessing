@@ -782,7 +782,9 @@ CP_API float CP_System_GetFrameRate(void)
 
 CP_API void CP_System_SetFrameRate(float fps)
 {
-	_frametimeTarget = 1.0 / fps; // seconds per frame
+	// 0 or less means no limit: run as fast as possible. (1 / 0 used to make
+	// the frame limiter wait forever.)
+	_frametimeTarget = fps > 0.0f ? 1.0 / fps : 0.0; // seconds per frame
 }
 
 CP_API float CP_System_GetDt(void)
@@ -862,7 +864,11 @@ void CP_Initialize(void)
 
 	// Create the window
 	glfwDefaultWindowHints();
+#ifndef NDEBUG
+	// A debug context reports OpenGL errors in detail but can be slower,
+	// so only Debug builds ask for one
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+#endif
 	glfwWindowHint(GLFW_DOUBLEBUFFER, 1);	// persistence comes from the canvas framebuffer
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 	glfwWindowHint(GLFW_VISIBLE, 0);
@@ -893,7 +899,13 @@ void CP_Initialize(void)
 		CP_InitializeFailed();
 		return;
 	}
+	// NVG_DEBUG checks for an OpenGL error after each NanoVG draw step, which
+	// can stall the GPU, so only Debug builds turn it on
+#ifndef NDEBUG
 	_CORE.nvg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
+#else
+	_CORE.nvg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+#endif
 	if (_CORE.nvg == NULL)
 	{
 		printf("Could not init nanovg (OpenGL 3.2 or newer is required).\n");
@@ -1175,7 +1187,9 @@ void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFull
 		// position)
 		CP_CenterWindowOn(monitor, new_width, new_height, &windowPosX, &windowPosY);
 	}
-	glfwSetWindowMonitor(_CORE.window, isFullscreen ? monitor : NULL, windowPosX, windowPosY, new_width, new_height, 60);
+	// GLFW_DONT_CARE: in fullscreen, GLFW picks the monitor's highest refresh
+	// rate for the size, rather than always 60 Hz
+	glfwSetWindowMonitor(_CORE.window, isFullscreen ? monitor : NULL, windowPosX, windowPosY, new_width, new_height, GLFW_DONT_CARE);
 	if (!isFullscreen)
 	{
 		// returning from fullscreen needs a size refresh to properly include window decoration dimensions

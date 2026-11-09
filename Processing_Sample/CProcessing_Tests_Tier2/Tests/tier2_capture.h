@@ -72,6 +72,8 @@ typedef enum
     SCN_FONT_LARGE,
     SCN_FONT_MIRRORED,
     SCN_SYSTEM_ENGINE_STATE,
+    // Not last: the frames after it show the frame limiter didn't hang
+    SCN_SYSTEM_FRAME_RATE_NO_LIMIT,
     SCN_SOUND_ROUNDTRIP,
     SCN_INPUT_QUIESCENT_DEFAULTS,
     // Cross-platform work: these two must stay consecutive -- the second
@@ -124,6 +126,7 @@ typedef struct
     float millisSample;
     float secondsSample;
     float frameRateSample;
+    bool frameRateNoLimitSet;      // SetFrameRate(0) and (-30) ran
     CP_BOOL windowFocusSample;
     int displayWidth;
     int displayHeight;

@@ -77,6 +77,7 @@ static void ResetToBaseline(void)
     CP_Settings_RectMode(CP_POSITION_CENTER);
     CP_Settings_EllipseMode(CP_POSITION_CENTER);
     CP_Settings_BlendMode(CP_BLEND_ALPHA);
+    CP_System_SetFrameRate(60.0f);
 }
 
 // Draws with the settings made before CP_Engine_Run (tier2_RunCaptureOnce):
@@ -857,6 +858,17 @@ static void Scn_SystemEngineState(void)
     CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture"); // just must not crash
 }
 
+// A frame rate of 0 or less means no limit. 1 / 0 used to make the frame
+// limiter wait forever, so the scenarios after this one would never be
+// captured. ResetToBaseline puts 60 back for the next one.
+static void Scn_SystemFrameRateNoLimit(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_System_SetFrameRate(0.0f);
+    CP_System_SetFrameRate(-30.0f);
+    tier2_scalars.frameRateNoLimitSet = true;
+}
+
 // ---- CP_Sound (Phase E) ----
 // Per 06-test-suite-plan.md: no reliable way to assert "it sounds
 // correct" automatically, so the realistic goal is load/free/play/pause/
@@ -1143,6 +1155,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_FONT_LARGE] = Scn_FontLarge,
     [SCN_FONT_MIRRORED] = Scn_FontMirrored,
     [SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
+    [SCN_SYSTEM_FRAME_RATE_NO_LIMIT] = Scn_SystemFrameRateNoLimit,
     [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
     [SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,
     [SCN_PERSIST_FIRST_FRAME] = Scn_PersistFirstFrame,

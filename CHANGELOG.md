@@ -30,6 +30,15 @@ changes to build with the new version.
   transforms reset every frame. `CP_Settings_ImageFilterMode` and
   `CP_Settings_ImageWrapMode` now ignore values that aren't one of their
   modes, as the other settings do.
+- **`CP_System_SetFrameRate(0)` froze the program.** A frame rate of 0
+  or less now means no limit: frames run as fast as the computer allows.
+- **Fullscreen always switched the monitor to 60 Hz**, even a 120 or
+  144 Hz monitor. It now uses the monitor's highest refresh rate for the
+  size. The frame rate is still set by `CP_System_SetFrameRate` (60 by
+  default).
+- Release builds of CProcessing no longer ask for an OpenGL debug context
+  or check for an OpenGL error after every drawing step, which could slow
+  drawing down on some graphics drivers. Debug builds still do both.
 - **Text with characters outside plain English, such as ©, é or ü, came out
   wrong on Windows** when typed straight into a string in your code, for
   example `CP_Font_DrawText("Café", ...)`. Visual Studio read source files
