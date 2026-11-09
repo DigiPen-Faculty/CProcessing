@@ -3,7 +3,8 @@
 // author:	Daniel Hamilton, Andrea Ellinger, Justin Chambers
 // brief:	Load, play and manipulate sound files 
 //
-// Copyright © 2025 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------

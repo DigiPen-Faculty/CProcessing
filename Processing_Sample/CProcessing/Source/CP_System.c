@@ -3,7 +3,8 @@
 // author:	Justin Chambers
 // brief:	Primary implementation of the CProcessing interface
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //---------------------------------------------------------
 
 #include "cprocessing.h"

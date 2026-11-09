@@ -3,7 +3,8 @@
 // author:	Justin Chambers
 // brief:	Header used to manage the DLL export/import declarations
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //---------------------------------------------------------
 
 #include "cprocessing.h"

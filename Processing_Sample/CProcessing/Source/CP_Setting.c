@@ -3,7 +3,8 @@
 // author:	Daniel Hamilton
 // brief:	Basic settings for frame time and various rendering states 
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------

@@ -3,7 +3,8 @@
 // author:	Daniel Hamilton, Justin Chambers
 // brief:	Text functions for loading fonts and drawing text
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------

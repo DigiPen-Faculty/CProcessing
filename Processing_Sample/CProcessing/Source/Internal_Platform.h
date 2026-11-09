@@ -7,9 +7,10 @@
 //			provided here instead, so the internals compile the same way on
 //			Windows, Linux and macOS. The public headers include no OS headers.
 //
-// INTERNAL USE ONLY, DO NOT DISTRIBUTE
+// Internal header: not part of the public API.
 //
-// Copyright (c) 2026 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 #pragma once

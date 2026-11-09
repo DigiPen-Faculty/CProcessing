@@ -4,6 +4,19 @@ Notable changes in each CProcessing release. Version numbers are
 major.minor.patch. The major number goes up when existing projects may need
 changes to build with the new version.
 
+## 3.1.1 (unreleased)
+
+### Changed
+
+- **Every CProcessing source file now says it's MIT licensed**, matching
+  `LICENSE`: `SPDX-License-Identifier: MIT` and `Copyright (c) 2019-2026
+  DigiPen Institute of Technology`. Before, the files said "All rights
+  reserved" and the internal headers said "do not distribute", which
+  contradicted the license the project has always been published under.
+- **The template's `main.c` belongs to the student:** its header has
+  places for your name and what the program does, and no longer claims
+  DigiPen's copyright. A course that requires its own header can add it.
+
 ## 3.1.0 (2026-11-07)
 
 macOS is no longer a preview. Drawing, sound, gamepads, screenshots, the

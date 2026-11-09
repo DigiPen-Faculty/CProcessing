@@ -3,7 +3,8 @@
 // author:	Justin Chambers
 // brief:	Noise implementation based on Ken Perlin's work with some improvements
 //
-// Copyright © 2019 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //---------------------------------------------------------
 
 #include <stdlib.h>

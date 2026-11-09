@@ -1,7 +1,8 @@
 //---------------------------------------------------------
 // CProcessing
 //
-// Copyright(c) 2021 DigiPen Institute of Technology
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 // 
 // https://github.com/DigiPen-Faculty/CProcessing
 //---------------------------------------------------------

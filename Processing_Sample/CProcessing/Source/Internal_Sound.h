@@ -3,9 +3,10 @@
 // author:	Daniel Hamilton, Andrea Ellinger, Justin Chambers
 // brief:	Internal structs and functions for Sound
 //
-// INTERNAL USE ONLY, DO NOT DISTRIBUTE
+// Internal header: not part of the public API.
 //
-// Copyright © 2025 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 #pragma once

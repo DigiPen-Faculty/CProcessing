@@ -6,9 +6,10 @@
 //			Tier 1 can test them with any monitor layout; CP_System.c feeds
 //			them the real monitors.
 //
-// INTERNAL USE ONLY, DO NOT DISTRIBUTE
+// Internal header: not part of the public API.
 //
-// Copyright (c) 2026 DigiPen, All rights reserved.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology
 //------------------------------------------------------------------------------
 
 #pragma once

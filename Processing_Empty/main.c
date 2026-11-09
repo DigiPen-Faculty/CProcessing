@@ -1,15 +1,11 @@
 //---------------------------------------------------------
 // file:	main.c
-// author:	[NAME]
-// email:	[DIGIPEN EMAIL ADDRESS]
+// author:	[YOUR NAME]
 //
-// brief:	Main entry point for the sample project
-//			of the CProcessing library
+// brief:	[WHAT YOUR GAME OR PROGRAM DOES]
 //
-// documentation link:
+// CProcessing documentation:
 // https://github.com/DigiPen-Faculty/CProcessing/wiki
-//
-// Copyright © 2020 DigiPen, All rights reserved.
 //---------------------------------------------------------
 
 #include "cprocessing.h"
