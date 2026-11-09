@@ -4,7 +4,13 @@ Notable changes in each CProcessing release. Version numbers are
 major.minor.patch. The major number goes up when existing projects may need
 changes to build with the new version.
 
-## 3.1.0 (unreleased)
+## 3.1.0 (2026-11-07)
+
+macOS is no longer a preview. Drawing, sound, gamepads, screenshots, the
+demos and both test tiers have been tested on an Apple silicon Mac
+(macOS 26). Intel Macs haven't been tested yet. The downloaded macOS
+library still isn't signed by Apple; the starter project's README says how
+to open it.
 
 ### Added
 

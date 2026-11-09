@@ -144,7 +144,7 @@ project(MyGame C CXX)   # CXX is needed because SoLoud is C++
 
 include(FetchContent)
 FetchContent_Declare(cprocessing
-    URL https://github.com/DigiPen-Faculty/CProcessing/archive/refs/tags/v3.0.1.tar.gz)
+    URL https://github.com/DigiPen-Faculty/CProcessing/archive/refs/tags/v3.1.0.tar.gz)
 FetchContent_MakeAvailable(cprocessing)
 
 target_link_libraries(MyGame PRIVATE CProcessing::CProcessing)
@@ -193,9 +193,9 @@ To build against a local copy of CProcessing instead of the download, add
 - **One library file.** GLFW, SoLoud and miniaudio are linked into the
   CProcessing library itself. A game needs only `CProcessing.dll`
   (`libCProcessing.so` / `libCProcessing.dylib`) next to it.
-- **macOS** is a preview. Since 3.0.1, drawing, sound, screenshots, the
-  demos and both test tiers work on an Apple silicon Mac (macOS 26);
-  gamepads and Intel Macs haven't been confirmed yet. CI builds it and runs Tier 1 only: Tier 2
+- **macOS** is tested on Apple silicon (macOS 26): drawing, sound,
+  gamepads, screenshots, the demos and both test tiers. Intel Macs haven't
+  been tested yet. CI builds it and runs Tier 1 only: Tier 2
   and the demos need a GPU, which GitHub's hosted macOS runners don't have.
   Please report anything that misbehaves there.
 
