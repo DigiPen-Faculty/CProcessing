@@ -7,6 +7,7 @@
 // test_smoke.c -- Phase A: proves the harness itself works end to end.
 void test_smoke_truth(void);
 void test_smoke_cprocessing_link(void);
+void test_smoke_source_strings_are_utf8(void);
 
 // test_cp_math.c -- Tier 1: CP_Math (pure functions only).
 void test_math_clampint_below_min_returns_min(void);

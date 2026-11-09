@@ -56,7 +56,17 @@ include(cmake/CProcessingDependencies.cmake)
 #------------------------------------------------------------------------------
 # Shared compile settings for CProcessing's own code
 #------------------------------------------------------------------------------
+# Read source files as UTF-8. MSVC otherwise uses the computer's code page,
+# and text such as "©" in a string isn't passed on as UTF-8, which
+# CP_Font_DrawText expects. GCC and Clang read UTF-8 already.
+function(cprocessing_set_utf8 target)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /utf-8)
+    endif()
+endfunction()
+
 function(cprocessing_set_warnings target)
+    cprocessing_set_utf8(${target})
     if(MSVC)
         target_compile_options(${target} PRIVATE /W4)
         target_compile_definitions(${target} PRIVATE _CRT_SECURE_NO_WARNINGS)
@@ -212,6 +222,7 @@ if(CPROCESSING_BUILD_TESTS)
         "${CPROCESSING_GLFW_INCLUDE_DIR}" # GLFW constants used by that header
     )
     target_compile_definitions(CProcessing_Tests PRIVATE UNITY_INCLUDE_DOUBLE)
+    cprocessing_set_utf8(CProcessing_Tests)
     target_link_libraries(CProcessing_Tests PRIVATE CProcessing)
     if(UNIX AND NOT APPLE)
         target_link_libraries(CProcessing_Tests PRIVATE m)
@@ -229,6 +240,7 @@ if(CPROCESSING_BUILD_TESTS)
     add_executable(CProcessing_Tests_Tier2 ${TIER2_SOURCES} "${UNITY_DIR}/unity.c")
     target_include_directories(CProcessing_Tests_Tier2 PRIVATE "${UNITY_DIR}" "${TIER2_DIR}/Tests")
     target_compile_definitions(CProcessing_Tests_Tier2 PRIVATE UNITY_INCLUDE_DOUBLE)
+    cprocessing_set_utf8(CProcessing_Tests_Tier2)
     target_link_libraries(CProcessing_Tests_Tier2 PRIVATE CProcessing)
     if(UNIX AND NOT APPLE)
         target_link_libraries(CProcessing_Tests_Tier2 PRIVATE m)

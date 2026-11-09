@@ -17,6 +17,18 @@ changes to build with the new version.
   places for your name and what the program does, and no longer claims
   DigiPen's copyright. A course that requires its own header can add it.
 
+### Fixed
+
+- **Text with characters outside plain English, such as ©, é or ü, came out
+  wrong on Windows** when typed straight into a string in your code, for
+  example `CP_Font_DrawText("Café", ...)`. Visual Studio read source files
+  in the computer's own code page, while `CP_Font_DrawText` expects UTF-8.
+  The template, the CMake starter and CProcessing's own projects now pass
+  `/utf-8`, so such text draws as typed. In an existing Visual Studio
+  project, add `/utf-8` under Project Properties > C/C++ > Command Line >
+  Additional Options. Linux and macOS already worked.
+  ([#15](https://github.com/DigiPen-Faculty/CProcessing/issues/15))
+
 ## 3.1.0 (2026-11-07)
 
 macOS is no longer a preview. Drawing, sound, gamepads, screenshots, the

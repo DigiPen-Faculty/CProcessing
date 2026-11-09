@@ -25,6 +25,12 @@ project(MyGame C)
 
 add_executable(${PROJECT_NAME} main.c)
 
+if(MSVC)
+    # Read source files as UTF-8, so text such as "©" or accented letters
+    # in a string draws correctly with CP_Font_DrawText
+    target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
+endif()
+
 set(CPROCESSING_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CProcessing")
 if(EXISTS "${CPROCESSING_DIR}/inc/cprocessing.h")
     # Prebuilt CProcessing from a release package
