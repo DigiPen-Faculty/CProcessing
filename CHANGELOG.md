@@ -54,6 +54,9 @@ changes to build with the new version.
   broke the other. A file now stays loaded until every load of it has been
   freed. `CP_Sound_Load` and `CP_Sound_LoadStream` on the same file also
   gave back whichever was loaded first; they're now separate sounds.
+- CProcessing no longer exports internal names such as `state`, `p` or
+  `_currState`. Built as a static library (`CPROCESSING_BUILD_SHARED=OFF`),
+  a game with its own global of the same name failed to link.
 - **Text with characters outside plain English, such as ©, é or ü, came out
   wrong on Windows** when typed straight into a string in your code, for
   example `CP_Font_DrawText("Café", ...)`. Visual Studio read source files

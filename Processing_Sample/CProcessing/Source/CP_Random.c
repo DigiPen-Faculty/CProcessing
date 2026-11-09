@@ -24,7 +24,7 @@
 #ifdef USE_XORSHIFT
 static const uint32_t MAX_RAND_INT = UINT32_MAX;
 // The state array must be initialized to not be all zero
-uint32_t state[4];
+static uint32_t state[4];
 #else
 static const uint32_t MAX_RAND_INT = RAND_MAX;
 #endif
@@ -34,7 +34,7 @@ static const uint32_t MAX_RAND_INT = RAND_MAX;
 //------------------------------------------------------------------------------
 
 #ifdef USE_XORSHIFT
-void xorshiftSeed(int seed)
+static void xorshiftSeed(int seed)
 {
 	srand(seed);
 	for (unsigned index = 0; index < 4; ++index)
@@ -46,7 +46,7 @@ void xorshiftSeed(int seed)
 	}
 }
 
-uint32_t xorshift128(void)
+static uint32_t xorshift128(void)
 {
 	// Algorithm "xor128" from p. 5 of Marsaglia, "Xorshift RNGs"
 	uint32_t s, t = state[3];

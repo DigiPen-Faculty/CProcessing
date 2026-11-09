@@ -38,10 +38,10 @@ static CP_Core _CORE = {
 };
 static bool _isInitialized = false;
 
-CP_BOOL _deferredSizeChange = FALSE;
-int _deferredWidth = 0;
-int _deferredHeight = 0;
-CP_BOOL _deferredFullscreen = FALSE;
+static CP_BOOL _deferredSizeChange = FALSE;
+static int _deferredWidth = 0;
+static int _deferredHeight = 0;
+static CP_BOOL _deferredFullscreen = FALSE;
 
 // Window settings that may be requested before the window exists; they are
 // stored here and applied when CP_Initialize creates the window
@@ -55,12 +55,12 @@ typedef struct GameStateFuncs
 	FunctionPtr exit;
 } GameStateFuncs;
 
-GameStateFuncs _currState = { NULL, NULL, NULL };
-GameStateFuncs _nextState = { NULL, NULL, NULL };
-bool _stateIsChanging = false;
+static GameStateFuncs _currState = { NULL, NULL, NULL };
+static GameStateFuncs _nextState = { NULL, NULL, NULL };
+static bool _stateIsChanging = false;
 
-FunctionPtr _preUpdateFunction = NULL;
-FunctionPtr _postUpdateFunction = NULL;
+static FunctionPtr _preUpdateFunction = NULL;
+static FunctionPtr _postUpdateFunction = NULL;
 
 //------------------------------------------------------------------------------
 // Private Variables:
@@ -74,7 +74,7 @@ static double _frametime = 1.0 / 60.0;
 // Frames since the start of the program
 static unsigned int _frameCount;
 
-void error_callback_glfw(int error, const char* desc)
+static void error_callback_glfw(int error, const char* desc)
 {
 	printf("GLFW error %d: %s\n", error, desc);
 }
@@ -1078,8 +1078,8 @@ void CP_FrameRate_FrameStart(void)
 	CP_IncFrameCount();
 }
 
-double averageSleepCycles = 0.002;
-double additionalBuffer = 0.001;	// Sleep() isn't very accurate and we want to make sure we don't over sleep
+static double averageSleepCycles = 0.002;
+static double additionalBuffer = 0.001;	// Sleep() isn't very accurate and we want to make sure we don't over sleep
 
 void CP_FrameRate_FrameEnd(void)
 {

@@ -76,7 +76,7 @@
 // Private Functions:
 //------------------------------------------------------------------------------
 
-int file_exists(const char * filepath)
+static int file_exists(const char * filepath)
 {
     if (access(filepath, F_OK) != -1)
     {
@@ -85,44 +85,6 @@ int file_exists(const char * filepath)
     else
     {
         return CP_ERROR_NOT_FOUND;
-    }
-}
-
-int file_dirExists(const char * dirpath)
-{
-    struct stat s;
-    int err = stat(dirpath, &s);
-    if(-1 == err) {
-        if(ENOENT == errno) {
-            /* does not exist */
-            return CP_ERROR_NOT_FOUND;
-        } else {
-            // stat error
-            // perror("stat");
-            // exit(1);
-            return CP_ERROR_INTERNAL;
-        }
-    } else {
-        if(S_ISDIR(s.st_mode)) {
-            /* it's a dir */
-            return CP_OK;
-        } else {
-            /* exists but is no dir */
-            return CP_ERROR_NOT_DIR;
-        }
-    }
-}
-
-int file_makedir(const char * dirpath)
-{
-    // _mkdir/mkdir return 0 on success
-    if (CP_MAKE_DIR(dirpath) == 0)
-    {
-        return CP_OK;
-    }
-    else
-    {
-        return CP_ERROR_FAILED;
     }
 }
 

@@ -15,9 +15,9 @@
 #include "Internal_Noise.h"
 
 #define permutationArraySize 256
-int repeatNoise = -1;
+static int repeatNoise = -1;
 
-int p[permutationArraySize * 2];  // Doubled permutation to avoid overflow
+static int p[permutationArraySize * 2];  // Doubled permutation to avoid overflow
 
 //double OctavePerlin(double x, double y, double z, int octaves, double persistence)
 //{
