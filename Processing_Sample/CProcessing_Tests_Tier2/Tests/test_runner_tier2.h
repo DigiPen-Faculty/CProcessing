@@ -40,6 +40,7 @@ void test_tier2_settings_made_before_run_are_kept(void);
 void test_tier2_image_load_reports_correct_dimensions(void);
 void test_tier2_shared_image_survives_freeing_one_load(void);
 void test_tier2_shared_font_and_sound_survive_freeing_one_load(void);
+void test_tier2_assets_still_loaded_are_reported_at_exit(void);
 void test_tier2_image_draw_places_quadrants_correctly(void);
 void test_tier2_image_createfromdata_roundtrips_exactly(void);
 void test_tier2_image_updatepixeldata_roundtrips_exactly(void);

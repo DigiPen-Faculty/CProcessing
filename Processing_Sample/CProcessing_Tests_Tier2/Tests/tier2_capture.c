@@ -10,10 +10,24 @@
 // All coordinates below were computed by hand against the actual source
 // (CP_Graphics.c, CP_Setting.c) rather than assumed -- see the Phase D
 // commit message for the worked geometry on the rotation/transform cases.
+#define _CRT_SECURE_NO_WARNINGS     // fopen, in the exit report capture
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "tier2_capture.h"
+#if defined(_WIN32)
+    #include <io.h>
+    #define tier2_dup _dup
+    #define tier2_dup2 _dup2
+    #define tier2_close _close
+    #define tier2_fileno _fileno
+#else
+    #include <unistd.h>
+    #define tier2_dup dup
+    #define tier2_dup2 dup2
+    #define tier2_close close
+    #define tier2_fileno fileno
+#endif
 
 // For Scn_AssetsNextToProgram, which runs in another folder for a moment
 #if defined(_WIN32)
@@ -1132,7 +1146,9 @@ static void Scn_AssetsNextToProgram(void)
     CP_Graphics_ClearBackground(WHITE);
 
     // CI runners may have no audio device, and then no sound loads at all
-    tier2_scalars.assetSoundAvailable = CP_Sound_Load("Assets/beep.wav") != NULL;
+    CP_Sound probe = CP_Sound_Load("Assets/beep.wav");
+    tier2_scalars.assetSoundAvailable = probe != NULL;
+    CP_Sound_Free(&probe);
 
     char previousFolder[4096];
     if (tier2_getcwd(previousFolder, sizeof previousFolder) == NULL)
@@ -1230,6 +1246,8 @@ static void HarnessInit(void)
     firstScenarioFrame = -1;
 }
 
+static void LeaveAssetsLoadedForTheExitReport(void);
+
 static void HarnessUpdate(void)
 {
     // Let the deferred window resize (requested in HarnessInit) take effect
@@ -1265,8 +1283,52 @@ static void HarnessUpdate(void)
 
     if (scenarioIndex >= SCN_COUNT - 1)
     {
+        LeaveAssetsLoadedForTheExitReport();
         CP_Engine_Terminate();
     }
+}
+
+// When it shuts down, CProcessing reports the assets that were never freed,
+// on stderr. On the last frame, leave two loads of an image and an image made
+// from data unfreed, and send stderr to a file until CP_Engine_Run returns
+// (test_tier2_assets_still_loaded_are_reported_at_exit reads it).
+static FILE* exitReportFile = NULL;
+static int savedStderr = -1;
+
+static void LeaveAssetsLoadedForTheExitReport(void)
+{
+    CP_Image_Load("Assets/quadrants16.png");
+    CP_Image_Load("Assets/quadrants16.png");
+    CP_Color pixels[4] = { RED, RED, RED, RED };
+    CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+
+    fflush(stderr);
+    exitReportFile = fopen("tier2_exit_report.txt", "w+");
+    if (exitReportFile)
+    {
+        savedStderr = tier2_dup(tier2_fileno(stderr));
+        tier2_dup2(tier2_fileno(exitReportFile), tier2_fileno(stderr));
+    }
+}
+
+static void ReadExitReport(void)
+{
+    if (!exitReportFile)
+    {
+        return;
+    }
+    fflush(stderr);
+    tier2_dup2(savedStderr, tier2_fileno(stderr));
+    tier2_close(savedStderr);
+
+    rewind(exitReportFile);
+    size_t length = fread(tier2_scalars.exitReport, 1, sizeof(tier2_scalars.exitReport) - 1, exitReportFile);
+    tier2_scalars.exitReport[length] = '\0';
+    fclose(exitReportFile);
+    remove("tier2_exit_report.txt");
+
+    // Still show it in the log
+    fputs(tier2_scalars.exitReport, stderr);
 }
 
 void tier2_RunCaptureOnce(void)
@@ -1305,4 +1367,5 @@ void tier2_RunCaptureOnce(void)
 
     CP_Engine_SetNextGameState(HarnessInit, HarnessUpdate, NULL);
     CP_Engine_Run();
+    ReadExitReport();
 }

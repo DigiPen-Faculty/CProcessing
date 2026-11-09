@@ -1,6 +1,7 @@
 // Assertions against data tier2_capture.c already captured. See
 // Scn_ImageLoadAndDraw / Scn_ImageSubImage there for how Assets/quadrants.png
 // (a 4x4 fixture: TL=red, TR=green, BL=blue, BR=yellow) was used.
+#include <string.h>
 #include "unity.h"
 #include "tier2_capture.h"
 
@@ -35,6 +36,16 @@ void test_tier2_shared_font_and_sound_survive_freeing_one_load(void)
     }
     TEST_ASSERT_TRUE(tier2_scalars.soundAndStreamDiffer);
     TEST_ASSERT_TRUE(tier2_scalars.sharedSoundReloadSame);
+}
+
+// See LeaveAssetsLoadedForTheExitReport: the harness leaves two loads of an
+// image and an image made from data unfreed, and CProcessing lists them
+void test_tier2_assets_still_loaded_are_reported_at_exit(void)
+{
+    const char* report = tier2_scalars.exitReport;
+    TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "still loaded when the program ended"), report);
+    TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "Assets/quadrants16.png: 2 loads not freed"), report);
+    TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "1 made with CP_Image_CreateFromData or CP_Image_Screenshot"), report);
 }
 
 void test_tier2_image_load_reports_correct_dimensions(void)

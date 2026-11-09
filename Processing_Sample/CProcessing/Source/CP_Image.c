@@ -11,6 +11,7 @@
 // Include Files:
 //------------------------------------------------------------------------------
 
+#include <limits.h>
 #include <stdlib.h>
 #include "cprocessing.h"
 #include "Internal_Image.h"
@@ -87,6 +88,31 @@ void CP_Image_Init(void)
 void CP_Image_Update(void)
 {
 	CP_Image_Clear_Vect(free_image_queue);
+}
+
+void CP_Image_ReportLoaded(CP_Report* report)
+{
+	if (!image_vector) return;
+
+	// Images made from data or the screen have no file: count them together
+	int made = 0;
+	for (unsigned i = 0; i < image_vector->size; ++i)
+	{
+		CP_Image img = vect_at_CP_Image(image_vector, i);
+		if (!img) continue;
+		if (img->filepath[0] == '\0')
+		{
+			++made;
+		}
+		else
+		{
+			CP_Report_AddAsset(report, "image", img->filepath, img->ref_count);
+		}
+	}
+	if (made > 0)
+	{
+		CP_Report_AddLine(report, "  image  %d made with CP_Image_CreateFromData or CP_Image_Screenshot, never freed", made);
+	}
 }
 
 void CP_Image_Shutdown(void)
@@ -184,7 +210,10 @@ CP_API CP_Image CP_Image_Load(const char* filepath)
 	img = CP_CheckIfImageIsLoaded(filepath);
 	if (img)
 	{
-		++img->ref_count;
+		if (img->ref_count < INT_MAX)
+		{
+			++img->ref_count;
+		}
 		return img;
 	}
 

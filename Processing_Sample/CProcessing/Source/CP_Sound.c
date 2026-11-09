@@ -11,12 +11,14 @@
 // Include Files:
 //------------------------------------------------------------------------------
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "cprocessing.h"
 #include "Internal_Sound.h"
 #include "Internal_File.h"
+#include "Internal_System.h"
 #include "vect.h"
 
 //------------------------------------------------------------------------------
@@ -123,6 +125,20 @@ void CP_Sound_Update(void)
 
 }
 
+void CP_Sound_ReportLoaded(CP_Report* report)
+{
+	if (!sound_vector) return;
+
+	for (unsigned i = 0; i < sound_vector->size; ++i)
+	{
+		CP_Sound sound = vect_at_CP_Sound(sound_vector, i);
+		if (sound)
+		{
+			CP_Report_AddAsset(report, sound->type == SL_AUDIOSOURCE_STREAM ? "music" : "sound", sound->filepath, sound->ref_count);
+		}
+	}
+}
+
 void CP_Sound_Shutdown(void)
 {
 	if (_soloud_system != NULL)
@@ -169,7 +185,10 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 	sound = CP_CheckIfSoundIsLoaded(filepath, streamFromDisc ? SL_AUDIOSOURCE_STREAM : SL_AUDIOSOURCE_WAV);
 	if (sound)
 	{
-		++sound->ref_count;
+		if (sound->ref_count < INT_MAX)
+		{
+			++sound->ref_count;
+		}
 		return sound;
 	}
 

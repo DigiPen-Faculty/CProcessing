@@ -11,6 +11,7 @@
 #include "Internal_System.h"
 #include "Internal_Monitor.h"
 #include "tinycthread.h"
+#include <stdarg.h>
 #include <stdio.h>
 #if !defined(_WIN32)
 	#include <unistd.h>	// isatty
@@ -1013,8 +1014,86 @@ void CP_Update(void)
 	CP_Image_Update();
 }
 
+void CP_Report_AddLine(CP_Report* report, const char* format, ...)
+{
+	size_t room = sizeof(report->text) - report->length;
+	va_list args;
+	va_start(args, format);
+	int written = room > 1 ? vsnprintf(report->text + report->length, room, format, args) : -1;
+	va_end(args);
+
+	if (written < 0 || (size_t)written + 1 >= room)
+	{
+		// keep only whole lines
+		report->text[report->length] = '\0';
+		report->truncated = TRUE;
+		return;
+	}
+	report->length += (size_t)written;
+	report->text[report->length++] = '\n';
+	report->text[report->length] = '\0';
+	++report->lines;
+}
+
+void CP_Report_AddAsset(CP_Report* report, const char* kind, const char* filepath, int loads)
+{
+	if (loads == 1)
+	{
+		CP_Report_AddLine(report, "  %-5s  %s: loaded, never freed", kind, filepath);
+	}
+	else
+	{
+		// Thousands of loads usually mean a Load call in an update function
+		CP_Report_AddLine(report, "  %-5s  %s: %d loads not freed%s", kind, filepath, loads,
+			loads >= 60 ? " (is it loaded every frame?)" : "");
+	}
+}
+
+// Tell the programmer about assets they never freed, before CP_Shutdown frees
+// them. Students learn to pair every Load with a Free, and a Load in an update
+// function (which works, since loads of a file share it) shows up here.
+static void CP_ReportLoadedAssets(void)
+{
+	CP_Report report = { 0 };
+	CP_Image_ReportLoaded(&report);
+	CP_Sound_ReportLoaded(&report);
+	CP_Text_ReportLoaded(&report);
+	if (report.lines == 0 && !report.truncated)
+	{
+		return;
+	}
+
+	char message[sizeof(report.text) + 1024];
+	snprintf(message, sizeof(message),
+		"CProcessing: these were still loaded when the program ended:\n"
+		"%s%s"
+		"CProcessing freed them, but every CP_Image_Load, CP_Sound_Load,\n"
+		"CP_Sound_LoadStream and CP_Font_Load needs its own Free, and so does\n"
+		"every image from CP_Image_CreateFromData or CP_Image_Screenshot.\n"
+		"Load assets once, in an init function, and free them in the exit\n"
+		"function: https://github.com/DigiPen-Faculty/CProcessing/wiki/Assets-and-paths\n",
+		report.text, report.truncated ? "  ...and more\n" : "");
+
+	fputs(message, stderr);
+	fflush(stderr);
+#if defined(_WIN32)
+	// Windows programs usually have no console: Visual Studio's Output window
+	OutputDebugStringA(message);
+#if !defined(NDEBUG)
+	// Debug library, started from Visual Studio: make sure it's seen. Never
+	// otherwise, so a game someone double-clicks, or a test run, can't stop here.
+	if (IsDebuggerPresent())
+	{
+		MessageBoxA(NULL, message, "CProcessing: files still loaded", MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND);
+	}
+#endif
+#endif
+}
+
 void CP_Shutdown(void)
 {
+	CP_ReportLoadedAssets();
+
 	CP_Text_Shutdown();
 	CP_Sound_Shutdown();
 	CP_Image_Shutdown();

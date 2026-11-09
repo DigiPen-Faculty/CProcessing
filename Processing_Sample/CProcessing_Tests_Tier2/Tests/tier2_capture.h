@@ -215,6 +215,10 @@ typedef struct
     // How many scenarios were captured: SCN_COUNT unless the engine couldn't
     // start (no window or OpenGL context) or stopped early
     int scenariosCaptured;
+
+    // What CProcessing printed on stderr while shutting down: the assets
+    // still loaded (see LeaveAssetsLoadedForTheExitReport)
+    char exitReport[4096];
 } Tier2Scalars;
 
 extern Tier2Scalars tier2_scalars;

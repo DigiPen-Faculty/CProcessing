@@ -108,6 +108,28 @@ void CP_DeferredSetWindowSizeInternal(int new_width, int new_height, bool isFull
 void CP_Initialize(void);
 void CP_Update(void);
 void CP_Shutdown(void);
+
+//////////////////
+// A message for the programmer, built a line at a time: at exit, the assets
+// that were never freed (CP_System.c)
+typedef struct CP_Report
+{
+	char text[4096];
+	size_t length;
+	int lines;
+	CP_BOOL truncated;	// more lines than fit
+} CP_Report;
+
+void CP_Report_AddLine(CP_Report* report, const char* format, ...);
+// "  image  Assets/logo.png: 3 loads not freed", with a hint when there are many
+void CP_Report_AddAsset(CP_Report* report, const char* kind, const char* filepath, int loads);
+
+// Each adds a line to the report for every asset still loaded
+// (CP_Image.c, CP_Sound.c, CP_Text.c)
+void CP_Image_ReportLoaded(CP_Report* report);
+void CP_Sound_ReportLoaded(CP_Report* report);
+void CP_Text_ReportLoaded(CP_Report* report);
+//////////////////
 void CP_FrameStart(void);
 void CP_FrameEnd(void);
 

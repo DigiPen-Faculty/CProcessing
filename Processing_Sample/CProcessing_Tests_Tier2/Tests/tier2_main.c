@@ -102,6 +102,7 @@ int main(void)
     RUN_TEST(test_tier2_image_wrap_modes);
     RUN_TEST(test_tier2_shared_image_survives_freeing_one_load);
     RUN_TEST(test_tier2_shared_font_and_sound_survive_freeing_one_load);
+    RUN_TEST(test_tier2_assets_still_loaded_are_reported_at_exit);
 
     // test_tier2_font.c
     RUN_TEST(test_tier2_font_drawtext_occupies_expected_region);

@@ -6,6 +6,17 @@ changes to build with the new version.
 
 ## 3.1.1 (unreleased)
 
+### Added
+
+- **When a program ends, CProcessing lists the images, sounds and fonts
+  it never freed**, with how many loads of each weren't freed, and
+  reminds you that every load needs its own free. (It frees them either
+  way.) The list goes to the terminal or console and, on Windows, to
+  Visual Studio's Output window. With the Debug library, started from
+  Visual Studio's debugger, it also appears in a message box. A load in an
+  update function shows up with thousands of loads: load once, in an init
+  function, and free in the exit function.
+
 ### Changed
 
 - **Every CProcessing source file now says it's MIT licensed**, matching
@@ -54,6 +65,9 @@ changes to build with the new version.
   broke the other. A file now stays loaded until every load of it has been
   freed. `CP_Sound_Load` and `CP_Sound_LoadStream` on the same file also
   gave back whichever was loaded first; they're now separate sounds.
+  Since each load now needs its own free, a file loaded every frame in an
+  update function and freed once in the exit function stays loaded until
+  the program ends, and is in the list of assets not freed (see Added).
 - CProcessing no longer exports internal names such as `state`, `p` or
   `_currState`. Built as a static library (`CPROCESSING_BUILD_SHARED=OFF`),
   a game with its own global of the same name failed to link.
