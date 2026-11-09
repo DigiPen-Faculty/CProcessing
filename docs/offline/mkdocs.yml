@@ -1,6 +1,5 @@
 site_name: CProcessing Documentation
 site_description: Offline API reference for CProcessing
-site_url: http://127.0.0.1:8765/
 docs_dir: work/wiki
 site_dir: work/site
 use_directory_urls: false
@@ -21,7 +20,12 @@ theme:
     accent: amber
 
 plugins:
-  - search
+  # Underscores separate words too, so "DrawCircle" finds CP_Graphics_DrawCircle
+  - search:
+      separator: '[\s\-_,:!=\[\]()"/]+'
+  # Makes the site work when opened straight from the disk (a file: URL),
+  # search included, so students need no web server
+  - offline
   - print-site:
       print_page_title: Complete CProcessing Documentation
       add_to_navigation: true
@@ -31,6 +35,8 @@ markdown_extensions:
   - toc:
       permalink: true
 
+# Only used when the wiki has no _Sidebar.md: build.ps1 builds with a copy of
+# this file whose nav comes from the sidebar (prepare_wiki.py --config)
 nav:
   - Home: index.md
   - API Reference:

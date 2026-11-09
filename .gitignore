@@ -85,4 +85,3 @@ docs/offline/work/
 docs/offline/output/
 docs/offline/__pycache__/
 !docs/offline/build.cmd
-!docs/offline/student/*.cmd

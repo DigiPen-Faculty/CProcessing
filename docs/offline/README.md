@@ -14,7 +14,7 @@ Requirements: Git and Python 3.11 or newer.
 The finished files are written to `docs/offline/output/`:
 
 - `CProcessing-Offline-Documentation.zip` contains the searchable website and
-  Windows launchers.
+  the PDF.
 - `CProcessing-Documentation.pdf` contains the complete documentation in one
   printable file.
 
@@ -29,16 +29,23 @@ Use `-SkipPdf` when Chromium cannot be installed or only the website is needed.
 
 ## Automated builds
 
-The `offline-docs.yml` GitHub Actions workflow runs weekly and on demand. Its
-artifact contains both deliverables. Because a GitHub wiki is a separate Git
-repository, edits to the wiki do not trigger workflows in the main repository;
-run the workflow manually for an immediate export after an important wiki edit.
+The `offline-docs.yml` GitHub Actions workflow builds both files every week,
+when a release is published, and on demand. Publishing a release attaches them
+to it, so students download them from the
+[Releases page](https://github.com/DigiPen-Faculty/CProcessing/releases)
+with the templates.
+
+Because a GitHub wiki is a separate Git repository, edits to the wiki don't
+trigger workflows in the main repository. To refresh the files on the latest
+release after an important wiki edit, run the workflow by hand (Actions >
+Build offline documentation > Run workflow) with that release's tag.
+
+The same workflow checks the wiki against the API with `tools/wiki-audit.py`,
+which also compiles every example.
 
 ## Student use
 
-Students extract the ZIP and double-click `Open CProcessing Docs.cmd`. The
-launcher starts a local-only web server and opens the documentation in the
-default browser. Closing the PowerShell window stops the server.
-
-The server is needed because browser security rules prevent the search index
-from loading reliably when the HTML is opened directly with a `file:` URL.
+Students extract the ZIP and double-click `Open CProcessing Docs.html`, on
+Windows, macOS or Linux. The site, search included, works straight from the
+disk (Material for MkDocs' `offline` plugin), so no web server or internet
+connection is needed.

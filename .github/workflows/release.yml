@@ -19,6 +19,8 @@ name: Release
 #      version and date of the newest section in CHANGELOG.md.
 #   2. Push a tag such as v3.0.0 on that commit.
 #   3. Review the draft release this workflow creates, then publish it.
+#      Publishing it runs offline-docs.yml, which builds the wiki into the
+#      offline documentation and attaches it to the release.
 #
 # Running the workflow by hand (Actions > Release > Run workflow) builds and
 # checks the packages without releasing anything; they're attached to the

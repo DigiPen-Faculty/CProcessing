@@ -38,8 +38,12 @@ else {
 }
 
 $preparedWiki = Join-Path $workRoot 'wiki'
-& $python (Join-Path $offlineRoot 'prepare_wiki.py') $wikiClone $preparedWiki
-& $python -m mkdocs build --clean --config-file (Join-Path $offlineRoot 'mkdocs.yml')
+$config = Join-Path $workRoot 'mkdocs.yml'   # mkdocs.yml with the nav from the wiki's sidebar
+& $python (Join-Path $offlineRoot 'prepare_wiki.py') $wikiClone $preparedWiki `
+    --config (Join-Path $offlineRoot 'mkdocs.yml') $config (Join-Path $workRoot 'site')
+if ($LASTEXITCODE -ne 0) { throw 'Preparing the wiki failed.' }
+& $python -m mkdocs build --clean --config-file $config
+if ($LASTEXITCODE -ne 0) { throw 'Building the documentation failed.' }
 
 $packageRoot = Join-Path $workRoot 'package'
 if (Test-Path $packageRoot) { Remove-Item -Recurse -Force $packageRoot }
