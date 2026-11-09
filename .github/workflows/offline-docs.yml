@@ -1,7 +1,23 @@
 name: Build offline documentation
 
+# Builds the wiki into a website that works without internet (a zip) and a
+# PDF, and checks the wiki against the API.
+#
+# Publishing a release attaches both to it, as
+# CProcessing-Offline-Documentation.zip and CProcessing-Documentation.pdf, so
+# .../releases/latest/download/<name> always has the documentation. To
+# refresh them after a wiki edit, run this workflow by hand with the release's
+# tag. The weekly run only builds and checks.
+
 on:
   workflow_dispatch:
+    inputs:
+      release:
+        description: 'Attach the documentation to this release (a tag such as v3.1.1); leave empty to only build it'
+        required: false
+        default: ''
+  release:
+    types: [published]
   schedule:
     - cron: '17 9 * * 1'
 
@@ -38,7 +54,40 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-      # After the upload, so the documentation is still published when the
-      # wiki has drifted from the API; the failed run is the reminder.
-      - name: Check the wiki against the API
-        run: python tools/wiki-audit.py docs/offline/work/wiki-source
+  attach:
+    needs: build
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.release != '')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: CProcessing-offline-documentation
+
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name || inputs.release }}
+        run: |
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber \
+            CProcessing-Offline-Documentation.zip CProcessing-Documentation.pdf
+
+  # A separate job, so the documentation is still built when the wiki has
+  # drifted from the API; the failed run is the reminder. Linux, for gcc: the
+  # examples are compiled as students on any platform would write them.
+  wiki-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Check out the wiki
+        run: git clone --depth 1 https://github.com/DigiPen-Faculty/CProcessing.wiki.git wiki
+
+      - name: Check the wiki against the API and compile its examples
+        run: python3 tools/wiki-audit.py wiki --cc gcc
