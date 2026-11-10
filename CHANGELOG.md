@@ -57,6 +57,12 @@ changes to build with the new version.
 
 ### Fixed
 
+- **Looping music loaded with `CP_Sound_LoadStream` went silent after its first
+  play**, unless it was an Ogg file: `CP_Sound_PlayAdvanced(music, ..., TRUE, ...)`
+  played once and then stopped. The cause was in SoLoud, the audio library,
+  which used the wrong decoder to jump back to the start. It is fixed in
+  every build, and streamed WAV, MP3 and FLAC files now loop.
+
 - **Calling a `CP_Settings_` or `CP_Graphics_` function before
   `CP_Engine_Run` could crash or corrupt memory**, for example
   `CP_Settings_Fill` in `main` before starting the engine. Settings made

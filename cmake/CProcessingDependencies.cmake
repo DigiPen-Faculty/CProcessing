@@ -103,6 +103,30 @@ set(CPROCESSING_SOLOUD_MINIAUDIO_BACKEND "${CMAKE_CURRENT_BINARY_DIR}/soloud_min
 configure_file("${soloud_SOURCE_DIR}/src/backend/miniaudio/soloud_miniaudio.cpp"
     "${CPROCESSING_SOLOUD_MINIAUDIO_BACKEND}" COPYONLY)
 
+#------------------------------------------------------------------------------
+# SoLoud's streamed WAV loop fix
+#
+# WavStreamInstance::seek() decides "is this an Ogg file?" with
+# `if (mCodec.mOgg)`, but mCodec is a union of the Ogg, FLAC, MP3 and WAV
+# decoders, so that is true for every streamed file. A looping stream that
+# reaches its end therefore seeks with the wrong decoder, reads nothing, and
+# falls silent. Only Ogg worked. The fix checks the file type too.
+# SoLoud's source is compiled from a patched copy, as the miniaudio backend
+# is. The replace is checked, so a pin bump that changes the code fails here
+# instead of silently dropping the fix.
+#------------------------------------------------------------------------------
+set(CPROCESSING_SOLOUD_WAVSTREAM_ORIGINAL "${soloud_SOURCE_DIR}/src/audiosource/wav/soloud_wavstream.cpp")
+set(CPROCESSING_SOLOUD_WAVSTREAM "${CMAKE_CURRENT_BINARY_DIR}/soloud_wavstream_patched/soloud_wavstream.cpp")
+file(READ "${CPROCESSING_SOLOUD_WAVSTREAM_ORIGINAL}" CPROCESSING_WAVSTREAM_TEXT)
+string(REPLACE
+    "WavStreamInstance::seek(double aSeconds, float* mScratch, unsigned int mScratchSize)\n\t{\n\t\tif (mCodec.mOgg)"
+    "WavStreamInstance::seek(double aSeconds, float* mScratch, unsigned int mScratchSize)\n\t{\n\t\tif (mParent->mFiletype == WAVSTREAM_OGG && mCodec.mOgg)"
+    CPROCESSING_WAVSTREAM_PATCHED "${CPROCESSING_WAVSTREAM_TEXT}")
+if(CPROCESSING_WAVSTREAM_PATCHED STREQUAL CPROCESSING_WAVSTREAM_TEXT)
+    message(FATAL_ERROR "SoLoud's WavStreamInstance::seek no longer matches the code the stream loop fix patches. Check cmake/CProcessingDependencies.cmake.")
+endif()
+file(WRITE "${CPROCESSING_SOLOUD_WAVSTREAM}" "${CPROCESSING_WAVSTREAM_PATCHED}")
+
 file(GLOB CPROCESSING_SOLOUD_SOURCES CONFIGURE_DEPENDS
     "${soloud_SOURCE_DIR}/src/core/*.cpp"
     "${soloud_SOURCE_DIR}/src/filter/*.cpp"
@@ -112,12 +136,17 @@ file(GLOB CPROCESSING_SOLOUD_SOURCES CONFIGURE_DEPENDS
     "${soloud_SOURCE_DIR}/src/backend/nosound/soloud_nosound.cpp"
     "${soloud_SOURCE_DIR}/src/backend/null/soloud_null.cpp"
 )
-list(APPEND CPROCESSING_SOLOUD_SOURCES "${CPROCESSING_SOLOUD_MINIAUDIO_BACKEND}")
+list(REMOVE_ITEM CPROCESSING_SOLOUD_SOURCES "${CPROCESSING_SOLOUD_WAVSTREAM_ORIGINAL}")
+list(APPEND CPROCESSING_SOLOUD_SOURCES "${CPROCESSING_SOLOUD_MINIAUDIO_BACKEND}" "${CPROCESSING_SOLOUD_WAVSTREAM}")
 
 add_library(soloud STATIC ${CPROCESSING_SOLOUD_SOURCES})
 target_include_directories(soloud PUBLIC "${soloud_SOURCE_DIR}/include")
 set_source_files_properties("${CPROCESSING_SOLOUD_MINIAUDIO_BACKEND}" PROPERTIES
     INCLUDE_DIRECTORIES "${miniaudio_SOURCE_DIR}")
+# The patched copy still includes dr_wav.h, stb_vorbis.h and the like from
+# the directory it was copied from
+set_source_files_properties("${CPROCESSING_SOLOUD_WAVSTREAM}" PROPERTIES
+    INCLUDE_DIRECTORIES "${soloud_SOURCE_DIR}/src/audiosource/wav")
 target_compile_definitions(soloud PRIVATE WITH_MINIAUDIO WITH_NOSOUND WITH_NULL)
 set_target_properties(soloud PROPERTIES POSITION_INDEPENDENT_CODE ON FOLDER "ThirdParty")
 
