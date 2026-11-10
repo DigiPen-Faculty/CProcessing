@@ -37,6 +37,7 @@ on:
       - tools/make-starter-package.sh
       - Processing_Empty/**
       - Processing_Empty_CMake/**
+      - Examples/**
       - CMakeLists.txt
       - cmake/**
   workflow_dispatch:
@@ -52,7 +53,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Check that the version is the same everywhere
+      - name: Check that the version is the same everywhere, and the templates match
         id: version
         run: |
           header=Processing_Sample/CProcessing/inc/cprocessing_common.h
@@ -61,6 +62,8 @@ jobs:
           echo "cprocessing_common.h: $version"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
+          cmp Processing_Empty/main.c Processing_Empty_CMake/main.c ||
+            { echo "::error::the two templates' main.c files differ; they should be the same"; exit 1; }
           grep -q "archive/refs/tags/v$version.tar.gz" Processing_Empty_CMake/CMakeLists.txt ||
             { echo "::error::Processing_Empty_CMake/CMakeLists.txt doesn't download v$version"; exit 1; }
           grep -Eq "^## ${version//./\\.}( |$)" CHANGELOG.md ||
@@ -94,6 +97,23 @@ jobs:
       - name: Package the template
         shell: cmd
         run: call .\BuildReleasePackage.bat -c -z
+
+      # Build the template from the zip, as a student would, in every
+      # configuration
+      - name: Build the template from the package
+        shell: pwsh
+        run: |
+          Expand-Archive Releases/CProcessingTemplate.zip -DestinationPath template-check
+          Set-Location template-check/CProcessingTemplate
+          foreach ($c in 'Debug', 'Release') {
+            foreach ($p in 'x64', 'x86') {
+              msbuild MyGame.sln /p:Configuration=$c /p:Platform=$p /m /v:minimal
+              if ($LASTEXITCODE) { exit 1 }
+            }
+          }
+          foreach ($f in 'x64/Release/MyGame.exe', 'x64/Release/CProcessing.dll', 'x64/Debug/CProcessingd.dll', 'x64/Release/Assets') {
+            if (-not (Test-Path $f)) { Write-Error "missing $f"; exit 1 }
+          }
 
       - uses: actions/upload-artifact@v7
         with:

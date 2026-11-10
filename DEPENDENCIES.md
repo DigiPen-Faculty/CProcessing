@@ -50,6 +50,13 @@ downloads give the same exact-version guarantee without either problem.
 - **SoLoud master** rather than the last tagged release (RELEASE_20200207):
   master carries four years of fixes, including voice-group allocation, which
   CProcessing uses. Its C API is a superset of the 2020 one.
+  One local fix: `WavStreamInstance::seek` picks the Ogg decoder with `if (mCodec.mOgg)`,
+  which is true for every streamed file because the decoders share a union,
+  so looping WAV, MP3 and FLAC streams went silent at their end. The CMake
+  build compiles a patched copy of that file (see
+  `cmake/CProcessingDependencies.cmake`); the check there fails if a pin bump
+  changes the code, so the fix cannot be dropped silently. Drop it once
+  upstream fixes it.
 - **miniaudio 0.11.25** instead of the 0.10.42 SoLoud bundles: 0.10.42's
   PulseAudio code dereferences a NULL pointer during device setup, which
   crashed CProcessing intermittently on Linux desktops.

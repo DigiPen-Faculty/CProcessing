@@ -17,6 +17,7 @@
   `CProcessingTemplate.zip` for Visual Studio on Windows, or the CMake starter project for Linux (`CProcessingTemplate-linux-x64.zip`) or macOS (`CProcessingTemplate-macos.zip`).
   The macOS package is tested on Apple silicon Macs; Intel Macs haven't been tested yet. Please [report problems](https://github.com/DigiPen-Faculty/CProcessing/issues).
 * Read through the [Documentation](https://github.com/DigiPen-Faculty/CProcessing/wiki).
+* Read, run and copy from the [Examples](Examples/): small complete programs for movement, collision, sprite animation, a camera, game states, text and sound. They're also in every release package.
 * See what changed in each release in the [Changelog](CHANGELOG.md).
 * Have fun building awesome stuff!
 

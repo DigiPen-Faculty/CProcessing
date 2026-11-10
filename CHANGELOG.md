@@ -8,6 +8,16 @@ changes to build with the new version.
 
 ### Added
 
+- **Examples:** seven small, complete programs, each showing one thing
+  games need: `movement.c`, `collision.c`, `sprite_animation.c`,
+  `camera.c`, `game_states.c`, `score_and_text.c` and
+  `music_and_sounds.c`. Each is one file with step-by-step comments and
+  ideas to try. They're in an `Examples` folder in every release package
+  and in the repository; to run one, copy it over `main.c`.
+- **New assets in the templates' `Assets` folder**, made for the examples
+  and free to use in your own games: a sprite sheet (`SlimeSheet.png`), a
+  music loop (`Music.wav`) and three sound effects (`Coin.wav`,
+  `Jump.wav`, `Hit.wav`).
 - **When a program ends, CProcessing lists the images, sounds and fonts
   it never freed**, with how many loads of each weren't freed, and
   reminds you that every load needs its own free. (It frees them either
@@ -27,8 +37,31 @@ changes to build with the new version.
 - **The template's `main.c` belongs to the student:** its header has
   places for your name and what the program does, and no longer claims
   DigiPen's copyright. A course that requires its own header can add it.
+- **The templates draw something the first time they run:** an 800x600
+  window called "My Game" with an orange circle that follows the mouse,
+  instead of an empty grey window. Comments explain what each part does.
+  The Visual Studio template and the CMake starter now have the same
+  `main.c`.
+- **The Visual Studio template's solution is now `MyGame.sln`** (it was
+  `Processing_Sample.sln`, the same name and project ID as CProcessing's
+  own demo solution), and the program it builds is `MyGame.exe`, as in
+  the CMake starter. `CProcessingTemplate.zip` now unzips into one folder,
+  `CProcessingTemplate`, like the Linux and macOS packages, and has a
+  README.
+- **The demo program lists its keys in a bar at the bottom of the
+  window,** with the current demo's name: 1-5 switch demos, F fullscreen,
+  M the mouse cursor mode, C the console, H hides the bar, Escape quits.
+  Before, the keys were only in the documentation. The gamepad demo's
+  screenshots are now a demo of their own (5, Screenshots), and the
+  gamepad demo is now Gamepad and sound.
 
 ### Fixed
+
+- **Looping music loaded with `CP_Sound_LoadStream` went silent after its first
+  play**, unless it was an Ogg file: `CP_Sound_PlayAdvanced(music, ..., TRUE, ...)`
+  played once and then stopped. The cause was in SoLoud, the audio library,
+  which used the wrong decoder to jump back to the start. It is fixed in
+  every build, and streamed WAV, MP3 and FLAC files now loop.
 
 - **Calling a `CP_Settings_` or `CP_Graphics_` function before
   `CP_Engine_Run` could crash or corrupt memory**, for example

@@ -5,8 +5,8 @@ to build it:
 
 - **Visual Studio solution (Windows):** the workflow students and faculty
   use, with Visual Studio 2026.
-- **CMake (Windows, Linux, macOS):** builds the library, the demos and the
-  tests from source on any platform.
+- **CMake (Windows, Linux, macOS):** builds the library, the demos, the
+  examples and the tests from source on any platform.
 
 Most students only need the
 [latest release](https://github.com/DigiPen-Faculty/CProcessing/releases)
@@ -21,9 +21,26 @@ v145), as does the student template. The solution contains:
 | Project | What it is |
 |---|---|
 | `CProcessing` | The library: `CProcessing.dll`, or `CProcessingd.dll` for Debug. |
-| `Processing_Sample` | The demo program. Press 1–4 to switch demos, F for fullscreen, C to show or hide the console, Escape to quit. |
+| `Processing_Sample` | The demo program, `Processing_Demos`. Press 1–5 to switch demos, F for fullscreen, M to change the mouse cursor mode, C to show or hide the console, H to hide the key bar at the bottom, Escape to quit. |
 | `CProcessing_Tests` | Tier 1 tests: pure functions, no window needed. |
 | `CProcessing_Tests_Tier2` | Tier 2 tests: drives the real engine and checks the rendered pixels. |
+
+### The Visual Studio template
+
+`Processing_Empty/` is the student template, `CProcessingTemplate.zip` on
+the Releases page. Its `CProcessing` folder (the headers and the built
+DLLs) isn't in the repository; the Release workflow builds it fresh for
+every package. To try the template locally, build the library in all four
+configurations and package it, from a Visual Studio 2026 Developer Command
+Prompt at the repository root:
+
+```bat
+BuildReleasePackage.bat -r all -c -z
+```
+
+`-c` copies the headers and DLLs into `Processing_Empty/CProcessing`, so
+`Processing_Empty/MyGame.sln` builds. `-z` writes the zip students download
+to `Releases/CProcessingTemplate.zip`.
 
 ## Any platform: CMake
 
@@ -121,11 +138,13 @@ Pass options to the configure step with `-D`, for example
 | `CMAKE_BUILD_TYPE` | `Release` | `Debug` or `Release`, for single-configuration generators. |
 | `CPROCESSING_BUILD_SHARED` | `ON` | Build a shared library (`.dll`/`.so`/`.dylib`). Set `OFF` for a static library. |
 | `CPROCESSING_BUILD_DEMOS` | `ON`* | Build `Processing_Demos`. |
+| `CPROCESSING_BUILD_EXAMPLES` | `ON`* | Build each program in `Examples/`, as `Example_movement` and so on. |
 | `CPROCESSING_BUILD_TESTS` | `ON`* | Build the Tier 1 and Tier 2 tests. |
 | `CPROCESSING_WARNINGS_AS_ERRORS` | `OFF` | Treat warnings in CProcessing's own code as errors. CI turns this on. |
 
 \* Only when CProcessing is the top-level project. When it's added to another
-project with `add_subdirectory`, the demos and tests are off by default.
+project with `add_subdirectory`, the demos, examples and tests are off by
+default.
 
 ## Using CProcessing in your own CMake project
 
@@ -208,15 +227,10 @@ To build against a local copy of CProcessing instead of the download, add
    - The download tag in `Processing_Empty_CMake/CMakeLists.txt`.
    - The newest section heading in `CHANGELOG.md`, with the release date
      replacing "(unreleased)".
-2. **Regenerate the Windows template** in the repository from a Visual
-   Studio 2026 Developer Command Prompt, and commit the result:
-   `BuildReleasePackage.bat -r all -c -z`. This updates
-   `Processing_Empty/CProcessing`; the zip it writes to `Releases/` is not
-   committed.
-3. **Optionally, check the packages** by running the Release workflow by hand
+2. **Optionally, check the packages** by running the Release workflow by hand
    (Actions > Release > Run workflow). It builds all three packages and
    checks them, without releasing anything.
-4. **Push a tag** named after the version, such as `v3.0.0`. The Release
+3. **Push a tag** named after the version, such as `v3.0.0`. The Release
    workflow checks that the version matches everywhere and builds:
    - `CProcessingTemplate.zip` (the Visual Studio template)
    - `CProcessingTemplate-linux-x64.zip`
@@ -224,4 +238,4 @@ To build against a local copy of CProcessing instead of the download, add
 
    It then creates a draft GitHub Release with those files and the
    changelog section as its notes.
-5. **Review the draft** on GitHub and publish it.
+4. **Review the draft** on GitHub and publish it.

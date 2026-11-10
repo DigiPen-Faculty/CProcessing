@@ -13,6 +13,7 @@ Studio template instead (`CProcessingTemplate.zip` on the
 | `Assets/` | Images, sounds and fonts. Each build copies it next to the game. |
 | `CMakeLists.txt` | The build. Change `MyGame` in `project(MyGame C)` to rename the game. |
 | `CProcessing/` | The CProcessing library, already built. Only in the Linux and macOS release packages. |
+| `Examples/` | Small complete programs to read, run and copy from. Only in the release packages. |
 
 ## What you need
 

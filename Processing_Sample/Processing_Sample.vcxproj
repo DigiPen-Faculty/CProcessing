@@ -195,17 +195,19 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
   <ItemGroup>
     <ClCompile Include="Demos\DancingLinesDemo.c" />
     <ClCompile Include="Demos\DemoManager.c" />
-    <ClCompile Include="Demos\GamepadDemo.c" />
+    <ClCompile Include="Demos\GamepadSoundDemo.c" />
     <ClCompile Include="Demos\GridWaveDemo.c" />
     <ClCompile Include="Demos\NoiseDemo.c" />
+    <ClCompile Include="Demos\ScreenshotDemo.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Demos\DancingLinesDemo.h" />
     <ClInclude Include="Demos\DemoManager.h" />
-    <ClInclude Include="Demos\GamepadDemo.h" />
+    <ClInclude Include="Demos\GamepadSoundDemo.h" />
     <ClInclude Include="Demos\GridWaveDemo.h" />
     <ClInclude Include="Demos\NoiseDemo.h" />
+    <ClInclude Include="Demos\ScreenshotDemo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
