@@ -25,6 +25,23 @@ v145), as does the student template. The solution contains:
 | `CProcessing_Tests` | Tier 1 tests: pure functions, no window needed. |
 | `CProcessing_Tests_Tier2` | Tier 2 tests: drives the real engine and checks the rendered pixels. |
 
+### The Visual Studio template
+
+`Processing_Empty/` is the student template, `CProcessingTemplate.zip` on
+the Releases page. Its `CProcessing` folder (the headers and the built
+DLLs) isn't in the repository; the Release workflow builds it fresh for
+every package. To try the template locally, build the library in all four
+configurations and package it, from a Visual Studio 2026 Developer Command
+Prompt at the repository root:
+
+```bat
+BuildReleasePackage.bat -r all -c -z
+```
+
+`-c` copies the headers and DLLs into `Processing_Empty/CProcessing`, so
+`Processing_Empty/MyGame.sln` builds. `-z` writes the zip students download
+to `Releases/CProcessingTemplate.zip`.
+
 ## Any platform: CMake
 
 ### Prerequisites
@@ -208,15 +225,10 @@ To build against a local copy of CProcessing instead of the download, add
    - The download tag in `Processing_Empty_CMake/CMakeLists.txt`.
    - The newest section heading in `CHANGELOG.md`, with the release date
      replacing "(unreleased)".
-2. **Regenerate the Windows template** in the repository from a Visual
-   Studio 2026 Developer Command Prompt, and commit the result:
-   `BuildReleasePackage.bat -r all -c -z`. This updates
-   `Processing_Empty/CProcessing`; the zip it writes to `Releases/` is not
-   committed.
-3. **Optionally, check the packages** by running the Release workflow by hand
+2. **Optionally, check the packages** by running the Release workflow by hand
    (Actions > Release > Run workflow). It builds all three packages and
    checks them, without releasing anything.
-4. **Push a tag** named after the version, such as `v3.0.0`. The Release
+3. **Push a tag** named after the version, such as `v3.0.0`. The Release
    workflow checks that the version matches everywhere and builds:
    - `CProcessingTemplate.zip` (the Visual Studio template)
    - `CProcessingTemplate-linux-x64.zip`
@@ -224,4 +236,4 @@ To build against a local copy of CProcessing instead of the download, add
 
    It then creates a draft GitHub Release with those files and the
    changelog section as its notes.
-5. **Review the draft** on GitHub and publish it.
+4. **Review the draft** on GitHub and publish it.

@@ -27,6 +27,17 @@ changes to build with the new version.
 - **The template's `main.c` belongs to the student:** its header has
   places for your name and what the program does, and no longer claims
   DigiPen's copyright. A course that requires its own header can add it.
+- **The templates draw something the first time they run:** an 800x600
+  window called "My Game" with an orange circle that follows the mouse,
+  instead of an empty grey window. Comments explain what each part does.
+  The Visual Studio template and the CMake starter now have the same
+  `main.c`.
+- **The Visual Studio template's solution is now `MyGame.sln`** (it was
+  `Processing_Sample.sln`, the same name and project ID as CProcessing's
+  own demo solution), and the program it builds is `MyGame.exe`, as in
+  the CMake starter. `CProcessingTemplate.zip` now unzips into one folder,
+  `CProcessingTemplate`, like the Linux and macOS packages, and has a
+  README.
 
 ### Fixed
 

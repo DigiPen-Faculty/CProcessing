@@ -61,6 +61,9 @@ Processing_Sample/CProcessing/lib/
 Processing_Empty/.vs/
 Processing_Empty/Win32/
 Processing_Empty/x64/
+# The template's copy of the library: BuildReleasePackage.bat -c makes it
+# from a build of the library, and the release workflow does the same
+Processing_Empty/CProcessing/
 Processing_Sample/CProcessingPackage/
 
 # User files
@@ -71,7 +74,7 @@ CProcessingOutput/
 # Release packages are attached to GitHub Releases, not committed
 Releases/
 Processing_Sample/Processi.14B654ED/
-Processing_Empty/Processi.14B654ED/
+Processing_Empty/MyGame.*/
 Processing_Sample/Intermediate/
 Processing_Sample/CProcessing_Tests/Intermediate/
 Processing_Sample/CProcessing_Tests_Tier2/Intermediate/
