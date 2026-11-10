@@ -37,6 +37,7 @@ on:
       - tools/make-starter-package.sh
       - Processing_Empty/**
       - Processing_Empty_CMake/**
+      - Examples/**
       - CMakeLists.txt
       - cmake/**
   workflow_dispatch:

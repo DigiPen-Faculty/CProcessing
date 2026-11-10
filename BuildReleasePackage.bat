@@ -159,6 +159,8 @@ GOTO :init
 		FOR %%i in (main.c MyGame.sln MyGame.vcxproj README.md) do (
 			XCOPY ".\Processing_Empty\%%i" ".\Releases\CProcessingTemplate\" /s /y /q
 		)
+		REM the example programs, as source to read and copy from
+		XCOPY ".\Examples\*" ".\Releases\CProcessingTemplate\Examples\" /s /y /q
 		REM the zip holds one folder, CProcessingTemplate, as the Linux and macOS packages do
 		powershell Compress-Archive .\Releases\CProcessingTemplate .\Releases\CProcessingTemplate.zip
 

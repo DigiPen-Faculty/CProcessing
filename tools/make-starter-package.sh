@@ -10,6 +10,7 @@
 # The zip holds one folder, CProcessingTemplate/:
 #   CMakeLists.txt, main.c, README.md, .vscode/   the starter project
 #   Assets/                                       the template's sample assets
+#   Examples/                                     the example programs (source)
 #   CProcessing/inc/cprocessing*.h                the public headers
 #   CProcessing/lib/<library>                     the prebuilt library
 #   CProcessing/Exo2_license.txt                  license of the built-in font
@@ -32,6 +33,7 @@ mkdir -p "$pkg/CProcessing/inc" "$pkg/CProcessing/lib"
 cp -R "$repo/Processing_Empty_CMake/." "$pkg/"
 rm -rf "$pkg/build"
 cp -R "$repo/Processing_Empty/Assets/." "$pkg/Assets/"
+cp -R "$repo/Examples" "$pkg/Examples"
 cp "$repo"/Processing_Sample/CProcessing/inc/cprocessing*.h "$pkg/CProcessing/inc/"
 cp "$lib" "$pkg/CProcessing/lib/"
 cp "$repo/Processing_Sample/Assets/Exo2_license.txt" "$pkg/CProcessing/"

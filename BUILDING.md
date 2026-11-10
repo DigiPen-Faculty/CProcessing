@@ -5,8 +5,8 @@ to build it:
 
 - **Visual Studio solution (Windows):** the workflow students and faculty
   use, with Visual Studio 2026.
-- **CMake (Windows, Linux, macOS):** builds the library, the demos and the
-  tests from source on any platform.
+- **CMake (Windows, Linux, macOS):** builds the library, the demos, the
+  examples and the tests from source on any platform.
 
 Most students only need the
 [latest release](https://github.com/DigiPen-Faculty/CProcessing/releases)
@@ -138,11 +138,13 @@ Pass options to the configure step with `-D`, for example
 | `CMAKE_BUILD_TYPE` | `Release` | `Debug` or `Release`, for single-configuration generators. |
 | `CPROCESSING_BUILD_SHARED` | `ON` | Build a shared library (`.dll`/`.so`/`.dylib`). Set `OFF` for a static library. |
 | `CPROCESSING_BUILD_DEMOS` | `ON`* | Build `Processing_Demos`. |
+| `CPROCESSING_BUILD_EXAMPLES` | `ON`* | Build each program in `Examples/`, as `Example_movement` and so on. |
 | `CPROCESSING_BUILD_TESTS` | `ON`* | Build the Tier 1 and Tier 2 tests. |
 | `CPROCESSING_WARNINGS_AS_ERRORS` | `OFF` | Treat warnings in CProcessing's own code as errors. CI turns this on. |
 
 \* Only when CProcessing is the top-level project. When it's added to another
-project with `add_subdirectory`, the demos and tests are off by default.
+project with `add_subdirectory`, the demos, examples and tests are off by
+default.
 
 ## Using CProcessing in your own CMake project
 

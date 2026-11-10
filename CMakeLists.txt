@@ -5,12 +5,13 @@
 # today is unchanged. See BUILDING.md for usage.
 #
 #   cmake -B build                  # configure (downloads GLFW + SoLoud, pinned)
-#   cmake --build build             # library, demos and tests
+#   cmake --build build             # library, demos, examples and tests
 #   ctest --test-dir build          # run the test suites
 #
 # Everything is placed in build/bin (build/bin/<Config> for multi-config
 # generators such as Visual Studio): the CProcessing shared library, the
-# Processing_Demos executable, the test executables and an Assets folder.
+# Processing_Demos executable, the Example_* executables, the test
+# executables and an Assets folder.
 
 cmake_minimum_required(VERSION 3.20)
 
@@ -35,6 +36,7 @@ endif()
 
 option(CPROCESSING_BUILD_SHARED "Build CProcessing as a shared library (DLL/.so/.dylib)" ON)
 option(CPROCESSING_BUILD_DEMOS "Build the Processing_Demos sample program" ${CPROCESSING_IS_TOP_LEVEL})
+option(CPROCESSING_BUILD_EXAMPLES "Build the example programs in Examples/" ${CPROCESSING_IS_TOP_LEVEL})
 option(CPROCESSING_BUILD_TESTS "Build the Tier 1 and Tier 2 test suites" ${CPROCESSING_IS_TOP_LEVEL})
 option(CPROCESSING_WARNINGS_AS_ERRORS "Treat compiler warnings in CProcessing code as errors" OFF)
 
@@ -259,4 +261,46 @@ if(CPROCESSING_BUILD_TESTS)
     add_test(NAME tier2 COMMAND CProcessing_Tests_Tier2
         WORKING_DIRECTORY "$<TARGET_FILE_DIR:CProcessing_Tests_Tier2>")
     set_tests_properties(tier2 PROPERTIES LABELS "tier2;gui" TIMEOUT 120)
+endif()
+
+#------------------------------------------------------------------------------
+# Examples: one program per file in Examples/, named Example_<file>
+#------------------------------------------------------------------------------
+if(CPROCESSING_BUILD_EXAMPLES)
+    file(GLOB EXAMPLE_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Examples/*.c")
+
+    set(example_targets "")
+    foreach(source ${EXAMPLE_SOURCES})
+        get_filename_component(name "${source}" NAME_WE)
+        set(target "Example_${name}")
+        add_executable(${target} "${source}")
+        target_link_libraries(${target} PRIVATE CProcessing)
+        if(UNIX AND NOT APPLE)
+            target_link_libraries(${target} PRIVATE m)
+        endif()
+        cprocessing_set_warnings(${target})
+        cprocessing_set_rpath(${target})
+        set_target_properties(${target} PROPERTIES FOLDER Examples)
+        list(APPEND example_targets ${target})
+    endforeach()
+
+    # The examples load the templates' assets. One copy into bin/Assets
+    # serves them all; it waits for the demos' and tests' copies into the
+    # same folder, which would otherwise collide in a parallel build.
+    list(GET example_targets 0 first_example)
+    add_custom_target(Example_Assets
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Empty/Assets"
+            "$<TARGET_FILE_DIR:${first_example}>/Assets"
+        COMMENT "Copying the template assets for the examples"
+        VERBATIM)
+    set_target_properties(Example_Assets PROPERTIES FOLDER Examples)
+    foreach(other Processing_Demos CProcessing_Tests_Tier2)
+        if(TARGET ${other})
+            add_dependencies(Example_Assets ${other})
+        endif()
+    endforeach()
+    foreach(target ${example_targets})
+        add_dependencies(${target} Example_Assets)
+    endforeach()
 endif()

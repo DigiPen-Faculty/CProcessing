@@ -8,6 +8,16 @@ changes to build with the new version.
 
 ### Added
 
+- **Examples:** seven small, complete programs, each showing one thing
+  games need: `movement.c`, `collision.c`, `sprite_animation.c`,
+  `camera.c`, `game_states.c`, `score_and_text.c` and
+  `music_and_sounds.c`. Each is one file with step-by-step comments and
+  ideas to try. They're in an `Examples` folder in every release package
+  and in the repository; to run one, copy it over `main.c`.
+- **New assets in the templates' `Assets` folder**, made for the examples
+  and free to use in your own games: a sprite sheet (`SlimeSheet.png`), a
+  music loop (`Music.wav`) and three sound effects (`Coin.wav`,
+  `Jump.wav`, `Hit.wav`).
 - **When a program ends, CProcessing lists the images, sounds and fonts
   it never freed**, with how many loads of each weren't freed, and
   reminds you that every load needs its own free. (It frees them either
