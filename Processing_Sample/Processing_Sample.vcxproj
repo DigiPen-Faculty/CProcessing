@@ -199,6 +199,7 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     <ClCompile Include="Demos\GridWaveDemo.c" />
     <ClCompile Include="Demos\NoiseDemo.c" />
     <ClCompile Include="Demos\ScreenshotDemo.c" />
+    <ClCompile Include="Demos\ColorPickerDemo.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
@@ -208,6 +209,7 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     <ClInclude Include="Demos\GridWaveDemo.h" />
     <ClInclude Include="Demos\NoiseDemo.h" />
     <ClInclude Include="Demos\ScreenshotDemo.h" />
+    <ClInclude Include="Demos\ColorPickerDemo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

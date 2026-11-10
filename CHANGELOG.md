@@ -14,6 +14,13 @@ changes to build with the new version.
   `music_and_sounds.c`. Each is one file with step-by-step comments and
   ideas to try. They're in an `Examples` folder in every release package
   and in the repository; to run one, copy it over `main.c`.
+- **Lessons 1 (Your first window) and 3 (Color):** each is a page of
+  step-by-step teaching with a finished program in `Examples/Lessons`, and
+  challenges and check-yourself questions. The pages are in `docs/lessons`
+  until they are published to the wiki.
+- **A Color picker demo** (6 in `Processing_Demos`): drag red, green, blue,
+  hue, saturation, lightness and alpha sliders and watch the color, its
+  code and the colors between two kept colors.
 - **New assets in the templates' `Assets` folder**, made for the examples
   and free to use in your own games: a sprite sheet (`SlimeSheet.png`), a
   music loop (`Music.wav`) and three sound effects (`Coin.wav`,
@@ -49,7 +56,7 @@ changes to build with the new version.
   `CProcessingTemplate`, like the Linux and macOS packages, and has a
   README.
 - **The demo program lists its keys in a bar at the bottom of the
-  window,** with the current demo's name: 1-5 switch demos, F fullscreen,
+  window,** with the current demo's name: 1-6 switch demos, F fullscreen,
   M the mouse cursor mode, C the console, H hides the bar, Escape quits.
   Before, the keys were only in the documentation. The gamepad demo's
   screenshots are now a demo of their own (5, Screenshots), and the

@@ -14,6 +14,12 @@ top.
 | [score_and_text.c](score_and_text.c) | A score, a timer and other text, placed and sized on the screen. |
 | [music_and_sounds.c](music_and_sounds.c) | Looping music and sound effects, each with its own volume. |
 
+## Lessons
+
+The `Lessons` folder has the finished program for each lesson, one folder
+each (`01_first_window`, `03_color`), with a `main.c` to copy over your own.
+The lessons themselves are on the wiki.
+
 ## Running an example
 
 Each example is a whole program, with its own `main`. To run one, copy it
@@ -28,7 +34,8 @@ in your own games.
 ## In the CProcessing repository
 
 The CMake build builds every example, as `Example_movement`,
-`Example_collision` and so on, into `build/bin`. The examples are in the
+`Example_collision` and so on, and each lesson, as `Lesson_01_first_window`
+and so on, into `build/bin`. The examples are in the
 release packages, in an `Examples` folder next to `main.c`.
 
 The assets are made by
