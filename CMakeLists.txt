@@ -195,6 +195,7 @@ if(CPROCESSING_BUILD_DEMOS)
         "${DEMO_DIR}/Demos/GridWaveDemo.c"
         "${DEMO_DIR}/Demos/NoiseDemo.c"
         "${DEMO_DIR}/Demos/ScreenshotDemo.c"
+        "${DEMO_DIR}/Demos/ColorPickerDemo.c"
     )
     target_include_directories(Processing_Demos PRIVATE "${DEMO_DIR}/Demos")
     target_link_libraries(Processing_Demos PRIVATE CProcessing)
@@ -264,15 +265,22 @@ if(CPROCESSING_BUILD_TESTS)
 endif()
 
 #------------------------------------------------------------------------------
-# Examples: one program per file in Examples/, named Example_<file>
+# Examples: one program per file in Examples/, named Example_<file>, and one
+# per folder in Examples/Lessons/<folder>/main.c, named Lesson_<folder>
 #------------------------------------------------------------------------------
 if(CPROCESSING_BUILD_EXAMPLES)
     file(GLOB EXAMPLE_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Examples/*.c")
+    file(GLOB LESSON_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Examples/Lessons/*/main.c")
 
     set(example_targets "")
-    foreach(source ${EXAMPLE_SOURCES})
+    foreach(source ${EXAMPLE_SOURCES} ${LESSON_SOURCES})
         get_filename_component(name "${source}" NAME_WE)
         set(target "Example_${name}")
+        if(name STREQUAL "main")
+            get_filename_component(lesson_dir "${source}" DIRECTORY)
+            get_filename_component(lesson_name "${lesson_dir}" NAME)
+            set(target "Lesson_${lesson_name}")
+        endif()
         add_executable(${target} "${source}")
         target_link_libraries(${target} PRIVATE CProcessing)
         if(UNIX AND NOT APPLE)
