@@ -6,6 +6,10 @@ changes to build with the new version.
 
 ## 3.1.1 (unreleased)
 
+<!-- On hold (2026-11-10): students are using 3.1.0 to finish a course, so
+     nothing here is released, and `main` and the live wiki stay as they are.
+     This section grows until one larger release with all the changes. -->
+
 ### Added
 
 - **Examples:** seven small, complete programs, each showing one thing
