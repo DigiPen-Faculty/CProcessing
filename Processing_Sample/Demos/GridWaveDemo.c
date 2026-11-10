@@ -119,7 +119,7 @@ void GridWaveDemoInit(void)
 
 void GridWaveDemoUpdate(void)
 {
-	CP_Graphics_ClearBackground(GetCommonBackgoundColor());
+	CP_Graphics_ClearBackground(GetCommonBackgroundColor());
 
 	// User Input
 	if (CP_Input_MouseDown(MOUSE_BUTTON_1))

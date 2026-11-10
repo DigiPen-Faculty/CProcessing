@@ -38,6 +38,12 @@ changes to build with the new version.
   the CMake starter. `CProcessingTemplate.zip` now unzips into one folder,
   `CProcessingTemplate`, like the Linux and macOS packages, and has a
   README.
+- **The demo program lists its keys in a bar at the bottom of the
+  window,** with the current demo's name: 1-5 switch demos, F fullscreen,
+  M the mouse cursor mode, C the console, H hides the bar, Escape quits.
+  Before, the keys were only in the documentation. The gamepad demo's
+  screenshots are now a demo of their own (5, Screenshots), and the
+  gamepad demo is now Gamepad and sound.
 
 ### Fixed
 

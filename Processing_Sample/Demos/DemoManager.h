@@ -1,11 +1,15 @@
 //---------------------------------------------------------
 // file:	DemoManager.h
-// 
-// Utilities to organize multiple demos
+//
+// Switches between the demos, and handles the keys that work in all of
+// them
 //---------------------------------------------------------
+
+#pragma once
 
 #include "cprocessing.h"
 
-CP_Color GetCommonBackgoundColor(void);
+// The background color all the demos use
+CP_Color GetCommonBackgroundColor(void);
 
 void DemoManagerInit(void);

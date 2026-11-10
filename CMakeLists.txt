@@ -189,9 +189,10 @@ if(CPROCESSING_BUILD_DEMOS)
         "${DEMO_DIR}/main.c"
         "${DEMO_DIR}/Demos/DancingLinesDemo.c"
         "${DEMO_DIR}/Demos/DemoManager.c"
-        "${DEMO_DIR}/Demos/GamepadDemo.c"
+        "${DEMO_DIR}/Demos/GamepadSoundDemo.c"
         "${DEMO_DIR}/Demos/GridWaveDemo.c"
         "${DEMO_DIR}/Demos/NoiseDemo.c"
+        "${DEMO_DIR}/Demos/ScreenshotDemo.c"
     )
     target_include_directories(Processing_Demos PRIVATE "${DEMO_DIR}/Demos")
     target_link_libraries(Processing_Demos PRIVATE CProcessing)

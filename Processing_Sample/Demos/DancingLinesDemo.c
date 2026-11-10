@@ -159,7 +159,7 @@ void DancingLinesDemoInit(void)
 void DancingLinesDemoUpdate(void)
 {
 	CP_Settings_BlendMode(CP_BLEND_ALPHA);
-	CP_Graphics_ClearBackground(GetCommonBackgoundColor());
+	CP_Graphics_ClearBackground(GetCommonBackgroundColor());
 
 	CP_Settings_NoStroke();
 	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 255));

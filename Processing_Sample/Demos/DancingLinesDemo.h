@@ -7,6 +7,8 @@
 // Robust point/wall collision checks and resolutions
 //---------------------------------------------------------
 
+#pragma once
+
 void DancingLinesDemoInit(void);
 void DancingLinesDemoUpdate(void);
 void DancingLinesDemoExit(void);

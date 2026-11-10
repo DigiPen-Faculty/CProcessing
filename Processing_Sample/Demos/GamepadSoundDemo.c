@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// file:	GamepadDemo.c
+// file:	GamepadSoundDemo.c
 //
 // CProcessing features in this demo:
 // - Check for connected gamepads
@@ -7,26 +7,18 @@
 // - Check and visualize all analog and digital inputs from each gamepad
 // - Play sounds with a volume and pitch (CP_Sound_PlayAdvanced) in a sound
 //   group with its own volume (CP_Sound_SetGroupVolume)
-// - Take screenshots every frame, of the whole window and of a small region
-//   (CP_Image_Screenshot), and draw them scaled (CP_Image_Draw)
 //
 // Controls (also listed on screen, top right):
 // - D-pad up, right, down, left and the A, B, X, Y buttons play the notes
 //   C D E F G A B C, and so do the keys Q W E R T Y U I
 // - The left trigger raises the volume of new notes (1x to 2x), the right
 //   trigger raises their pitch (1x to 3x)
-// - A screenshot of the window, at 1/8 size, follows the mouse
-// - Hold the left mouse button for a 2x magnifier
-// - Space switches tunnel mode on and off: each screenshot is taken after the
-//   previous one was drawn, so it contains it, and so on
 //---------------------------------------------------------
 
 #include "cprocessing.h"
-#include "GamepadDemo.h"
+#include "GamepadSoundDemo.h"
 #include "DemoManager.h"
-#include <math.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 //-------------------------
 // NOTES
@@ -71,29 +63,7 @@ static NotePlayed notesPlayed[NOTE_LOG_SIZE];
 static int notesPlayedCount = 0;
 static CP_BOOL soundFilesMissing = FALSE;
 
-//-------------------------
-// SCREENSHOTS
-
-#define THUMBNAIL_SCALE 8		// the window screenshot is drawn at 1/8 size
-#define LENS_SIZE 80			// the magnifier shows an 80 x 80 region...
-#define LENS_ZOOM 2				// ...at 2x
-
-static CP_BOOL tunnelMode = FALSE;
-static CP_Image tunnelScreenshot = NULL;	// in tunnel mode, the previous frame's screenshot
-static unsigned screenshotsTaken = 0;
-
-static CP_Image TakeScreenshot(int x, int y, int width, int height)
-{
-	++screenshotsTaken;
-	return CP_Image_Screenshot(x, y, width, height);
-}
-
-static int ClampInt(int value, int low, int high)
-{
-	return value < low ? low : (value > high ? high : value);
-}
-
-void DrawGamepadData(int posX, int posY, int i)
+static void DrawGamepadData(int posX, int posY, int i)
 {
 	// if the gamepad isn't connected then don't render the input state
 	if (!CP_Input_GamepadConnectedAdvanced(i))
@@ -132,17 +102,17 @@ void DrawGamepadData(int posX, int posY, int i)
 	float movementOffset = 30.0f;
 	CP_Vector rightVec = CP_Vector_Set(1.0f, 0);
 	CP_Vector stick = CP_Vector_Zero();
-	CP_BOOL stickClick = FALSE;
+	int lightness = 50;
 
 	// left stick
 	stick = CP_Input_GamepadLeftStickAdvanced(i);
-	stickClick = CP_Input_GamepadDownAdvanced(GAMEPAD_LEFT_THUMB, i) ? 80 : 50;
-	CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_Create(stick.y < 0 ? (int)CP_Vector_Angle(stick, rightVec) : 360 - (int)CP_Vector_Angle(stick, rightVec), (int)(CP_Vector_Length(stick) * 100), stickClick, (int)(CP_Vector_Length(stick) * 255) + (CP_Input_GamepadDownAdvanced(GAMEPAD_LEFT_THUMB, i) ? 255 : 0))));
+	lightness = CP_Input_GamepadDownAdvanced(GAMEPAD_LEFT_THUMB, i) ? 80 : 50;
+	CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_Create(stick.y < 0 ? (int)CP_Vector_Angle(stick, rightVec) : 360 - (int)CP_Vector_Angle(stick, rightVec), (int)(CP_Vector_Length(stick) * 100), lightness, (int)(CP_Vector_Length(stick) * 255) + (CP_Input_GamepadDownAdvanced(GAMEPAD_LEFT_THUMB, i) ? 255 : 0))));
 	CP_Graphics_DrawCircle(100.0f + (stick.x * movementOffset), 160.0f + (-stick.y * movementOffset), circleDiameter);
 	// right stick
 	stick = CP_Input_GamepadRightStickAdvanced(i);
-	stickClick = CP_Input_GamepadDownAdvanced(GAMEPAD_RIGHT_THUMB, i) ? 80 : 50;
-	CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_Create(stick.y < 0 ? (int)CP_Vector_Angle(stick, rightVec) : 360 - (int)CP_Vector_Angle(stick, rightVec), (int)(CP_Vector_Length(stick) * 100), stickClick, (int)(CP_Vector_Length(stick) * 255) + (CP_Input_GamepadDownAdvanced(GAMEPAD_RIGHT_THUMB, i) ? 255 : 0))));
+	lightness = CP_Input_GamepadDownAdvanced(GAMEPAD_RIGHT_THUMB, i) ? 80 : 50;
+	CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_Create(stick.y < 0 ? (int)CP_Vector_Angle(stick, rightVec) : 360 - (int)CP_Vector_Angle(stick, rightVec), (int)(CP_Vector_Length(stick) * 100), lightness, (int)(CP_Vector_Length(stick) * 255) + (CP_Input_GamepadDownAdvanced(GAMEPAD_RIGHT_THUMB, i) ? 255 : 0))));
 	CP_Graphics_DrawCircle(300.0f + (stick.x * movementOffset), 160.0f + (-stick.y * movementOffset), circleDiameter);
 
 	//-------------------------
@@ -259,103 +229,10 @@ static void DrawInfo(void)
 		CP_Font_DrawText(line, x, y); y += lineHeight;
 	}
 
-	y += lineHeight;
-	CP_Font_DrawText("SCREENSHOTS: the window at 1/8 size follows the mouse", x, y); y += lineHeight;
-	CP_Font_DrawText("Hold the left mouse button: 2x magnifier", x, y); y += lineHeight;
-	snprintf(line, sizeof(line), "Space: tunnel mode (%s)", tunnelMode ? "ON" : "off");
-	CP_Font_DrawText(line, x, y); y += lineHeight;
-	snprintf(line, sizeof(line), "%.0f FPS, %u screenshots taken", CP_System_GetFrameRate(), screenshotsTaken);
-	CP_Font_DrawText(line, x, y);
-
 	CP_Settings_Restore();
 }
 
-// Draw an image with its top left corner at (x, y), framed in white
-static void DrawFramed(CP_Image image, float x, float y, float width, float height)
-{
-	CP_Settings_Save();
-	CP_Settings_ImageMode(CP_POSITION_CORNER);
-	CP_Image_Draw(image, x, y, width, height, 255);
-	CP_Settings_RectMode(CP_POSITION_CORNER);
-	CP_Settings_NoFill();
-	CP_Settings_Stroke(CP_Color_Create(255, 255, 255, 255));
-	CP_Settings_StrokeWeight(2.0f);
-	CP_Graphics_DrawRect(x, y, width, height);
-	CP_Settings_Restore();
-}
-
-static void DrawScreenshots(void)
-{
-	const int width = CP_System_GetWindowWidth();
-	const int height = CP_System_GetWindowHeight();
-	const float mouseX = CP_Input_GetMouseX();
-	const float mouseY = CP_Input_GetMouseY();
-	const float thumbnailWidth = (float)width / THUMBNAIL_SCALE;
-	const float thumbnailHeight = (float)height / THUMBNAIL_SCALE;
-
-	if (CP_Input_KeyTriggered(KEY_SPACE))
-	{
-		tunnelMode = !tunnelMode;
-		if (!tunnelMode)
-		{
-			CP_Image_Free(&tunnelScreenshot);
-		}
-	}
-
-	// The magnifier's region: centered on the mouse, but kept inside the
-	// window. It's captured before anything is drawn over it.
-	CP_Image lens = NULL;
-	int lensX = ClampInt((int)mouseX - LENS_SIZE / 2, 0, width - LENS_SIZE);
-	int lensY = ClampInt((int)mouseY - LENS_SIZE / 2, 0, height - LENS_SIZE);
-	if (CP_Input_MouseDown(MOUSE_BUTTON_LEFT))
-	{
-		lens = TakeScreenshot(lensX, lensY, LENS_SIZE, LENS_SIZE);
-	}
-
-	if (tunnelMode)
-	{
-		// last frame's screenshot, which shows last frame's thumbnail, which
-		// shows the one before it, and so on
-		if (tunnelScreenshot)
-		{
-			DrawFramed(tunnelScreenshot, mouseX, mouseY, thumbnailWidth, thumbnailHeight);
-		}
-	}
-	else
-	{
-		// the window as it is now
-		CP_Image screenshot = TakeScreenshot(0, 0, width, height);
-		DrawFramed(screenshot, mouseX, mouseY, thumbnailWidth, thumbnailHeight);
-		CP_Image_Free(&screenshot);
-	}
-
-	if (lens)
-	{
-		// drawn centered over the region it shows, with a cross at its center
-		const float zoomedSize = (float)(LENS_SIZE * LENS_ZOOM);
-		const float centerX = lensX + LENS_SIZE * 0.5f;
-		const float centerY = lensY + LENS_SIZE * 0.5f;
-		DrawFramed(lens, centerX - zoomedSize * 0.5f, centerY - zoomedSize * 0.5f, zoomedSize, zoomedSize);
-		CP_Image_Free(&lens);
-
-		CP_Settings_Save();
-		CP_Settings_Stroke(CP_Color_Create(255, 0, 0, 255));
-		CP_Settings_StrokeWeight(1.0f);
-		CP_Graphics_DrawLine(centerX - 8.0f, centerY, centerX + 8.0f, centerY);
-		CP_Graphics_DrawLine(centerX, centerY - 8.0f, centerX, centerY + 8.0f);
-		CP_Settings_Restore();
-	}
-
-	if (tunnelMode)
-	{
-		// taken after everything is drawn, so the next thumbnail contains this
-		// frame's thumbnail
-		CP_Image_Free(&tunnelScreenshot);
-		tunnelScreenshot = TakeScreenshot(0, 0, width, height);
-	}
-}
-
-void GamepadDemoInit(void)
+void GamepadSoundDemoInit(void)
 {
 	CP_Settings_Save();
 	CP_Settings_TextSize(25);
@@ -373,14 +250,12 @@ void GamepadDemoInit(void)
 	}
 	CP_Sound_SetGroupVolume(NOTE_GROUP, NOTE_GROUP_VOLUME);
 	notesPlayedCount = 0;
-	tunnelMode = FALSE;
-	screenshotsTaken = 0;
 }
 
-void GamepadDemoUpdate(void)
+void GamepadSoundDemoUpdate(void)
 {
 	// clear background and draw separation lines
-	CP_Graphics_ClearBackground(GetCommonBackgoundColor());
+	CP_Graphics_ClearBackground(GetCommonBackgroundColor());
 	CP_Graphics_DrawLine(CP_System_GetWindowWidth() * 0.5f, 0, CP_System_GetWindowWidth() * 0.5f, (float)CP_System_GetWindowHeight());
 	CP_Graphics_DrawLine(0, CP_System_GetWindowHeight() * 0.5f, (float)CP_System_GetWindowWidth(), CP_System_GetWindowHeight() * 0.5f);
 
@@ -406,12 +281,9 @@ void GamepadDemoUpdate(void)
 
 	PlayNotes();
 	DrawInfo();
-
-	// last, so the screenshots show everything above
-	DrawScreenshots();
 }
 
-void GamepadDemoExit(void)
+void GamepadSoundDemoExit(void)
 {
 	CP_Sound_StopGroup(NOTE_GROUP);
 	for (int i = 0; i < NOTE_COUNT; ++i)
@@ -419,6 +291,5 @@ void GamepadDemoExit(void)
 		CP_Sound_Free(&notes[i].sound);
 	}
 	CP_Sound_SetGroupVolume(NOTE_GROUP, 1.0f);
-	CP_Image_Free(&tunnelScreenshot);
 	CP_Settings_Restore();
 }

@@ -27,13 +27,16 @@
     <ClCompile Include="Demos\DemoManager.c">
       <Filter>Demos</Filter>
     </ClCompile>
-    <ClCompile Include="Demos\GamepadDemo.c">
+    <ClCompile Include="Demos\GamepadSoundDemo.c">
       <Filter>Demos</Filter>
     </ClCompile>
     <ClCompile Include="Demos\GridWaveDemo.c">
       <Filter>Demos</Filter>
     </ClCompile>
     <ClCompile Include="Demos\NoiseDemo.c">
+      <Filter>Demos</Filter>
+    </ClCompile>
+    <ClCompile Include="Demos\ScreenshotDemo.c">
       <Filter>Demos</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,13 +47,16 @@
     <ClInclude Include="Demos\DemoManager.h">
       <Filter>Demos</Filter>
     </ClInclude>
-    <ClInclude Include="Demos\GamepadDemo.h">
+    <ClInclude Include="Demos\GamepadSoundDemo.h">
       <Filter>Demos</Filter>
     </ClInclude>
     <ClInclude Include="Demos\GridWaveDemo.h">
       <Filter>Demos</Filter>
     </ClInclude>
     <ClInclude Include="Demos\NoiseDemo.h">
+      <Filter>Demos</Filter>
+    </ClInclude>
+    <ClInclude Include="Demos\ScreenshotDemo.h">
       <Filter>Demos</Filter>
     </ClInclude>
   </ItemGroup>

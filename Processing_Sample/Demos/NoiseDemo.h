@@ -7,6 +7,8 @@
 // CP_Random_Noise			- use perlin noise to compute a random color
 //---------------------------------------------------------
 
+#pragma once
+
 void NoiseDemoInit(void);
 void NoiseDemoUpdate(void);
 void NoiseDemoExit(void);
