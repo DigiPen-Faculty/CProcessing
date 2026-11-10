@@ -87,8 +87,11 @@ void game_update(void)
 
 	// What's happening, at the bottom
 	char text[100];
-	snprintf(text, sizeof(text), "Frame %d (frames are numbered 0 to %d), %.0f frames per second (Up and Down to change)",
-		currentFrame, frameCount - 1, framesPerSecond);
+	snprintf(text, sizeof(text), "Frame %d", currentFrame);
+	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
+	CP_Font_DrawText(text, 20.0f, 550.0f);
+	snprintf(text, sizeof(text), "(frames are numbered 0 to %d), %.0f frames per second (Up and Down to change)",
+		frameCount - 1, framesPerSecond);
 	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
 	CP_Font_DrawText(text, 20.0f, 570.0f);
 }
