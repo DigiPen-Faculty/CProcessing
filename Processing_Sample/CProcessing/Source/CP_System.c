@@ -421,6 +421,7 @@ CP_API void CP_Engine_Run(void)
 
 			// init
 			if (_currState.init) _currState.init();
+			CP_ApplyWindowSizeChosenInInit();
 
 			_stateIsChanging = false;
 		}
@@ -1157,6 +1158,25 @@ void CP_Shutdown(void)
 	glfwTerminate();
 	_CORE.window = NULL;
 	_CORE.hwnd = NULL;
+}
+
+// A window size chosen in a state's init (the usual place) is applied before
+// that state's first update, not a frame later, so the first update sees the
+// size it asked for, and what it draws (even if it only draws once) fits.
+// Anything init drew is finished into the old canvas, which keeps it in its
+// top left corner.
+void CP_ApplyWindowSizeChosenInInit(void)
+{
+	if (!_deferredSizeChange || !_CORE.nvg)
+	{
+		return;
+	}
+	nvgEndFrame(_CORE.nvg);
+	_deferredSizeChange = FALSE;
+	CP_DeferredSetWindowSizeInternal(_deferredWidth, _deferredHeight, _deferredFullscreen);
+	CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height);
+	CP_Canvas_Bind();
+	nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
 }
 
 void CP_FrameStart(void)

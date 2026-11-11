@@ -1428,6 +1428,12 @@ static void LeaveAssetsLoadedForTheExitReport(void);
 
 static void HarnessUpdate(void)
 {
+    if (frameCount == 0)
+    {
+        // HarnessInit chose the window size in the same frame
+        tier2_scalars.windowWidthInFirstUpdate = CP_System_GetWindowWidth();
+    }
+
     // Let the deferred window resize (requested in HarnessInit) take effect
     // before drawing/capturing anything.
     if (firstScenarioFrame < 0)

@@ -132,6 +132,7 @@ void CP_Sound_ReportLoaded(CP_Report* report);
 void CP_Text_ReportLoaded(CP_Report* report);
 //////////////////
 void CP_FrameStart(void);
+void CP_ApplyWindowSizeChosenInInit(void);
 void CP_FrameEnd(void);
 
 void CP_FrameRate_Init(void);
