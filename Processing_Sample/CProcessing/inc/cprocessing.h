@@ -221,6 +221,7 @@ CP_API CP_BOOL			CP_Input_MouseClicked				(void);
 CP_API CP_BOOL			CP_Input_MouseDoubleClicked			(void);
 CP_API CP_BOOL			CP_Input_MouseDragged				(CP_MOUSE button);
 CP_API float			CP_Input_MouseWheel					(void);
+CP_API const char*		CP_Input_GetTypedText				(void);
 CP_API float			CP_Input_GetMouseX					(void);
 CP_API float			CP_Input_GetMouseY					(void);
 CP_API float			CP_Input_GetMousePreviousX			(void);

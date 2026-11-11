@@ -983,6 +983,7 @@ static void Scn_InputQuiescentDefaults(void)
     tier2_scalars.mouseDoubleClicked = CP_Input_MouseDoubleClicked();
     tier2_scalars.keyADown = CP_Input_KeyDown(KEY_A);
     tier2_scalars.mouseLeftDown = CP_Input_MouseDown(MOUSE_BUTTON_LEFT);
+    tier2_scalars.typedTextIsEmpty = CP_Input_GetTypedText() != NULL && CP_Input_GetTypedText()[0] == '\0';
 }
 
 // ---- Drawing persistence (cross-platform work) ----

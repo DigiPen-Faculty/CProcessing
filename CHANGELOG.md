@@ -12,10 +12,13 @@ changes to build with the new version.
 
 ### Added
 
-- **Examples:** seven small, complete programs, each showing one thing
+- **Typed text:** `CP_Input_GetTypedText` gives the text the player typed
+  during the last frame, as UTF-8 (including accented letters and other
+  languages), so a game can ask for a name for a high score.
+- **Examples:** eight small, complete programs, each showing one thing
   games need: `movement.c`, `collision.c`, `sprite_animation.c`,
-  `camera.c`, `game_states.c`, `score_and_text.c` and
-  `music_and_sounds.c`. Each is one file with step-by-step comments and
+  `camera.c`, `game_states.c`, `score_and_text.c`,
+  `music_and_sounds.c` and `text_input.c`. Each is one file with step-by-step comments and
   ideas to try. They're in an `Examples` folder in every release package
   and in the repository; to run one, copy it over `main.c`.
 - **Lessons 1 (Your first window) and 3 (Color):** each is a page of

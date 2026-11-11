@@ -157,6 +157,7 @@ typedef struct
     CP_BOOL mouseDoubleClicked;
     CP_BOOL keyADown;
     CP_BOOL mouseLeftDown;
+    CP_BOOL typedTextIsEmpty;       // non-NULL and "" when nothing was typed
 
     // CP_System_GetWindowHandle
     CP_BOOL windowHandleIsNull;

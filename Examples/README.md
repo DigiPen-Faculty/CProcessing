@@ -13,6 +13,7 @@ top.
 | [game_states.c](game_states.c) | A menu, play, pause and game over, each a game state of its own. |
 | [score_and_text.c](score_and_text.c) | A score, a timer and other text, placed and sized on the screen. |
 | [music_and_sounds.c](music_and_sounds.c) | Looping music and sound effects, each with its own volume. |
+| [text_input.c](text_input.c) | Typing a name: reading typed characters, Backspace, Enter and a blinking cursor. |
 
 ## Lessons
 
