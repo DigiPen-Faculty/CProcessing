@@ -15,6 +15,7 @@ top.
 | [music_and_sounds.c](music_and_sounds.c) | Looping music and sound effects, each with its own volume. |
 | [text_input.c](text_input.c) | Typing a name: reading typed characters, Backspace, Enter and a blinking cursor. |
 | [curves.c](curves.c) | A pie chart, a loading ring, a Bezier curve with draggable handles, and hills made of layered noise. |
+| [window_options.c](window_options.c) | Fullscreen, a resizable window, vsync and the frame rate limit, with keys to change them. |
 
 ## Lessons
 

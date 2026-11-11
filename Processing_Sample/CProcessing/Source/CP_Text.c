@@ -213,6 +213,17 @@ CP_API void CP_Font_Free(CP_Font* font)
 				return;
 			}
 
+			// settings (and saved settings) that use this font go back to the
+			// default font, so none keeps a font that is gone
+			CP_CorePtr core = GetCPCore();
+			for (int s = 0; s < core->nstates; ++s)
+			{
+				if (core->states[s].font == *font)
+				{
+					core->states[s].font = NULL;
+				}
+			}
+
 			// remove the font from the list and also ask NVG to remove and free
 			vect_rem_CP_Font(font_vector, i);
 			nvgFreeFont(CORE->nvg, (*font)->filepath);
@@ -235,6 +246,13 @@ CP_API void CP_Font_Set(CP_Font font)
 	}
 
 	nvgFontFaceId(CORE->nvg, font->handle);
+	GetDrawInfo()->font = font;
+}
+
+CP_API CP_Font CP_Font_GetCurrent(void)
+{
+	CP_Font font = GetDrawInfo()->font;
+	return font ? font : _default_font;
 }
 
 CP_API void CP_Font_DrawText(const char* text, float x, float y)

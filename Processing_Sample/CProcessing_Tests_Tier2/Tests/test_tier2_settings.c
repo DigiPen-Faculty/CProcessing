@@ -150,3 +150,31 @@ void test_tier2_settings_save_restore_round_trips_fill_and_transform(void)
     assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_SETTINGS_SAVE_RESTORE, 100, 100));
     assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_SETTINGS_SAVE_RESTORE, 150, 150));
 }
+
+// ---- Getters ----
+
+void test_tier2_settings_getters_give_back_what_was_set(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.fillGetsWhatWasSet);
+    TEST_ASSERT_TRUE(tier2_scalars.strokeGetsWhatWasSet);
+    TEST_ASSERT_TRUE(tier2_scalars.strokeWeightGetsWhatWasSet);
+    TEST_ASSERT_TRUE(tier2_scalars.textSizeGetsWhatWasSet);
+}
+
+void test_tier2_settings_fill_and_stroke_colors_are_kept_by_nofill_and_nostroke(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.fillKeptAfterNoFill);
+    TEST_ASSERT_TRUE(tier2_scalars.strokeKeptAfterNoStroke);
+}
+
+void test_tier2_settings_restore_brings_back_what_the_getters_return(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.settingsBackAfterRestore);
+}
+
+void test_tier2_settings_getfill_works_before_run(void)
+{
+    TEST_ASSERT_EQUAL_UINT8(12, tier2_scalars.fillBeforeRun.r);
+    TEST_ASSERT_EQUAL_UINT8(200, tier2_scalars.fillBeforeRun.g);
+    TEST_ASSERT_EQUAL_UINT8(34, tier2_scalars.fillBeforeRun.b);
+}

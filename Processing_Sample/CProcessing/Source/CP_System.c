@@ -72,6 +72,11 @@ static double StartingTime, EndingTime, ElapsedSeconds;
 static double _frametimeTarget = 1.0 / 60.0;
 static double _frametime = 1.0 / 60.0;
 
+// Window and display options that can be chosen before CP_Engine_Run, and
+// are used when the window opens
+static CP_BOOL _vsync = FALSE;
+static CP_BOOL _windowResizable = FALSE;
+
 // Frames since the start of the program
 static unsigned int _frameCount;
 
@@ -508,6 +513,45 @@ CP_API void CP_System_FullscreenAdvanced(int targetWidth, int targetHeight)
 	CP_SetWindowSizeInternal(targetWidth, targetHeight, true);
 }
 
+CP_API CP_BOOL CP_System_IsFullscreen(void)
+{
+	if (_CORE.window && _CORE.nvg)
+	{
+		// a window on a monitor is fullscreen
+		return glfwGetWindowMonitor(_CORE.window) != NULL ? TRUE : FALSE;
+	}
+	// no window yet: what was asked for before CP_Engine_Run
+	return (_deferredSizeChange ? _deferredFullscreen : (CP_BOOL)_CORE.isFullscreen) ? TRUE : FALSE;
+}
+
+CP_API void CP_System_SetWindowResizable(CP_BOOL resizable)
+{
+	_windowResizable = resizable ? TRUE : FALSE;
+	if (_CORE.window && _CORE.nvg)
+	{
+		glfwSetWindowAttrib(_CORE.window, GLFW_RESIZABLE, _windowResizable);
+	}
+}
+
+CP_API CP_BOOL CP_System_GetWindowResizable(void)
+{
+	return _windowResizable;
+}
+
+CP_API void CP_System_SetVSync(CP_BOOL vsync)
+{
+	_vsync = vsync ? TRUE : FALSE;
+	if (_CORE.window && _CORE.nvg)
+	{
+		glfwSwapInterval(_vsync ? 1 : 0);
+	}
+}
+
+CP_API CP_BOOL CP_System_GetVSync(void)
+{
+	return _vsync;
+}
+
 // The window size in the coordinates everything is drawn in, which is also
 // what the mouse position uses. On hi-dpi displays (e.g. 2x on a Retina Mac)
 // the window has more pixels than that; the canvas is that many pixels.
@@ -788,6 +832,12 @@ CP_API void CP_System_SetFrameRate(float fps)
 	_frametimeTarget = fps > 0.0f ? 1.0 / fps : 0.0; // seconds per frame
 }
 
+CP_API float CP_System_GetTargetFrameRate(void)
+{
+	// 0 for no limit, as for SetFrameRate
+	return _frametimeTarget > 0.0 ? (float)(1.0 / _frametimeTarget) : 0.0f;
+}
+
 CP_API float CP_System_GetDt(void)
 {
 	return (float)_frametime;
@@ -871,7 +921,7 @@ void CP_Initialize(void)
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 #endif
 	glfwWindowHint(GLFW_DOUBLEBUFFER, 1);	// persistence comes from the canvas framebuffer
-	glfwWindowHint(GLFW_RESIZABLE, 0);
+	glfwWindowHint(GLFW_RESIZABLE, _windowResizable);
 	glfwWindowHint(GLFW_VISIBLE, 0);
 #if defined(__APPLE__)
 	// macOS only provides OpenGL 3.2+ as a forward-compatible core profile,
@@ -918,7 +968,7 @@ void CP_Initialize(void)
 	// with any CP_Settings_ calls made before CP_Engine_Run
 	CP_Settings_ApplyAll();
 
-	glfwSwapInterval(0);
+	glfwSwapInterval(_vsync ? 1 : 0);
 	glfwSetTime(0);
 
 	// Initialize random number generators

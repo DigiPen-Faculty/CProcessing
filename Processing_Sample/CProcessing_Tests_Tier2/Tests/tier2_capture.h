@@ -26,6 +26,8 @@ typedef enum
     // so it runs before anything else changes them (and without the
     // baseline reset every other scenario gets)
     SCN_SETTINGS_BEFORE_RUN,
+    SCN_SYSTEM_GETTERS,
+    SCN_SETTINGS_GETTERS,
     SCN_CLEAR_BACKGROUND,
     SCN_DRAW_POINT,
     SCN_DRAW_LINE,
@@ -70,6 +72,7 @@ typedef enum
     SCN_SHARED_ASSETS,
     SCN_FONT_DRAWTEXT,
     SCN_FONT_LOAD_FREE,
+    SCN_FONT_GET_CURRENT,
     SCN_FONT_FREE_KEEPS_OTHERS,
     SCN_FONT_OPENTYPE,
     SCN_FONT_SIZE_SWEEP,
@@ -144,6 +147,36 @@ typedef struct
     bool soundAndStreamDiffer;
     bool sharedSoundReloadSame;
     bool frameRateNoLimitSet;      // SetFrameRate(0) and (-30) ran
+
+    // System getters (see Scn_SystemGetters)
+    CP_BOOL vsyncBeforeRun;         // set to TRUE before CP_Engine_Run
+    CP_BOOL resizableBeforeRun;
+    CP_BOOL fullscreenBeforeRun;
+    CP_BOOL vsyncInRun;             // still TRUE once the window is open
+    CP_BOOL resizableInRun;
+    CP_BOOL fullscreenInRun;
+    CP_BOOL vsyncSetOff;            // the getters follow the setters while running
+    CP_BOOL resizableSetOff;
+    float targetFrameRateDefault;   // the baseline's 60
+    float targetFrameRateSet30;
+    float targetFrameRateSet0;
+    float targetFrameRateSetNegative;
+
+    // Settings getters (see Scn_SettingsGetters)
+    CP_Color fillBeforeRun;         // the fill set before CP_Engine_Run
+    CP_BOOL fillGetsWhatWasSet;
+    CP_BOOL fillKeptAfterNoFill;
+    CP_BOOL strokeGetsWhatWasSet;
+    CP_BOOL strokeKeptAfterNoStroke;
+    CP_BOOL strokeWeightGetsWhatWasSet;
+    CP_BOOL textSizeGetsWhatWasSet;
+    CP_BOOL settingsBackAfterRestore;
+
+    // CP_Font_GetCurrent (see Scn_FontGetCurrent)
+    CP_BOOL fontStartsAsDefault;
+    CP_BOOL fontSetIsCurrent;
+    CP_BOOL fontBackAfterRestore;
+    CP_BOOL freedFontFallsBackToDefault;
     CP_BOOL windowFocusSample;
     int displayWidth;
     int displayHeight;

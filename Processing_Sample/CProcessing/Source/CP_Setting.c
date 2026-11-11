@@ -84,6 +84,7 @@ void CP_Settings_InitDefaults(CP_DrawInfoPtr DI)
 	DI->wrap_mode = CP_IMAGE_WRAP_CLAMP;
 	DI->text_size = 16.0f;	// NanoVG's default
 	DI->text_align = (int)CP_TEXT_ALIGN_H_LEFT | (int)CP_TEXT_ALIGN_V_BASELINE;
+	DI->font = NULL;
 }
 
 void CP_Settings_ApplyAll(void)
@@ -327,6 +328,31 @@ CP_API void CP_Settings_ResetMatrix(void)
 
 	// World Mouse values are now invalid
 	CP_Input_SetWorldMouseDirty();
+}
+
+// The current settings, as the drawing functions use them. Save and Restore
+// bring back what these return, like the settings themselves.
+
+// The last fill color given, which is still what it is after NoFill
+CP_API CP_Color CP_Settings_GetFill(void)
+{
+	return GetDrawInfo()->fill_color;
+}
+
+// The last stroke color given, which is still what it is after NoStroke
+CP_API CP_Color CP_Settings_GetStroke(void)
+{
+	return GetDrawInfo()->stroke_color;
+}
+
+CP_API float CP_Settings_GetStrokeWeight(void)
+{
+	return GetDrawInfo()->stroke_weight;
+}
+
+CP_API float CP_Settings_GetTextSize(void)
+{
+	return GetDrawInfo()->text_size;
 }
 
 CP_API void CP_Settings_Save(void)

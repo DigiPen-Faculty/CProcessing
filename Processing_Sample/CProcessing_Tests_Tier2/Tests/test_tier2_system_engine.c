@@ -95,3 +95,33 @@ void test_tier2_system_console_printf_keeps_working(void)
     TEST_ASSERT_GREATER_OR_EQUAL_INT(0, tier2_scalars.printfAfterShowConsole);
     TEST_ASSERT_GREATER_OR_EQUAL_INT(0, tier2_scalars.printfAfterHideConsole);
 }
+
+// ---- System getters ----
+
+void test_tier2_system_vsync_and_resizable_chosen_before_run_are_kept(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.vsyncBeforeRun);
+    TEST_ASSERT_TRUE(tier2_scalars.resizableBeforeRun);
+    TEST_ASSERT_TRUE(tier2_scalars.vsyncInRun);
+    TEST_ASSERT_TRUE(tier2_scalars.resizableInRun);
+}
+
+void test_tier2_system_vsync_and_resizable_getters_follow_the_setters(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.vsyncSetOff);
+    TEST_ASSERT_TRUE(tier2_scalars.resizableSetOff);
+}
+
+void test_tier2_system_is_fullscreen_is_false_in_a_window(void)
+{
+    TEST_ASSERT_FALSE(tier2_scalars.fullscreenBeforeRun);
+    TEST_ASSERT_FALSE(tier2_scalars.fullscreenInRun);
+}
+
+void test_tier2_system_target_frame_rate_gives_the_limit_and_0_for_none(void)
+{
+    TEST_ASSERT_EQUAL_FLOAT(60.0f, tier2_scalars.targetFrameRateDefault);
+    TEST_ASSERT_EQUAL_FLOAT(30.0f, tier2_scalars.targetFrameRateSet30);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, tier2_scalars.targetFrameRateSet0);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, tier2_scalars.targetFrameRateSetNegative);
+}
