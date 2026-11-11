@@ -111,6 +111,9 @@ int main(void)
     RUN_TEST(test_tier2_font_text_animated_by_size_draws_every_frame);
     RUN_TEST(test_tier2_font_text_animated_by_scale_draws_every_frame);
     RUN_TEST(test_tier2_font_text_size_is_the_em_size);
+    RUN_TEST(test_tier2_font_measuring_text);
+    RUN_TEST(test_tier2_font_measuring_a_text_box_counts_wrapped_lines);
+    RUN_TEST(test_tier2_font_measuring_null_text_is_zero);
     RUN_TEST(test_tier2_font_opentype_cff_font_loads_and_draws);
     RUN_TEST(test_tier2_font_large_text_draws);
     RUN_TEST(test_tier2_font_text_mirrored_and_flipped_draws);

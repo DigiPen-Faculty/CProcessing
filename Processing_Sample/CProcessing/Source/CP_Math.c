@@ -75,6 +75,89 @@ CP_API float CP_Math_Radians(float degrees)
 	return degrees * ((float)M_PI / 180.0f);
 }
 
+CP_API float CP_Math_Map(float value, float inMin, float inMax, float outMin, float outMax)
+{
+	// An empty input range has no "how far along": use the start of the output
+	if (inMax == inMin)
+	{
+		return outMin;
+	}
+	return outMin + (value - inMin) * (outMax - outMin) / (inMax - inMin);
+}
+
+// Easing functions: t goes from 0 to 1 (values outside are clamped), and the
+// result goes from 0 to 1, at a speed that changes along the way.
+
+CP_API float CP_Math_EaseInQuad(float t)
+{
+	t = CP_Math_ClampFloat(t, 0.0f, 1.0f);
+	return t * t;
+}
+
+CP_API float CP_Math_EaseOutQuad(float t)
+{
+	t = CP_Math_ClampFloat(t, 0.0f, 1.0f);
+	return 1.0f - (1.0f - t) * (1.0f - t);
+}
+
+CP_API float CP_Math_EaseInOutQuad(float t)
+{
+	t = CP_Math_ClampFloat(t, 0.0f, 1.0f);
+	if (t < 0.5f)
+	{
+		return 2.0f * t * t;
+	}
+	float u = -2.0f * t + 2.0f;
+	return 1.0f - u * u / 2.0f;
+}
+
+CP_API float CP_Math_EaseInCubic(float t)
+{
+	t = CP_Math_ClampFloat(t, 0.0f, 1.0f);
+	return t * t * t;
+}
+
+CP_API float CP_Math_EaseOutCubic(float t)
+{
+	t = CP_Math_ClampFloat(t, 0.0f, 1.0f);
+	float u = 1.0f - t;
+	return 1.0f - u * u * u;
+}
+
+CP_API float CP_Math_EaseInOutCubic(float t)
+{
+	t = CP_Math_ClampFloat(t, 0.0f, 1.0f);
+	if (t < 0.5f)
+	{
+		return 4.0f * t * t * t;
+	}
+	float u = -2.0f * t + 2.0f;
+	return 1.0f - u * u * u / 2.0f;
+}
+
+CP_API float CP_Math_EaseOutBounce(float t)
+{
+	t = CP_Math_ClampFloat(t, 0.0f, 1.0f);
+	const float n = 7.5625f;
+	const float d = 2.75f;
+	if (t < 1.0f / d)
+	{
+		return n * t * t;
+	}
+	if (t < 2.0f / d)
+	{
+		t -= 1.5f / d;
+		return n * t * t + 0.75f;
+	}
+	if (t < 2.5f / d)
+	{
+		t -= 2.25f / d;
+		return n * t * t + 0.9375f;
+	}
+	t -= 2.625f / d;
+	return n * t * t + 0.984375f;
+}
+
 CP_API void CP_Math_ScreenToWorld(float xIn, float yIn, float* xOut, float* yOut)
 {
 	CP_CorePtr CORE = GetCPCore();
@@ -121,6 +204,45 @@ CP_API CP_Vector CP_Vector_Normalize(CP_Vector vec)
 	}
 	float hyp = sqrtf((vec.x * vec.x) + (vec.y * vec.y));
 	return (CP_Vector) { vec.x / hyp, vec.y / hyp };
+}
+
+CP_API CP_Vector CP_Vector_Lerp(CP_Vector a, CP_Vector b, float lerpFactor)
+{
+	return (CP_Vector) {
+		CP_Math_LerpFloat(a.x, b.x, lerpFactor),
+		CP_Math_LerpFloat(a.y, b.y, lerpFactor)
+	};
+}
+
+CP_API CP_Vector CP_Vector_Rotate(CP_Vector vec, float degrees)
+{
+	// The same turn as CP_Matrix_Rotate and CP_Settings_Rotate: with y
+	// pointing down, positive degrees turn clockwise on the screen
+	float radians = CP_Math_Radians(degrees);
+	float c = cosf(radians);
+	float s = sinf(radians);
+	return (CP_Vector) { vec.x * c - vec.y * s, vec.x * s + vec.y * c };
+}
+
+CP_API CP_Vector CP_Vector_FromAngle(float degrees)
+{
+	// 0 degrees points right, 90 points down the screen
+	float radians = CP_Math_Radians(degrees);
+	return (CP_Vector) { cosf(radians), sinf(radians) };
+}
+
+CP_API CP_Vector CP_Vector_Limit(CP_Vector vec, float maxLength)
+{
+	float length = CP_Vector_Length(vec);
+	if (maxLength <= 0.0f)
+	{
+		return CP_Vector_Zero();
+	}
+	if (length <= maxLength)
+	{
+		return vec;
+	}
+	return CP_Vector_Scale(vec, maxLength / length);
 }
 
 CP_API CP_Vector CP_Vector_MatrixMultiply(CP_Matrix m, CP_Vector v)

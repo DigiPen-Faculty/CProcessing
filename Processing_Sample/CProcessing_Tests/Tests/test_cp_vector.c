@@ -201,3 +201,86 @@ void test_vector_angleccw_equals_anglecw_minus_360(void)
     float ccw = CP_Vector_AngleCCW(from, to);
     TEST_ASSERT_FLOAT_WITHIN(0.01f, cw - 360.0f, ccw);
 }
+
+// ---- Lerp, Rotate, FromAngle and Limit ----
+
+void test_vector_lerp_ends_and_middle(void)
+{
+    CP_Vector a = CP_Vector_Set(0.0f, 10.0f);
+    CP_Vector b = CP_Vector_Set(10.0f, 30.0f);
+    assertVectorEqual(a, CP_Vector_Lerp(a, b, 0.0f));
+    assertVectorEqual(b, CP_Vector_Lerp(a, b, 1.0f));
+    assertVectorEqual(CP_Vector_Set(5.0f, 20.0f), CP_Vector_Lerp(a, b, 0.5f));
+}
+
+void test_vector_lerp_factor_is_clamped(void)
+{
+    CP_Vector a = CP_Vector_Set(0.0f, 0.0f);
+    CP_Vector b = CP_Vector_Set(10.0f, 10.0f);
+    assertVectorEqual(a, CP_Vector_Lerp(a, b, -1.0f));
+    assertVectorEqual(b, CP_Vector_Lerp(a, b, 2.0f));
+}
+
+void test_vector_rotate_a_quarter_turn_goes_clockwise_on_screen(void)
+{
+    // y points down, so right turned 90 degrees points down the screen
+    CP_Vector v = CP_Vector_Rotate(CP_Vector_Set(1.0f, 0.0f), 90.0f);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.0f, v.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 1.0f, v.y);
+}
+
+void test_vector_rotate_keeps_length_and_matches_the_matrix(void)
+{
+    CP_Vector v = CP_Vector_Set(3.0f, 4.0f);
+    CP_Vector turned = CP_Vector_Rotate(v, 37.0f);
+    CP_Vector viaMatrix = CP_Vector_MatrixMultiply(CP_Matrix_Rotate(37.0f), v);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 5.0f, CP_Vector_Length(turned));
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, viaMatrix.x, turned.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, viaMatrix.y, turned.y);
+}
+
+void test_vector_rotate_a_full_turn_is_the_same_vector(void)
+{
+    CP_Vector v = CP_Vector_Rotate(CP_Vector_Set(3.0f, 4.0f), 360.0f);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 3.0f, v.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 4.0f, v.y);
+}
+
+void test_vector_fromangle_zero_points_right_and_ninety_points_down(void)
+{
+    CP_Vector right = CP_Vector_FromAngle(0.0f);
+    CP_Vector down = CP_Vector_FromAngle(90.0f);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 1.0f, right.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.0f, right.y);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.0f, down.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 1.0f, down.y);
+}
+
+void test_vector_fromangle_is_a_unit_vector_that_rotate_agrees_with(void)
+{
+    CP_Vector v = CP_Vector_FromAngle(123.0f);
+    CP_Vector r = CP_Vector_Rotate(CP_Vector_Set(1.0f, 0.0f), 123.0f);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 1.0f, CP_Vector_Length(v));
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, r.x, v.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, r.y, v.y);
+}
+
+void test_vector_limit_shortens_a_long_vector_keeping_direction(void)
+{
+    CP_Vector v = CP_Vector_Limit(CP_Vector_Set(30.0f, 40.0f), 5.0f);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 3.0f, v.x);
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 4.0f, v.y);
+}
+
+void test_vector_limit_leaves_a_short_vector_alone(void)
+{
+    assertVectorEqual(CP_Vector_Set(3.0f, 4.0f), CP_Vector_Limit(CP_Vector_Set(3.0f, 4.0f), 10.0f));
+    assertVectorEqual(CP_Vector_Set(3.0f, 4.0f), CP_Vector_Limit(CP_Vector_Set(3.0f, 4.0f), 5.0f));
+}
+
+void test_vector_limit_zero_or_negative_gives_zero(void)
+{
+    assertVectorEqual(CP_Vector_Zero(), CP_Vector_Limit(CP_Vector_Set(3.0f, 4.0f), 0.0f));
+    assertVectorEqual(CP_Vector_Zero(), CP_Vector_Limit(CP_Vector_Set(3.0f, 4.0f), -2.0f));
+    assertVectorEqual(CP_Vector_Zero(), CP_Vector_Limit(CP_Vector_Zero(), 3.0f));
+}
