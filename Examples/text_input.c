@@ -55,6 +55,7 @@ void game_init(void)
 	CP_System_SetWindowSize(800, 600);
 	CP_System_SetWindowTitle("Text input");
 	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_NoStroke();
 	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_MIDDLE);
 }
 
@@ -126,7 +127,7 @@ void game_update(void)
 
 	CP_Settings_TextSize(24.0f);
 	CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255));
-	CP_Font_DrawText("Type your name, Backspace to fix a mistake, Enter when you're done", 100.0f, 360.0f);
+	CP_Font_DrawText("Backspace fixes a mistake. Enter when you're done.", 100.0f, 360.0f);
 }
 
 void game_exit(void)
