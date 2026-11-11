@@ -12,6 +12,19 @@ changes to build with the new version.
 
 ### Added
 
+- **Window and frame rate options:** `CP_System_SetWindowResizable` lets the
+  player resize the window (drawing follows the new size), `CP_System_SetVSync`
+  turns vsync on, `CP_System_IsFullscreen` tells if the window is fullscreen,
+  and `CP_System_GetTargetFrameRate` reads back the limit set with
+  `CP_System_SetFrameRate` (0 for none). Vsync and resizable can be chosen
+  before `CP_Engine_Run`, and each has a getter
+  (`CP_System_GetVSync`, `CP_System_GetWindowResizable`).
+  `Examples/window_options.c` shows them.
+- **Reading settings back:** `CP_Settings_GetFill`, `CP_Settings_GetStroke`,
+  `CP_Settings_GetStrokeWeight`, `CP_Settings_GetTextSize` and
+  `CP_Font_GetCurrent` return what is in use now, so a function can change a
+  setting and put it back. `CP_Settings_Save` and `CP_Settings_Restore` bring
+  them back like the settings themselves.
 - **Arcs, pies and curves:** `CP_Graphics_DrawArc` draws part of a circle
   as a curved line, `CP_Graphics_DrawPie` draws a filled slice of a circle (for
   pie charts and meters), and `CP_Graphics_DrawBezier` draws a smooth curve

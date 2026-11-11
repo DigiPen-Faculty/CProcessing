@@ -103,6 +103,94 @@ static void Scn_SettingsBeforeRun(void)
     CP_Graphics_DrawRect(50, 50, 100, 100); // CORNER: spans [50,150] x [50,150]
 }
 
+// Vsync and a resizable window were turned on before CP_Engine_Run
+// (tier2_RunCaptureOnce): they are still on with the window open. They go
+// back off here, so the other scenarios run as they always have.
+static void Scn_SystemGetters(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+
+    tier2_scalars.vsyncInRun = CP_System_GetVSync();
+    tier2_scalars.resizableInRun = CP_System_GetWindowResizable();
+    tier2_scalars.fullscreenInRun = CP_System_IsFullscreen();
+    CP_System_SetVSync(FALSE);
+    CP_System_SetWindowResizable(FALSE);
+    tier2_scalars.vsyncSetOff = !CP_System_GetVSync();
+    tier2_scalars.resizableSetOff = !CP_System_GetWindowResizable();
+
+    // ResetToBaseline set 60 frames a second
+    tier2_scalars.targetFrameRateDefault = CP_System_GetTargetFrameRate();
+    CP_System_SetFrameRate(30.0f);
+    tier2_scalars.targetFrameRateSet30 = CP_System_GetTargetFrameRate();
+    CP_System_SetFrameRate(0.0f);
+    tier2_scalars.targetFrameRateSet0 = CP_System_GetTargetFrameRate();
+    CP_System_SetFrameRate(-30.0f);
+    tier2_scalars.targetFrameRateSetNegative = CP_System_GetTargetFrameRate();
+    CP_System_SetFrameRate(60.0f);
+}
+
+// Each getter gives back what was set, and Save and Restore bring them back
+static void Scn_SettingsGetters(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+
+    const CP_Color fill = CP_Color_Create(10, 20, 30, 40);
+    const CP_Color stroke = CP_Color_Create(50, 60, 70, 80);
+    CP_Settings_Fill(fill);
+    CP_Settings_Stroke(stroke);
+    CP_Settings_StrokeWeight(7.5f);
+    CP_Settings_TextSize(33.0f);
+    CP_Color gotFill = CP_Settings_GetFill();
+    CP_Color gotStroke = CP_Settings_GetStroke();
+    tier2_scalars.fillGetsWhatWasSet = gotFill.r == 10 && gotFill.g == 20 && gotFill.b == 30 && gotFill.a == 40;
+    tier2_scalars.strokeGetsWhatWasSet = gotStroke.r == 50 && gotStroke.g == 60 && gotStroke.b == 70 && gotStroke.a == 80;
+    tier2_scalars.strokeWeightGetsWhatWasSet = CP_Settings_GetStrokeWeight() == 7.5f;
+    tier2_scalars.textSizeGetsWhatWasSet = CP_Settings_GetTextSize() == 33.0f;
+
+    // The colors stay what they were, though there is no fill or stroke now
+    CP_Settings_NoFill();
+    CP_Settings_NoStroke();
+    gotFill = CP_Settings_GetFill();
+    gotStroke = CP_Settings_GetStroke();
+    tier2_scalars.fillKeptAfterNoFill = gotFill.r == 10 && gotFill.a == 40;
+    tier2_scalars.strokeKeptAfterNoStroke = gotStroke.r == 50 && gotStroke.a == 80;
+
+    // Changes made after Save are undone by Restore
+    CP_Settings_Save();
+    CP_Settings_Fill(CP_Color_Create(1, 2, 3, 4));
+    CP_Settings_Stroke(CP_Color_Create(5, 6, 7, 8));
+    CP_Settings_StrokeWeight(1.0f);
+    CP_Settings_TextSize(10.0f);
+    CP_Settings_Restore();
+    gotFill = CP_Settings_GetFill();
+    gotStroke = CP_Settings_GetStroke();
+    tier2_scalars.settingsBackAfterRestore = gotFill.r == 10 && gotStroke.r == 50 &&
+        CP_Settings_GetStrokeWeight() == 7.5f && CP_Settings_GetTextSize() == 33.0f;
+}
+
+// The font starts as the default one, is the one that CP_Font_Set chose, goes
+// back with Restore, and is the default again if it is freed while in use
+static void Scn_FontGetCurrent(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+
+    const CP_Font defaultFont = CP_Font_GetDefault();
+    tier2_scalars.fontStartsAsDefault = CP_Font_GetCurrent() == defaultFont;
+
+    CP_Font custom = CP_Font_Load("Assets/Exo2-Regular.otf");
+    CP_Font_Set(custom);
+    tier2_scalars.fontSetIsCurrent = custom != NULL && CP_Font_GetCurrent() == custom;
+
+    CP_Settings_Save();
+    CP_Font_Set(defaultFont);
+    CP_Settings_Restore();
+    tier2_scalars.fontBackAfterRestore = CP_Font_GetCurrent() == custom;
+
+    CP_Font_Free(&custom);
+    tier2_scalars.freedFontFallsBackToDefault = CP_Font_GetCurrent() == defaultFont;
+    CP_Font_Set(defaultFont);
+}
+
 static void Scn_ClearBackground(void)
 {
     CP_Graphics_ClearBackground(CP_Color_Create(10, 20, 30, 255));
@@ -1258,6 +1346,8 @@ typedef void (*ScenarioFunc)(void);
 
 static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SETTINGS_BEFORE_RUN] = Scn_SettingsBeforeRun,
+    [SCN_SYSTEM_GETTERS] = Scn_SystemGetters,
+    [SCN_SETTINGS_GETTERS] = Scn_SettingsGetters,
     [SCN_CLEAR_BACKGROUND] = Scn_ClearBackground,
     [SCN_DRAW_POINT] = Scn_DrawPoint,
     [SCN_DRAW_LINE] = Scn_DrawLine,
@@ -1301,6 +1391,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SHARED_ASSETS] = Scn_SharedAssets,
     [SCN_FONT_DRAWTEXT] = Scn_FontDrawText,
     [SCN_FONT_LOAD_FREE] = Scn_FontLoadFree,
+    [SCN_FONT_GET_CURRENT] = Scn_FontGetCurrent,
     [SCN_FONT_FREE_KEEPS_OTHERS] = Scn_FontFreeKeepsOthers,
     [SCN_FONT_OPENTYPE] = Scn_FontOpenType,
     [SCN_FONT_SIZE_SWEEP] = Scn_FontSizeSweep,
@@ -1422,6 +1513,12 @@ void tier2_RunCaptureOnce(void)
 {
     // Before the window exists: settings are stored for later, queries
     // return "nothing yet", and none of it may crash
+    // Vsync and a resizable window, chosen before the window exists
+    CP_System_SetVSync(TRUE);
+    CP_System_SetWindowResizable(TRUE);
+    tier2_scalars.vsyncBeforeRun = CP_System_GetVSync();
+    tier2_scalars.resizableBeforeRun = CP_System_GetWindowResizable();
+    tier2_scalars.fullscreenBeforeRun = CP_System_IsFullscreen();
     CP_System_ShowCursor(FALSE);
     tier2_scalars.cursorVisibleBeforeRun = CP_System_GetCursorVisible();
     tier2_scalars.cursorModeBeforeRun = CP_System_GetCursorMode();
@@ -1439,6 +1536,7 @@ void tier2_RunCaptureOnce(void)
     // when it opens (Scn_SettingsBeforeRun checks them). Transforms,
     // Save/Restore and drawing do nothing yet, and none of it may crash.
     CP_Settings_Fill(CP_Color_Create(12, 200, 34, 255));
+    tier2_scalars.fillBeforeRun = CP_Settings_GetFill();
     CP_Settings_RectMode(CP_POSITION_CORNER);
     CP_Settings_Translate(30.0f, 30.0f);
     CP_Settings_Rotate(45.0f);

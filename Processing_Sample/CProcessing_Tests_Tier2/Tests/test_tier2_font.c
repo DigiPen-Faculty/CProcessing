@@ -193,3 +193,21 @@ void test_tier2_font_text_mirrored_and_flipped_draws(void)
         TEST_ASSERT_LESS_THAN_INT_MESSAGE(plainInk / 10, mismatched, message);
     }
 }
+
+// ---- CP_Font_GetCurrent ----
+
+void test_tier2_font_getcurrent_is_the_default_until_a_font_is_set(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.fontStartsAsDefault);
+}
+
+void test_tier2_font_getcurrent_is_the_font_that_was_set_and_follows_save_restore(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.fontSetIsCurrent);
+    TEST_ASSERT_TRUE(tier2_scalars.fontBackAfterRestore);
+}
+
+void test_tier2_font_getcurrent_falls_back_to_the_default_when_the_font_is_freed(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.freedFontFallsBackToDefault);
+}

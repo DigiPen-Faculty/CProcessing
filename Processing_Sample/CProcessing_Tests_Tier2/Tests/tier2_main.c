@@ -127,6 +127,17 @@ int main(void)
     RUN_TEST(test_tier2_system_window_size_matches_what_was_set);
     RUN_TEST(test_tier2_system_frame_count_advances);
     RUN_TEST(test_tier2_system_frame_rate_zero_means_no_limit);
+    RUN_TEST(test_tier2_system_vsync_and_resizable_chosen_before_run_are_kept);
+    RUN_TEST(test_tier2_system_vsync_and_resizable_getters_follow_the_setters);
+    RUN_TEST(test_tier2_system_is_fullscreen_is_false_in_a_window);
+    RUN_TEST(test_tier2_system_target_frame_rate_gives_the_limit_and_0_for_none);
+    RUN_TEST(test_tier2_settings_getters_give_back_what_was_set);
+    RUN_TEST(test_tier2_settings_fill_and_stroke_colors_are_kept_by_nofill_and_nostroke);
+    RUN_TEST(test_tier2_settings_restore_brings_back_what_the_getters_return);
+    RUN_TEST(test_tier2_settings_getfill_works_before_run);
+    RUN_TEST(test_tier2_font_getcurrent_is_the_default_until_a_font_is_set);
+    RUN_TEST(test_tier2_font_getcurrent_is_the_font_that_was_set_and_follows_save_restore);
+    RUN_TEST(test_tier2_font_getcurrent_falls_back_to_the_default_when_the_font_is_freed);
     RUN_TEST(test_tier2_system_timing_getters_are_sane);
     RUN_TEST(test_tier2_system_window_focus_is_a_valid_bool);
     RUN_TEST(test_tier2_system_display_info_is_positive);

@@ -68,6 +68,7 @@ typedef struct CP_DrawInfo
     CP_IMAGE_WRAP_MODE wrap_mode;
     float text_size;
     int text_align;
+    CP_Font font;           // NULL until CP_Font_Set: the default font
 } CP_DrawInfo;
 typedef CP_DrawInfo* CP_DrawInfoPtr;
 
