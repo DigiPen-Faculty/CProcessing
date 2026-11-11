@@ -260,3 +260,47 @@ CP_API void CP_Font_DrawTextBox(const char* text, float x, float y, float rowWid
 
 	nvgTextBox(CORE->nvg, x, y, rowWidth, text, NULL);
 }
+
+CP_API float CP_Font_GetTextWidth(const char* text)
+{
+	CP_CorePtr CORE = GetCPCore();
+
+	if (!CORE || !CORE->nvg || !text)
+	{
+		return 0.0f;
+	}
+
+	// The advance is where the next character would start, so it counts
+	// spaces at the end of the text, which the glyphs' bounds don't
+	return nvgTextBounds(CORE->nvg, 0.0f, 0.0f, text, NULL, NULL);
+}
+
+CP_API CP_Vector CP_Font_GetTextSize(const char* text)
+{
+	CP_CorePtr CORE = GetCPCore();
+
+	if (!CORE || !CORE->nvg || !text)
+	{
+		return CP_Vector_Zero();
+	}
+
+	// Height is the font's line height at the current size, so it's the
+	// same for every string and text lines up when drawn one under another
+	float lineHeight = 0.0f;
+	nvgTextMetrics(CORE->nvg, NULL, NULL, &lineHeight);
+	return CP_Vector_Set(CP_Font_GetTextWidth(text), lineHeight);
+}
+
+CP_API CP_Vector CP_Font_GetTextBoxSize(const char* text, float rowWidth)
+{
+	CP_CorePtr CORE = GetCPCore();
+
+	if (!CORE || !CORE->nvg || !text)
+	{
+		return CP_Vector_Zero();
+	}
+
+	float bounds[4];
+	nvgTextBoxBounds(CORE->nvg, 0.0f, 0.0f, rowWidth, text, NULL, bounds);
+	return CP_Vector_Set(bounds[2] - bounds[0], bounds[3] - bounds[1]);
+}

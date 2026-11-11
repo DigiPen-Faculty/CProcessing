@@ -211,6 +211,9 @@ CP_API void				CP_Font_Free						(CP_Font* font);
 CP_API void				CP_Font_Set							(CP_Font font);
 CP_API void				CP_Font_DrawText					(const char* text, float x, float y);
 CP_API void				CP_Font_DrawTextBox					(const char* text, float x, float y, float rowWidth);
+CP_API float			CP_Font_GetTextWidth				(const char* text);
+CP_API CP_Vector		CP_Font_GetTextSize					(const char* text);
+CP_API CP_Vector		CP_Font_GetTextBoxSize				(const char* text, float rowWidth);
 
 
 //---------------------------------------------------------
@@ -264,6 +267,14 @@ CP_API float			CP_Math_Square						(float value);
 CP_API float			CP_Math_Distance					(float x1, float y1, float x2, float y2);
 CP_API float			CP_Math_Degrees						(float radians);
 CP_API float			CP_Math_Radians						(float degrees);
+CP_API float			CP_Math_Map							(float value, float inMin, float inMax, float outMin, float outMax);
+CP_API float			CP_Math_EaseInQuad					(float t);
+CP_API float			CP_Math_EaseOutQuad					(float t);
+CP_API float			CP_Math_EaseInOutQuad				(float t);
+CP_API float			CP_Math_EaseInCubic					(float t);
+CP_API float			CP_Math_EaseOutCubic				(float t);
+CP_API float			CP_Math_EaseInOutCubic				(float t);
+CP_API float			CP_Math_EaseOutBounce				(float t);
 CP_API void				CP_Math_ScreenToWorld				(float xIn, float yIn, float* xOut, float* yOut);
 CP_API void				CP_Math_WorldToScreen				(float xIn, float yIn, float* xOut, float* yOut);
 
@@ -278,6 +289,10 @@ CP_API CP_Vector		CP_Vector_Add						(CP_Vector a, CP_Vector b);
 CP_API CP_Vector		CP_Vector_Subtract					(CP_Vector a, CP_Vector b);
 CP_API CP_Vector		CP_Vector_Scale						(CP_Vector vec, float scale);
 CP_API CP_Vector		CP_Vector_Normalize					(CP_Vector vec);
+CP_API CP_Vector		CP_Vector_Lerp						(CP_Vector a, CP_Vector b, float lerpFactor);
+CP_API CP_Vector		CP_Vector_Rotate					(CP_Vector vec, float degrees);
+CP_API CP_Vector		CP_Vector_FromAngle					(float degrees);
+CP_API CP_Vector		CP_Vector_Limit						(CP_Vector vec, float maxLength);
 CP_API CP_Vector		CP_Vector_MatrixMultiply			(CP_Matrix mat, CP_Vector vec);
 CP_API float			CP_Vector_Length					(CP_Vector vec);
 CP_API float			CP_Vector_Distance					(CP_Vector a, CP_Vector b);

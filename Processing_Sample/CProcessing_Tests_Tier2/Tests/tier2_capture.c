@@ -841,6 +841,19 @@ static void Scn_FontEmSize(void)
     CP_Settings_TextSize(100.0f);
     CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
     CP_Font_DrawText("H", 20, 150);
+
+    // Measuring text, at the same size
+    tier2_scalars.textWidthH = CP_Font_GetTextWidth("H");
+    tier2_scalars.textWidthHH = CP_Font_GetTextWidth("HH");
+    tier2_scalars.textWidthHSpace = CP_Font_GetTextWidth("H ");
+    tier2_scalars.textSizeH = CP_Font_GetTextSize("H");
+    tier2_scalars.textSizeLong = CP_Font_GetTextSize("Hello, world");
+    tier2_scalars.textBoxOneLine = CP_Font_GetTextBoxSize("Hi", 1000.0f);
+    tier2_scalars.textBoxWrapped = CP_Font_GetTextBoxSize("one two three four five six", 300.0f);
+    tier2_scalars.textWidthNull = CP_Font_GetTextWidth(NULL);
+    CP_Settings_TextSize(200.0f);
+    tier2_scalars.textWidthH200 = CP_Font_GetTextWidth("H");
+    CP_Settings_TextSize(100.0f);
 }
 
 // ---- Large text (v3) ----

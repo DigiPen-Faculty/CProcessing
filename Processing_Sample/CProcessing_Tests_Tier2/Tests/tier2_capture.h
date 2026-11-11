@@ -175,6 +175,17 @@ typedef struct
     int fontFreeMismatched;         // pixels that changed after freeing it
     CP_BOOL openTypeFontLoaded;     // see Scn_FontOpenType
 
+    // Measuring text (see Scn_FontEmSize)
+    float textWidthH;               // "H" at size 100
+    float textWidthHH;              // "HH"
+    float textWidthHSpace;          // "H " (a space at the end)
+    float textWidthH200;            // "H" at size 200
+    CP_Vector textSizeH;            // CP_Font_GetTextSize("H") at size 100
+    CP_Vector textSizeLong;         // a longer string, same size
+    CP_Vector textBoxOneLine;       // a short text in a wide box
+    CP_Vector textBoxWrapped;       // a long text in a narrow box
+    float textWidthNull;            // NULL text
+
     // Text animated by size and by scale (see Scn_FontSizeSweep)
     Tier2TextSweep textSizeSweep;
     Tier2TextSweep textScaleSweep;
