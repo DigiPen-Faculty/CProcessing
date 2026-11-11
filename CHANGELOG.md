@@ -12,6 +12,14 @@ changes to build with the new version.
 
 ### Added
 
+- **Measuring text:** `CP_Font_GetTextWidth`, `CP_Font_GetTextSize` (width and
+  line height) and `CP_Font_GetTextBoxSize` (the size of wrapped text), so you
+  can center text, right-align it, or draw a box around it.
+- **Math helpers:** `CP_Math_Map` (convert a value from one range to another),
+  easing functions (`CP_Math_EaseInQuad`, `EaseOutQuad`, `EaseInOutQuad`, the
+  same for `Cubic`, and `EaseOutBounce`) for smooth animation, and the
+  constants `CP_PI`, `CP_TWO_PI` and `CP_HALF_PI`. For vectors: `CP_Vector_Lerp`,
+  `CP_Vector_Rotate`, `CP_Vector_FromAngle` and `CP_Vector_Limit`.
 - **Examples:** seven small, complete programs, each showing one thing
   games need: `movement.c`, `collision.c`, `sprite_animation.c`,
   `camera.c`, `game_states.c`, `score_and_text.c` and

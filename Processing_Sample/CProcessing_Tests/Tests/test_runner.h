@@ -39,6 +39,18 @@ void test_math_radians_zero(void);
 void test_math_radians_180_is_pi(void);
 void test_math_radians_90_is_half_pi(void);
 void test_math_degrees_and_radians_are_inverses(void);
+void test_math_map_maps_the_ends(void);
+void test_math_map_maps_the_middle(void);
+void test_math_map_does_not_clamp(void);
+void test_math_map_can_run_backwards(void);
+void test_math_map_empty_input_range_gives_outmin(void);
+void test_math_pi_constants(void);
+void test_math_ease_ends_are_zero_and_one(void);
+void test_math_ease_stays_within_zero_and_one(void);
+void test_math_ease_in_starts_slow_and_out_starts_fast(void);
+void test_math_ease_inout_is_symmetric_around_the_middle(void);
+void test_math_ease_known_values(void);
+void test_math_ease_bounce_touches_one_before_the_end(void);
 
 // test_cp_vector.c -- Tier 1: CP_Vector (all 15 functions are pure).
 void test_vector_set(void);
@@ -70,6 +82,16 @@ void test_vector_angleccw_quarter_turn_is_negative(void);
 void test_vector_angleccw_same_direction_stays_zero(void);
 void test_vector_angleccw_stays_within_negative_360_to_0(void);
 void test_vector_angleccw_equals_anglecw_minus_360(void);
+void test_vector_lerp_ends_and_middle(void);
+void test_vector_lerp_factor_is_clamped(void);
+void test_vector_rotate_a_quarter_turn_goes_clockwise_on_screen(void);
+void test_vector_rotate_keeps_length_and_matches_the_matrix(void);
+void test_vector_rotate_a_full_turn_is_the_same_vector(void);
+void test_vector_fromangle_zero_points_right_and_ninety_points_down(void);
+void test_vector_fromangle_is_a_unit_vector_that_rotate_agrees_with(void);
+void test_vector_limit_shortens_a_long_vector_keeping_direction(void);
+void test_vector_limit_leaves_a_short_vector_alone(void);
+void test_vector_limit_zero_or_negative_gives_zero(void);
 
 // test_cp_matrix.c -- Tier 1: CP_Matrix (all 10 functions are pure).
 void test_matrix_set(void);
