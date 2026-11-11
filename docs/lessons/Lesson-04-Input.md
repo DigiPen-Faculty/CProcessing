@@ -221,4 +221,4 @@ Pick two or more.
 * **Comparing a stick to exactly 0.** Use a range, like `stick.x < -0.5f`.
 * **Nothing happens without a gamepad.** Check `CP_Input_GamepadConnected()` and always offer a keyboard or mouse way too.
 
-**Next:** Lesson 5: Moving with vectors and delta time (coming soon).
+**Next:** [Lesson 5: Moving with vectors and delta time](Lesson-05-Moving-with-Vectors-and-Delta-Time).
