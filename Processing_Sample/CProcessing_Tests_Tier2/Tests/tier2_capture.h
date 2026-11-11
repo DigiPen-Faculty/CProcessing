@@ -127,6 +127,7 @@ typedef struct
     int image16BitWidth;            // see Scn_Image16Bit
 
     // CP_System / CP_Engine
+    int windowWidthInFirstUpdate;   // the size chosen in init, already
     int windowWidthAfterSet;
     int windowHeightAfterSet;
     unsigned frameCountEarly;

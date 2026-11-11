@@ -18,6 +18,18 @@ void test_tier2_system_frame_rate_zero_means_no_limit(void)
     TEST_ASSERT_EQUAL_INT(SCN_COUNT, tier2_scalars.scenariosCaptured);
 }
 
+// A window size chosen in init applies before the first update. (Where the
+// window system applies sizes later, as X11 and Wayland can, the first update
+// may still see the old one.)
+void test_tier2_system_window_size_chosen_in_init_is_there_for_the_first_update(void)
+{
+#ifdef _WIN32
+    TEST_ASSERT_EQUAL_INT(TIER2_CANVAS_SIZE, tier2_scalars.windowWidthInFirstUpdate);
+#else
+    TEST_PASS_MESSAGE("the window system may apply the size a moment later");
+#endif
+}
+
 void test_tier2_system_frame_count_advances(void)
 {
     TEST_ASSERT_GREATER_THAN_UINT(tier2_scalars.frameCountEarly, tier2_scalars.frameCountLater);

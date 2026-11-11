@@ -71,6 +71,7 @@ void test_tier2_font_text_mirrored_and_flipped_draws(void);
 
 // test_tier2_system_engine.c -- Tier 2: CP_System + CP_Engine lifecycle.
 void test_tier2_system_window_size_matches_what_was_set(void);
+void test_tier2_system_window_size_chosen_in_init_is_there_for_the_first_update(void);
 void test_tier2_system_frame_count_advances(void);
 void test_tier2_system_frame_rate_zero_means_no_limit(void);
 void test_tier2_system_vsync_and_resizable_chosen_before_run_are_kept(void);

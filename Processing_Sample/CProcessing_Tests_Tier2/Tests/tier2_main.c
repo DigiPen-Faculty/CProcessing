@@ -125,6 +125,7 @@ int main(void)
 
     // test_tier2_system_engine.c
     RUN_TEST(test_tier2_system_window_size_matches_what_was_set);
+    RUN_TEST(test_tier2_system_window_size_chosen_in_init_is_there_for_the_first_update);
     RUN_TEST(test_tier2_system_frame_count_advances);
     RUN_TEST(test_tier2_system_frame_rate_zero_means_no_limit);
     RUN_TEST(test_tier2_system_vsync_and_resizable_chosen_before_run_are_kept);
