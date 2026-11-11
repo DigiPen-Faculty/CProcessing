@@ -53,6 +53,18 @@ int main(void)
     RUN_TEST(test_math_radians_180_is_pi);
     RUN_TEST(test_math_radians_90_is_half_pi);
     RUN_TEST(test_math_degrees_and_radians_are_inverses);
+    RUN_TEST(test_math_map_maps_the_ends);
+    RUN_TEST(test_math_map_maps_the_middle);
+    RUN_TEST(test_math_map_does_not_clamp);
+    RUN_TEST(test_math_map_can_run_backwards);
+    RUN_TEST(test_math_map_empty_input_range_gives_outmin);
+    RUN_TEST(test_math_pi_constants);
+    RUN_TEST(test_math_ease_ends_are_zero_and_one);
+    RUN_TEST(test_math_ease_stays_within_zero_and_one);
+    RUN_TEST(test_math_ease_in_starts_slow_and_out_starts_fast);
+    RUN_TEST(test_math_ease_inout_is_symmetric_around_the_middle);
+    RUN_TEST(test_math_ease_known_values);
+    RUN_TEST(test_math_ease_bounce_touches_one_before_the_end);
 
     // test_cp_vector.c
     RUN_TEST(test_vector_set);
@@ -84,6 +96,16 @@ int main(void)
     RUN_TEST(test_vector_angleccw_same_direction_stays_zero);
     RUN_TEST(test_vector_angleccw_stays_within_negative_360_to_0);
     RUN_TEST(test_vector_angleccw_equals_anglecw_minus_360);
+    RUN_TEST(test_vector_lerp_ends_and_middle);
+    RUN_TEST(test_vector_lerp_factor_is_clamped);
+    RUN_TEST(test_vector_rotate_a_quarter_turn_goes_clockwise_on_screen);
+    RUN_TEST(test_vector_rotate_keeps_length_and_matches_the_matrix);
+    RUN_TEST(test_vector_rotate_a_full_turn_is_the_same_vector);
+    RUN_TEST(test_vector_fromangle_zero_points_right_and_ninety_points_down);
+    RUN_TEST(test_vector_fromangle_is_a_unit_vector_that_rotate_agrees_with);
+    RUN_TEST(test_vector_limit_shortens_a_long_vector_keeping_direction);
+    RUN_TEST(test_vector_limit_leaves_a_short_vector_alone);
+    RUN_TEST(test_vector_limit_zero_or_negative_gives_zero);
 
     // test_cp_matrix.c
     RUN_TEST(test_matrix_set);

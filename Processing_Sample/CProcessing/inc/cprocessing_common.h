@@ -63,6 +63,11 @@ extern "C"
 
 typedef unsigned int	CP_BOOL;
 
+// Pi, for angles in radians (the Rotate and Angle functions take degrees)
+#define CP_PI			3.14159265358979323846f
+#define CP_TWO_PI		6.28318530717958647692f
+#define CP_HALF_PI		1.57079632679489661923f
+
 // Values for CP_BOOL
 #ifndef TRUE
 	#define TRUE 1

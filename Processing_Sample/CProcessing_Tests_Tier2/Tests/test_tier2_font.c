@@ -102,6 +102,36 @@ void test_tier2_font_text_size_is_the_em_size(void)
     TEST_ASSERT_INT_WITHIN(2, 69, InkHeight(SCN_FONT_EM_SIZE));
 }
 
+void test_tier2_font_measuring_text(void)
+{
+    // See Scn_FontEmSize: measured at size 100, in the same units as drawing
+    TEST_ASSERT_GREATER_THAN_FLOAT(30.0f, tier2_scalars.textWidthH);
+    TEST_ASSERT_FLOAT_WITHIN(2.0f, 2.0f * tier2_scalars.textWidthH, tier2_scalars.textWidthHH);
+    // A space at the end still counts: it moves where the next text starts
+    TEST_ASSERT_GREATER_THAN_FLOAT(tier2_scalars.textWidthH + 5.0f, tier2_scalars.textWidthHSpace);
+    // Twice the size, twice the width
+    TEST_ASSERT_FLOAT_WITHIN(2.0f, 2.0f * tier2_scalars.textWidthH, tier2_scalars.textWidthH200);
+    // GetTextSize is the width and a line's height, the same for every string
+    TEST_ASSERT_EQUAL_FLOAT(tier2_scalars.textWidthH, tier2_scalars.textSizeH.x);
+    TEST_ASSERT_GREATER_THAN_FLOAT(69.0f, tier2_scalars.textSizeH.y);
+    TEST_ASSERT_EQUAL_FLOAT(tier2_scalars.textSizeH.y, tier2_scalars.textSizeLong.y);
+    TEST_ASSERT_GREATER_THAN_FLOAT(tier2_scalars.textSizeH.x, tier2_scalars.textSizeLong.x);
+}
+
+void test_tier2_font_measuring_a_text_box_counts_wrapped_lines(void)
+{
+    // One line in a wide box; the long text in a 300 wide box wraps onto
+    // several lines, never wider than the box
+    TEST_ASSERT_GREATER_THAN_FLOAT(0.0f, tier2_scalars.textBoxOneLine.x);
+    TEST_ASSERT_GREATER_THAN_FLOAT(2.0f * tier2_scalars.textBoxOneLine.y, tier2_scalars.textBoxWrapped.y);
+    TEST_ASSERT_LESS_OR_EQUAL_FLOAT(300.0f, tier2_scalars.textBoxWrapped.x);
+}
+
+void test_tier2_font_measuring_null_text_is_zero(void)
+{
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, tier2_scalars.textWidthNull);
+}
+
 void test_tier2_font_opentype_cff_font_loads_and_draws(void)
 {
     // See Scn_FontOpenType: the .otf build of Exo 2 draws like the .ttf

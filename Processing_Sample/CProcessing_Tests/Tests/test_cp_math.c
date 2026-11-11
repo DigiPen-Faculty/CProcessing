@@ -173,3 +173,108 @@ void test_math_degrees_and_radians_are_inverses(void)
     float roundTripped = CP_Math_Degrees(CP_Math_Radians(original));
     TEST_ASSERT_FLOAT_WITHIN(0.01f, original, roundTripped);
 }
+
+// ---- CP_Math_Map, easing and the pi constants ----
+
+void test_math_map_maps_the_ends(void)
+{
+    TEST_ASSERT_EQUAL_FLOAT(100.0f, CP_Math_Map(0.0f, 0.0f, 10.0f, 100.0f, 200.0f));
+    TEST_ASSERT_EQUAL_FLOAT(200.0f, CP_Math_Map(10.0f, 0.0f, 10.0f, 100.0f, 200.0f));
+}
+
+void test_math_map_maps_the_middle(void)
+{
+    TEST_ASSERT_EQUAL_FLOAT(150.0f, CP_Math_Map(5.0f, 0.0f, 10.0f, 100.0f, 200.0f));
+}
+
+void test_math_map_does_not_clamp(void)
+{
+    TEST_ASSERT_EQUAL_FLOAT(300.0f, CP_Math_Map(20.0f, 0.0f, 10.0f, 100.0f, 200.0f));
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, CP_Math_Map(-10.0f, 0.0f, 10.0f, 100.0f, 200.0f));
+}
+
+void test_math_map_can_run_backwards(void)
+{
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, CP_Math_Map(255.0f, 0.0f, 255.0f, 1.0f, 0.0f));
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, CP_Math_Map(0.0f, 0.0f, 255.0f, 1.0f, 0.0f));
+}
+
+void test_math_map_empty_input_range_gives_outmin(void)
+{
+    TEST_ASSERT_EQUAL_FLOAT(7.0f, CP_Math_Map(3.0f, 5.0f, 5.0f, 7.0f, 9.0f));
+}
+
+void test_math_pi_constants(void)
+{
+    TEST_ASSERT_FLOAT_WITHIN(0.00001f, 3.14159265f, CP_PI);
+    TEST_ASSERT_EQUAL_FLOAT(CP_PI * 2.0f, CP_TWO_PI);
+    TEST_ASSERT_EQUAL_FLOAT(CP_PI / 2.0f, CP_HALF_PI);
+    TEST_ASSERT_FLOAT_WITHIN(0.001f, 180.0f, CP_Math_Degrees(CP_PI));
+}
+
+void test_math_ease_ends_are_zero_and_one(void)
+{
+    float (*easings[])(float) = {
+        CP_Math_EaseInQuad, CP_Math_EaseOutQuad, CP_Math_EaseInOutQuad,
+        CP_Math_EaseInCubic, CP_Math_EaseOutCubic, CP_Math_EaseInOutCubic,
+        CP_Math_EaseOutBounce
+    };
+    int count = (int)(sizeof(easings) / sizeof(easings[0]));
+    for (int i = 0; i < count; ++i)
+    {
+        TEST_ASSERT_EQUAL_FLOAT(0.0f, easings[i](0.0f));
+        TEST_ASSERT_EQUAL_FLOAT(1.0f, easings[i](1.0f));
+        // Out of range is clamped to the ends
+        TEST_ASSERT_EQUAL_FLOAT(0.0f, easings[i](-1.0f));
+        TEST_ASSERT_EQUAL_FLOAT(1.0f, easings[i](2.0f));
+    }
+}
+
+void test_math_ease_stays_within_zero_and_one(void)
+{
+    float (*easings[])(float) = {
+        CP_Math_EaseInQuad, CP_Math_EaseOutQuad, CP_Math_EaseInOutQuad,
+        CP_Math_EaseInCubic, CP_Math_EaseOutCubic, CP_Math_EaseInOutCubic,
+        CP_Math_EaseOutBounce
+    };
+    int count = (int)(sizeof(easings) / sizeof(easings[0]));
+    for (int i = 0; i < count; ++i)
+    {
+        for (int step = 0; step <= 100; ++step)
+        {
+            float v = easings[i](step / 100.0f);
+            TEST_ASSERT_TRUE(v >= 0.0f && v <= 1.0f);
+        }
+    }
+}
+
+void test_math_ease_in_starts_slow_and_out_starts_fast(void)
+{
+    TEST_ASSERT_TRUE(CP_Math_EaseInQuad(0.25f) < 0.25f);
+    TEST_ASSERT_TRUE(CP_Math_EaseInCubic(0.25f) < CP_Math_EaseInQuad(0.25f));
+    TEST_ASSERT_TRUE(CP_Math_EaseOutQuad(0.25f) > 0.25f);
+    TEST_ASSERT_TRUE(CP_Math_EaseOutCubic(0.25f) > CP_Math_EaseOutQuad(0.25f));
+}
+
+void test_math_ease_inout_is_symmetric_around_the_middle(void)
+{
+    TEST_ASSERT_EQUAL_FLOAT(0.5f, CP_Math_EaseInOutQuad(0.5f));
+    TEST_ASSERT_EQUAL_FLOAT(0.5f, CP_Math_EaseInOutCubic(0.5f));
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 1.0f, CP_Math_EaseInOutQuad(0.3f) + CP_Math_EaseInOutQuad(0.7f));
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 1.0f, CP_Math_EaseInOutCubic(0.3f) + CP_Math_EaseInOutCubic(0.7f));
+}
+
+void test_math_ease_known_values(void)
+{
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.25f, CP_Math_EaseInQuad(0.5f));
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.75f, CP_Math_EaseOutQuad(0.5f));
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.125f, CP_Math_EaseInCubic(0.5f));
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 0.875f, CP_Math_EaseOutCubic(0.5f));
+}
+
+void test_math_ease_bounce_touches_one_before_the_end(void)
+{
+    // The bounce reaches 1 at 1/2.75 of the way, falls back, and returns
+    TEST_ASSERT_FLOAT_WITHIN(0.0001f, 1.0f, CP_Math_EaseOutBounce(1.0f / 2.75f));
+    TEST_ASSERT_TRUE(CP_Math_EaseOutBounce(1.5f / 2.75f) < 1.0f);
+}
