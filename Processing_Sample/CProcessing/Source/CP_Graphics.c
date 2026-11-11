@@ -190,9 +190,9 @@ CP_API void CP_Graphics_DrawRectAdvanced(float x, float y, float w, float h, flo
 	CP_Graphics_DrawRectInternal(x, y, w, h, degrees, cornerRadius);
 }
 
-CP_API void CP_Graphics_DrawCircle(float x, float y, float d)
+CP_API void CP_Graphics_DrawCircle(float x, float y, float diameter)
 {
-	CP_Graphics_DrawEllipse(x, y, d, d);
+	CP_Graphics_DrawEllipse(x, y, diameter, diameter);
 }
 
 CP_API void CP_Graphics_DrawEllipse(float x, float y, float w, float h)
@@ -254,13 +254,13 @@ CP_API void CP_Graphics_DrawEllipseAdvanced(float x, float y, float w, float h, 
 	nvgRestore(CORE->nvg);
 }
 
-// The circle that an arc or a pie is part of: centered on (x, y) with diameter
-// d, or with its top left at (x, y) in CP_POSITION_CORNER ellipse mode, as for
+// The circle that an arc or a pie is part of: centered on (x, y) with
+// diameter, or with its top left at (x, y) in CP_POSITION_CORNER ellipse mode, as for
 // CP_Graphics_DrawCircle. Angles are in degrees, 0 is to the right and a
 // positive sweep goes clockwise (y points down), like CP_Vector_FromAngle.
-static void ArcPath(CP_CorePtr CORE, CP_DrawInfoPtr DI, float x, float y, float d, float startDegrees, float sweepDegrees, CP_BOOL pie)
+static void ArcPath(CP_CorePtr CORE, CP_DrawInfoPtr DI, float x, float y, float diameter, float startDegrees, float sweepDegrees, CP_BOOL pie)
 {
-	const float radius = d * 0.5f;
+	const float radius = diameter * 0.5f;
 	if (DI->ellipse_mode == CP_POSITION_CORNER)
 	{
 		x += radius;
@@ -280,7 +280,7 @@ static void ArcPath(CP_CorePtr CORE, CP_DrawInfoPtr DI, float x, float y, float 
 	}
 }
 
-CP_API void CP_Graphics_DrawArc(float x, float y, float d, float startDegrees, float sweepDegrees)
+CP_API void CP_Graphics_DrawArc(float x, float y, float diameter, float startDegrees, float sweepDegrees)
 {
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
@@ -291,12 +291,12 @@ CP_API void CP_Graphics_DrawArc(float x, float y, float d, float startDegrees, f
 	// Just the curved line, like DrawLine: it has no fill
 	if (DI->stroke)
 	{
-		ArcPath(CORE, DI, x, y, d, startDegrees, sweepDegrees, FALSE);
+		ArcPath(CORE, DI, x, y, diameter, startDegrees, sweepDegrees, FALSE);
 		nvgStroke(CORE->nvg);
 	}
 }
 
-CP_API void CP_Graphics_DrawPie(float x, float y, float d, float startDegrees, float sweepDegrees)
+CP_API void CP_Graphics_DrawPie(float x, float y, float diameter, float startDegrees, float sweepDegrees)
 {
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
@@ -304,7 +304,7 @@ CP_API void CP_Graphics_DrawPie(float x, float y, float d, float startDegrees, f
 	if (!CORE->nvg)
 		return;	// no window yet: CP_Engine_Run hasn't started
 
-	ArcPath(CORE, DI, x, y, d, startDegrees, sweepDegrees, TRUE);
+	ArcPath(CORE, DI, x, y, diameter, startDegrees, sweepDegrees, TRUE);
 	if (DI->fill)
 	{
 		nvgFill(CORE->nvg);
