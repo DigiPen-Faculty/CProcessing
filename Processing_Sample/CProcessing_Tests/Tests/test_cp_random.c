@@ -308,3 +308,60 @@ void test_noise_same_coordinate_is_continuous_with_its_neighbor(void)
     float b = CP_Random_Noise(5.001f, 5.0f, 5.0f);
     TEST_ASSERT_FLOAT_WITHIN(0.05f, a, b);
 }
+
+// ---- Noise octaves ----
+
+void test_noise_one_octave_is_plain_noise(void)
+{
+    CP_Random_NoiseSeed(5);
+    for (int i = 0; i < 50; ++i)
+    {
+        const float x = (float)i * 0.37f - 8.0f;
+        TEST_ASSERT_EQUAL_FLOAT(CP_Random_Noise(x, 1.5f, 0.25f), CP_Random_NoiseOctaves(x, 1.5f, 0.25f, 1, 0.5f));
+    }
+}
+
+void test_noise_octaves_below_one_count_as_one(void)
+{
+    CP_Random_NoiseSeed(5);
+    TEST_ASSERT_EQUAL_FLOAT(CP_Random_Noise(3.3f, 0.4f, 0.0f), CP_Random_NoiseOctaves(3.3f, 0.4f, 0.0f, 0, 0.5f));
+    TEST_ASSERT_EQUAL_FLOAT(CP_Random_Noise(3.3f, 0.4f, 0.0f), CP_Random_NoiseOctaves(3.3f, 0.4f, 0.0f, -4, 0.5f));
+}
+
+void test_noise_octaves_with_no_persistence_are_plain_noise(void)
+{
+    CP_Random_NoiseSeed(5);
+    // Every layer after the first has strength 0
+    TEST_ASSERT_EQUAL_FLOAT(CP_Random_Noise(3.3f, 0.4f, 0.0f), CP_Random_NoiseOctaves(3.3f, 0.4f, 0.0f, 6, 0.0f));
+}
+
+void test_noise_octaves_stay_within_0_and_1(void)
+{
+    CP_Random_NoiseSeed(9);
+    for (int octaves = 1; octaves <= 8; ++octaves)
+    {
+        for (int i = -500; i < 500; ++i)
+        {
+            const float value = CP_Random_NoiseOctaves((float)i * 0.173f, (float)i * 0.059f, 0.3f, octaves, 0.5f);
+            TEST_ASSERT_TRUE(value >= 0.0f && value <= 1.0f);
+        }
+    }
+}
+
+void test_noise_octaves_add_detail_and_are_deterministic(void)
+{
+    CP_Random_NoiseSeed(9);
+    int different = 0;
+    for (int i = 0; i < 100; ++i)
+    {
+        const float x = (float)i * 0.31f;
+        const float once = CP_Random_NoiseOctaves(x, 0.7f, 0.1f, 4, 0.5f);
+        TEST_ASSERT_EQUAL_FLOAT(once, CP_Random_NoiseOctaves(x, 0.7f, 0.1f, 4, 0.5f));
+        if (once != CP_Random_Noise(x, 0.7f, 0.1f))
+        {
+            ++different;
+        }
+    }
+    // Four layers are not the same as one on nearly every sample
+    TEST_ASSERT_GREATER_THAN_INT(90, different);
+}

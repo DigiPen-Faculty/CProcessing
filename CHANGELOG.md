@@ -12,6 +12,14 @@ changes to build with the new version.
 
 ### Added
 
+- **Arcs, pies and curves:** `CP_Graphics_DrawArc` draws part of a circle
+  as a curved line, `CP_Graphics_DrawPie` draws a filled slice of a circle (for
+  pie charts and meters), and `CP_Graphics_DrawBezier` draws a smooth curve
+  bent by two control points. Angles are in degrees, 0 points right and a
+  positive sweep goes clockwise. `Examples/curves.c` shows all three.
+- **Layered noise:** `CP_Random_NoiseOctaves` adds several layers of
+  `CP_Random_Noise`, each with twice the detail and less strength, for more
+  natural hills and clouds.
 - **Control one sound while it plays:** `CP_Sound_Play` and
   `CP_Sound_PlayAdvanced` now return a `CP_SoundInstance`, one play of the
   sound (programs that ignore it work as before). `CP_Sound_Stop`,

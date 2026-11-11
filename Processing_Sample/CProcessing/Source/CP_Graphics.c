@@ -254,6 +254,85 @@ CP_API void CP_Graphics_DrawEllipseAdvanced(float x, float y, float w, float h, 
 	nvgRestore(CORE->nvg);
 }
 
+// The circle that an arc or a pie is part of: centered on (x, y) with diameter
+// d, or with its top left at (x, y) in CP_POSITION_CORNER ellipse mode, as for
+// CP_Graphics_DrawCircle. Angles are in degrees, 0 is to the right and a
+// positive sweep goes clockwise (y points down), like CP_Vector_FromAngle.
+static void ArcPath(CP_CorePtr CORE, CP_DrawInfoPtr DI, float x, float y, float d, float startDegrees, float sweepDegrees, CP_BOOL pie)
+{
+	const float radius = d * 0.5f;
+	if (DI->ellipse_mode == CP_POSITION_CORNER)
+	{
+		x += radius;
+		y += radius;
+	}
+
+	nvgBeginPath(CORE->nvg);
+	if (pie)
+	{
+		nvgMoveTo(CORE->nvg, x, y);
+	}
+	nvgArc(CORE->nvg, x, y, radius, CP_Math_Radians(startDegrees), CP_Math_Radians(startDegrees + sweepDegrees),
+		sweepDegrees >= 0.0f ? NVG_CW : NVG_CCW);
+	if (pie)
+	{
+		nvgClosePath(CORE->nvg);
+	}
+}
+
+CP_API void CP_Graphics_DrawArc(float x, float y, float d, float startDegrees, float sweepDegrees)
+{
+	CP_CorePtr CORE = GetCPCore();
+	CP_DrawInfoPtr DI = GetDrawInfo();
+
+	if (!CORE->nvg)
+		return;	// no window yet: CP_Engine_Run hasn't started
+
+	// Just the curved line, like DrawLine: it has no fill
+	if (DI->stroke)
+	{
+		ArcPath(CORE, DI, x, y, d, startDegrees, sweepDegrees, FALSE);
+		nvgStroke(CORE->nvg);
+	}
+}
+
+CP_API void CP_Graphics_DrawPie(float x, float y, float d, float startDegrees, float sweepDegrees)
+{
+	CP_CorePtr CORE = GetCPCore();
+	CP_DrawInfoPtr DI = GetDrawInfo();
+
+	if (!CORE->nvg)
+		return;	// no window yet: CP_Engine_Run hasn't started
+
+	ArcPath(CORE, DI, x, y, d, startDegrees, sweepDegrees, TRUE);
+	if (DI->fill)
+	{
+		nvgFill(CORE->nvg);
+	}
+	if (DI->stroke)
+	{
+		nvgStroke(CORE->nvg);
+	}
+}
+
+CP_API void CP_Graphics_DrawBezier(float x1, float y1, float controlX1, float controlY1, float controlX2, float controlY2, float x2, float y2)
+{
+	CP_CorePtr CORE = GetCPCore();
+	CP_DrawInfoPtr DI = GetDrawInfo();
+
+	if (!CORE->nvg)
+		return;	// no window yet: CP_Engine_Run hasn't started
+
+	// A curve is a line: stroke only, no fill
+	if (DI->stroke)
+	{
+		nvgBeginPath(CORE->nvg);
+		nvgMoveTo(CORE->nvg, x1, y1);
+		nvgBezierTo(CORE->nvg, controlX1, controlY1, controlX2, controlY2, x2, y2);
+		nvgStroke(CORE->nvg);
+	}
+}
+
 CP_API void CP_Graphics_DrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
 	CP_CorePtr CORE = GetCPCore();

@@ -67,6 +67,11 @@ int main(void)
     RUN_TEST(test_tier2_graphics_drawcircle);
     RUN_TEST(test_tier2_graphics_drawellipse_is_not_circular);
     RUN_TEST(test_tier2_graphics_drawellipseadvanced_rotates_90_degrees);
+    RUN_TEST(test_tier2_graphics_drawarc_goes_clockwise_from_the_right_and_has_no_fill);
+    RUN_TEST(test_tier2_graphics_drawarc_with_a_negative_sweep_goes_counterclockwise);
+    RUN_TEST(test_tier2_graphics_drawpie_fills_only_its_slice);
+    RUN_TEST(test_tier2_graphics_drawpie_in_corner_mode_uses_the_top_left);
+    RUN_TEST(test_tier2_graphics_drawbezier_bends_toward_its_control_points);
     RUN_TEST(test_tier2_graphics_drawtriangle);
     RUN_TEST(test_tier2_graphics_drawtriangleadvanced_rotates_180_degrees);
     RUN_TEST(test_tier2_graphics_drawquad);

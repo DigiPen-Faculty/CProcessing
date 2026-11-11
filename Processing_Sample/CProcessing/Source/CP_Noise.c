@@ -19,24 +19,6 @@ static int repeatNoise = -1;
 
 static int p[permutationArraySize * 2];  // Doubled permutation to avoid overflow
 
-//double OctavePerlin(double x, double y, double z, int octaves, double persistence)
-//{
-//	double total = 0;
-//	double frequency = 1;
-//	double amplitude = 1;
-//	double maxValue = 0;			// Used for normalizing result to 0.0 - 1.0
-//	for (int i = 0; i < octaves; i++) {
-//		total += noise(x * frequency, y * frequency, z * frequency) * amplitude;
-//
-//		maxValue += amplitude;
-//
-//		amplitude *= persistence;
-//		frequency *= 2;
-//	}
-//
-//	return total / maxValue;
-//}													
-
 // Sets the seed value for noise().
 // By default, noise() produces different results each time the program is run.
 // Set the value parameter to a constant to return the same pseudo - random numbers each time the software is run.
@@ -178,4 +160,27 @@ CP_API float CP_Random_Noise(float x, float y, float z)
 	y2 = lerp(x1, x2, v);
 
 	return (float)((lerp(y1, y2, w) + 1) / 2);	// For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
+}
+
+// Several layers of noise added together, each at twice the detail of the
+// one before and persistence times as strong. Returns a value in [0, 1].
+CP_API float CP_Random_NoiseOctaves(float x, float y, float z, int octaves, float persistence)
+{
+	if (octaves < 1)
+	{
+		octaves = 1;
+	}
+
+	float total = 0.0f;
+	float frequency = 1.0f;
+	float amplitude = 1.0f;
+	float maxValue = 0.0f;			// Used for normalizing result to 0.0 - 1.0
+	for (int i = 0; i < octaves; ++i)
+	{
+		total += CP_Random_Noise(x * frequency, y * frequency, z * frequency) * amplitude;
+		maxValue += amplitude;
+		amplitude *= persistence;
+		frequency *= 2.0f;
+	}
+	return total / maxValue;
 }

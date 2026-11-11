@@ -160,6 +160,11 @@ void test_noise_is_deterministic_for_same_seed_and_coordinates(void);
 void test_noise_different_seeds_can_diverge(void);
 void test_noise_same_coordinate_is_continuous_with_its_neighbor(void);
 void test_noise_is_smooth_across_negative_coordinates(void);
+void test_noise_one_octave_is_plain_noise(void);
+void test_noise_octaves_below_one_count_as_one(void);
+void test_noise_octaves_with_no_persistence_are_plain_noise(void);
+void test_noise_octaves_stay_within_0_and_1(void);
+void test_noise_octaves_add_detail_and_are_deterministic(void);
 void test_random_rangeint_full_range_does_not_divide_by_zero(void);
 void test_random_rangeint_large_range_is_even(void);
 
