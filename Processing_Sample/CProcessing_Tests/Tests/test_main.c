@@ -229,6 +229,14 @@ int main(void)
     RUN_TEST(test_inputlogic_stick_is_monotonic);
     RUN_TEST(test_inputlogic_stick_out_of_range_clamps);
     RUN_TEST(test_inputlogic_stick_matches_legacy_xinput);
+    RUN_TEST(test_inputlogic_typed_encode_ascii_is_one_byte);
+    RUN_TEST(test_inputlogic_typed_encode_two_bytes);
+    RUN_TEST(test_inputlogic_typed_encode_three_bytes);
+    RUN_TEST(test_inputlogic_typed_encode_four_bytes);
+    RUN_TEST(test_inputlogic_typed_encode_rejects_controls_surrogates_and_out_of_range);
+    RUN_TEST(test_inputlogic_typed_append_builds_text_and_keeps_the_ending_zero);
+    RUN_TEST(test_inputlogic_typed_append_ignores_characters_that_are_not_text);
+    RUN_TEST(test_inputlogic_typed_append_drops_a_character_that_does_not_fit_whole);
 
     return UNITY_END();
 }

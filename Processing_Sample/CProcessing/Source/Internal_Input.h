@@ -32,6 +32,8 @@ typedef struct CP_GAMEPAD_ANALOG_STATE
 void CP_Input_KeyboardCallback(GLFWwindow* win, int key, int scancode, int action, int mods);
 void CP_Input_MouseCallback(GLFWwindow* window, int button, int action, int mods);
 void CP_Input_MouseWheelCallback(GLFWwindow* window, double xoffset, double yoffset);
+void CP_Input_CharCallback(GLFWwindow* window, unsigned int codepoint);
+void CP_Input_TextUpdate(void);
 void CP_Input_Init(void);
 void CP_Input_Update(void);
 void CP_Input_KeyboardUpdate(void);

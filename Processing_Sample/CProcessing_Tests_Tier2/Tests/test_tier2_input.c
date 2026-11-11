@@ -21,4 +21,6 @@ void test_tier2_input_no_clicks_or_keys_in_a_quiescent_frame(void)
     TEST_ASSERT_FALSE(tier2_scalars.mouseDoubleClicked);
     TEST_ASSERT_FALSE(tier2_scalars.keyADown);
     TEST_ASSERT_FALSE(tier2_scalars.mouseLeftDown);
+    // and no text was typed
+    TEST_ASSERT_TRUE(tier2_scalars.typedTextIsEmpty);
 }

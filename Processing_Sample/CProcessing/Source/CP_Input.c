@@ -50,6 +50,13 @@ static bool key_any_down = false;
 static bool key_any_released = false;
 
 //-------------------------------------
+// Typed text: characters arrive from the OS any time, and are moved into
+// the text for the frame when input is updated, like the key states
+static char typed_text_realtime[CP_TYPED_TEXT_CAPACITY] = { 0 };
+static int  typed_text_realtime_length = 0;
+static char typed_text_current[CP_TYPED_TEXT_CAPACITY] = { 0 };
+
+//-------------------------------------
 // Mouse
 
 // Track mouse states
@@ -179,6 +186,21 @@ void CP_Input_MouseWheelCallback(GLFWwindow * window, double xoffset, double yof
     mouse_wheel_captured  = TRUE;
 }
 
+void CP_Input_CharCallback(GLFWwindow* window, unsigned int codepoint)
+{
+	(void)window;
+	typed_text_realtime_length = CP_InputLogic_AppendTypedCharacter(
+		typed_text_realtime, typed_text_realtime_length, CP_TYPED_TEXT_CAPACITY, codepoint);
+}
+
+void CP_Input_TextUpdate(void)
+{
+	// The text typed since the last update is this frame's text
+	memcpy(typed_text_current, typed_text_realtime, sizeof(typed_text_current));
+	typed_text_realtime[0] = '\0';
+	typed_text_realtime_length = 0;
+}
+
 void CP_Input_Init(void)
 {
 	// setup sparse vector for keyboard valid keys
@@ -197,6 +219,7 @@ void CP_Input_Init(void)
 void CP_Input_Update(void)
 {
 	CP_Input_KeyboardUpdate();
+	CP_Input_TextUpdate();
 	CP_Input_MouseUpdate();
 	CP_Input_GamepadUpdate();
 }
@@ -489,6 +512,11 @@ CP_API CP_BOOL CP_Input_MouseDragged(CP_MOUSE button)
 	}
 
     return (mouse_states_current[button] && mouse_states_previous[button]) && CP_Input_MouseMoved();
+}
+
+CP_API const char* CP_Input_GetTypedText(void)
+{
+	return typed_text_current;
 }
 
 CP_API float CP_Input_MouseWheel(void)

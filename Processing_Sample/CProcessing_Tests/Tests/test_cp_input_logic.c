@@ -331,3 +331,97 @@ void test_inputlogic_stick_matches_legacy_xinput(void)
         TEST_ASSERT_FLOAT_WITHIN(1e-5f, expected, actual);
     }
 }
+
+// ---- Typed text ----
+
+void test_inputlogic_typed_encode_ascii_is_one_byte(void)
+{
+    char out[4];
+    TEST_ASSERT_EQUAL_INT(1, CP_InputLogic_EncodeUtf8('A', out));
+    TEST_ASSERT_EQUAL_INT('A', out[0]);
+    TEST_ASSERT_EQUAL_INT(1, CP_InputLogic_EncodeUtf8(' ', out));
+    TEST_ASSERT_EQUAL_INT(1, CP_InputLogic_EncodeUtf8(0x7E, out));
+}
+
+void test_inputlogic_typed_encode_two_bytes(void)
+{
+    char out[4];
+    // e with an acute accent, U+00E9
+    TEST_ASSERT_EQUAL_INT(2, CP_InputLogic_EncodeUtf8(0xE9, out));
+    TEST_ASSERT_EQUAL_UINT8(0xC3, (unsigned char)out[0]);
+    TEST_ASSERT_EQUAL_UINT8(0xA9, (unsigned char)out[1]);
+}
+
+void test_inputlogic_typed_encode_three_bytes(void)
+{
+    char out[4];
+    // the euro sign, U+20AC
+    TEST_ASSERT_EQUAL_INT(3, CP_InputLogic_EncodeUtf8(0x20AC, out));
+    TEST_ASSERT_EQUAL_UINT8(0xE2, (unsigned char)out[0]);
+    TEST_ASSERT_EQUAL_UINT8(0x82, (unsigned char)out[1]);
+    TEST_ASSERT_EQUAL_UINT8(0xAC, (unsigned char)out[2]);
+}
+
+void test_inputlogic_typed_encode_four_bytes(void)
+{
+    char out[4];
+    // a grinning face, U+1F600
+    TEST_ASSERT_EQUAL_INT(4, CP_InputLogic_EncodeUtf8(0x1F600, out));
+    TEST_ASSERT_EQUAL_UINT8(0xF0, (unsigned char)out[0]);
+    TEST_ASSERT_EQUAL_UINT8(0x9F, (unsigned char)out[1]);
+    TEST_ASSERT_EQUAL_UINT8(0x98, (unsigned char)out[2]);
+    TEST_ASSERT_EQUAL_UINT8(0x80, (unsigned char)out[3]);
+}
+
+void test_inputlogic_typed_encode_rejects_controls_surrogates_and_out_of_range(void)
+{
+    char out[4];
+    TEST_ASSERT_EQUAL_INT(0, CP_InputLogic_EncodeUtf8(0, out));
+    TEST_ASSERT_EQUAL_INT(0, CP_InputLogic_EncodeUtf8('\n', out));
+    TEST_ASSERT_EQUAL_INT(0, CP_InputLogic_EncodeUtf8('\t', out));
+    TEST_ASSERT_EQUAL_INT(0, CP_InputLogic_EncodeUtf8(0x7F, out));
+    TEST_ASSERT_EQUAL_INT(0, CP_InputLogic_EncodeUtf8(0x85, out));
+    TEST_ASSERT_EQUAL_INT(0, CP_InputLogic_EncodeUtf8(0xD800, out));
+    TEST_ASSERT_EQUAL_INT(0, CP_InputLogic_EncodeUtf8(0xDFFF, out));
+    TEST_ASSERT_EQUAL_INT(0, CP_InputLogic_EncodeUtf8(0x110000, out));
+    TEST_ASSERT_EQUAL_INT(4, CP_InputLogic_EncodeUtf8(0x10FFFF, out));
+}
+
+void test_inputlogic_typed_append_builds_text_and_keeps_the_ending_zero(void)
+{
+    char buffer[16] = { 0 };
+    int length = 0;
+    length = CP_InputLogic_AppendTypedCharacter(buffer, length, 16, 'H');
+    length = CP_InputLogic_AppendTypedCharacter(buffer, length, 16, 'i');
+    length = CP_InputLogic_AppendTypedCharacter(buffer, length, 16, 0xE9);
+    TEST_ASSERT_EQUAL_INT(4, length);
+    TEST_ASSERT_EQUAL_STRING("Hi\xC3\xA9", buffer);
+}
+
+void test_inputlogic_typed_append_ignores_characters_that_are_not_text(void)
+{
+    char buffer[16] = { 0 };
+    int length = CP_InputLogic_AppendTypedCharacter(buffer, 0, 16, '\n');
+    TEST_ASSERT_EQUAL_INT(0, length);
+    TEST_ASSERT_EQUAL_STRING("", buffer);
+}
+
+void test_inputlogic_typed_append_drops_a_character_that_does_not_fit_whole(void)
+{
+    char buffer[4] = { 0 };
+    int length = 0;
+    length = CP_InputLogic_AppendTypedCharacter(buffer, length, 4, 'a');
+    length = CP_InputLogic_AppendTypedCharacter(buffer, length, 4, 'b');
+    // 2 bytes used, 1 left after the ending 0: a 2 byte character does not fit
+    length = CP_InputLogic_AppendTypedCharacter(buffer, length, 4, 0xE9);
+    TEST_ASSERT_EQUAL_INT(2, length);
+    TEST_ASSERT_EQUAL_STRING("ab", buffer);
+    // but a one byte character still does
+    length = CP_InputLogic_AppendTypedCharacter(buffer, length, 4, 'c');
+    TEST_ASSERT_EQUAL_INT(3, length);
+    TEST_ASSERT_EQUAL_STRING("abc", buffer);
+    // and then the buffer is full
+    length = CP_InputLogic_AppendTypedCharacter(buffer, length, 4, 'd');
+    TEST_ASSERT_EQUAL_INT(3, length);
+    TEST_ASSERT_EQUAL_STRING("abc", buffer);
+}

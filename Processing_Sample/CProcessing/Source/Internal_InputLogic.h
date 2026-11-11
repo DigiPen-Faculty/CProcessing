@@ -92,6 +92,89 @@ static inline bool CP_InputLogic_SampleButton(bool realtimeDown, bool pressedSin
 }
 
 //------------------------------------------------------------------------------
+// Typed text
+//
+// GLFW reports each typed character as a Unicode code point. CProcessing
+// keeps the text typed during a frame as UTF-8 in a fixed buffer, so a game
+// can read it as an ordinary C string.
+
+// Bytes in the buffer, including the ending 0. A person can't type more than
+// this in one frame, but a paste or a stuck key could, so extra is dropped.
+#define CP_TYPED_TEXT_CAPACITY 64
+
+// Whether a code point is text a person typed, as opposed to a control
+// character, a surrogate (not a character by itself) or out of range
+static inline bool CP_InputLogic_IsTypedCharacter(unsigned codepoint)
+{
+	if (codepoint < 0x20 || codepoint == 0x7F)
+	{
+		return false;
+	}
+	if (codepoint >= 0x80 && codepoint < 0xA0)
+	{
+		return false;
+	}
+	if (codepoint >= 0xD800 && codepoint <= 0xDFFF)
+	{
+		return false;
+	}
+	return codepoint <= 0x10FFFF;
+}
+
+// Writes a code point as UTF-8 into out (up to 4 bytes) and returns how many
+// bytes it took, or 0 if it isn't a typed character
+static inline int CP_InputLogic_EncodeUtf8(unsigned codepoint, char out[4])
+{
+	if (!CP_InputLogic_IsTypedCharacter(codepoint))
+	{
+		return 0;
+	}
+	if (codepoint < 0x80)
+	{
+		out[0] = (char)codepoint;
+		return 1;
+	}
+	if (codepoint < 0x800)
+	{
+		out[0] = (char)(0xC0 | (codepoint >> 6));
+		out[1] = (char)(0x80 | (codepoint & 0x3F));
+		return 2;
+	}
+	if (codepoint < 0x10000)
+	{
+		out[0] = (char)(0xE0 | (codepoint >> 12));
+		out[1] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
+		out[2] = (char)(0x80 | (codepoint & 0x3F));
+		return 3;
+	}
+	out[0] = (char)(0xF0 | (codepoint >> 18));
+	out[1] = (char)(0x80 | ((codepoint >> 12) & 0x3F));
+	out[2] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
+	out[3] = (char)(0x80 | (codepoint & 0x3F));
+	return 4;
+}
+
+// Adds a typed code point to the end of the text in buffer, which holds
+// length bytes before its ending 0, and has room for capacity bytes in all.
+// Returns the new length. A character that doesn't fit is dropped whole, so
+// the text never ends in half a character, and the ending 0 is always there.
+static inline int CP_InputLogic_AppendTypedCharacter(char* buffer, int length, int capacity, unsigned codepoint)
+{
+	char encoded[4];
+	int size = CP_InputLogic_EncodeUtf8(codepoint, encoded);
+	if (size == 0 || length + size + 1 > capacity)
+	{
+		return length;
+	}
+	for (int i = 0; i < size; ++i)
+	{
+		buffer[length + i] = encoded[i];
+	}
+	buffer[length + size] = '\0';
+	return length + size;
+}
+
+//------------------------------------------------------------------------------
 // Mouse double click: a left-button release within this many seconds of the
 // previous left-button release counts as a double click
 #define CP_DOUBLE_CLICK_TIME 0.5

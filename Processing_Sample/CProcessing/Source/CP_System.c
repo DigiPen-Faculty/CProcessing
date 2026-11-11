@@ -969,6 +969,7 @@ void CP_Initialize(void)
 	glfwSetKeyCallback(_CORE.window, CP_Input_KeyboardCallback);
 	glfwSetMouseButtonCallback(_CORE.window, CP_Input_MouseCallback);
 	glfwSetScrollCallback(_CORE.window, CP_Input_MouseWheelCallback);
+	glfwSetCharCallback(_CORE.window, CP_Input_CharCallback);
 
 	// Apply a cursor setting requested before the window existed
 	CP_ApplyCursorMode();
