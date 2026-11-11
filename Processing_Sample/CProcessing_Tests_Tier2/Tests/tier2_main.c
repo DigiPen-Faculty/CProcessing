@@ -136,8 +136,8 @@ int main(void)
     // test_tier2_sound.c
     RUN_TEST(test_tier2_sound_group_volume_roundtrips);
     RUN_TEST(test_tier2_sound_group_pitch_roundtrips);
-    RUN_TEST(test_tier2_sound_play_returns_a_handle_that_stops_one_sound);
-    RUN_TEST(test_tier2_sound_no_handle_is_not_playing_and_is_safe);
+    RUN_TEST(test_tier2_sound_play_returns_an_instance_that_stops_one_sound);
+    RUN_TEST(test_tier2_sound_no_instance_is_not_playing_and_is_safe);
 
     // test_tier2_input.c
     RUN_TEST(test_tier2_input_no_gamepad_attached_reports_disconnected);

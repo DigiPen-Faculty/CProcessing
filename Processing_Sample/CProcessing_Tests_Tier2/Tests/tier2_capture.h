@@ -151,12 +151,12 @@ typedef struct
     float pitchAfterSet;
     // One playing sound (see Scn_SoundRoundTrip)
     CP_BOOL soundLoaded;            // false with no audio device
-    CP_BOOL handleGiven;            // PlayAdvanced returned a handle
+    CP_BOOL instanceGiven;            // PlayAdvanced returned an instance
     CP_BOOL playingAfterPlay;
     CP_BOOL playingAfterPauseResume;
     CP_BOOL playingAfterStop;
     CP_BOOL otherPlayingAfterStop;  // stopping one sound leaves another playing
-    CP_BOOL noHandleIsNotPlaying;   // handle 0, and calls with it don't crash
+    CP_BOOL noInstanceIsNotPlaying;   // instance 0, and calls with it don't crash
 
     // CP_Input (quiescent-state defaults only -- see Scn_InputQuiescentDefaults)
     CP_BOOL gamepadConnected;

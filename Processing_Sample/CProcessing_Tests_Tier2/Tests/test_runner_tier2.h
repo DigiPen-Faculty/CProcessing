@@ -82,8 +82,8 @@ void test_tier2_system_console_printf_keeps_working(void);
 // test_tier2_sound.c -- Tier 2: CP_Sound (crash/round-trip checks, not audio correctness).
 void test_tier2_sound_group_volume_roundtrips(void);
 void test_tier2_sound_group_pitch_roundtrips(void);
-void test_tier2_sound_play_returns_a_handle_that_stops_one_sound(void);
-void test_tier2_sound_no_handle_is_not_playing_and_is_safe(void);
+void test_tier2_sound_play_returns_an_instance_that_stops_one_sound(void);
+void test_tier2_sound_no_instance_is_not_playing_and_is_safe(void);
 
 // test_tier2_input.c -- Tier 2: CP_Input (quiescent-state defaults only).
 void test_tier2_input_no_gamepad_attached_reports_disconnected(void);

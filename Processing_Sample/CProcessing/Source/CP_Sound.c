@@ -285,7 +285,7 @@ CP_API void CP_Sound_Free(CP_Sound* sound)
 	// TODO: handle error - we reached the end of the list without finding the sound
 }
 
-CP_API CP_SoundHandle CP_Sound_Play(CP_Sound sound)
+CP_API CP_SoundInstance CP_Sound_Play(CP_Sound sound)
 {
 	if (sound == NULL)
 	{
@@ -299,7 +299,7 @@ CP_API CP_SoundHandle CP_Sound_Play(CP_Sound sound)
 	return CP_Sound_PlayAdvanced(sound, 1.0f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
 }
 
-CP_API CP_SoundHandle CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_BOOL looping, CP_SOUND_GROUP group)
+CP_API CP_SoundInstance CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_BOOL looping, CP_SOUND_GROUP group)
 {
 	// TODO: handle voice group
 	if (!CP_IsValidSoundGroup(group) || sound == NULL || _soloud_system == NULL)
@@ -341,62 +341,62 @@ CP_API CP_SoundHandle CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float 
 	return voice;
 }
 
-CP_API CP_BOOL CP_Sound_IsPlaying(CP_SoundHandle handle)
+CP_API CP_BOOL CP_Sound_IsPlaying(CP_SoundInstance instance)
 {
-	// A voice handle stops being valid when the sound finishes or is stopped.
-	// A paused sound is still valid, so it still counts as playing.
-	if (_soloud_system == NULL || handle == 0)
+	// An instance stops being valid when its sound finishes or is stopped.
+	// A paused instance is still valid, so it still counts as playing.
+	if (_soloud_system == NULL || instance == 0)
 	{
 		return FALSE;
 	}
-	return Soloud_isValidVoiceHandle(_soloud_system, handle) ? TRUE : FALSE;
+	return Soloud_isValidVoiceHandle(_soloud_system, instance) ? TRUE : FALSE;
 }
 
-CP_API void CP_Sound_Stop(CP_SoundHandle handle)
+CP_API void CP_Sound_Stop(CP_SoundInstance instance)
 {
-	if (_soloud_system && handle != 0)
+	if (_soloud_system && instance != 0)
 	{
-		Soloud_stop(_soloud_system, handle);
+		Soloud_stop(_soloud_system, instance);
 	}
 }
 
-CP_API void CP_Sound_Pause(CP_SoundHandle handle)
+CP_API void CP_Sound_Pause(CP_SoundInstance instance)
 {
-	if (_soloud_system && handle != 0)
+	if (_soloud_system && instance != 0)
 	{
-		Soloud_setPause(_soloud_system, handle, TRUE);
+		Soloud_setPause(_soloud_system, instance, TRUE);
 	}
 }
 
-CP_API void CP_Sound_Resume(CP_SoundHandle handle)
+CP_API void CP_Sound_Resume(CP_SoundInstance instance)
 {
-	if (_soloud_system && handle != 0)
+	if (_soloud_system && instance != 0)
 	{
-		Soloud_setPause(_soloud_system, handle, FALSE);
+		Soloud_setPause(_soloud_system, instance, FALSE);
 	}
 }
 
-CP_API void CP_Sound_SetVolume(CP_SoundHandle handle, float volume)
+CP_API void CP_Sound_SetVolume(CP_SoundInstance instance, float volume)
 {
-	if (_soloud_system && handle != 0)
+	if (_soloud_system && instance != 0)
 	{
 		if (volume < 0.0f)
 		{
 			volume = 0.0f;
 		}
-		Soloud_setVolume(_soloud_system, handle, volume);
+		Soloud_setVolume(_soloud_system, instance, volume);
 	}
 }
 
-CP_API void CP_Sound_SetPitch(CP_SoundHandle handle, float pitch)
+CP_API void CP_Sound_SetPitch(CP_SoundInstance instance, float pitch)
 {
-	if (_soloud_system && handle != 0)
+	if (_soloud_system && instance != 0)
 	{
 		if (pitch < 0.0f)
 		{
 			pitch = 0.0f;
 		}
-		Soloud_setRelativePlaySpeed(_soloud_system, handle, pitch);
+		Soloud_setRelativePlaySpeed(_soloud_system, instance, pitch);
 	}
 }
 
