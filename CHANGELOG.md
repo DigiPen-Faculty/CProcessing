@@ -78,6 +78,10 @@ changes to build with the new version.
 
 ### Changed
 
+- **`CP_Graphics_DrawCircle`, `DrawArc` and `DrawPie` name their size
+  `diameter`, not `d`**, so the editor's hint says what the number is (it is
+  the width across, not the radius). Only the parameter name changed: nothing
+  to do in existing programs.
 - **Every CProcessing source file now says it's MIT licensed**, matching
   `LICENSE`: `SPDX-License-Identifier: MIT` and `Copyright (c) 2019-2026
   DigiPen Institute of Technology`. Before, the files said "All rights
