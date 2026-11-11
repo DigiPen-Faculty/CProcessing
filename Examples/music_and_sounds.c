@@ -8,11 +8,13 @@
 //   CP_Sound_Load
 // - play music on a loop in the music group, and sound effects in the
 //   effects group, so each group has its own volume
-// - pause and resume a group
+// - keep the handle that CP_Sound_PlayAdvanced returns, to pause, resume or
+//   stop that one sound (and to ask if it is still playing)
 // - vary a sound effect's pitch so repeats don't sound the same
 // - load sounds once, in init, and free them in exit
 //
-// Keys: 1, 2 and 3 play sound effects. M pauses and resumes the music.
+// Keys: 1, 2 and 3 play sound effects. M pauses and resumes the music, and S
+// stops it or starts it again.
 // Up and Down change the music volume, Left and Right the effects volume.
 //
 // Try this:
@@ -33,6 +35,9 @@ CP_Sound coinSound;
 CP_Sound jumpSound;
 CP_Sound hitSound;
 
+// The music that is playing now. Playing a sound gives you a handle for that
+// one play, so you can pause, resume or stop it. (0 is "no sound".)
+CP_SoundHandle musicHandle = 0;
 CP_BOOL musicPaused = FALSE;
 const char* lastEffect = "none yet";
 float lastPitch = 1.0f;
@@ -60,7 +65,7 @@ void game_init(void)
 	hitSound = CP_Sound_Load("Assets/Hit.wav");
 
 	// Start the music, looping, in the music group
-	CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
+	musicHandle = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, 0.6f);
 }
 
@@ -79,17 +84,32 @@ void game_update(void)
 		PlayEffect(hitSound, "hit");
 	}
 
-	if (CP_Input_KeyTriggered(KEY_M))
+	// M pauses or resumes the music, only while it's playing
+	if (CP_Input_KeyTriggered(KEY_M) && CP_Sound_IsPlaying(musicHandle))
 	{
 		if (musicPaused)
 		{
-			CP_Sound_ResumeGroup(CP_SOUND_GROUP_MUSIC);
+			CP_Sound_Resume(musicHandle);
 		}
 		else
 		{
-			CP_Sound_PauseGroup(CP_SOUND_GROUP_MUSIC);
+			CP_Sound_Pause(musicHandle);
 		}
 		musicPaused = !musicPaused;
+	}
+
+	// S stops the music, or starts it again from the beginning
+	if (CP_Input_KeyTriggered(KEY_S))
+	{
+		if (CP_Sound_IsPlaying(musicHandle))
+		{
+			CP_Sound_Stop(musicHandle);
+		}
+		else
+		{
+			musicHandle = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
+		}
+		musicPaused = FALSE;
 	}
 
 	// Each group's volume, from 0 (silent) to 1 (full), in steps of 0.1
@@ -121,7 +141,8 @@ void game_update(void)
 	CP_Settings_TextSize(24.0f);
 
 	char text[100];
-	snprintf(text, sizeof(text), "Music: %s, volume %.1f", musicPaused ? "paused" : "playing", CP_Sound_GetGroupVolume(CP_SOUND_GROUP_MUSIC));
+	const char* musicState = !CP_Sound_IsPlaying(musicHandle) ? "stopped" : (musicPaused ? "paused" : "playing");
+	snprintf(text, sizeof(text), "Music: %s, volume %.1f", musicState, CP_Sound_GetGroupVolume(CP_SOUND_GROUP_MUSIC));
 	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
 	CP_Font_DrawText(text, 60.0f, 120.0f);
 	CP_Settings_Fill(CP_Color_Create(80, 200, 255, 255));
@@ -135,7 +156,7 @@ void game_update(void)
 
 	CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255));
 	CP_Font_DrawText("1, 2, 3: coin, jump, hit", 60.0f, 380.0f);
-	CP_Font_DrawText("M: pause or resume the music", 60.0f, 420.0f);
+	CP_Font_DrawText("M: pause or resume the music    S: stop or start it", 60.0f, 420.0f);
 	CP_Font_DrawText("Up and Down: music volume", 60.0f, 460.0f);
 	CP_Font_DrawText("Left and Right: effects volume", 60.0f, 500.0f);
 }

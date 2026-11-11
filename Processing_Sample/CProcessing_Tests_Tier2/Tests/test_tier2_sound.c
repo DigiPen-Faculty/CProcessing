@@ -15,3 +15,23 @@ void test_tier2_sound_group_pitch_roundtrips(void)
 {
     TEST_ASSERT_FLOAT_WITHIN(0.01f, 1.5f, tier2_scalars.pitchAfterSet);
 }
+
+void test_tier2_sound_play_returns_a_handle_that_stops_one_sound(void)
+{
+    // See Scn_SoundRoundTrip (needs an audio device, or SoLoud's silent
+    // fallback, to have loaded the sound at all)
+    if (!tier2_scalars.soundLoaded)
+    {
+        TEST_IGNORE_MESSAGE("no sound loaded on this machine");
+    }
+    TEST_ASSERT_TRUE(tier2_scalars.handleGiven);
+    TEST_ASSERT_TRUE(tier2_scalars.playingAfterPlay);
+    TEST_ASSERT_TRUE(tier2_scalars.playingAfterPauseResume);
+    TEST_ASSERT_FALSE(tier2_scalars.playingAfterStop);
+    TEST_ASSERT_TRUE(tier2_scalars.otherPlayingAfterStop);
+}
+
+void test_tier2_sound_no_handle_is_not_playing_and_is_safe(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.noHandleIsNotPlaying);
+}

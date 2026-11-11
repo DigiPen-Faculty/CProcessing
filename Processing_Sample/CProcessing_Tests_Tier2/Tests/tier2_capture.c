@@ -950,6 +950,29 @@ static void Scn_SoundRoundTrip(void)
     CP_Sound_SetGroupPitch(CP_SOUND_GROUP_SFX, 1.5f);
     tier2_scalars.pitchAfterSet = CP_Sound_GetGroupPitch(CP_SOUND_GROUP_SFX);
 
+    // One playing sound, by its handle: two looping copies, stop one
+    tier2_scalars.soundLoaded = sound != NULL;
+    CP_SoundHandle first = CP_Sound_PlayAdvanced(sound, 0.0f, 1.0f, TRUE, CP_SOUND_GROUP_SFX);
+    CP_SoundHandle second = CP_Sound_PlayAdvanced(sound, 0.0f, 1.0f, TRUE, CP_SOUND_GROUP_SFX);
+    tier2_scalars.handleGiven = first != 0 && second != 0 && first != second;
+    tier2_scalars.playingAfterPlay = CP_Sound_IsPlaying(first);
+    CP_Sound_Pause(first);
+    CP_Sound_Resume(first);
+    CP_Sound_SetVolume(first, 0.0f);
+    CP_Sound_SetPitch(first, 1.0f);
+    tier2_scalars.playingAfterPauseResume = CP_Sound_IsPlaying(first);
+    CP_Sound_Stop(first);
+    tier2_scalars.playingAfterStop = CP_Sound_IsPlaying(first);
+    tier2_scalars.otherPlayingAfterStop = CP_Sound_IsPlaying(second);
+    CP_Sound_Stop(second);
+    CP_Sound_Stop(first);       // stopping a sound that has stopped is fine
+    CP_Sound_Pause(0);
+    CP_Sound_Resume(0);
+    CP_Sound_Stop(0);
+    CP_Sound_SetVolume(0, 1.0f);
+    CP_Sound_SetPitch(0, 1.0f);
+    tier2_scalars.noHandleIsNotPlaying = !CP_Sound_IsPlaying(0);
+
     CP_Sound_PlayAdvanced(sound, 0.1f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
     CP_Sound_PauseGroup(CP_SOUND_GROUP_SFX);
     CP_Sound_ResumeGroup(CP_SOUND_GROUP_SFX);

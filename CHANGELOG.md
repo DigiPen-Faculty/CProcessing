@@ -12,6 +12,12 @@ changes to build with the new version.
 
 ### Added
 
+- **Control one sound while it plays:** `CP_Sound_Play` and
+  `CP_Sound_PlayAdvanced` now return a `CP_SoundHandle` for that one play of
+  the sound (programs that ignore it work as before). `CP_Sound_Stop`,
+  `CP_Sound_Pause`, `CP_Sound_Resume`, `CP_Sound_IsPlaying`,
+  `CP_Sound_SetVolume` and `CP_Sound_SetPitch` take a handle, so one
+  looping song can be stopped without stopping its whole group.
 - **Examples:** seven small, complete programs, each showing one thing
   games need: `movement.c`, `collision.c`, `sprite_animation.c`,
   `camera.c`, `game_states.c`, `score_and_text.c` and
