@@ -87,7 +87,7 @@ typedef struct			CP_Sound_Struct* CP_Sound;
 
 // One playing sound, returned by CP_Sound_Play and CP_Sound_PlayAdvanced and
 // used to stop, pause or change just that sound. 0 means no sound.
-typedef unsigned int	CP_SoundHandle;
+typedef unsigned int	CP_SoundInstance;
 typedef struct			CP_Font_Struct* CP_Font;
 
 

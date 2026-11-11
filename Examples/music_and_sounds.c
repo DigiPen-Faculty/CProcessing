@@ -8,8 +8,8 @@
 //   CP_Sound_Load
 // - play music on a loop in the music group, and sound effects in the
 //   effects group, so each group has its own volume
-// - keep the handle that CP_Sound_PlayAdvanced returns, to pause, resume or
-//   stop that one sound (and to ask if it is still playing)
+// - keep the instance that CP_Sound_PlayAdvanced returns, to pause, resume or
+//   stop that one play of the sound (and to ask if it is still playing)
 // - vary a sound effect's pitch so repeats don't sound the same
 // - load sounds once, in init, and free them in exit
 //
@@ -35,9 +35,10 @@ CP_Sound coinSound;
 CP_Sound jumpSound;
 CP_Sound hitSound;
 
-// The music that is playing now. Playing a sound gives you a handle for that
-// one play, so you can pause, resume or stop it. (0 is "no sound".)
-CP_SoundHandle musicHandle = 0;
+// The music that is playing now. Each time you play a CP_Sound you get an
+// instance: that one play, which you can pause, resume or stop on its own.
+// (0 means "no instance".)
+CP_SoundInstance musicInstance = 0;
 CP_BOOL musicPaused = FALSE;
 const char* lastEffect = "none yet";
 float lastPitch = 1.0f;
@@ -65,7 +66,7 @@ void game_init(void)
 	hitSound = CP_Sound_Load("Assets/Hit.wav");
 
 	// Start the music, looping, in the music group
-	musicHandle = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
+	musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, 0.6f);
 }
 
@@ -85,15 +86,15 @@ void game_update(void)
 	}
 
 	// M pauses or resumes the music, only while it's playing
-	if (CP_Input_KeyTriggered(KEY_M) && CP_Sound_IsPlaying(musicHandle))
+	if (CP_Input_KeyTriggered(KEY_M) && CP_Sound_IsPlaying(musicInstance))
 	{
 		if (musicPaused)
 		{
-			CP_Sound_Resume(musicHandle);
+			CP_Sound_Resume(musicInstance);
 		}
 		else
 		{
-			CP_Sound_Pause(musicHandle);
+			CP_Sound_Pause(musicInstance);
 		}
 		musicPaused = !musicPaused;
 	}
@@ -101,13 +102,13 @@ void game_update(void)
 	// S stops the music, or starts it again from the beginning
 	if (CP_Input_KeyTriggered(KEY_S))
 	{
-		if (CP_Sound_IsPlaying(musicHandle))
+		if (CP_Sound_IsPlaying(musicInstance))
 		{
-			CP_Sound_Stop(musicHandle);
+			CP_Sound_Stop(musicInstance);
 		}
 		else
 		{
-			musicHandle = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
+			musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
 		}
 		musicPaused = FALSE;
 	}
@@ -141,7 +142,7 @@ void game_update(void)
 	CP_Settings_TextSize(24.0f);
 
 	char text[100];
-	const char* musicState = !CP_Sound_IsPlaying(musicHandle) ? "stopped" : (musicPaused ? "paused" : "playing");
+	const char* musicState = !CP_Sound_IsPlaying(musicInstance) ? "stopped" : (musicPaused ? "paused" : "playing");
 	snprintf(text, sizeof(text), "Music: %s, volume %.1f", musicState, CP_Sound_GetGroupVolume(CP_SOUND_GROUP_MUSIC));
 	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
 	CP_Font_DrawText(text, 60.0f, 120.0f);
