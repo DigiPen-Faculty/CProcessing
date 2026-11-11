@@ -128,4 +128,4 @@ Pick two or more.
 * **A number with a decimal point is passed to `int`, or the other way round.** Positions are `float`s, so write `650.0f`. Colors are `int`s, so write `255`.
 * **No `printf` output.** On Windows, call `CP_System_ShowConsole(TRUE);`.
 
-**Next:** [Lesson 2: Shapes and the coordinate system](Lesson-02-Shapes-and-Coordinates) (coming soon), or jump to [Lesson 3: Color](Lesson-03-Color).
+**Next:** [Lesson 2: Shapes and the coordinate system](Lesson-02-Shapes-and-Coordinates), or jump to [Lesson 3: Color](Lesson-03-Color).

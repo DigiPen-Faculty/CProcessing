@@ -141,4 +141,4 @@ Pick two or more.
 * **Colors out of range.** RGB and alpha are 0 to 255, hue is 0 to 359, saturation and lightness are 0 to 100. CProcessing clamps them (hue wraps around) rather than failing, so the mistake shows as a wrong color, not an error.
 * **Integer division in a Lerp.** See step 4.
 
-**Next:** Lesson 4: Input (coming soon).
+**Next:** [Lesson 4: Input](Lesson-04-Input).

@@ -56,7 +56,7 @@ changes to build with the new version.
   `music_and_sounds.c` and `text_input.c`. Each is one file with step-by-step comments and
   ideas to try. They're in an `Examples` folder in every release package
   and in the repository; to run one, copy it over `main.c`.
-- **Lessons 1 (Your first window) and 3 (Color):** each is a page of
+- **Lessons 1 to 4 (Your first window, Shapes and the coordinate system, Color, Input):** each is a page of
   step-by-step teaching with a finished program in `Examples/Lessons`, and
   challenges and check-yourself questions. The pages are in `docs/lessons`
   until they are published to the wiki.
@@ -106,6 +106,11 @@ changes to build with the new version.
 
 ### Fixed
 
+- **A window size chosen in `game_init` now applies before the first
+  `game_update`.** It used to apply one frame later, so the first update still
+  saw a 400 x 400 window: `CP_System_GetWindowWidth()` was wrong, and a
+  program that draws once (a painting program, say) filled only the top left
+  corner. Programs that redraw every frame never noticed.
 - **Looping music loaded with `CP_Sound_LoadStream` went silent after its first
   play**, unless it was an Ogg file: `CP_Sound_PlayAdvanced(music, ..., TRUE, ...)`
   played once and then stopped. The cause was in SoLoud, the audio library,

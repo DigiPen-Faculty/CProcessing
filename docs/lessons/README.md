@@ -5,9 +5,11 @@ A learn-by-building path for CProcessing, for self-study or alongside a class. E
 | Lesson | Page (a wiki page when released) | Program |
 |---|---|---|
 | 1. Your first window | [Lesson-01-Your-First-Window.md](Lesson-01-Your-First-Window.md) | [Examples/Lessons/01_first_window](../../Examples/Lessons/01_first_window/main.c) |
+| 2. Shapes and the coordinate system | [Lesson-02-Shapes-and-Coordinates.md](Lesson-02-Shapes-and-Coordinates.md) | [Examples/Lessons/02_shapes](../../Examples/Lessons/02_shapes/main.c) |
 | 3. Color | [Lesson-03-Color.md](Lesson-03-Color.md) | [Examples/Lessons/03_color](../../Examples/Lessons/03_color/main.c), and the Color picker demo (6) in `Processing_Demos` |
+| 4. Input | [Lesson-04-Input.md](Lesson-04-Input.md) | [Examples/Lessons/04_input](../../Examples/Lessons/04_input/main.c) |
 
-Lessons 2 and 4 to 10 follow once these two have been tried with students. The outline is in the planning notes.
+Lessons 5 to 10 follow. Lessons 2 and 4 were written before lessons 1 and 3 had been tried with students, and use the same format, so notes from the pilot may change all four. The outline is in the planning notes.
 
 ## Decisions
 
