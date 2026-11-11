@@ -12,6 +12,12 @@ changes to build with the new version.
 
 ### Added
 
+- **Control one sound while it plays:** `CP_Sound_Play` and
+  `CP_Sound_PlayAdvanced` now return a `CP_SoundHandle` for that one play of
+  the sound (programs that ignore it work as before). `CP_Sound_Stop`,
+  `CP_Sound_Pause`, `CP_Sound_Resume`, `CP_Sound_IsPlaying`,
+  `CP_Sound_SetVolume` and `CP_Sound_SetPitch` take a handle, so one
+  looping song can be stopped without stopping its whole group.
 - **Measuring text:** `CP_Font_GetTextWidth`, `CP_Font_GetTextSize` (width and
   line height) and `CP_Font_GetTextBoxSize` (the size of wrapped text), so you
   can center text, right-align it, or draw a box around it.

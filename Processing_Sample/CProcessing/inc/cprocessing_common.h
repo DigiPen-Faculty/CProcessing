@@ -84,6 +84,10 @@ typedef unsigned int	CP_BOOL;
 typedef void*			CP_WindowHandle;
 typedef struct			CP_Image_Struct* CP_Image;
 typedef struct			CP_Sound_Struct* CP_Sound;
+
+// One playing sound, returned by CP_Sound_Play and CP_Sound_PlayAdvanced and
+// used to stop, pause or change just that sound. 0 means no sound.
+typedef unsigned int	CP_SoundHandle;
 typedef struct			CP_Font_Struct* CP_Font;
 
 
