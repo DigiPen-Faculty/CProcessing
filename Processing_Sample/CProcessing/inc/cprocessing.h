@@ -150,6 +150,9 @@ CP_API void				CP_Graphics_DrawRectAdvanced		(float x, float y, float w, float h
 CP_API void				CP_Graphics_DrawCircle				(float x, float y, float d);
 CP_API void				CP_Graphics_DrawEllipse				(float x, float y, float w, float h);
 CP_API void				CP_Graphics_DrawEllipseAdvanced		(float x, float y, float w, float h, float degrees);
+CP_API void				CP_Graphics_DrawArc					(float x, float y, float d, float startDegrees, float sweepDegrees);
+CP_API void				CP_Graphics_DrawPie					(float x, float y, float d, float startDegrees, float sweepDegrees);
+CP_API void				CP_Graphics_DrawBezier				(float x1, float y1, float controlX1, float controlY1, float controlX2, float controlY2, float x2, float y2);
 CP_API void				CP_Graphics_DrawTriangle			(float x1, float y1, float x2, float y2, float x3, float y3);
 CP_API void				CP_Graphics_DrawTriangleAdvanced	(float x1, float y1, float x2, float y2, float x3, float y3, float degrees);
 CP_API void				CP_Graphics_DrawQuad				(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
@@ -332,6 +335,7 @@ CP_API float			CP_Random_RangeFloat				(float lowerBound, float upperBound);
 CP_API void				CP_Random_Seed						(int seed);
 CP_API float			CP_Random_Gaussian					(void);
 CP_API float			CP_Random_Noise						(float x, float y, float z);
+CP_API float			CP_Random_NoiseOctaves				(float x, float y, float z, int octaves, float persistence);
 CP_API void				CP_Random_NoiseSeed					(int seed);
 
 

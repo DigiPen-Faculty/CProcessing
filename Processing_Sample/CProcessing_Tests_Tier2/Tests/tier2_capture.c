@@ -205,6 +205,51 @@ static void Scn_DrawEllipseAdvanced(void)
     CP_Graphics_DrawEllipseAdvanced(100, 100, 120, 40, 90);
 }
 
+// A quarter of a circle of diameter 160 around (100, 100), from the angle 0
+// (to the right) clockwise, so down: it passes (180, 100) and (100, 180).
+static void Scn_DrawArc(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(RED);          // an arc is a line: this must not fill it
+    CP_Graphics_DrawArc(100, 100, 160, 0, 90);
+}
+
+// The same quarter, but a negative sweep goes the other way: up
+static void Scn_DrawArcCounterclockwise(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Graphics_DrawArc(100, 100, 160, 0, -90);
+}
+
+// A filled quarter of the circle: the bottom right
+static void Scn_DrawPie(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_NoStroke();
+    CP_Settings_Fill(RED);
+    CP_Graphics_DrawPie(100, 100, 160, 0, 90);
+}
+
+// In CORNER ellipse mode the circle's top left is the position: this is the
+// bottom right quarter of the circle centered on (100, 100), as above
+static void Scn_DrawPieCornerMode(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_NoStroke();
+    CP_Settings_Fill(RED);
+    CP_Settings_EllipseMode(CP_POSITION_CORNER);
+    CP_Graphics_DrawPie(20, 20, 160, 0, 90);
+}
+
+// A curve from (20, 150) to (180, 150) pulled up by both control points; at
+// half way along it is at (100, 52.5)
+static void Scn_DrawBezier(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_Fill(RED);          // a curve is a line: this must not fill it
+    CP_Graphics_DrawBezier(20, 150, 20, 20, 180, 20, 180, 150);
+}
+
 static void Scn_DrawTriangle(void)
 {
     CP_Graphics_ClearBackground(WHITE);
@@ -1222,6 +1267,11 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_DRAW_CIRCLE] = Scn_DrawCircle,
     [SCN_DRAW_ELLIPSE] = Scn_DrawEllipse,
     [SCN_DRAW_ELLIPSE_ADVANCED] = Scn_DrawEllipseAdvanced,
+    [SCN_DRAW_ARC] = Scn_DrawArc,
+    [SCN_DRAW_ARC_COUNTERCLOCKWISE] = Scn_DrawArcCounterclockwise,
+    [SCN_DRAW_PIE] = Scn_DrawPie,
+    [SCN_DRAW_PIE_CORNER_MODE] = Scn_DrawPieCornerMode,
+    [SCN_DRAW_BEZIER] = Scn_DrawBezier,
     [SCN_DRAW_TRIANGLE] = Scn_DrawTriangle,
     [SCN_DRAW_TRIANGLE_ADVANCED] = Scn_DrawTriangleAdvanced,
     [SCN_DRAW_QUAD] = Scn_DrawQuad,

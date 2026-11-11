@@ -90,6 +90,61 @@ void test_tier2_graphics_drawellipseadvanced_rotates_90_degrees(void)
     assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_ELLIPSE_ADVANCED, 150, 100));
 }
 
+void test_tier2_graphics_drawarc_goes_clockwise_from_the_right_and_has_no_fill(void)
+{
+    const CP_Color black = CP_Color_Create(0, 0, 0, 255);
+    const CP_Color white = CP_Color_Create(255, 255, 255, 255);
+    // Starts to the right of the center, ends below it, and is on the circle
+    // half way between (just inside each end, where the line is not cut off)
+    assertColorWithin(2, black, tier2_SamplePixel(SCN_DRAW_ARC, 180, 104));
+    assertColorWithin(2, black, tier2_SamplePixel(SCN_DRAW_ARC, 104, 180));
+    assertColorWithin(2, black, tier2_SamplePixel(SCN_DRAW_ARC, 156, 156));
+    // The other three quarters of the circle are not drawn
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_ARC, 100, 20));
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_ARC, 20, 100));
+    // And it is only a line, even with a red fill set
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_ARC, 140, 140));
+}
+
+void test_tier2_graphics_drawarc_with_a_negative_sweep_goes_counterclockwise(void)
+{
+    const CP_Color black = CP_Color_Create(0, 0, 0, 255);
+    const CP_Color white = CP_Color_Create(255, 255, 255, 255);
+    assertColorWithin(2, black, tier2_SamplePixel(SCN_DRAW_ARC_COUNTERCLOCKWISE, 180, 95));
+    assertColorWithin(2, black, tier2_SamplePixel(SCN_DRAW_ARC_COUNTERCLOCKWISE, 156, 44));
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_ARC_COUNTERCLOCKWISE, 156, 156));
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_ARC_COUNTERCLOCKWISE, 104, 180));
+}
+
+void test_tier2_graphics_drawpie_fills_only_its_slice(void)
+{
+    const CP_Color red = CP_Color_Create(255, 0, 0, 255);
+    const CP_Color white = CP_Color_Create(255, 255, 255, 255);
+    assertColorWithin(2, red, tier2_SamplePixel(SCN_DRAW_PIE, 140, 140));
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_PIE, 60, 60));
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_PIE, 140, 60));
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_PIE, 60, 140));
+}
+
+void test_tier2_graphics_drawpie_in_corner_mode_uses_the_top_left(void)
+{
+    const CP_Color red = CP_Color_Create(255, 0, 0, 255);
+    const CP_Color white = CP_Color_Create(255, 255, 255, 255);
+    assertColorWithin(2, red, tier2_SamplePixel(SCN_DRAW_PIE_CORNER_MODE, 140, 140));
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_PIE_CORNER_MODE, 60, 60));
+}
+
+void test_tier2_graphics_drawbezier_bends_toward_its_control_points(void)
+{
+    const CP_Color black = CP_Color_Create(0, 0, 0, 255);
+    const CP_Color white = CP_Color_Create(255, 255, 255, 255);
+    // A straight line between the ends would be along y = 150
+    assertColorWithin(2, black, tier2_SamplePixel(SCN_DRAW_BEZIER, 100, 52));
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_BEZIER, 100, 150));
+    // Under the curve is empty: it is a line, with no fill
+    assertColorWithin(2, white, tier2_SamplePixel(SCN_DRAW_BEZIER, 100, 100));
+}
+
 void test_tier2_graphics_drawtriangle(void)
 {
     assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_TRIANGLE, 100, 100));
