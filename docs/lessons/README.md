@@ -8,8 +8,10 @@ A learn-by-building path for CProcessing, for self-study or alongside a class. E
 | 2. Shapes and the coordinate system | [Lesson-02-Shapes-and-Coordinates.md](Lesson-02-Shapes-and-Coordinates.md) | [Examples/Lessons/02_shapes](../../Examples/Lessons/02_shapes/main.c) |
 | 3. Color | [Lesson-03-Color.md](Lesson-03-Color.md) | [Examples/Lessons/03_color](../../Examples/Lessons/03_color/main.c), and the Color picker demo (6) in `Processing_Demos` |
 | 4. Input | [Lesson-04-Input.md](Lesson-04-Input.md) | [Examples/Lessons/04_input](../../Examples/Lessons/04_input/main.c) |
+| 5. Moving with vectors and delta time | [Lesson-05-Moving-with-Vectors-and-Delta-Time.md](Lesson-05-Moving-with-Vectors-and-Delta-Time.md) | [Examples/Lessons/05_movement](../../Examples/Lessons/05_movement/main.c), and [Examples/movement.c](../../Examples/movement.c) |
+| 6. Collision | [Lesson-06-Collision.md](Lesson-06-Collision.md) | [Examples/Lessons/06_collision](../../Examples/Lessons/06_collision/main.c), and [Examples/collision.c](../../Examples/collision.c) |
 
-Lessons 5 to 10 follow. Lessons 2 and 4 were written before lessons 1 and 3 had been tried with students, and use the same format, so notes from the pilot may change all four. The outline is in the planning notes.
+Lessons 7 to 10 follow. Lessons 2 and 4 to 6 were written before lessons 1 and 3 had been tried with students, and use the same format, so notes from the pilot may change all of them. The outline is in the planning notes.
 
 ## Decisions
 
