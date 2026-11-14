@@ -92,3 +92,24 @@ void test_tier2_gamestate_a_state_leaving_in_a_transition_exits_when_it_ends(voi
     TEST_ASSERT_EQUAL_STRING("D.init E.init E.exit D.exit", tier2_scalars.transitionLog);
     TEST_ASSERT_EQUAL_INT(1, tier2_scalars.transitionHarnessDepthAfter);
 }
+
+void test_tier2_image_drawing_into_an_image(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.drawIntoCreated);
+    // drawn at 4x, centered on (100, 100): the red corner is top left
+    assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_IMAGE_DRAW_INTO, 20, 20));
+    // half-transparent blue over white
+    assertColorWithin(4, CP_Color_Create(127, 127, 255, 255), tier2_SamplePixel(SCN_IMAGE_DRAW_INTO, 180, 180));
+    // where nothing was drawn, the image is transparent: white shows
+    assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_IMAGE_DRAW_INTO, 180, 20));
+    TEST_ASSERT_TRUE(tier2_scalars.drawIntoSettingsBack);
+}
+
+void test_tier2_image_drawn_into_reads_back_top_row_first_with_plain_alpha(void)
+{
+    assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_scalars.drawIntoTopLeft);
+    TEST_ASSERT_UINT8_WITHIN(2, 255, tier2_scalars.drawIntoBottomRight.b);
+    TEST_ASSERT_UINT8_WITHIN(2, 128, tier2_scalars.drawIntoBottomRight.a);
+    assertColorWithin(2, CP_Color_Create(10, 200, 30, 255), tier2_scalars.drawIntoAfterUpdate);
+    TEST_ASSERT_TRUE(tier2_scalars.drawIntoLoadedRefused);
+}

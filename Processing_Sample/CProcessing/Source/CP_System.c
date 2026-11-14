@@ -627,9 +627,73 @@ void CP_Canvas_BindForReading(void)
 	glBindFramebuffer(GL_FRAMEBUFFER, _layers[_readLayer].framebuffer);
 }
 
+static bool _drawingIntoImage = false;
+static GLuint _imageFramebuffer = 0;
+static int _imageWidth = 0;
+static int _imageHeight = 0;
+static bool _premultipliedBeforeImage = false;
+
 void CP_Canvas_EndReading(void)
 {
+	if (_drawingIntoImage)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, _imageFramebuffer);
+		glViewport(0, 0, _imageWidth, _imageHeight);
+		return;
+	}
 	CP_Canvas_Bind();
+}
+
+void CP_Canvas_ResumeFrame(void)
+{
+	if (_drawingIntoImage)
+	{
+		nvgBeginFrame(_CORE.nvg, (float)_imageWidth, (float)_imageHeight, 1.0f);
+	}
+	else
+	{
+		nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
+	}
+}
+
+// Drawing into an image: finish what was drawn so far, and draw into the
+// image's framebuffer, one image pixel to one unit, until CP_Canvas_EndImage
+void CP_Canvas_BeginImage(unsigned framebuffer, int width, int height)
+{
+	if (_nvgFrameOpen)
+	{
+		nvgEndFrame(_CORE.nvg);
+	}
+	_drawingIntoImage = true;
+	_imageFramebuffer = framebuffer;
+	_imageWidth = width;
+	_imageHeight = height;
+	_premultipliedBeforeImage = _drawLayerPremultiplied;
+	_drawLayerPremultiplied = true;		// NanoVG draws premultiplied alpha
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	glViewport(0, 0, width, height);
+	nvgBeginFrame(_CORE.nvg, (float)width, (float)height, 1.0f);
+}
+
+void CP_Canvas_EndImage(void)
+{
+	if (!_drawingIntoImage)
+	{
+		return;
+	}
+	nvgEndFrame(_CORE.nvg);
+	_drawingIntoImage = false;
+	_drawLayerPremultiplied = _premultipliedBeforeImage;
+	CP_Canvas_Bind();
+	if (_nvgFrameOpen)
+	{
+		nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
+	}
+}
+
+CP_BOOL CP_Canvas_IsDrawingIntoImage(void)
+{
+	return _drawingIntoImage ? TRUE : FALSE;
 }
 
 CP_BOOL CP_Canvas_IsPremultiplied(void)
@@ -2096,7 +2160,8 @@ static void CP_ReportLoadedAssets(void)
 		"%s%s"
 		"CProcessing freed them, but every CP_Image_Load, CP_Sound_Load,\n"
 		"CP_Sound_LoadStream and CP_Font_Load needs its own Free, and so does\n"
-		"every image from CP_Image_CreateFromData or CP_Image_Screenshot.\n"
+		"every image from CP_Image_Create, CP_Image_CreateFromData or\n"
+		"CP_Image_Screenshot.\n"
 		"Load assets once, in an init function, and free them in the exit\n"
 		"function: https://github.com/DigiPen-Faculty/CProcessing/wiki/Assets-and-paths\n",
 		report.text, report.truncated ? "  ...and more\n" : "");
@@ -2175,6 +2240,11 @@ void CP_FrameStart(void)
 
 void CP_FrameEnd(void)
 {
+	if (_drawingIntoImage)
+	{
+		printf("CProcessing: CP_Image_BeginDrawing had no CP_Image_EndDrawing before the end of the frame.\n");
+		CP_Image_EndDrawing();
+	}
 	nvgEndFrame(_CORE.nvg);
 	_nvgFrameOpen = false;
 	CP_Canvas_Present();	// leaves the window's framebuffer bound, as macOS needs for the swap

@@ -90,6 +90,7 @@ typedef enum
     SCN_GAMESTATE_STACK,
     // Transitions between pushed states (see Scn_GameStateTransition)
     SCN_GAMESTATE_TRANSITION,
+    SCN_IMAGE_DRAW_INTO,
     // Cross-platform work: these two must stay consecutive -- the second
     // one draws on top of the first one's frame without clearing.
     SCN_PERSIST_FIRST_FRAME,
@@ -302,6 +303,14 @@ typedef struct
     CP_BOOL transitionGhostIsNotTop;
     CP_BOOL transitionGhostExitDeferred;// its exit hadn't run while it was on screen
     int transitionHarnessDepthAfter;
+
+    // Drawing into an image (see Scn_ImageDrawInto)
+    CP_BOOL drawIntoCreated;
+    CP_Color drawIntoTopLeft;           // GetPixelData of the image: red, top row first
+    CP_Color drawIntoBottomRight;       // blue at alpha 128, given with plain alpha
+    CP_BOOL drawIntoSettingsBack;       // the fill set inside is undone by EndDrawing
+    CP_BOOL drawIntoLoadedRefused;      // a loaded image can't be drawn into
+    CP_Color drawIntoAfterUpdate;       // UpdatePixelData then GetPixelData round trip
 
     // How many scenarios were captured: SCN_COUNT unless the engine couldn't
     // start (no window or OpenGL context) or stopped early

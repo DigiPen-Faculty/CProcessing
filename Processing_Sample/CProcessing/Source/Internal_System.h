@@ -141,6 +141,14 @@ void CP_Canvas_EndReading(void);
 // Does the layer being drawn on hold premultiplied alpha? (A state pushed on
 // top of another draws on one; CP_Graphics_ClearBackground needs to know.)
 CP_BOOL CP_Canvas_IsPremultiplied(void);
+// Drawing into an image (CP_Image_BeginDrawing): drawing goes to the image's
+// framebuffer until CP_Canvas_EndImage. (CP_System.c)
+void CP_Canvas_BeginImage(unsigned framebuffer, int width, int height);
+void CP_Canvas_EndImage(void);
+CP_BOOL CP_Canvas_IsDrawingIntoImage(void);
+// Start NanoVG's frame again for whatever is being drawn into (after a
+// screenshot finished it)
+void CP_Canvas_ResumeFrame(void);
 // Forget a freed font in every game state's saved settings (CP_Text.c)
 void CP_GameStates_ForgetFont(CP_Font font);
 void CP_ApplyWindowSizeChosenInInit(void);

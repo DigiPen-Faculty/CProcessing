@@ -81,6 +81,8 @@ void test_tier2_gamestate_states_still_pushed_exit_when_the_program_ends(void);
 void test_tier2_gamestate_transition_starts_from_the_old_picture(void);
 void test_tier2_gamestate_transition_function_gets_both_pictures(void);
 void test_tier2_gamestate_a_state_leaving_in_a_transition_exits_when_it_ends(void);
+void test_tier2_image_drawing_into_an_image(void);
+void test_tier2_image_drawn_into_reads_back_top_row_first_with_plain_alpha(void);
 
 // test_tier2_system_engine.c -- Tier 2: CP_System + CP_Engine lifecycle.
 void test_tier2_system_window_size_matches_what_was_set(void);

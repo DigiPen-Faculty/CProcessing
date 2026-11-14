@@ -135,6 +135,8 @@ int main(void)
     RUN_TEST(test_tier2_gamestate_transition_starts_from_the_old_picture);
     RUN_TEST(test_tier2_gamestate_transition_function_gets_both_pictures);
     RUN_TEST(test_tier2_gamestate_a_state_leaving_in_a_transition_exits_when_it_ends);
+    RUN_TEST(test_tier2_image_drawing_into_an_image);
+    RUN_TEST(test_tier2_image_drawn_into_reads_back_top_row_first_with_plain_alpha);
 
     // test_tier2_system_engine.c
     RUN_TEST(test_tier2_system_window_size_matches_what_was_set);

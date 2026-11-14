@@ -49,6 +49,16 @@ changes to build with the new version.
   transition ends. `CP_Engine_SetTransitionFunction` takes a function you
   write: it is called every frame of the transition with the progress and
   the pictures before and after, as images to draw however you like.
+- **Drawing into an image:** `CP_Image_Create(width, height)` makes a blank,
+  transparent image. Everything drawn between `CP_Image_BeginDrawing(image)`
+  and `CP_Image_EndDrawing()` goes into it instead of the window:
+  - (0, 0) is the image's top left corner, and one unit is one of its pixels;
+  - settings changed inside are put back by `EndDrawing`.
+  
+  Use it to draw something once and reuse it: a background built from tiles,
+  a minimap, a trail that fades, a picture to save as a screenshot.
+  `CP_Image_GetPixelData` and `UpdatePixelData` work on these images as on
+  any other.
 - **Window and frame rate options:** `CP_System_SetWindowResizable` lets the
   player resize the window (drawing follows the new size), `CP_System_SetVSync`
   turns vsync on, `CP_System_IsFullscreen` tells if the window is fullscreen,

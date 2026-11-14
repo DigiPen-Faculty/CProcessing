@@ -1315,6 +1315,48 @@ static void Scn_GameStateTransition(void)
     transitionAwaitingResume = true;
 }
 
+// Drawing into an image: a 50x50 image gets a red square in its top left
+// corner and a half-transparent blue one in its bottom right, then is drawn
+// over white at 4 times its size (captured)
+static void Scn_ImageDrawInto(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Image image = CP_Image_Create(50, 50);
+    tier2_scalars.drawIntoCreated = image != NULL && CP_Image_GetWidth(image) == 50;
+
+    CP_Settings_Fill(kStackHarnessFill);
+    CP_Image_BeginDrawing(image);
+    CP_Settings_NoStroke();
+    CP_Settings_RectMode(CP_POSITION_CORNER);
+    CP_Settings_Fill(RED);
+    CP_Graphics_DrawRect(0.0f, 0.0f, 25.0f, 25.0f);
+    CP_Settings_Fill(CP_Color_Create(0, 0, 255, 128));
+    CP_Graphics_DrawRect(25.0f, 25.0f, 25.0f, 25.0f);
+    CP_Image_EndDrawing();
+    tier2_scalars.drawIntoSettingsBack = SameColor(CP_Settings_GetFill(), kStackHarnessFill);
+
+    CP_Settings_ImageMode(CP_POSITION_CENTER);     // (not part of the baseline)
+    CP_Image_Draw(image, 100.0f, 100.0f, 200.0f, 200.0f, 255);
+
+    CP_Color pixels[50 * 50];
+    CP_Image_GetPixelData(image, pixels);
+    tier2_scalars.drawIntoTopLeft = pixels[5 * 50 + 5];
+    tier2_scalars.drawIntoBottomRight = pixels[45 * 50 + 45];
+
+    pixels[0] = CP_Color_Create(10, 200, 30, 255);
+    CP_Image_UpdatePixelData(image, pixels);
+    CP_Color again[50 * 50];
+    CP_Image_GetPixelData(image, again);
+    tier2_scalars.drawIntoAfterUpdate = again[0];
+    CP_Image_Free(&image);
+
+    CP_Image loaded = CP_Image_Load("Assets/quadrants16.png");
+    CP_Image_BeginDrawing(loaded);       // refused, with a message
+    tier2_scalars.drawIntoLoadedRefused = TRUE;
+    CP_Image_EndDrawing();               // nothing to end: harmless
+    CP_Image_Free(&loaded);
+}
+
 // Pushed on the next-to-last frame, running, so the harness keeps going:
 // still on the stack when the program ends, its exit must run
 static void ShutdownProbe_Update(void) {}
@@ -1586,6 +1628,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,
     [SCN_GAMESTATE_STACK] = Scn_GameStateStack,
     [SCN_GAMESTATE_TRANSITION] = Scn_GameStateTransition,
+    [SCN_IMAGE_DRAW_INTO] = Scn_ImageDrawInto,
     [SCN_PERSIST_FIRST_FRAME] = Scn_PersistFirstFrame,
     [SCN_PERSIST_NEXT_FRAME] = Scn_PersistNextFrame,
     [SCN_SCREENSHOT_SUBREGION] = Scn_ScreenshotSubregion,

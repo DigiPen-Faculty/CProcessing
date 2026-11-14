@@ -52,6 +52,9 @@ static void CP_AddImageHandle(CP_Image img)
 {
 	// push a new image, used once so far
 	img->ref_count = 1;
+	img->drawable = FALSE;
+	img->framebuffer = 0;
+	img->depthStencil = 0;
 	vect_push_CP_Image(image_vector, img);
 }
 
@@ -67,6 +70,13 @@ void CP_Image_Clear_Vect(vect_CP_Image* vector)
 		CP_Image const image = vect_at_CP_Image(vector, vector->size - 1);
 
 		nvgDeleteImage(CORE->nvg, image->handle); // free nanoVG's data
+		if (image->framebuffer)
+		{
+			GLuint framebuffer = image->framebuffer;
+			GLuint depthStencil = image->depthStencil;
+			glDeleteFramebuffers(1, &framebuffer);
+			glDeleteRenderbuffers(1, &depthStencil);
+		}
 		free(image);
 
 		vect_pop_CP_Image(vector);
@@ -111,7 +121,7 @@ void CP_Image_ReportLoaded(CP_Report* report)
 	}
 	if (made > 0)
 	{
-		CP_Report_AddLine(report, "  image  %d made with CP_Image_CreateFromData or CP_Image_Screenshot, never freed", made);
+		CP_Report_AddLine(report, "  image  %d made with CP_Image_Create, CP_Image_CreateFromData or CP_Image_Screenshot, never freed", made);
 	}
 }
 
@@ -362,6 +372,110 @@ CP_API CP_Image CP_Image_CreateFromData(int w, int h, unsigned char* pixelDataIn
 	return img;
 }
 
+// A blank image, transparent, to draw into with CP_Image_BeginDrawing.
+// Drawing into an image is done by the GPU, so its pixels are kept
+// bottom-up and with premultiplied alpha, as OpenGL draws them;
+// GetPixelData and UpdatePixelData convert.
+CP_API CP_Image CP_Image_Create(int width, int height)
+{
+	CP_CorePtr CORE = GetCPCore();
+	if (!CORE || !CORE->nvg || width <= 0 || height <= 0)
+	{
+		return NULL;
+	}
+
+	unsigned char* clear = (unsigned char*)calloc((size_t)width * (size_t)height, 4);
+	CP_Image img = (CP_Image)malloc(sizeof(CP_Image_Struct));
+	if (!clear || !img)
+	{
+		free(clear);
+		free(img);
+		return NULL;
+	}
+	img->filepath[0] = '\0';
+	img->handle = nvgCreateImageRGBA(CORE->nvg, width, height, NVG_IMAGE_FLIPY | NVG_IMAGE_PREMULTIPLIED, clear);
+	free(clear);
+	if (img->handle == 0)
+	{
+		free(img);
+		return NULL;
+	}
+	img->w = width;
+	img->h = height;
+	img->load_error = FALSE;
+	CP_AddImageHandle(img);
+	img->drawable = TRUE;
+	return img;
+}
+
+static CP_Image _drawingInto = NULL;
+
+// Everything drawn from now on goes into the image, until
+// CP_Image_EndDrawing. Inside, (0, 0) is the image's top left corner, one
+// unit is one pixel of the image, and the settings start as they are now
+// (with no transform); EndDrawing puts them back.
+CP_API void CP_Image_BeginDrawing(CP_Image img)
+{
+	CP_CorePtr CORE = GetCPCore();
+	if (!img || !CORE || !CORE->nvg)
+	{
+		return;
+	}
+	if (!img->drawable)
+	{
+		printf("CProcessing: only an image made with CP_Image_Create can be drawn into.\n");
+		return;
+	}
+	if (_drawingInto)
+	{
+		printf("CProcessing: CP_Image_BeginDrawing was called again before CP_Image_EndDrawing.\n");
+		return;
+	}
+
+	if (!img->framebuffer)
+	{
+		GLuint framebuffer = 0, depthStencil = 0;
+		glGenRenderbuffers(1, &depthStencil);
+		glBindRenderbuffer(GL_RENDERBUFFER, depthStencil);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, img->w, img->h);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+		glGenFramebuffers(1, &framebuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, nvglImageHandleGL3(CORE->nvg, img->handle), 0);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencil);
+		const bool complete = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+		if (!complete)
+		{
+			glDeleteFramebuffers(1, &framebuffer);
+			glDeleteRenderbuffers(1, &depthStencil);
+			CP_Canvas_EndReading();		// back to where drawing was going
+			printf("CProcessing: could not draw into a %d x %d image.\n", img->w, img->h);
+			return;
+		}
+		glDisable(GL_SCISSOR_TEST);
+		glViewport(0, 0, img->w, img->h);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		img->framebuffer = framebuffer;
+		img->depthStencil = depthStencil;
+	}
+
+	_drawingInto = img;
+	CP_Canvas_BeginImage(img->framebuffer, img->w, img->h);
+	CP_Settings_Save();
+	CP_Settings_ResetMatrix();
+}
+
+CP_API void CP_Image_EndDrawing(void)
+{
+	if (!_drawingInto)
+	{
+		return;
+	}
+	CP_Settings_Restore();
+	CP_Canvas_EndImage();
+	_drawingInto = NULL;
+}
+
 CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 {
 	CP_CorePtr CORE = GetCPCore();
@@ -399,7 +513,7 @@ CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 	glReadPixels(readX, readY, readW, readH, GL_RGBA, GL_UNSIGNED_BYTE, readBuffer);
 	CP_Canvas_EndReading();
 
-	nvgBeginFrame(CORE->nvg, (float)CORE->window_width, (float)CORE->window_height, CORE->pixel_ratio);
+	CP_Canvas_ResumeFrame();
 
 	// Flip rows (GL is bottom-up) and, for hi-dpi, scale down to w x h: each
 	// pixel is the average of the framebuffer pixels it covers (a 2x2 block on
@@ -473,6 +587,33 @@ CP_API void CP_Image_GetPixelData(CP_Image img, CP_Color* pixelDataOutput)
     glBindTexture(GL_TEXTURE_2D, nvglImageHandleGL3(CORE->nvg, img->handle));
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelDataOutput);
     glBindTexture(GL_TEXTURE_2D, (GLuint)previousTexture);
+
+    if (img->drawable)
+    {
+        // An image drawn into is kept bottom-up, with premultiplied alpha:
+        // give the pixels top row first, with plain alpha, like every image
+        for (int row = 0; row < h / 2; ++row)
+        {
+            CP_Color* top = pixelDataOutput + (size_t)row * w;
+            CP_Color* bottom = pixelDataOutput + (size_t)(h - 1 - row) * w;
+            for (int col = 0; col < w; ++col)
+            {
+                CP_Color swap = top[col];
+                top[col] = bottom[col];
+                bottom[col] = swap;
+            }
+        }
+        for (int i = 0; i < w * h; ++i)
+        {
+            CP_Color* c = &pixelDataOutput[i];
+            if (c->a > 0 && c->a < 255)
+            {
+                c->r = (unsigned char)CP_Math_ClampInt((c->r * 255 + c->a / 2) / c->a, 0, 255);
+                c->g = (unsigned char)CP_Math_ClampInt((c->g * 255 + c->a / 2) / c->a, 0, 255);
+                c->b = (unsigned char)CP_Math_ClampInt((c->b * 255 + c->a / 2) / c->a, 0, 255);
+            }
+        }
+    }
 }
 
 CP_API void CP_Image_UpdatePixelData(CP_Image img, CP_Color* pixelDataInput)
@@ -485,5 +626,32 @@ CP_API void CP_Image_UpdatePixelData(CP_Image img, CP_Color* pixelDataInput)
 		return;
 	}
 
-	nvgUpdateImage(CORE->nvg, img->handle, (unsigned char*)pixelDataInput);
+	if (!img->drawable)
+	{
+		nvgUpdateImage(CORE->nvg, img->handle, (unsigned char*)pixelDataInput);
+		return;
+	}
+
+	// An image drawn into is kept bottom-up, with premultiplied alpha
+	const int w = img->w, h = img->h;
+	CP_Color* converted = (CP_Color*)malloc(sizeof(CP_Color) * (size_t)w * (size_t)h);
+	if (!converted)
+	{
+		return;
+	}
+	for (int row = 0; row < h; ++row)
+	{
+		const CP_Color* src = pixelDataInput + (size_t)(h - 1 - row) * w;
+		CP_Color* dst = converted + (size_t)row * w;
+		for (int col = 0; col < w; ++col)
+		{
+			CP_Color c = src[col];
+			c.r = (unsigned char)((c.r * c.a + 127) / 255);
+			c.g = (unsigned char)((c.g * c.a + 127) / 255);
+			c.b = (unsigned char)((c.b * c.a + 127) / 255);
+			dst[col] = c;
+		}
+	}
+	nvgUpdateImage(CORE->nvg, img->handle, (unsigned char*)converted);
+	free(converted);
 }
