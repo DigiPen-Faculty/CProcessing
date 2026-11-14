@@ -8,15 +8,18 @@
 #include "Internal_GameStateLogic.h"
 
 // Three states, told apart by their function pointers
-static void MenuInit(void) {}
-static void MenuUpdate(void) {}
-static void MenuExit(void) {}
-static void GameInit(void) {}
-static void GameUpdate(void) {}
-static void GameExit(void) {}
-static void PauseInit(void) {}
-static void PauseUpdate(void) {}
-static void PauseExit(void) {}
+// (each does something different, so an optimizing linker can't fold them
+// into one function with one address)
+static volatile int gCalls[9];
+static void MenuInit(void) { gCalls[0]++; }
+static void MenuUpdate(void) { gCalls[1]++; }
+static void MenuExit(void) { gCalls[2]++; }
+static void GameInit(void) { gCalls[3]++; }
+static void GameUpdate(void) { gCalls[4]++; }
+static void GameExit(void) { gCalls[5]++; }
+static void PauseInit(void) { gCalls[6]++; }
+static void PauseUpdate(void) { gCalls[7]++; }
+static void PauseExit(void) { gCalls[8]++; }
 
 static const CP_GSL_State kMenu = { MenuInit, MenuUpdate, MenuExit, CP_BELOW_FROZEN };
 static const CP_GSL_State kGame = { GameInit, GameUpdate, GameExit, CP_BELOW_FROZEN };
@@ -36,9 +39,8 @@ static CP_GSL_Stack gStack;
 
 static void Log(const char* what, int index)
 {
-    char entry[32];
-    snprintf(entry, sizeof(entry), "%s%s.%s@%d", gLog[0] ? " " : "", Name(&gStack.states[index]), what, index);
-    strncat(gLog, entry, sizeof(gLog) - strlen(gLog) - 1);
+    const size_t used = strlen(gLog);
+    snprintf(gLog + used, sizeof(gLog) - used, "%s%s.%s@%d", used ? " " : "", Name(&gStack.states[index]), what, index);
 }
 
 static void HookEnter(void* user, int index, CP_GSL_RequestKind why) { (void)user; (void)why; Log("init", index); }

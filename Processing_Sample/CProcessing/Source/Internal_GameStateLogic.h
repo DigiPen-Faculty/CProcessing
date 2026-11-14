@@ -191,13 +191,13 @@ static inline CP_GSL_Result CP_GSL_Apply(CP_GSL_Stack* stack, const CP_GSL_Reque
 		return CP_GSL_DONE;
 
 	case CP_GSL_SET:
-		if (stack->depth == 1 && CP_GSL_SameState(&stack->states[0], &request->state))
+	case CP_GSL_SET_FORCED:
+	default:
+		// a set (not forced) to the state that is already the only one does nothing
+		if (request->kind == CP_GSL_SET && stack->depth == 1 && CP_GSL_SameState(&stack->states[0], &request->state))
 		{
 			return CP_GSL_SAME_STATE;
 		}
-		// fall through: otherwise a set is the same as a forced set
-	case CP_GSL_SET_FORCED:
-	default:
 		CP_GSL_LeaveAll(stack, hooks, request->kind);
 		stack->states[0] = request->state;
 		stack->states[0].below = CP_BELOW_FROZEN;
