@@ -85,6 +85,9 @@ typedef enum
     SCN_SYSTEM_FRAME_RATE_NO_LIMIT,
     SCN_SOUND_ROUNDTRIP,
     SCN_INPUT_QUIESCENT_DEFAULTS,
+    // Pushes game states on top of the harness for a few frames (the harness
+    // is frozen meanwhile), then they pop and the harness carries on
+    SCN_GAMESTATE_STACK,
     // Cross-platform work: these two must stay consecutive -- the second
     // one draws on top of the first one's frame without clearing.
     SCN_PERSIST_FIRST_FRAME,
@@ -271,6 +274,24 @@ typedef struct
     CP_BOOL assetSoundAvailable;    // sound loads at all (not with no audio device)
     CP_BOOL assetSoundLoaded;
 
+    // The game state stack (see Scn_GameStateStack)
+    char stackLog[256];                 // the states' inits and exits, in order
+    int stackDepthInPushedInit;         // 2: the harness and the pushed state
+    CP_BOOL stackPushedIsTop;
+    float stackPushedTime;              // CP_Engine_GetGameStateTime in its first update
+    CP_BOOL stackPushInheritsSettings;  // a pushed state starts with the settings in use
+    CP_BOOL stackRunningStateIsTop;
+    int stackUpdatesWhileRunningBelow;  // the state under a CP_BELOW_RUNNING one kept running
+    CP_BOOL stackRunningBelowIsNotTop;
+    CP_BOOL stackRunningBelowKeyMuted;  // keys and buttons read as up while it runs below
+    float stackRunningBelowMouseX;      // the mouse it sees: where it was when covered
+    float stackMouseXWhenCovered;
+    CP_BOOL stackSettingsBackAfterPop;  // its own fill, not the popped state's
+    CP_BOOL stackHarnessSettingsBack;   // the harness's fill, after the stack popped
+    int stackHarnessDepthAfter;         // 1
+    int stackUpdatesOfFirstPushed;      // 4: not while frozen under the hidden one
+    CP_BOOL stackShutdownExitRan;       // a state still pushed when the program ends exits
+
     // How many scenarios were captured: SCN_COUNT unless the engine couldn't
     // start (no window or OpenGL context) or stopped early
     int scenariosCaptured;
@@ -281,6 +302,9 @@ typedef struct
 } Tier2Scalars;
 
 extern Tier2Scalars tier2_scalars;
+
+// What a state pushed with CP_BELOW_HIDDEN shows (see Scn_GameStateStack)
+extern CP_Color tier2_stackHiddenPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 
 // Runs the one and only CP_Engine_Run() call for this process, scripting
 // through every scenario in Tier2Scenario and filling tier2_snapshots.

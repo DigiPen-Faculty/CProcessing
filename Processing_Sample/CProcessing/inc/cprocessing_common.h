@@ -413,6 +413,18 @@ typedef enum CP_CURSOR_MODE
 	CP_CURSOR_DISABLED	// Hidden and unlimited, for mouse look: use the mouse delta
 } CP_CURSOR_MODE;
 
+//---------------------------------------------------------
+// Game states
+
+// What happens to the game states under one pushed on top of them
+// (CP_Engine_PushGameStateAdvanced)
+typedef enum CP_BELOW_MODE
+{
+	CP_BELOW_FROZEN,	// Default: they stop, and their last picture stays visible
+	CP_BELOW_RUNNING,	// They keep running and drawing, but get no input
+	CP_BELOW_HIDDEN		// They stop, and can't be seen
+} CP_BELOW_MODE;
+
 
 #ifdef __cplusplus
 }

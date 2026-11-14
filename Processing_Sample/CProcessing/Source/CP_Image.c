@@ -393,7 +393,11 @@ CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 	// flush nanovg so image can be captured
 	nvgEndFrame(CORE->nvg);
 
+	// the picture as it is shown: with game states pushed on top of each
+	// other, their layers put together
+	CP_Canvas_BindForReading();
 	glReadPixels(readX, readY, readW, readH, GL_RGBA, GL_UNSIGNED_BYTE, readBuffer);
+	CP_Canvas_EndReading();
 
 	nvgBeginFrame(CORE->nvg, (float)CORE->window_width, (float)CORE->window_height, CORE->pixel_ratio);
 

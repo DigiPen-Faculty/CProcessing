@@ -132,6 +132,17 @@ void CP_Sound_ReportLoaded(CP_Report* report);
 void CP_Text_ReportLoaded(CP_Report* report);
 //////////////////
 void CP_FrameStart(void);
+
+// Reading the picture on screen (CP_Image_Screenshot): bind it for
+// glReadPixels, then go back to drawing. NanoVG's frame must be finished
+// first. (CP_System.c)
+void CP_Canvas_BindForReading(void);
+void CP_Canvas_EndReading(void);
+// Does the layer being drawn on hold premultiplied alpha? (A state pushed on
+// top of another draws on one; CP_Graphics_ClearBackground needs to know.)
+CP_BOOL CP_Canvas_IsPremultiplied(void);
+// Forget a freed font in every game state's saved settings (CP_Text.c)
+void CP_GameStates_ForgetFont(CP_Font font);
 void CP_ApplyWindowSizeChosenInInit(void);
 void CP_FrameEnd(void);
 

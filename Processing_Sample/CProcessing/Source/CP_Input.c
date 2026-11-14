@@ -404,6 +404,21 @@ CP_BOOL CP_Input_IsValidGamepadIndex(unsigned index)
 	return index < CP_NUM_GAMEPADS;
 }
 
+// A game state running under another one (CP_BELOW_RUNNING) gets no input:
+// while it runs, keys and buttons read as up, the wheel and text are empty,
+// sticks and triggers rest, and the mouse stays where it was when the state
+// was covered. (The engine turns this on and off around each state.)
+static CP_BOOL _inputMuted = FALSE;
+static CP_Vector _mutedMouse = { 0 };
+static CP_Vector _mutedWorldMouse = { 0 };
+
+void CP_Input_SetMuted(CP_BOOL muted, CP_Vector mouse, CP_Vector worldMouse)
+{
+	_inputMuted = muted;
+	_mutedMouse = mouse;
+	_mutedWorldMouse = worldMouse;
+}
+
 //------------------------------------------------------------------------------
 // Library Functions:
 //------------------------------------------------------------------------------
@@ -413,6 +428,7 @@ CP_BOOL CP_Input_IsValidGamepadIndex(unsigned index)
 
 CP_API CP_BOOL CP_Input_KeyTriggered(CP_KEY keyCode)
 {
+	if (_inputMuted) return FALSE;
 	if (keyCode == KEY_ANY)
 	{
 		return key_any_triggered;
@@ -428,6 +444,7 @@ CP_API CP_BOOL CP_Input_KeyTriggered(CP_KEY keyCode)
 
 CP_API CP_BOOL CP_Input_KeyReleased(CP_KEY keyCode)
 {
+	if (_inputMuted) return FALSE;
 	if (keyCode == KEY_ANY)
 	{
 		return key_any_released;
@@ -443,6 +460,7 @@ CP_API CP_BOOL CP_Input_KeyReleased(CP_KEY keyCode)
 
 CP_API CP_BOOL CP_Input_KeyDown(CP_KEY keyCode)
 {
+	if (_inputMuted) return FALSE;
 	if (keyCode == KEY_ANY)
 	{
 		return key_any_down;
@@ -461,6 +479,7 @@ CP_API CP_BOOL CP_Input_KeyDown(CP_KEY keyCode)
 
 CP_API CP_BOOL CP_Input_MouseTriggered(CP_MOUSE button)
 {
+	if (_inputMuted) return FALSE;
 	if (!CP_Input_IsValidMouse(button))
 	{
 		return FALSE;
@@ -471,6 +490,7 @@ CP_API CP_BOOL CP_Input_MouseTriggered(CP_MOUSE button)
 
 CP_API CP_BOOL CP_Input_MouseReleased(CP_MOUSE button)
 {
+	if (_inputMuted) return FALSE;
 	if (!CP_Input_IsValidMouse(button))
 	{
 		return FALSE;
@@ -481,6 +501,7 @@ CP_API CP_BOOL CP_Input_MouseReleased(CP_MOUSE button)
 
 CP_API CP_BOOL CP_Input_MouseDown(CP_MOUSE button)
 {
+	if (_inputMuted) return FALSE;
 	if (!CP_Input_IsValidMouse(button))
 	{
 		return FALSE;
@@ -501,6 +522,7 @@ CP_API CP_BOOL CP_Input_MouseClicked(void)
 
 CP_API CP_BOOL CP_Input_MouseDoubleClicked(void)
 {
+	if (_inputMuted) return FALSE;
     return mouse_double_clicked_current;
 }
 
@@ -516,46 +538,55 @@ CP_API CP_BOOL CP_Input_MouseDragged(CP_MOUSE button)
 
 CP_API const char* CP_Input_GetTypedText(void)
 {
+	if (_inputMuted) return "";
 	return typed_text_current;
 }
 
 CP_API float CP_Input_MouseWheel(void)
 {
+	if (_inputMuted) return 0.0f;
 	return mouse_wheely_current;
 }
 
 CP_API float CP_Input_GetMouseX(void)
 {
+	if (_inputMuted) return _mutedMouse.x;
 	return _mouseX;
 }
 
 CP_API float CP_Input_GetMouseY(void)
 {
+	if (_inputMuted) return _mutedMouse.y;
 	return _mouseY;
 }
 
 CP_API float CP_Input_GetMousePreviousX(void)
 {
+	if (_inputMuted) return _mutedMouse.x;
 	return _pmouseX;
 }
 
 CP_API float CP_Input_GetMousePreviousY(void)
 {
+	if (_inputMuted) return _mutedMouse.y;
 	return _pmouseY;
 }
 
 CP_API float CP_Input_GetMouseDeltaX(void)
 {
+	if (_inputMuted) return 0.0f;
 	return _mouseX - _pmouseX;
 }
 
 CP_API float CP_Input_GetMouseDeltaY(void)
 {
+	if (_inputMuted) return 0.0f;
 	return _mouseY - _pmouseY;
 }
 
 CP_API float CP_Input_GetMouseWorldX(void)
 {
+	if (_inputMuted) return _mutedWorldMouse.x;
 	if (_worldMouseIsDirty)
 	{
 		CP_Input_WorldMouseUpdate();
@@ -566,6 +597,7 @@ CP_API float CP_Input_GetMouseWorldX(void)
 
 CP_API float CP_Input_GetMouseWorldY(void)
 {
+	if (_inputMuted) return _mutedWorldMouse.y;
 	if (_worldMouseIsDirty)
 	{
 		CP_Input_WorldMouseUpdate();
@@ -584,6 +616,7 @@ CP_API CP_BOOL CP_Input_GamepadTriggered(CP_GAMEPAD button)
 
 CP_API CP_BOOL CP_Input_GamepadTriggeredAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
 {
+	if (_inputMuted) return FALSE;
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		// Wasn't pressed last frame and is pressed this frame
@@ -602,6 +635,7 @@ CP_API CP_BOOL CP_Input_GamepadReleased(CP_GAMEPAD button)
 
 CP_API CP_BOOL CP_Input_GamepadReleasedAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
 {
+	if (_inputMuted) return FALSE;
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		// Was pressed last frame and isn't pressed this frame
@@ -620,6 +654,7 @@ CP_API CP_BOOL CP_Input_GamepadDown(CP_GAMEPAD button)
 
 CP_API CP_BOOL CP_Input_GamepadDownAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
 {
+	if (_inputMuted) return FALSE;
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		// Is the button down?
@@ -636,6 +671,7 @@ CP_API float CP_Input_GamepadRightTrigger(void)
 
 CP_API float CP_Input_GamepadRightTriggerAdvanced(unsigned gamepadIndex)
 {
+	if (_inputMuted) return 0.0f;
 	if (CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		return gamepad_curr_analog_states[gamepadIndex].right_trigger;
@@ -651,6 +687,7 @@ CP_API float CP_Input_GamepadLeftTrigger(void)
 
 CP_API float CP_Input_GamepadLeftTriggerAdvanced(unsigned gamepadIndex)
 {
+	if (_inputMuted) return 0.0f;
 	if (CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		return gamepad_curr_analog_states[gamepadIndex].left_trigger;
@@ -666,6 +703,7 @@ CP_API CP_Vector CP_Input_GamepadRightStick(void)
 
 CP_API CP_Vector CP_Input_GamepadRightStickAdvanced(unsigned gamepadIndex)
 {
+	if (_inputMuted) return CP_Vector_Zero();
 	if (CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		return gamepad_curr_analog_states[gamepadIndex].right_stick;
@@ -681,6 +719,7 @@ CP_API CP_Vector CP_Input_GamepadLeftStick(void)
 
 CP_API CP_Vector CP_Input_GamepadLeftStickAdvanced(unsigned gamepadIndex)
 {
+	if (_inputMuted) return CP_Vector_Zero();
 	if (CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		return gamepad_curr_analog_states[gamepadIndex].left_stick;

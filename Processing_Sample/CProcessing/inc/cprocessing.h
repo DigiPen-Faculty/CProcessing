@@ -62,6 +62,12 @@ CP_API void				CP_Engine_Run						(void);
 CP_API void				CP_Engine_Terminate					(void);
 CP_API void				CP_Engine_SetNextGameState			(FunctionPtr init, FunctionPtr update, FunctionPtr exit);
 CP_API void				CP_Engine_SetNextGameStateForced	(FunctionPtr init, FunctionPtr update, FunctionPtr exit);
+CP_API void				CP_Engine_PushGameState				(FunctionPtr init, FunctionPtr update, FunctionPtr exit);
+CP_API void				CP_Engine_PushGameStateAdvanced		(FunctionPtr init, FunctionPtr update, FunctionPtr exit, CP_BELOW_MODE below);
+CP_API void				CP_Engine_PopGameState				(void);
+CP_API int				CP_Engine_GetGameStateDepth			(void);
+CP_API CP_BOOL			CP_Engine_IsTopGameState			(void);
+CP_API float			CP_Engine_GetGameStateTime			(void);
 CP_API void				CP_Engine_SetPreUpdateFunction		(FunctionPtr preUpdateFunction);
 CP_API void				CP_Engine_SetPostUpdateFunction		(FunctionPtr postUpdateFunction);
 

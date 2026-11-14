@@ -12,6 +12,30 @@ changes to build with the new version.
 
 ### Added
 
+- **A stack of game states, for pause menus and more:**
+  `CP_Engine_PushGameState` puts a state on top of the current one, and
+  `CP_Engine_PopGameState` takes it off again. The state underneath stops,
+  without its exit running, and its last picture stays visible behind the new
+  one. When the top state is popped, the one underneath carries on where it
+  was, without its init running. So a pause menu is a state of its own that
+  shows the frozen game behind it, with no flags.
+  - `CP_Engine_SetNextGameState` works as before. From a stack, it ends every
+    state, top first.
+  - When the program ends, every state on the stack exits, not only the top
+    one.
+  - Each state keeps its own drawing settings while another state draws.
+  - `CP_Engine_PushGameStateAdvanced` chooses what happens to the states
+    underneath:
+    - `CP_BELOW_FROZEN`, the default;
+    - `CP_BELOW_RUNNING`: they keep running and drawing, but get no input,
+      for a dialog over a live world;
+    - `CP_BELOW_HIDDEN`: they stop and can't be seen.
+  - `CP_Engine_GetGameStateDepth`, `CP_Engine_IsTopGameState` and
+    `CP_Engine_GetGameStateTime` tell a state about itself.
+    `CP_Engine_GetGameStateTime` gives the seconds a state has run, not
+    counting time spent frozen.
+  - A change asked for in an init or exit function now happens in the next
+    frame. Before, it was lost.
 - **Window and frame rate options:** `CP_System_SetWindowResizable` lets the
   player resize the window (drawing follows the new size), `CP_System_SetVSync`
   turns vsync on, `CP_System_IsFullscreen` tells if the window is fullscreen,
