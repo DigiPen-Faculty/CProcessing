@@ -69,6 +69,21 @@ void test_tier2_font_opentype_cff_font_loads_and_draws(void);
 void test_tier2_font_large_text_draws(void);
 void test_tier2_font_text_mirrored_and_flipped_draws(void);
 
+// test_tier2_gamestates.c -- Tier 2: the game state stack.
+void test_tier2_gamestate_push_and_pop_run_inits_and_exits_in_order(void);
+void test_tier2_gamestate_a_pushed_state_draws_over_the_frozen_one_below(void);
+void test_tier2_gamestate_hidden_mode_hides_the_states_below(void);
+void test_tier2_gamestate_queries_in_a_pushed_state(void);
+void test_tier2_gamestate_running_mode_keeps_the_state_below_running_without_input(void);
+void test_tier2_gamestate_a_frozen_state_is_not_updated(void);
+void test_tier2_gamestate_each_state_keeps_its_own_settings(void);
+void test_tier2_gamestate_states_still_pushed_exit_when_the_program_ends(void);
+void test_tier2_gamestate_transition_starts_from_the_old_picture(void);
+void test_tier2_gamestate_transition_function_gets_both_pictures(void);
+void test_tier2_gamestate_a_state_leaving_in_a_transition_exits_when_it_ends(void);
+void test_tier2_image_drawing_into_an_image(void);
+void test_tier2_image_drawn_into_reads_back_top_row_first_with_plain_alpha(void);
+
 // test_tier2_system_engine.c -- Tier 2: CP_System + CP_Engine lifecycle.
 void test_tier2_system_window_size_matches_what_was_set(void);
 void test_tier2_system_window_size_chosen_in_init_is_there_for_the_first_update(void);

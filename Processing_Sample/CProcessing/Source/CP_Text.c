@@ -223,6 +223,7 @@ CP_API void CP_Font_Free(CP_Font* font)
 					core->states[s].font = NULL;
 				}
 			}
+			CP_GameStates_ForgetFont(*font);
 
 			// remove the font from the list and also ask NVG to remove and free
 			vect_rem_CP_Font(font_vector, i);

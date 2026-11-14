@@ -12,6 +12,56 @@ changes to build with the new version.
 
 ### Added
 
+- **A stack of game states, for pause menus and more:**
+  `CP_Engine_PushGameState` puts a state on top of the current one, and
+  `CP_Engine_PopGameState` takes it off again. The state underneath stops,
+  without its exit running, and its last picture stays visible behind the new
+  one. When the top state is popped, the one underneath carries on where it
+  was, without its init running. So a pause menu is a state of its own that
+  shows the frozen game behind it, with no flags.
+  - `CP_Engine_SetNextGameState` works as before. From a stack, it ends every
+    state, top first.
+  - When the program ends, every state on the stack exits, not only the top
+    one.
+  - Each state keeps its own drawing settings while another state draws.
+  - `CP_Engine_PushGameStateAdvanced` chooses what happens to the states
+    underneath:
+    - `CP_BELOW_FROZEN`, the default;
+    - `CP_BELOW_RUNNING`: they keep running and drawing, but get no input,
+      for a dialog over a live world;
+    - `CP_BELOW_HIDDEN`: they stop and can't be seen.
+  - `CP_Engine_GetGameStateDepth`, `CP_Engine_IsTopGameState` and
+    `CP_Engine_GetGameStateTime` tell a state about itself.
+    `CP_Engine_GetGameStateTime` gives the seconds a state has run, not
+    counting time spent frozen.
+  - A change asked for in an init or exit function now happens in the next
+    frame. Before, it was lost.
+- **Transitions between game states:**
+  `CP_Engine_SetTransition(CP_TRANSITION_CROSSFADE, 0.5f)` makes every
+  change of state after it animate:
+  - `CP_TRANSITION_FADE`: through black;
+  - `CP_TRANSITION_CROSSFADE`;
+  - `CP_TRANSITION_SLIDE_LEFT`, `_RIGHT`, `_UP` or `_DOWN`.
+  
+  Every kind of change animates: a pushed pause fades or slides in over the
+  frozen game, and a popped one out again. A state that is leaving keeps
+  running, without input, until it's off screen, and its exit runs when the
+  transition ends. `CP_Engine_SetTransitionFunction` takes a function you
+  write: it is called every frame of the transition with the progress and
+  the pictures before and after, as images to draw however you like.
+- **Drawing into an image:** `CP_Image_Create(width, height)` makes a blank,
+  transparent image. Everything drawn between `CP_Image_BeginDrawing(image)`
+  and `CP_Image_EndDrawing()` goes into it instead of the window:
+  - (0, 0) is the image's top left corner, and one unit is one of its pixels;
+  - settings changed inside are put back by `EndDrawing`.
+  
+  Use it to draw something once and reuse it: a background built from tiles,
+  a minimap, a trail that fades, a picture to save as a screenshot.
+  `CP_Image_GetPixelData` and `UpdatePixelData` work on these images as on
+  any other.
+- **`Examples/state_stack.c`** shows the stack, the modes, transitions
+  (including one drawn by the program) and a trail drawn into an image.
+  `Examples/game_states.c` now pauses by pushing a state, not with a flag.
 - **Window and frame rate options:** `CP_System_SetWindowResizable` lets the
   player resize the window (drawing follows the new size), `CP_System_SetVSync`
   turns vsync on, `CP_System_IsFullscreen` tells if the window is fullscreen,

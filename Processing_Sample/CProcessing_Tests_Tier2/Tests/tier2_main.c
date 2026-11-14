@@ -123,6 +123,21 @@ int main(void)
     RUN_TEST(test_tier2_font_large_text_draws);
     RUN_TEST(test_tier2_font_text_mirrored_and_flipped_draws);
 
+    // test_tier2_gamestates.c
+    RUN_TEST(test_tier2_gamestate_push_and_pop_run_inits_and_exits_in_order);
+    RUN_TEST(test_tier2_gamestate_a_pushed_state_draws_over_the_frozen_one_below);
+    RUN_TEST(test_tier2_gamestate_hidden_mode_hides_the_states_below);
+    RUN_TEST(test_tier2_gamestate_queries_in_a_pushed_state);
+    RUN_TEST(test_tier2_gamestate_running_mode_keeps_the_state_below_running_without_input);
+    RUN_TEST(test_tier2_gamestate_a_frozen_state_is_not_updated);
+    RUN_TEST(test_tier2_gamestate_each_state_keeps_its_own_settings);
+    RUN_TEST(test_tier2_gamestate_states_still_pushed_exit_when_the_program_ends);
+    RUN_TEST(test_tier2_gamestate_transition_starts_from_the_old_picture);
+    RUN_TEST(test_tier2_gamestate_transition_function_gets_both_pictures);
+    RUN_TEST(test_tier2_gamestate_a_state_leaving_in_a_transition_exits_when_it_ends);
+    RUN_TEST(test_tier2_image_drawing_into_an_image);
+    RUN_TEST(test_tier2_image_drawn_into_reads_back_top_row_first_with_plain_alpha);
+
     // test_tier2_system_engine.c
     RUN_TEST(test_tier2_system_window_size_matches_what_was_set);
     RUN_TEST(test_tier2_system_window_size_chosen_in_init_is_there_for_the_first_update);

@@ -176,6 +176,27 @@ void test_platform_stringcopy_null_source_gives_empty_string(void);
 void test_platform_stringcopy_zero_size_writes_nothing(void);
 void test_platform_path_buffer_is_large_enough(void);
 
+// test_internal_game_state_logic.c -- Tier 1: the game state stack's rules (Internal_GameStateLogic.h).
+void test_gamestate_first_set_runs_init(void);
+void test_gamestate_set_exits_then_inits(void);
+void test_gamestate_set_to_the_same_state_does_nothing(void);
+void test_gamestate_forced_set_restarts_the_same_state(void);
+void test_gamestate_push_runs_only_the_new_init(void);
+void test_gamestate_pop_runs_only_the_top_exit(void);
+void test_gamestate_pop_with_one_state_is_ignored(void);
+void test_gamestate_set_from_a_pause_exits_every_state_from_the_top(void);
+void test_gamestate_set_with_a_stack_of_the_same_state_still_changes(void);
+void test_gamestate_leave_all_exits_from_the_top(void);
+void test_gamestate_pushes_and_pops_apply_in_order(void);
+void test_gamestate_a_set_drops_what_was_asked_before_it(void);
+void test_gamestate_the_last_set_wins(void);
+void test_gamestate_requests_without_update_are_ignored(void);
+void test_gamestate_requests_made_while_applying_wait_for_the_next_frame(void);
+void test_gamestate_stack_and_queue_limits(void);
+void test_gamestate_which_states_run(void);
+void test_gamestate_which_states_are_seen(void);
+void test_gamestate_a_bottom_state_is_never_hidden_or_running_below(void);
+
 // test_internal_monitor.c -- Tier 1: which monitor a window is on (Internal_Monitor.h).
 void test_monitor_window_inside_one_monitor(void);
 void test_monitor_window_across_two_monitors_picks_the_larger_part(void);

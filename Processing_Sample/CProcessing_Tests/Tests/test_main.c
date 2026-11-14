@@ -203,6 +203,27 @@ int main(void)
     RUN_TEST(test_monitor_center_too_big_keeps_the_title_bar_on_screen);
     RUN_TEST(test_monitor_overlap);
 
+    // test_internal_game_state_logic.c
+    RUN_TEST(test_gamestate_first_set_runs_init);
+    RUN_TEST(test_gamestate_set_exits_then_inits);
+    RUN_TEST(test_gamestate_set_to_the_same_state_does_nothing);
+    RUN_TEST(test_gamestate_forced_set_restarts_the_same_state);
+    RUN_TEST(test_gamestate_push_runs_only_the_new_init);
+    RUN_TEST(test_gamestate_pop_runs_only_the_top_exit);
+    RUN_TEST(test_gamestate_pop_with_one_state_is_ignored);
+    RUN_TEST(test_gamestate_set_from_a_pause_exits_every_state_from_the_top);
+    RUN_TEST(test_gamestate_set_with_a_stack_of_the_same_state_still_changes);
+    RUN_TEST(test_gamestate_leave_all_exits_from_the_top);
+    RUN_TEST(test_gamestate_pushes_and_pops_apply_in_order);
+    RUN_TEST(test_gamestate_a_set_drops_what_was_asked_before_it);
+    RUN_TEST(test_gamestate_the_last_set_wins);
+    RUN_TEST(test_gamestate_requests_without_update_are_ignored);
+    RUN_TEST(test_gamestate_requests_made_while_applying_wait_for_the_next_frame);
+    RUN_TEST(test_gamestate_stack_and_queue_limits);
+    RUN_TEST(test_gamestate_which_states_run);
+    RUN_TEST(test_gamestate_which_states_are_seen);
+    RUN_TEST(test_gamestate_a_bottom_state_is_never_hidden_or_running_below);
+
     // test_cp_input_logic.c
     RUN_TEST(test_inputlogic_triggered_truth_table);
     RUN_TEST(test_inputlogic_released_truth_table);

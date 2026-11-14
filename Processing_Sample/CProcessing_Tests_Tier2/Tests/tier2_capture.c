@@ -14,6 +14,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "tier2_capture.h"
 #if defined(_WIN32)
     #include <io.h>
@@ -1139,6 +1140,228 @@ static void Scn_SoundRoundTrip(void)
 // out into Source/Internal_InputLogic.h together with the XInput -> GLFW
 // gamepad migration, and is unit-tested directly in the Tier 1 project
 // (CProcessing_Tests/Tests/test_cp_input_logic.c).
+//-------------------------
+// The game state stack. The harness (the bottom state) draws red and pushes
+// state A, which runs for a few frames while the harness is frozen:
+//   frame 0  A draws a half-black veil and a green square over the frozen
+//            red harness (captured as this scenario), and pushes B with
+//            CP_BELOW_RUNNING
+//   frame 1  A runs under B, without input; B pops
+//   frame 2  A has its own settings back, and pushes C with CP_BELOW_HIDDEN
+//   frame 3  C draws nothing: everything under it is hidden (captured), pops
+//   frame 4  A pops; the harness carries on in the next frame
+static bool stackAwaitingResume = false;
+static int stackAFrame = 0;
+static const CP_Color kStackHarnessFill = { 10, 20, 30, 255 };
+static const CP_Color kStackAFill = { 0, 0, 255, 255 };
+CP_Color tier2_stackHiddenPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+
+static bool SameColor(CP_Color a, CP_Color b)
+{
+    return a.r == b.r && a.g == b.g && a.b == b.b && a.a == b.a;
+}
+
+static void StackLog(const char* what)
+{
+    size_t used = strlen(tier2_scalars.stackLog);
+    snprintf(tier2_scalars.stackLog + used, sizeof(tier2_scalars.stackLog) - used, "%s%s", used ? " " : "", what);
+}
+
+static void StackB_Init(void)
+{
+    StackLog("B.init");
+    tier2_scalars.stackPushInheritsSettings = SameColor(CP_Settings_GetFill(), kStackAFill);
+}
+static void StackB_Update(void)
+{
+    CP_Settings_Fill(CP_Color_Create(255, 255, 0, 255));    // must not leak back into A
+    tier2_scalars.stackRunningStateIsTop = CP_Engine_IsTopGameState();
+    CP_Engine_PopGameState();
+}
+static void StackB_Exit(void) { StackLog("B.exit"); }
+
+static void StackC_Init(void) { StackLog("C.init"); }
+static void StackC_Update(void)
+{
+    CaptureInto(tier2_stackHiddenPixels);
+    CP_Engine_PopGameState();
+}
+static void StackC_Exit(void) { StackLog("C.exit"); }
+
+static void StackA_Init(void)
+{
+    StackLog("A.init");
+    tier2_scalars.stackDepthInPushedInit = CP_Engine_GetGameStateDepth();
+    stackAFrame = 0;
+}
+static void StackA_Update(void)
+{
+    ++tier2_scalars.stackUpdatesOfFirstPushed;
+    if (!CP_Engine_IsTopGameState())
+    {
+        // running under B
+        ++tier2_scalars.stackUpdatesWhileRunningBelow;
+        tier2_scalars.stackRunningBelowIsNotTop = TRUE;
+        tier2_scalars.stackRunningBelowKeyMuted = !CP_Input_KeyDown(KEY_ANY) && !CP_Input_MouseDown(MOUSE_BUTTON_LEFT);
+        tier2_scalars.stackRunningBelowMouseX = CP_Input_GetMouseX();
+        return;
+    }
+    switch (stackAFrame++)
+    {
+    case 0:
+        CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 128));
+        CP_Settings_NoStroke();
+        CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255));
+        CP_Graphics_DrawRect(100.0f, 100.0f, 50.0f, 50.0f);
+        CaptureCurrentFrame(SCN_GAMESTATE_STACK);
+        tier2_scalars.stackPushedIsTop = CP_Engine_IsTopGameState();
+        tier2_scalars.stackPushedTime = CP_Engine_GetGameStateTime();
+        CP_Settings_Fill(kStackAFill);
+        tier2_scalars.stackMouseXWhenCovered = CP_Input_GetMouseX();
+        CP_Engine_PushGameStateAdvanced(StackB_Init, StackB_Update, StackB_Exit, CP_BELOW_RUNNING);
+        break;
+    case 1:
+        tier2_scalars.stackSettingsBackAfterPop = SameColor(CP_Settings_GetFill(), kStackAFill);
+        CP_Engine_PushGameStateAdvanced(StackC_Init, StackC_Update, StackC_Exit, CP_BELOW_HIDDEN);
+        break;
+    default:
+        CP_Engine_PopGameState();
+        break;
+    }
+}
+static void StackA_Exit(void) { StackLog("A.exit"); }
+
+static void Scn_GameStateStack(void)
+{
+    CP_Graphics_ClearBackground(RED);
+    CP_Settings_Fill(kStackHarnessFill);
+    CP_Engine_PopGameState();       // only one state: ignored, with a message
+    CP_Engine_PushGameState(StackA_Init, StackA_Update, StackA_Exit);
+    stackAwaitingResume = true;
+}
+
+//-------------------------
+// Transitions. The harness draws red and pushes D with a 10 second
+// crossfade, so in D's first frame D's green has hardly begun to show
+// (captured as this scenario). D pushes E with a transition function that
+// draws the picture after on the left and the one before on the right
+// (captured). E pops while that transition plays: it keeps running as a
+// ghost, can't change the stack, and only exits when D, turning transitions
+// off, pops too, which ends the transition first.
+static bool transitionAwaitingResume = false;
+static int transitionDFrame = 0;
+CP_Color tier2_transitionCustomPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+
+static void TransitionLog(const char* what)
+{
+    size_t used = strlen(tier2_scalars.transitionLog);
+    snprintf(tier2_scalars.transitionLog + used, sizeof(tier2_scalars.transitionLog) - used, "%s%s", used ? " " : "", what);
+}
+
+static void DrawHalves(float progress, CP_Image from, CP_Image to)
+{
+    tier2_scalars.transitionCustomProgress = progress;
+    tier2_scalars.transitionCustomGotImages = from != NULL && to != NULL;
+    CP_Image_DrawSubImage(to, 50.0f, 100.0f, 100.0f, 200.0f, 0.0f, 0.0f, 100.0f, 200.0f, 255);
+    CP_Image_DrawSubImage(from, 150.0f, 100.0f, 100.0f, 200.0f, 100.0f, 0.0f, 200.0f, 200.0f, 255);
+}
+
+static int transitionEFrame = 0;
+static void TransitionE_Init(void) { TransitionLog("E.init"); transitionEFrame = 0; }
+static void TransitionE_Update(void)
+{
+    if (transitionEFrame++ == 0)
+    {
+        CP_Graphics_ClearBackground(BLUE);
+        CaptureInto(tier2_transitionCustomPixels);
+    }
+    else
+    {
+        // a ghost now: still running, not on top, and its requests are ignored
+        ++tier2_scalars.transitionGhostUpdates;
+        tier2_scalars.transitionGhostIsNotTop = !CP_Engine_IsTopGameState();
+    }
+    CP_Engine_PopGameState();
+}
+static void TransitionE_Exit(void) { TransitionLog("E.exit"); }
+
+static void TransitionD_Init(void) { TransitionLog("D.init"); transitionDFrame = 0; }
+static void TransitionD_Update(void)
+{
+    switch (transitionDFrame++)
+    {
+    case 0:
+        CP_Graphics_ClearBackground(CP_Color_Create(0, 255, 0, 255));
+        CaptureCurrentFrame(SCN_GAMESTATE_TRANSITION);
+        CP_Engine_SetTransitionFunction(DrawHalves, 10.0f);
+        CP_Engine_PushGameState(TransitionE_Init, TransitionE_Update, TransitionE_Exit);
+        break;
+    case 1:
+        tier2_scalars.transitionGhostExitDeferred = strstr(tier2_scalars.transitionLog, "E.exit") == NULL;
+        CP_Engine_SetTransition(CP_TRANSITION_NONE, 0.0f);
+        CP_Engine_PopGameState();
+        break;
+    default:
+        break;
+    }
+}
+static void TransitionD_Exit(void) { TransitionLog("D.exit"); }
+
+static void Scn_GameStateTransition(void)
+{
+    CP_Graphics_ClearBackground(RED);
+    CP_Engine_SetTransition(CP_TRANSITION_CROSSFADE, 10.0f);
+    CP_Engine_PushGameState(TransitionD_Init, TransitionD_Update, TransitionD_Exit);
+    transitionAwaitingResume = true;
+}
+
+// Drawing into an image: a 50x50 image gets a red square in its top left
+// corner and a half-transparent blue one in its bottom right, then is drawn
+// over white at 4 times its size (captured)
+static void Scn_ImageDrawInto(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Image image = CP_Image_Create(50, 50);
+    tier2_scalars.drawIntoCreated = image != NULL && CP_Image_GetWidth(image) == 50;
+
+    CP_Settings_Fill(kStackHarnessFill);
+    CP_Image_BeginDrawing(image);
+    CP_Settings_NoStroke();
+    CP_Settings_RectMode(CP_POSITION_CORNER);
+    CP_Settings_Fill(RED);
+    CP_Graphics_DrawRect(0.0f, 0.0f, 25.0f, 25.0f);
+    CP_Settings_Fill(CP_Color_Create(0, 0, 255, 128));
+    CP_Graphics_DrawRect(25.0f, 25.0f, 25.0f, 25.0f);
+    CP_Image_EndDrawing();
+    tier2_scalars.drawIntoSettingsBack = SameColor(CP_Settings_GetFill(), kStackHarnessFill);
+
+    CP_Settings_ImageMode(CP_POSITION_CENTER);     // (not part of the baseline)
+    CP_Image_Draw(image, 100.0f, 100.0f, 200.0f, 200.0f, 255);
+
+    CP_Color pixels[50 * 50];
+    CP_Image_GetPixelData(image, pixels);
+    tier2_scalars.drawIntoTopLeft = pixels[5 * 50 + 5];
+    tier2_scalars.drawIntoBottomRight = pixels[45 * 50 + 45];
+
+    pixels[0] = CP_Color_Create(10, 200, 30, 255);
+    CP_Image_UpdatePixelData(image, pixels);
+    CP_Color again[50 * 50];
+    CP_Image_GetPixelData(image, again);
+    tier2_scalars.drawIntoAfterUpdate = again[0];
+    CP_Image_Free(&image);
+
+    CP_Image loaded = CP_Image_Load("Assets/quadrants16.png");
+    CP_Image_BeginDrawing(loaded);       // refused, with a message
+    tier2_scalars.drawIntoLoadedRefused = TRUE;
+    CP_Image_EndDrawing();               // nothing to end: harmless
+    CP_Image_Free(&loaded);
+}
+
+// Pushed on the next-to-last frame, running, so the harness keeps going:
+// still on the stack when the program ends, its exit must run
+static void ShutdownProbe_Update(void) {}
+static void ShutdownProbe_Exit(void) { tier2_scalars.stackShutdownExitRan = TRUE; }
+
 static void Scn_InputQuiescentDefaults(void)
 {
     CP_Graphics_ClearBackground(WHITE);
@@ -1403,6 +1626,9 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SYSTEM_FRAME_RATE_NO_LIMIT] = Scn_SystemFrameRateNoLimit,
     [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
     [SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,
+    [SCN_GAMESTATE_STACK] = Scn_GameStateStack,
+    [SCN_GAMESTATE_TRANSITION] = Scn_GameStateTransition,
+    [SCN_IMAGE_DRAW_INTO] = Scn_ImageDrawInto,
     [SCN_PERSIST_FIRST_FRAME] = Scn_PersistFirstFrame,
     [SCN_PERSIST_NEXT_FRAME] = Scn_PersistNextFrame,
     [SCN_SCREENSHOT_SUBREGION] = Scn_ScreenshotSubregion,
@@ -1428,6 +1654,19 @@ static void LeaveAssetsLoadedForTheExitReport(void);
 
 static void HarnessUpdate(void)
 {
+    if (stackAwaitingResume)
+    {
+        // the states pushed in Scn_GameStateStack have all popped
+        stackAwaitingResume = false;
+        tier2_scalars.stackHarnessSettingsBack = SameColor(CP_Settings_GetFill(), kStackHarnessFill);
+        tier2_scalars.stackHarnessDepthAfter = CP_Engine_GetGameStateDepth();
+    }
+    if (transitionAwaitingResume)
+    {
+        transitionAwaitingResume = false;
+        tier2_scalars.transitionHarnessDepthAfter = CP_Engine_GetGameStateDepth();
+    }
+
     if (frameCount == 0)
     {
         // HarnessInit chose the window size in the same frame
@@ -1463,6 +1702,11 @@ static void HarnessUpdate(void)
         kScenarios[scenarioIndex]();
         CaptureCurrentFrame((Tier2Scenario)scenarioIndex);
         ++tier2_scalars.scenariosCaptured;
+    }
+
+    if (scenarioIndex == SCN_COUNT - 2)
+    {
+        CP_Engine_PushGameStateAdvanced(NULL, ShutdownProbe_Update, ShutdownProbe_Exit, CP_BELOW_RUNNING);
     }
 
     if (scenarioIndex >= SCN_COUNT - 1)

@@ -45,7 +45,7 @@ void test_tier2_assets_still_loaded_are_reported_at_exit(void)
     const char* report = tier2_scalars.exitReport;
     TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "still loaded when the program ended"), report);
     TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "Assets/quadrants16.png: 2 loads not freed"), report);
-    TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "1 made with CP_Image_CreateFromData or CP_Image_Screenshot"), report);
+    TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "1 made with CP_Image_Create, CP_Image_CreateFromData or CP_Image_Screenshot"), report);
 }
 
 void test_tier2_image_load_reports_correct_dimensions(void)
