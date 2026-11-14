@@ -59,6 +59,9 @@ changes to build with the new version.
   a minimap, a trail that fades, a picture to save as a screenshot.
   `CP_Image_GetPixelData` and `UpdatePixelData` work on these images as on
   any other.
+- **`Examples/state_stack.c`** shows the stack, the modes, transitions
+  (including one drawn by the program) and a trail drawn into an image.
+  `Examples/game_states.c` now pauses by pushing a state, not with a flag.
 - **Window and frame rate options:** `CP_System_SetWindowResizable` lets the
   player resize the window (drawing follows the new size), `CP_System_SetVSync`
   turns vsync on, `CP_System_IsFullscreen` tells if the window is fullscreen,

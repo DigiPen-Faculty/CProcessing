@@ -7,8 +7,12 @@
 // - give each part of the game its own init, update and exit functions
 // - switch between them with CP_Engine_SetNextGameState
 // - restart the current state with CP_Engine_SetNextGameStateForced
-// - pause without leaving the play state
+// - pause by pushing a state on top of the game (CP_Engine_PushGameState):
+//   the game freezes behind it, and CP_Engine_PopGameState lets it carry on
 // - keep values, such as the best score, across states
+//
+// Examples/state_stack.c goes further: menus on top of menus, a state that
+// keeps running under another, transitions, and drawing into an image.
 //
 // The game: dodge the falling blocks with the mouse for as long as you can.
 //
@@ -30,6 +34,7 @@ void menu_exit(void);
 void play_init(void);
 void play_update(void);
 void play_exit(void);
+void pause_update(void);
 void game_over_init(void);
 void game_over_update(void);
 void game_over_exit(void);
@@ -87,7 +92,6 @@ float blockSpeeds[BLOCK_COUNT];		// pixels per second
 const float blockSize = 40.0f;
 const float playerSize = 30.0f;
 float survivedTime;
-CP_BOOL paused;
 
 // Put a block back above the top of the window, somewhere across it
 void ResetBlock(int i)
@@ -104,17 +108,16 @@ void play_init(void)
 		ResetBlock(i);
 	}
 	survivedTime = 0.0f;
-	paused = FALSE;
 }
 
 void play_update(void)
 {
-	// P pauses and unpauses. Pausing is a value in the play state, not a
-	// state of its own: switching states would run play_init again on the
-	// way back, and the game would start over.
+	// P pauses: the pause state goes on top of this one. play_exit doesn't
+	// run, this state stops and stays visible behind the pause, and when the
+	// pause pops, it carries on where it was (play_init doesn't run again).
 	if (CP_Input_KeyTriggered(KEY_P))
 	{
-		paused = !paused;
+		CP_Engine_PushGameState(NULL, pause_update, NULL);
 	}
 
 	// R starts over. The next state is the current one, so
@@ -127,27 +130,24 @@ void play_update(void)
 
 	CP_Vector player = CP_Vector_Set(CP_Input_GetMouseX(), CP_System_GetWindowHeight() - 60.0f);
 
-	if (!paused)
+	float dt = CP_System_GetDt();
+	survivedTime += dt;
+	for (int i = 0; i < BLOCK_COUNT; ++i)
 	{
-		float dt = CP_System_GetDt();
-		survivedTime += dt;
-		for (int i = 0; i < BLOCK_COUNT; ++i)
+		blocks[i].y += blockSpeeds[i] * dt;
+		if (blocks[i].y > CP_System_GetWindowHeight() + blockSize)
 		{
-			blocks[i].y += blockSpeeds[i] * dt;
-			if (blocks[i].y > CP_System_GetWindowHeight() + blockSize)
-			{
-				ResetBlock(i);
-			}
+			ResetBlock(i);
+		}
 
-			// Hit? The block and the player overlap across and down.
-			float reach = (blockSize + playerSize) / 2.0f;
-			float dx = blocks[i].x - player.x;
-			float dy = blocks[i].y - player.y;
-			if (dx < reach && dx > -reach && dy < reach && dy > -reach)
-			{
-				lastTime = survivedTime;
-				CP_Engine_SetNextGameState(game_over_init, game_over_update, game_over_exit);
-			}
+		// Hit? The block and the player overlap across and down.
+		float reach = (blockSize + playerSize) / 2.0f;
+		float dx = blocks[i].x - player.x;
+		float dy = blocks[i].y - player.y;
+		if (dx < reach && dx > -reach && dy < reach && dy > -reach)
+		{
+			lastTime = survivedTime;
+			CP_Engine_SetNextGameState(game_over_init, game_over_update, game_over_exit);
 		}
 	}
 
@@ -164,15 +164,32 @@ void play_update(void)
 	char text[60];
 	snprintf(text, sizeof(text), "%.1f seconds", survivedTime);
 	DrawCenteredText(text, 30.0f, 24.0f);
-	if (paused)
-	{
-		DrawCenteredText("PAUSED", 250.0f, 60.0f);
-		DrawCenteredText("P to keep playing, R to start over", 320.0f, 24.0f);
-	}
 }
 
 void play_exit(void)
 {
+}
+
+//-------------------------
+// PAUSE: on top of the play state, which is frozen behind it
+
+void pause_update(void)
+{
+	// A state pushed on top draws on a clear sheet over the one below.
+	// Clearing it with a see-through color darkens the frozen game.
+	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 150));
+	DrawCenteredText("PAUSED", 250.0f, 60.0f);
+	DrawCenteredText("P to keep playing, R to start over", 320.0f, 24.0f);
+
+	if (CP_Input_KeyTriggered(KEY_P))
+	{
+		CP_Engine_PopGameState();
+	}
+	if (CP_Input_KeyTriggered(KEY_R))
+	{
+		// Ends the pause and the game under it, and starts a new game
+		CP_Engine_SetNextGameState(play_init, play_update, play_exit);
+	}
 }
 
 //-------------------------

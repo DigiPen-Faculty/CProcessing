@@ -10,7 +10,8 @@ top.
 | [collision.c](collision.c) | Checking whether points, circles and rectangles touch. |
 | [sprite_animation.c](sprite_animation.c) | Animating a character from the frames of a sprite sheet. |
 | [camera.c](camera.c) | A camera that moves and zooms around a world bigger than the window. |
-| [game_states.c](game_states.c) | A menu, play, pause and game over, each a game state of its own. |
+| [game_states.c](game_states.c) | A menu, play, pause and game over, each a game state of its own. The pause goes on top of the frozen game. |
+| [state_stack.c](state_stack.c) | Going further with game states: menus on top of menus, a hint over a game that keeps running, transitions (including one you draw), and a trail drawn into an image. |
 | [score_and_text.c](score_and_text.c) | A score, a timer and other text, placed and sized on the screen. |
 | [music_and_sounds.c](music_and_sounds.c) | Looping music and sound effects, each with its own volume. |
 | [text_input.c](text_input.c) | Typing a name: reading typed characters, Backspace, Enter and a blinking cursor. |
