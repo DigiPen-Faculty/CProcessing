@@ -425,6 +425,24 @@ typedef enum CP_BELOW_MODE
 	CP_BELOW_HIDDEN		// They stop, and can't be seen
 } CP_BELOW_MODE;
 
+// How the picture changes from one game state to the next
+// (CP_Engine_SetTransition)
+typedef enum CP_TRANSITION
+{
+	CP_TRANSITION_NONE,			// Default: at once
+	CP_TRANSITION_FADE,			// Fade to black, then in from black
+	CP_TRANSITION_CROSSFADE,	// The old picture fades into the new one
+	CP_TRANSITION_SLIDE_LEFT,	// What comes in slides in from the right, moving left
+	CP_TRANSITION_SLIDE_RIGHT,	// ...from the left, moving right
+	CP_TRANSITION_SLIDE_UP,		// ...from below, moving up
+	CP_TRANSITION_SLIDE_DOWN	// ...from above, moving down
+} CP_TRANSITION;
+
+// A transition you draw yourself (CP_Engine_SetTransitionFunction): it is
+// called every frame of the transition with its progress, from 0 to 1, and
+// the pictures before and after, to draw with CP_Image_Draw and the rest
+typedef void (*CP_TransitionFunction)(float progress, CP_Image from, CP_Image to);
+
 
 #ifdef __cplusplus
 }

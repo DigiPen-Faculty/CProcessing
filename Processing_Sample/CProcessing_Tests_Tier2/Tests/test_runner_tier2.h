@@ -78,6 +78,9 @@ void test_tier2_gamestate_running_mode_keeps_the_state_below_running_without_inp
 void test_tier2_gamestate_a_frozen_state_is_not_updated(void);
 void test_tier2_gamestate_each_state_keeps_its_own_settings(void);
 void test_tier2_gamestate_states_still_pushed_exit_when_the_program_ends(void);
+void test_tier2_gamestate_transition_starts_from_the_old_picture(void);
+void test_tier2_gamestate_transition_function_gets_both_pictures(void);
+void test_tier2_gamestate_a_state_leaving_in_a_transition_exits_when_it_ends(void);
 
 // test_tier2_system_engine.c -- Tier 2: CP_System + CP_Engine lifecycle.
 void test_tier2_system_window_size_matches_what_was_set(void);

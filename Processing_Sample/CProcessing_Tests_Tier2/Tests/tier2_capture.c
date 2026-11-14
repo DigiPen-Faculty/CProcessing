@@ -1240,6 +1240,81 @@ static void Scn_GameStateStack(void)
     stackAwaitingResume = true;
 }
 
+//-------------------------
+// Transitions. The harness draws red and pushes D with a 10 second
+// crossfade, so in D's first frame D's green has hardly begun to show
+// (captured as this scenario). D pushes E with a transition function that
+// draws the picture after on the left and the one before on the right
+// (captured). E pops while that transition plays: it keeps running as a
+// ghost, can't change the stack, and only exits when D, turning transitions
+// off, pops too, which ends the transition first.
+static bool transitionAwaitingResume = false;
+static int transitionDFrame = 0;
+CP_Color tier2_transitionCustomPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+
+static void TransitionLog(const char* what)
+{
+    size_t used = strlen(tier2_scalars.transitionLog);
+    snprintf(tier2_scalars.transitionLog + used, sizeof(tier2_scalars.transitionLog) - used, "%s%s", used ? " " : "", what);
+}
+
+static void DrawHalves(float progress, CP_Image from, CP_Image to)
+{
+    tier2_scalars.transitionCustomProgress = progress;
+    tier2_scalars.transitionCustomGotImages = from != NULL && to != NULL;
+    CP_Image_DrawSubImage(to, 50.0f, 100.0f, 100.0f, 200.0f, 0.0f, 0.0f, 100.0f, 200.0f, 255);
+    CP_Image_DrawSubImage(from, 150.0f, 100.0f, 100.0f, 200.0f, 100.0f, 0.0f, 200.0f, 200.0f, 255);
+}
+
+static int transitionEFrame = 0;
+static void TransitionE_Init(void) { TransitionLog("E.init"); transitionEFrame = 0; }
+static void TransitionE_Update(void)
+{
+    if (transitionEFrame++ == 0)
+    {
+        CP_Graphics_ClearBackground(BLUE);
+        CaptureInto(tier2_transitionCustomPixels);
+    }
+    else
+    {
+        // a ghost now: still running, not on top, and its requests are ignored
+        ++tier2_scalars.transitionGhostUpdates;
+        tier2_scalars.transitionGhostIsNotTop = !CP_Engine_IsTopGameState();
+    }
+    CP_Engine_PopGameState();
+}
+static void TransitionE_Exit(void) { TransitionLog("E.exit"); }
+
+static void TransitionD_Init(void) { TransitionLog("D.init"); transitionDFrame = 0; }
+static void TransitionD_Update(void)
+{
+    switch (transitionDFrame++)
+    {
+    case 0:
+        CP_Graphics_ClearBackground(CP_Color_Create(0, 255, 0, 255));
+        CaptureCurrentFrame(SCN_GAMESTATE_TRANSITION);
+        CP_Engine_SetTransitionFunction(DrawHalves, 10.0f);
+        CP_Engine_PushGameState(TransitionE_Init, TransitionE_Update, TransitionE_Exit);
+        break;
+    case 1:
+        tier2_scalars.transitionGhostExitDeferred = strstr(tier2_scalars.transitionLog, "E.exit") == NULL;
+        CP_Engine_SetTransition(CP_TRANSITION_NONE, 0.0f);
+        CP_Engine_PopGameState();
+        break;
+    default:
+        break;
+    }
+}
+static void TransitionD_Exit(void) { TransitionLog("D.exit"); }
+
+static void Scn_GameStateTransition(void)
+{
+    CP_Graphics_ClearBackground(RED);
+    CP_Engine_SetTransition(CP_TRANSITION_CROSSFADE, 10.0f);
+    CP_Engine_PushGameState(TransitionD_Init, TransitionD_Update, TransitionD_Exit);
+    transitionAwaitingResume = true;
+}
+
 // Pushed on the next-to-last frame, running, so the harness keeps going:
 // still on the stack when the program ends, its exit must run
 static void ShutdownProbe_Update(void) {}
@@ -1510,6 +1585,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
     [SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,
     [SCN_GAMESTATE_STACK] = Scn_GameStateStack,
+    [SCN_GAMESTATE_TRANSITION] = Scn_GameStateTransition,
     [SCN_PERSIST_FIRST_FRAME] = Scn_PersistFirstFrame,
     [SCN_PERSIST_NEXT_FRAME] = Scn_PersistNextFrame,
     [SCN_SCREENSHOT_SUBREGION] = Scn_ScreenshotSubregion,
@@ -1541,6 +1617,11 @@ static void HarnessUpdate(void)
         stackAwaitingResume = false;
         tier2_scalars.stackHarnessSettingsBack = SameColor(CP_Settings_GetFill(), kStackHarnessFill);
         tier2_scalars.stackHarnessDepthAfter = CP_Engine_GetGameStateDepth();
+    }
+    if (transitionAwaitingResume)
+    {
+        transitionAwaitingResume = false;
+        tier2_scalars.transitionHarnessDepthAfter = CP_Engine_GetGameStateDepth();
     }
 
     if (frameCount == 0)

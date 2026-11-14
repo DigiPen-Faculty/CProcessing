@@ -66,3 +66,29 @@ void test_tier2_gamestate_states_still_pushed_exit_when_the_program_ends(void)
 {
     TEST_ASSERT_TRUE(tier2_scalars.stackShutdownExitRan);
 }
+
+void test_tier2_gamestate_transition_starts_from_the_old_picture(void)
+{
+    // the first frame of a 10 second crossfade: still (nearly) the harness's red
+    assertColorWithin(12, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_GAMESTATE_TRANSITION, 100, 100));
+}
+
+void test_tier2_gamestate_transition_function_gets_both_pictures(void)
+{
+    TEST_ASSERT_TRUE(tier2_scalars.transitionCustomGotImages);
+    TEST_ASSERT_GREATER_THAN_FLOAT(0.0f, tier2_scalars.transitionCustomProgress);
+    TEST_ASSERT_LESS_THAN_FLOAT(0.5f, tier2_scalars.transitionCustomProgress);
+    // left: after (E's blue over D), right: before (D's green)
+    assertColorWithin(3, CP_Color_Create(0, 0, 255, 255), tier2_transitionCustomPixels[100 * TIER2_CANVAS_SIZE + 40]);
+    assertColorWithin(3, CP_Color_Create(0, 255, 0, 255), tier2_transitionCustomPixels[100 * TIER2_CANVAS_SIZE + 160]);
+}
+
+void test_tier2_gamestate_a_state_leaving_in_a_transition_exits_when_it_ends(void)
+{
+    TEST_ASSERT_EQUAL_INT(1, tier2_scalars.transitionGhostUpdates);
+    TEST_ASSERT_TRUE(tier2_scalars.transitionGhostIsNotTop);
+    TEST_ASSERT_TRUE(tier2_scalars.transitionGhostExitDeferred);
+    // E's own pops, as a ghost, were ignored: D popped only once
+    TEST_ASSERT_EQUAL_STRING("D.init E.init E.exit D.exit", tier2_scalars.transitionLog);
+    TEST_ASSERT_EQUAL_INT(1, tier2_scalars.transitionHarnessDepthAfter);
+}

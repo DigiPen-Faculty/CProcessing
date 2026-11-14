@@ -36,6 +36,19 @@ changes to build with the new version.
     counting time spent frozen.
   - A change asked for in an init or exit function now happens in the next
     frame. Before, it was lost.
+- **Transitions between game states:**
+  `CP_Engine_SetTransition(CP_TRANSITION_CROSSFADE, 0.5f)` makes every
+  change of state after it animate:
+  - `CP_TRANSITION_FADE`: through black;
+  - `CP_TRANSITION_CROSSFADE`;
+  - `CP_TRANSITION_SLIDE_LEFT`, `_RIGHT`, `_UP` or `_DOWN`.
+  
+  Every kind of change animates: a pushed pause fades or slides in over the
+  frozen game, and a popped one out again. A state that is leaving keeps
+  running, without input, until it's off screen, and its exit runs when the
+  transition ends. `CP_Engine_SetTransitionFunction` takes a function you
+  write: it is called every frame of the transition with the progress and
+  the pictures before and after, as images to draw however you like.
 - **Window and frame rate options:** `CP_System_SetWindowResizable` lets the
   player resize the window (drawing follows the new size), `CP_System_SetVSync`
   turns vsync on, `CP_System_IsFullscreen` tells if the window is fullscreen,

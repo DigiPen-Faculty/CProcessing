@@ -68,6 +68,8 @@ CP_API void				CP_Engine_PopGameState				(void);
 CP_API int				CP_Engine_GetGameStateDepth			(void);
 CP_API CP_BOOL			CP_Engine_IsTopGameState			(void);
 CP_API float			CP_Engine_GetGameStateTime			(void);
+CP_API void				CP_Engine_SetTransition				(CP_TRANSITION transition, float seconds);
+CP_API void				CP_Engine_SetTransitionFunction		(CP_TransitionFunction transition, float seconds);
 CP_API void				CP_Engine_SetPreUpdateFunction		(FunctionPtr preUpdateFunction);
 CP_API void				CP_Engine_SetPostUpdateFunction		(FunctionPtr postUpdateFunction);
 

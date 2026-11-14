@@ -88,6 +88,8 @@ typedef enum
     // Pushes game states on top of the harness for a few frames (the harness
     // is frozen meanwhile), then they pop and the harness carries on
     SCN_GAMESTATE_STACK,
+    // Transitions between pushed states (see Scn_GameStateTransition)
+    SCN_GAMESTATE_TRANSITION,
     // Cross-platform work: these two must stay consecutive -- the second
     // one draws on top of the first one's frame without clearing.
     SCN_PERSIST_FIRST_FRAME,
@@ -292,6 +294,15 @@ typedef struct
     int stackUpdatesOfFirstPushed;      // 4: not while frozen under the hidden one
     CP_BOOL stackShutdownExitRan;       // a state still pushed when the program ends exits
 
+    // Transitions (see Scn_GameStateTransition)
+    char transitionLog[256];
+    float transitionCustomProgress;     // what the transition function was given
+    CP_BOOL transitionCustomGotImages;
+    int transitionGhostUpdates;         // a popped state kept running during its transition
+    CP_BOOL transitionGhostIsNotTop;
+    CP_BOOL transitionGhostExitDeferred;// its exit hadn't run while it was on screen
+    int transitionHarnessDepthAfter;
+
     // How many scenarios were captured: SCN_COUNT unless the engine couldn't
     // start (no window or OpenGL context) or stopped early
     int scenariosCaptured;
@@ -305,6 +316,8 @@ extern Tier2Scalars tier2_scalars;
 
 // What a state pushed with CP_BELOW_HIDDEN shows (see Scn_GameStateStack)
 extern CP_Color tier2_stackHiddenPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+// What a transition function drew (see Scn_GameStateTransition)
+extern CP_Color tier2_transitionCustomPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 
 // Runs the one and only CP_Engine_Run() call for this process, scripting
 // through every scenario in Tier2Scenario and filling tier2_snapshots.
