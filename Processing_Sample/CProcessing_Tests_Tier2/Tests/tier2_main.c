@@ -132,9 +132,7 @@ int main(void)
     RUN_TEST(test_tier2_gamestate_a_frozen_state_is_not_updated);
     RUN_TEST(test_tier2_gamestate_each_state_keeps_its_own_settings);
     RUN_TEST(test_tier2_gamestate_states_still_pushed_exit_when_the_program_ends);
-    RUN_TEST(test_tier2_gamestate_transition_starts_from_the_old_picture);
-    RUN_TEST(test_tier2_gamestate_transition_function_gets_both_pictures);
-    RUN_TEST(test_tier2_gamestate_a_state_leaving_in_a_transition_exits_when_it_ends);
+    RUN_TEST(test_tier2_gamestate_a_screenshot_drawn_in_the_next_state_blends_over_it);
     RUN_TEST(test_tier2_image_drawing_into_an_image);
     RUN_TEST(test_tier2_image_drawn_into_reads_back_top_row_first_with_plain_alpha);
 

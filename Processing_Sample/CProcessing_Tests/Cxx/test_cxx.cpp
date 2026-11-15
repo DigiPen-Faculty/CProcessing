@@ -57,16 +57,15 @@ int main(int argc, char** argv)
 	passThrough &= ~static_cast<CP_STATE>(CP_STATE_UPDATING);
 	Check(passThrough == CP_STATE_FROZEN, "taking UPDATING away from PASSIVE leaves FROZEN");
 
-	// A lambda with no captures can be a state's function or a transition
+	// A lambda with no captures can be a state's function
 	FunctionPtr update = [] {};
-	CP_TransitionFunction transition = [](float, CP_Image, CP_Image) {};
-	Check(update != nullptr && transition != nullptr, "lambdas convert to CProcessing's function pointers");
+	Check(update != nullptr, "a lambda converts to CProcessing's function pointer");
 
 	// Each of these has to link, with the signature the header gives
 	void (*push)(FunctionPtr, FunctionPtr, FunctionPtr) = &CP_Engine_PushGameState;
 	void (*setPassThrough)(CP_STATE) = &CP_Engine_SetGameStatePassThrough;
-	void (*setTransition)(CP_TransitionFunction, float) = &CP_Engine_SetTransitionFunction;
-	Check(push != nullptr && setPassThrough != nullptr && setTransition != nullptr, "engine functions link");
+	void (*setPostUpdate)(FunctionPtr) = &CP_Engine_SetPostUpdateFunction;
+	Check(push != nullptr && setPassThrough != nullptr && setPostUpdate != nullptr, "engine functions link");
 
 	// The pixel functions take const data, so a const array can be passed.
 	// (Not called: they need a window. argc is never this big.)

@@ -11,7 +11,8 @@ top.
 | [sprite_animation.c](sprite_animation.c) | Animating a character from the frames of a sprite sheet. |
 | [camera.c](camera.c) | A camera that moves and zooms around a world bigger than the window. |
 | [game_states.c](game_states.c) | A menu, play, pause and game over, each a game state of its own. The pause goes on top of the frozen game. |
-| [state_stack.c](state_stack.c) | Going further with game states: menus on top of menus, a hint over a game that keeps running, a HUD, transitions (including one you draw), and a trail drawn into an image. |
+| [state_stack.c](state_stack.c) | Going further with game states: menus on top of menus, a hint over a game that keeps running, a HUD, and a trail drawn into an image. |
+| [transitions.c](transitions.c) | Animated changes between game states: a fade, a crossfade, slides and one you draw, with a small helper to copy into your own game. |
 | [state_effects.c](state_effects.c) | Easing into slow motion under a level-up box, and turning the music down under a pause, with a few lines of your own code. |
 | [score_and_text.c](score_and_text.c) | A score, a timer and other text, placed and sized on the screen. |
 | [music_and_sounds.c](music_and_sounds.c) | Looping music and sound effects, each with its own volume. |
@@ -28,11 +29,11 @@ cards under it stay, frozen; `CP_Engine_PopGameState` takes it off.
 
 The engine does what you couldn't do yourself, or would easily get wrong:
 the stack, keeping each state's picture and settings, giving input to the
-top state only, transitions, and drawing into images. Effects like slow
-motion, turning the sound down under a pause, or a HUD are a few lines of
-your own code, so you can make them work however you want:
-[state_effects.c](state_effects.c) and [state_stack.c](state_stack.c) show
-how.
+top state only, and drawing into images. Effects like slow motion, turning
+the sound down under a pause, a HUD, or a transition from one state to the
+next are a few lines of your own code, so you can make them work however
+you want: [state_effects.c](state_effects.c),
+[transitions.c](transitions.c) and [state_stack.c](state_stack.c) show how.
 
 ## Lessons
 

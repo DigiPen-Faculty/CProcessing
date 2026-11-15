@@ -1,7 +1,7 @@
 //---------------------------------------------------------
 // file:	state_stack.c
 //
-// Example: game states on a stack, transitions, and drawing into an image.
+// Example: game states on a stack, and drawing into an image.
 //
 // Think of game states as cards on a table. CP_Engine_SetNextGameState clears
 // the table and puts down a new card: use it for a new part of the game, like
@@ -18,18 +18,19 @@
 //   CP_Engine_SetGameStatePassThrough: CP_STATE_PASSIVE for a hint over a
 //   game that keeps moving, CP_STATE_NONE for a full-screen options page
 // - draw a HUD with a function at the end of the game's update
-// - animate every change of state with CP_Engine_SetTransition, or with a
-//   transition you draw yourself (CP_Engine_SetTransitionFunction)
 // - draw into an image (CP_Image_Create, CP_Image_BeginDrawing) for a trail
 //   that fades
 //
-// Keys: on the menu, Enter plays and T changes the transition.
+// Changes of state here happen at once. transitions.c shows how to animate
+// them: fades, crossfades, slides, and ones you draw yourself.
+//
+// Keys: on the menu, Enter plays.
 // In the game: arrow keys move, P pauses, H shows a hint.
 // The pause, options and quit screens list their own keys.
 //
 // Try this:
 // - Push a "level complete" state when the player reaches a corner.
-// - Write another transition function: a circle that closes, or a wipe.
+// - Add the transition helper from transitions.c, and slide the pause in.
 //
 // To run it, copy this file over the template's main.c.
 //---------------------------------------------------------
@@ -80,47 +81,6 @@ void DrawDepth(void)
 }
 
 //-------------------------
-// TRANSITIONS
-
-// A transition drawn by the program: the old picture splits down the middle
-// and its halves slide apart, showing the new one behind
-void SplitTransition(float progress, CP_Image from, CP_Image to)
-{
-	const float width = (float)CP_System_GetWindowWidth();
-	const float height = (float)CP_System_GetWindowHeight();
-	const float half = width / 2.0f;
-	const float gap = half * CP_Math_EaseInCubic(progress);
-
-	CP_Settings_ImageMode(CP_POSITION_CORNER);
-	CP_Image_Draw(to, 0.0f, 0.0f, width, height, 255);
-	// the image coordinates are the window's: from (0, 0) to (width, height)
-	CP_Image_DrawSubImage(from, -gap, 0.0f, half, height, 0.0f, 0.0f, half, height, 255);
-	CP_Image_DrawSubImage(from, half + gap, 0.0f, half, height, half, 0.0f, width, height, 255);
-}
-
-#define TRANSITION_CHOICES 8
-const char* transitionNames[TRANSITION_CHOICES] = {
-	"none", "fade", "crossfade", "slide left", "slide right", "slide up", "slide down", "split (drawn by this program)"
-};
-int transitionChoice = 2;
-
-void ApplyTransitionChoice(void)
-{
-	const float seconds = 0.6f;
-	switch (transitionChoice)
-	{
-	case 0: CP_Engine_SetTransition(CP_TRANSITION_NONE, 0.0f); break;
-	case 1: CP_Engine_SetTransition(CP_TRANSITION_FADE, seconds); break;
-	case 2: CP_Engine_SetTransition(CP_TRANSITION_CROSSFADE, seconds); break;
-	case 3: CP_Engine_SetTransition(CP_TRANSITION_SLIDE_LEFT, seconds); break;
-	case 4: CP_Engine_SetTransition(CP_TRANSITION_SLIDE_RIGHT, seconds); break;
-	case 5: CP_Engine_SetTransition(CP_TRANSITION_SLIDE_UP, seconds); break;
-	case 6: CP_Engine_SetTransition(CP_TRANSITION_SLIDE_DOWN, seconds); break;
-	default: CP_Engine_SetTransitionFunction(SplitTransition, 0.8f); break;
-	}
-}
-
-//-------------------------
 // MENU
 
 void menu_init(void)
@@ -129,11 +89,6 @@ void menu_init(void)
 
 void menu_update(void)
 {
-	if (CP_Input_KeyTriggered(KEY_T))
-	{
-		transitionChoice = (transitionChoice + 1) % TRANSITION_CHOICES;
-		ApplyTransitionChoice();
-	}
 	if (CP_Input_KeyTriggered(KEY_ENTER))
 	{
 		CP_Engine_SetNextGameState(game_init, game_update, game_exit);
@@ -142,9 +97,6 @@ void menu_update(void)
 	CP_Graphics_ClearBackground(CP_Color_Create(30, 30, 50, 255));
 	DrawCenteredText("STATE STACK", 180.0f, 70.0f);
 	DrawCenteredText("Enter to play", 300.0f, 28.0f);
-	char text[80];
-	snprintf(text, sizeof(text), "T: transition is %s", transitionNames[transitionChoice]);
-	DrawCenteredText(text, 360.0f, 24.0f);
 	DrawDepth();
 }
 
@@ -156,6 +108,7 @@ CP_Vector player;
 CP_Vector balls[BALL_COUNT];
 CP_Vector ballVelocities[BALL_COUNT];
 CP_Image trail;		// drawn into every frame: the path the player took
+CP_BOOL showTrail = TRUE;	// the options page turns it on and off
 
 void game_init(void)
 {
@@ -237,7 +190,10 @@ void game_update(void)
 
 	CP_Graphics_ClearBackground(CP_Color_Create(20, 40, 40, 255));
 	CP_Settings_ImageMode(CP_POSITION_CORNER);
-	CP_Image_Draw(trail, 0.0f, 0.0f, (float)CP_System_GetWindowWidth(), (float)CP_System_GetWindowHeight(), 255);
+	if (showTrail)
+	{
+		CP_Image_Draw(trail, 0.0f, 0.0f, (float)CP_System_GetWindowWidth(), (float)CP_System_GetWindowHeight(), 255);
+	}
 	CP_Settings_NoStroke();
 	CP_Settings_Fill(CP_Color_Create(240, 90, 80, 255));
 	for (int i = 0; i < BALL_COUNT; ++i)
@@ -306,8 +262,9 @@ void options_update(void)
 {
 	if (CP_Input_KeyTriggered(KEY_T))
 	{
-		transitionChoice = (transitionChoice + 1) % TRANSITION_CHOICES;
-		ApplyTransitionChoice();
+		// the game is frozen and hidden under this page, so the change shows
+		// when the pause and this page have popped
+		showTrail = !showTrail;
 	}
 	if (CP_Input_KeyTriggered(KEY_B))
 	{
@@ -317,7 +274,7 @@ void options_update(void)
 	CP_Graphics_ClearBackground(CP_Color_Create(50, 30, 60, 255));
 	DrawCenteredText("OPTIONS", 180.0f, 56.0f);
 	char text[80];
-	snprintf(text, sizeof(text), "T: transition is %s", transitionNames[transitionChoice]);
+	snprintf(text, sizeof(text), "T: the trail is %s", showTrail ? "on" : "off");
 	DrawCenteredText(text, 280.0f, 24.0f);
 	DrawCenteredText("B: back", 340.0f, 24.0f);
 	DrawDepth();
@@ -379,7 +336,6 @@ int main(void)
 	CP_System_SetWindowSize(800, 600);
 	CP_System_SetWindowTitle("State stack");
 	white = CP_Color_Create(255, 255, 255, 255);
-	ApplyTransitionChoice();
 
 	CP_Engine_SetNextGameState(menu_init, menu_update, NULL);
 	CP_Engine_Run();

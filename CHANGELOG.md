@@ -44,19 +44,6 @@ changes to build with the new version.
     counting time spent stopped.
   - A change asked for in an init or exit function now happens in the next
     frame. Before, it was lost.
-- **Transitions between game states:**
-  `CP_Engine_SetTransition(CP_TRANSITION_CROSSFADE, 0.5f)` makes every
-  change of state after it animate:
-  - `CP_TRANSITION_FADE`: through black;
-  - `CP_TRANSITION_CROSSFADE`;
-  - `CP_TRANSITION_SLIDE_LEFT`, `_RIGHT`, `_UP` or `_DOWN`.
-  
-  Every kind of change animates: a pushed pause fades or slides in over the
-  frozen game, and a popped one out again. A state that is leaving keeps
-  running, without input, until it's off screen, and its exit runs when the
-  transition ends. `CP_Engine_SetTransitionFunction` takes a function you
-  write: it is called every frame of the transition with the progress and
-  the pictures before and after, as images to draw however you like.
 - **Drawing into an image:** `CP_Image_Create(width, height)` makes a blank,
   transparent image. Everything drawn between `CP_Image_BeginDrawing(image)`
   and `CP_Image_EndDrawing()` goes into it instead of the window:
@@ -68,11 +55,15 @@ changes to build with the new version.
   `CP_Image_GetPixelData` and `UpdatePixelData` work on these images as on
   any other.
 - **`Examples/state_stack.c`** shows the stack, pass-through, a HUD drawn by
-  a function, transitions (including one drawn by the program) and a trail
-  drawn into an image. **`Examples/state_effects.c`** shows effects written
-  with ordinary CProcessing functions: easing into slow motion under a
-  level-up box (a time scale of your own, and the sound's pitch), and
-  turning the music down under a pause. `Examples/game_states.c` now pauses
+  a function and a trail drawn into an image. **`Examples/state_effects.c`**
+  shows effects written with ordinary CProcessing functions: easing into
+  slow motion under a level-up box (a time scale of your own, and the
+  sound's pitch), and turning the music down under a pause.
+  **`Examples/transitions.c`** animates changes of state (fade, crossfade,
+  slides, and one the program draws) with a small helper to copy: it takes
+  a screenshot of the old state and draws it over the new one from the
+  post-update function. The old state's exit still runs before the new
+  state's init. `Examples/game_states.c` now pauses
   by pushing a state, not with a flag.
 - **Window and frame rate options:** `CP_System_SetWindowResizable` lets the
   player resize the window (drawing follows the new size), `CP_System_SetVSync`

@@ -249,7 +249,7 @@ static void CP_FramebufferSizeCallback(GLFWwindow* window, int width, int height
 //		bound is never displayed, and the window stays black (SDL documents
 //		the same for SDL_GL_SwapWindow).
 
-#define CP_MAX_LAYERS (CP_MAX_GAME_STATES * 2 + 6)	// states, states leaving in a transition, and spares
+#define CP_MAX_LAYERS (CP_MAX_GAME_STATES + 4)	// one per state, and spares
 
 typedef struct CP_Layer
 {
@@ -402,20 +402,6 @@ static void CP_Layer_Release(int layer)
 	{
 		_layers[layer].inUse = false;
 	}
-}
-
-static void CP_Layer_Copy(int from, int to)
-{
-	if (from < 0 || to < 0 || !_layers[from].framebuffer || !_layers[to].framebuffer)
-	{
-		return;
-	}
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, _layers[from].framebuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _layers[to].framebuffer);
-	glDisable(GL_SCISSOR_TEST);
-	glBlitFramebuffer(0, 0, _layers[from].width, _layers[from].height,
-		0, 0, _layers[to].width, _layers[to].height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	CP_Canvas_Bind();
 }
 
 // The NanoVG image of a layer's texture, for blending it
@@ -741,42 +727,6 @@ static int _inheritLayer = -1;				// the picture the next bottom state starts wi
 static CP_StateSlot* _settingsOwner = NULL;	// the state whose settings are in use
 static int _runningSlot = -1;				// the slot whose function is running
 
-//---------------------------------------------------------
-// Transitions. While one plays, the states that left are "ghosts": each
-// keeps its layer, the one that was on top keeps running (without input),
-// and their exits run when the transition ends.
-
-typedef struct CP_Ghost
-{
-	CP_GSL_State state;
-	CP_StateSlot slot;
-	bool running;
-} CP_Ghost;
-
-typedef struct CP_TransitionPlay
-{
-	bool active;
-	CP_TRANSITION type;
-	CP_TransitionFunction function;	// for a transition drawn by the program
-	float duration;
-	float elapsed;
-	CP_GSL_RequestKind kind;		// the change it shows
-	CP_Ghost ghosts[CP_MAX_GAME_STATES];	// bottom first
-	int ghostCount;
-	int fromLayer;					// the pictures before and after (put together when needed)
-	int toLayer;
-	int outputLayer;				// what a transition function draws
-} CP_TransitionPlay;
-
-static CP_TRANSITION _transitionType = CP_TRANSITION_NONE;
-static CP_TransitionFunction _transitionFunction = NULL;
-static float _transitionSeconds = 0.0f;
-
-static CP_TransitionPlay _transition = { .fromLayer = -1, .toLayer = -1, .outputLayer = -1 };
-static bool _transitionPending = false;	// the request being applied will play a transition
-static int _pendingOldTop = -1;
-static CP_Ghost* _runningGhost = NULL;	// a ghost whose function is running
-
 static int CP_GameStates_Top(void)
 {
 	return _stack.depth - 1;
@@ -810,62 +760,6 @@ static void CP_GameStates_MakeCurrent(int index)
 {
 	CP_GameStates_Activate(&_slots[index], index == CP_GameStates_Top());
 	_runningSlot = index;
-	_runningGhost = NULL;
-}
-
-static void CP_GameStates_MakeGhostCurrent(CP_Ghost* ghost)
-{
-	CP_GameStates_Activate(&ghost->slot, false);
-	_runningSlot = -1;
-	_runningGhost = ghost;
-}
-
-// The bottom ghost's layer: the picture a new bottom state starts with
-static int CP_Transition_BottomGhostLayer(void)
-{
-	for (int i = 0; i < _transition.ghostCount; ++i)
-	{
-		if (_transition.ghosts[i].slot.bottom)
-		{
-			return _transition.ghosts[i].slot.layer;
-		}
-	}
-	return -1;
-}
-
-// End the transition: the ghosts exit (the top one first) and give back
-// their layers
-static void CP_Transition_Finish(void)
-{
-	if (!_transition.active)
-	{
-		return;
-	}
-	_transition.active = false;
-	for (int i = _transition.ghostCount - 1; i >= 0; --i)
-	{
-		CP_Ghost* ghost = &_transition.ghosts[i];
-		CP_GameStates_MakeGhostCurrent(ghost);
-		if (ghost->state.exit)
-		{
-			ghost->state.exit();
-		}
-		CP_Layer_Release(ghost->slot.layer);
-		if (_settingsOwner == &ghost->slot)
-		{
-			_settingsOwner = NULL;
-		}
-	}
-	_transition.ghostCount = 0;
-	_runningGhost = NULL;
-	CP_Layer_Release(_transition.fromLayer);
-	CP_Layer_Release(_transition.toLayer);
-	CP_Layer_Release(_transition.outputLayer);
-	_transition.fromLayer = _transition.toLayer = _transition.outputLayer = -1;
-	if (_stack.depth > 0)
-	{
-		CP_GameStates_MakeCurrent(CP_GameStates_Top());
-	}
 }
 
 static void CP_GameStates_Enter(void* user, int index, CP_GSL_RequestKind why)
@@ -877,8 +771,7 @@ static void CP_GameStates_Enter(void* user, int index, CP_GSL_RequestKind why)
 	if (index == 0)
 	{
 		// A new bottom state draws on the canvas, starting with what the last
-		// one drew, as it always has. (In a transition the last one still
-		// draws on its own, so this one starts with a copy.)
+		// one drew, as it always has
 		slot->bottom = true;
 		if (_inheritLayer >= 0)
 		{
@@ -888,7 +781,6 @@ static void CP_GameStates_Enter(void* user, int index, CP_GSL_RequestKind why)
 		else
 		{
 			slot->layer = CP_Layer_Acquire(0.0f, 0.0f, 0.0f, 1.0f);
-			CP_Layer_Copy(CP_Transition_BottomGhostLayer(), slot->layer);
 		}
 	}
 	else
@@ -923,32 +815,19 @@ static void CP_GameStates_Leave(void* user, int index, CP_GSL_RequestKind why)
 	CP_StateSlot* slot = &_slots[index];
 	CP_GameStates_MakeCurrent(index);
 
-	if (_transitionPending && _transition.ghostCount < CP_MAX_GAME_STATES)
+	const FunctionPtr exit = _stack.states[index].exit;
+	if (exit)
 	{
-		// It stays on screen, as a ghost, until the transition ends. (Ghosts
-		// are added top first; CP_Transition_Start puts them bottom first.)
-		slot->settings = *GetDrawInfo();
-		CP_Ghost* ghost = &_transition.ghosts[_transition.ghostCount++];
-		ghost->state = _stack.states[index];
-		ghost->slot = *slot;
-		ghost->running = index == _pendingOldTop;
+		exit();
+	}
+	if (index == 0 && why != CP_GSL_POP)
+	{
+		// the next bottom state starts with this picture
+		_inheritLayer = slot->layer;
 	}
 	else
 	{
-		const FunctionPtr exit = _stack.states[index].exit;
-		if (exit)
-		{
-			exit();
-		}
-		if (index == 0 && why != CP_GSL_POP)
-		{
-			// the next bottom state starts with this picture
-			_inheritLayer = slot->layer;
-		}
-		else
-		{
-			CP_Layer_Release(slot->layer);
-		}
+		CP_Layer_Release(slot->layer);
 	}
 	slot->layer = -1;
 	// its settings stay in use, so the next state starts with them
@@ -993,19 +872,9 @@ static void CP_GameStates_Warn(CP_GSL_Result result)
 
 static void CP_GameStates_Request(CP_GSL_RequestKind kind, FunctionPtr init, FunctionPtr update, FunctionPtr exit)
 {
-	if (_runningGhost)
-	{
-		// a state that is leaving can't change the stack
-		return;
-	}
 	// a new state lets the ones under it be seen, frozen, until it says otherwise
 	CP_GSL_State state = { init, update, exit, CP_STATE_FROZEN };
 	CP_GameStates_Warn(CP_GSL_Ask(&_stack, kind, state));
-}
-
-static bool CP_Transition_IsSet(void)
-{
-	return _transitionSeconds > 0.0f && (_transitionType != CP_TRANSITION_NONE || _transitionFunction != NULL);
 }
 
 // Apply the changes asked for since the last frame
@@ -1015,34 +884,7 @@ static void CP_GameStates_ApplyRequests(void)
 	const int count = CP_GSL_TakeRequests(&_stack, requests);
 	for (int i = 0; i < count; ++i)
 	{
-		// a change during a transition ends that transition first
-		CP_Transition_Finish();
-
-		// the very first state appears at once
-		_transitionPending = CP_Transition_IsSet() && _stack.depth > 0;
-		_pendingOldTop = CP_GameStates_Top();
-		_transition.ghostCount = 0;
-
-		const CP_GSL_Result result = CP_GSL_Apply(&_stack, &requests[i], &_hooks);
-		CP_GameStates_Warn(result);
-
-		if (_transitionPending && result == CP_GSL_DONE)
-		{
-			_transition.active = true;
-			_transition.type = _transitionType;
-			_transition.function = _transitionFunction;
-			_transition.duration = _transitionSeconds;
-			_transition.elapsed = 0.0f;
-			_transition.kind = requests[i].kind;
-			// bottom first
-			for (int a = 0, b = _transition.ghostCount - 1; a < b; ++a, --b)
-			{
-				CP_Ghost swap = _transition.ghosts[a];
-				_transition.ghosts[a] = _transition.ghosts[b];
-				_transition.ghosts[b] = swap;
-			}
-		}
-		_transitionPending = false;
+		CP_GameStates_Warn(CP_GSL_Apply(&_stack, &requests[i], &_hooks));
 	}
 	if (count > 0 && _stack.depth > 0)
 	{
@@ -1050,33 +892,11 @@ static void CP_GameStates_ApplyRequests(void)
 	}
 }
 
-// Run this frame's updates: a transition's leaving state, the states running
-// under the top one (from the bottom up, each on its own layer and without
-// input), then the top one
+// Run this frame's updates: the states running under the top one (from the
+// bottom up, each on its own layer and without input), then the top one
 static void CP_GameStates_Update(void)
 {
 	const float dt = CP_System_GetDt();
-	if (_transition.active)
-	{
-		_transition.elapsed += dt;
-		if (_transition.elapsed >= _transition.duration)
-		{
-			CP_Transition_Finish();
-		}
-		else
-		{
-			for (int i = 0; i < _transition.ghostCount; ++i)
-			{
-				CP_Ghost* ghost = &_transition.ghosts[i];
-				if (ghost->running && ghost->state.update)
-				{
-					CP_GameStates_MakeGhostCurrent(ghost);
-					ghost->slot.time += dt;
-					ghost->state.update();
-				}
-			}
-		}
-	}
 
 	const int top = CP_GameStates_Top();
 	if (top < 0)
@@ -1117,165 +937,10 @@ static int CP_GameStates_AddVisible(CP_ComposeItem* items, int count, const CP_G
 	return count;
 }
 
-// The states on the stack (the first `depth` of them) and, on top, the
-// ghosts if `withGhosts`
-static int CP_GameStates_AddStack(CP_ComposeItem* items, int count, int depth, bool withGhosts)
-{
-	CP_GSL_State states[CP_MAX_GAME_STATES * 2];
-	const CP_StateSlot* slots[CP_MAX_GAME_STATES * 2];
-	int n = 0;
-	for (int i = 0; i < depth; ++i, ++n)
-	{
-		states[n] = _stack.states[i];
-		slots[n] = &_slots[i];
-	}
-	for (int i = 0; withGhosts && i < _transition.ghostCount; ++i, ++n)
-	{
-		states[n] = _transition.ghosts[i].state;
-		slots[n] = &_transition.ghosts[i].slot;
-	}
-	return CP_GameStates_AddVisible(items, count, states, slots, n);
-}
-
-// The picture before the change the transition shows, and after it
-static int CP_Transition_Before(CP_ComposeItem* items)
-{
-	switch (_transition.kind)
-	{
-	case CP_GSL_PUSH:
-		return CP_GameStates_AddStack(items, 0, _stack.depth - 1, false);
-	case CP_GSL_POP:
-		return CP_GameStates_AddStack(items, 0, _stack.depth, true);
-	default:	// a set: the ghosts were the whole stack
-		return CP_GameStates_AddStack(items, 0, 0, true);
-	}
-}
-
-static int CP_Transition_After(CP_ComposeItem* items)
-{
-	return CP_GameStates_AddStack(items, 0, _stack.depth, false);
-}
-
-// Put a picture together in a spare layer (made when first needed)
-static int CP_Transition_ComposeInto(int* layer, const CP_ComposeItem* items, int count)
-{
-	if (*layer < 0)
-	{
-		*layer = CP_Layer_Acquire(0.0f, 0.0f, 0.0f, 1.0f);
-		if (*layer < 0)
-		{
-			return -1;
-		}
-	}
-	CP_Compose(items, count, _layers[*layer].framebuffer, _layers[*layer].width, _layers[*layer].height);
-	return *layer;
-}
-
-static void CP_Transition_DrawFunction(float progress, int from, int to);
-static bool CP_Transition_InFunction(void);
-
-static int CP_Transition_BuildPicture(CP_ComposeItem* items)
-{
-	const float progress = CP_Math_ClampFloat(_transition.elapsed / _transition.duration, 0.0f, 1.0f);
-	const float eased = CP_Math_EaseInOutCubic(progress);
-	CP_ComposeItem before[CP_MAX_COMPOSE_ITEMS];
-	CP_ComposeItem after[CP_MAX_COMPOSE_ITEMS];
-	const int beforeCount = CP_Transition_Before(before);
-	const int afterCount = CP_Transition_After(after);
-	int count = 0;
-
-	if (_transition.function || _transition.type == CP_TRANSITION_FADE || _transition.type == CP_TRANSITION_CROSSFADE)
-	{
-		// these work on the whole pictures
-		const int from = CP_Transition_ComposeInto(&_transition.fromLayer, before, beforeCount);
-		const int to = CP_Transition_ComposeInto(&_transition.toLayer, after, afterCount);
-		if (from < 0 || to < 0)
-		{
-			memcpy(items, after, sizeof(CP_ComposeItem) * (size_t)afterCount);
-			return afterCount;
-		}
-		if (_transition.function)
-		{
-			CP_Transition_DrawFunction(progress, from, to);
-			CP_ComposeItem item = { _transition.outputLayer, true, 1.0f, 0.0f, 0.0f };
-			items[count++] = item;
-		}
-		else if (_transition.type == CP_TRANSITION_CROSSFADE)
-		{
-			CP_ComposeItem item = { from, true, 1.0f, 0.0f, 0.0f };
-			items[count++] = item;
-			item.layer = to;
-			item.bottom = false;
-			item.alpha = eased;
-			items[count++] = item;
-		}
-		else
-		{
-			// fade: out to black, then in from black
-			const bool second = eased >= 0.5f;
-			CP_ComposeItem item = { second ? to : from, true, 1.0f, 0.0f, 0.0f };
-			items[count++] = item;
-			CP_ComposeItem cover = { -1, false, second ? 2.0f * (1.0f - eased) : 2.0f * eased, 0.0f, 0.0f };
-			items[count++] = cover;
-		}
-		return count;
-	}
-
-	// Slides move only the states that come or go
-	float dirX = 0.0f, dirY = 0.0f;
-	switch (_transition.type)
-	{
-	case CP_TRANSITION_SLIDE_LEFT:  dirX = -1.0f; break;
-	case CP_TRANSITION_SLIDE_RIGHT: dirX = 1.0f; break;
-	case CP_TRANSITION_SLIDE_UP:    dirY = -1.0f; break;
-	default:                        dirY = 1.0f; break;	// down
-	}
-	const float width = (float)_CORE.window_width;
-	const float height = (float)_CORE.window_height;
-	const float inX = -dirX * width * (1.0f - eased), inY = -dirY * height * (1.0f - eased);
-	const float outX = dirX * width * eased, outY = dirY * height * eased;
-
-	switch (_transition.kind)
-	{
-	case CP_GSL_PUSH:
-		memcpy(items, after, sizeof(CP_ComposeItem) * (size_t)afterCount);
-		count = afterCount;
-		if (count > 0 && items[count - 1].layer == _slots[CP_GameStates_Top()].layer)
-		{
-			items[count - 1].dx = inX;
-			items[count - 1].dy = inY;
-		}
-		return count;
-	case CP_GSL_POP:
-		memcpy(items, after, sizeof(CP_ComposeItem) * (size_t)afterCount);
-		count = afterCount;
-		for (int i = 0; i < _transition.ghostCount; ++i)
-		{
-			CP_ComposeItem item = { _transition.ghosts[i].slot.layer, false, 1.0f, outX, outY };
-			items[count++] = item;
-		}
-		return count;
-	default:
-		for (int i = 0; i < beforeCount; ++i)
-		{
-			before[i].dx = outX;
-			before[i].dy = outY;
-			items[count++] = before[i];
-		}
-		for (int i = 0; i < afterCount; ++i)
-		{
-			after[i].dx = inX;
-			after[i].dy = inY;
-			items[count++] = after[i];
-		}
-		return count;
-	}
-}
-
 // The layers that make up the picture on screen, from the bottom up
 static int CP_GameStates_BuildPicture(CP_ComposeItem* items)
 {
-	if (_stack.depth == 0 && !_transition.active)
+	if (_stack.depth == 0)
 	{
 		int count = 0;
 		if (_drawLayer >= 0)
@@ -1285,11 +950,12 @@ static int CP_GameStates_BuildPicture(CP_ComposeItem* items)
 		}
 		return count;
 	}
-	if (_transition.active && !CP_Transition_InFunction())
+	const CP_StateSlot* slots[CP_MAX_GAME_STATES];
+	for (int i = 0; i < _stack.depth; ++i)
 	{
-		return CP_Transition_BuildPicture(items);
+		slots[i] = &_slots[i];
 	}
-	return CP_GameStates_AddStack(items, 0, _stack.depth, false);
+	return CP_GameStates_AddVisible(items, 0, _stack.states, slots, _stack.depth);
 }
 
 // A freed font must not stay in a state's saved settings (CP_Text.c)
@@ -1301,70 +967,8 @@ void CP_GameStates_ForgetFont(CP_Font font)
 		{
 			_slots[i].settings.font = NULL;
 		}
-		if (_transition.ghosts[i].slot.settings.font == font)
-		{
-			_transition.ghosts[i].slot.settings.font = NULL;
-		}
 	}
 }
-
-// A transition the program draws: it gets the pictures before and after as
-// images, and draws with the usual functions, with the default settings,
-// into a layer that is then shown
-static CP_Image_Struct _transitionFromImage;
-static CP_Image_Struct _transitionToImage;
-static bool _inTransitionFunction = false;
-
-static bool CP_Transition_InFunction(void)
-{
-	return _inTransitionFunction;
-}
-
-static void CP_Transition_DrawFunction(float progress, int from, int to)
-{
-	if (_transition.outputLayer < 0)
-	{
-		_transition.outputLayer = CP_Layer_Acquire(0.0f, 0.0f, 0.0f, 1.0f);
-		if (_transition.outputLayer < 0)
-		{
-			return;
-		}
-	}
-	const CP_Layer* output = &_layers[_transition.outputLayer];
-	glBindFramebuffer(GL_FRAMEBUFFER, output->framebuffer);
-	glViewport(0, 0, output->width, output->height);
-	glDisable(GL_SCISSOR_TEST);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-	_transitionFromImage.handle = CP_Layer_Image(from);
-	_transitionFromImage.w = _CORE.window_width;
-	_transitionFromImage.h = _CORE.window_height;
-	_transitionToImage.handle = CP_Layer_Image(to);
-	_transitionToImage.w = _CORE.window_width;
-	_transitionToImage.h = _CORE.window_height;
-
-	const int drawLayer = _drawLayer;
-	const bool premultiplied = _drawLayerPremultiplied;
-	_drawLayer = _transition.outputLayer;
-	_drawLayerPremultiplied = false;
-
-	nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
-	CP_Settings_Save();
-	CP_DrawInfoPtr DI = GetDrawInfo();
-	CP_Settings_InitDefaults(DI);
-	CP_Settings_ApplyAll();
-	nvgResetTransform(_CORE.nvg);
-	_inTransitionFunction = true;
-	_transition.function(progress, &_transitionFromImage, &_transitionToImage);
-	_inTransitionFunction = false;
-	CP_Settings_Restore();
-	nvgEndFrame(_CORE.nvg);
-
-	_drawLayer = drawLayer;
-	_drawLayerPremultiplied = premultiplied;
-}
-
 
 //---------------------------------------------------------
 // ENGINE:
@@ -1413,7 +1017,6 @@ CP_API void CP_Engine_Run(void)
 	CP_Canvas_Bind();
 	nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
 	_nvgFrameOpen = true;
-	CP_Transition_Finish();
 	CP_GSL_LeaveAll(&_stack, &_hooks, CP_GSL_SET_FORCED);
 	nvgEndFrame(_CORE.nvg);
 	_nvgFrameOpen = false;
@@ -1459,10 +1062,6 @@ CP_API void CP_Engine_PushGameState(FunctionPtr init, FunctionPtr update, Functi
 // takes the top state off.
 CP_API void CP_Engine_PopGameState(void)
 {
-	if (_runningGhost)
-	{
-		return;
-	}
 	CP_GameStates_Warn(CP_GSL_AskPop(&_stack, _runningSlot));
 }
 
@@ -1472,7 +1071,7 @@ CP_API void CP_Engine_PopGameState(void)
 // CP_STATE_NONE stops them and hides them. Usually called in a state's init.
 CP_API void CP_Engine_SetGameStatePassThrough(CP_STATE passThrough)
 {
-	if (_runningGhost || _runningSlot < 0 || _runningSlot >= _stack.depth)
+	if (_runningSlot < 0 || _runningSlot >= _stack.depth)
 	{
 		return;
 	}
@@ -1486,43 +1085,16 @@ CP_API int CP_Engine_GetGameStateDepth(void)
 
 CP_API CP_BOOL CP_Engine_IsTopGameState(void)
 {
-	return (!_runningGhost && _runningSlot >= 0 && _runningSlot == CP_GameStates_Top()) ? TRUE : FALSE;
+	return (_runningSlot >= 0 && _runningSlot == CP_GameStates_Top()) ? TRUE : FALSE;
 }
 
 CP_API float CP_Engine_GetGameStateTime(void)
 {
-	if (_runningGhost)
-	{
-		return _runningGhost->slot.time;
-	}
 	if (_runningSlot >= 0 && _runningSlot < _stack.depth)
 	{
 		return _slots[_runningSlot].time;
 	}
 	return 0.0f;
-}
-
-// From now on, a change of game state shows this transition, taking this
-// many seconds. CP_TRANSITION_NONE (or 0 seconds) changes at once again.
-CP_API void CP_Engine_SetTransition(CP_TRANSITION transition, float seconds)
-{
-	if (transition < CP_TRANSITION_NONE || transition > CP_TRANSITION_SLIDE_DOWN)
-	{
-		transition = CP_TRANSITION_NONE;
-	}
-	_transitionType = transition;
-	_transitionFunction = NULL;
-	_transitionSeconds = transition == CP_TRANSITION_NONE ? 0.0f : seconds;
-}
-
-// A transition the program draws: the function is called every frame of it
-// with the progress (0 to 1) and the pictures before and after. NULL changes
-// at once again.
-CP_API void CP_Engine_SetTransitionFunction(CP_TransitionFunction transition, float seconds)
-{
-	_transitionType = CP_TRANSITION_NONE;
-	_transitionFunction = transition;
-	_transitionSeconds = transition ? seconds : 0.0f;
 }
 
 CP_API void CP_Engine_SetPreUpdateFunction(FunctionPtr preUpdateFunction)
