@@ -14,8 +14,9 @@ static void assertColorWithin(unsigned char tolerance, CP_Color expected, CP_Col
 
 void test_tier2_gamestate_push_and_pop_run_inits_and_exits_in_order(void)
 {
-    // no exit for the harness when A is pushed, no init again when A pops
-    TEST_ASSERT_EQUAL_STRING("A.init B.init B.exit C.init C.exit A.exit", tier2_scalars.stackLog);
+    // no exit for the harness when A is pushed, no init again when A pops;
+    // A popping from under F takes F off first
+    TEST_ASSERT_EQUAL_STRING("A.init B.init B.exit C.init C.exit F.init F.exit A.exit", tier2_scalars.stackLog);
     TEST_ASSERT_EQUAL_INT(2, tier2_scalars.stackDepthInPushedInit);
     TEST_ASSERT_EQUAL_INT(1, tier2_scalars.stackHarnessDepthAfter);
 }
@@ -28,7 +29,7 @@ void test_tier2_gamestate_a_pushed_state_draws_over_the_frozen_one_below(void)
     assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_GAMESTATE_STACK, 100, 100));
 }
 
-void test_tier2_gamestate_hidden_mode_hides_the_states_below(void)
+void test_tier2_gamestate_passing_none_through_hides_the_states_below(void)
 {
     const CP_Color pixel = tier2_stackHiddenPixels[10 * TIER2_CANVAS_SIZE + 10];
     assertColorWithin(2, CP_Color_Create(0, 0, 0, 255), pixel);
@@ -41,9 +42,9 @@ void test_tier2_gamestate_queries_in_a_pushed_state(void)
     TEST_ASSERT_TRUE(tier2_scalars.stackRunningStateIsTop);
 }
 
-void test_tier2_gamestate_running_mode_keeps_the_state_below_running_without_input(void)
+void test_tier2_gamestate_passing_passive_through_keeps_the_state_below_running_without_input(void)
 {
-    TEST_ASSERT_EQUAL_INT(1, tier2_scalars.stackUpdatesWhileRunningBelow);
+    TEST_ASSERT_EQUAL_INT(2, tier2_scalars.stackUpdatesWhileRunningBelow);   // under B, then under F
     TEST_ASSERT_TRUE(tier2_scalars.stackRunningBelowIsNotTop);
     TEST_ASSERT_TRUE(tier2_scalars.stackRunningBelowKeyMuted);
     TEST_ASSERT_EQUAL_FLOAT(tier2_scalars.stackMouseXWhenCovered, tier2_scalars.stackRunningBelowMouseX);
@@ -51,8 +52,8 @@ void test_tier2_gamestate_running_mode_keeps_the_state_below_running_without_inp
 
 void test_tier2_gamestate_a_frozen_state_is_not_updated(void)
 {
-    // A ran in frames 0, 1 (under B), 2 and 4, not in 3 (under C)
-    TEST_ASSERT_EQUAL_INT(4, tier2_scalars.stackUpdatesOfFirstPushed);
+    // A ran in frames 0, 1 (under B), 2, 4 and 5 (under F), not in 3 (under C)
+    TEST_ASSERT_EQUAL_INT(5, tier2_scalars.stackUpdatesOfFirstPushed);
 }
 
 void test_tier2_gamestate_each_state_keeps_its_own_settings(void)

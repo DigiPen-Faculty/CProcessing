@@ -404,7 +404,7 @@ CP_BOOL CP_Input_IsValidGamepadIndex(unsigned index)
 	return index < CP_NUM_GAMEPADS;
 }
 
-// A game state running under another one (CP_BELOW_RUNNING) gets no input:
+// A game state running under another one (CP_STATE_PASSIVE) gets no input:
 // while it runs, keys and buttons read as up, the wheel and text are empty,
 // sticks and triggers rest, and the mouse stays where it was when the state
 // was covered. (The engine turns this on and off around each state.)

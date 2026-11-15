@@ -1142,14 +1142,18 @@ static void Scn_SoundRoundTrip(void)
 // (CProcessing_Tests/Tests/test_cp_input_logic.c).
 //-------------------------
 // The game state stack. The harness (the bottom state) draws red and pushes
-// state A, which runs for a few frames while the harness is frozen:
+// state A, which runs for a few frames while the harness is frozen (the
+// default pass-through):
 //   frame 0  A draws a half-black veil and a green square over the frozen
-//            red harness (captured as this scenario), and pushes B with
-//            CP_BELOW_RUNNING
+//            red harness (captured as this scenario), and pushes B, which
+//            lets CP_STATE_PASSIVE through
 //   frame 1  A runs under B, without input; B pops
-//   frame 2  A has its own settings back, and pushes C with CP_BELOW_HIDDEN
+//   frame 2  A has its own settings back, and pushes C, which lets
+//            CP_STATE_NONE through
 //   frame 3  C draws nothing: everything under it is hidden (captured), pops
-//   frame 4  A pops; the harness carries on in the next frame
+//   frame 4  A pushes F, which lets CP_STATE_PASSIVE through
+//   frame 5  A, running under F, pops: F and A both leave, and the harness
+//            carries on in the next frame
 static bool stackAwaitingResume = false;
 static int stackAFrame = 0;
 static const CP_Color kStackHarnessFill = { 10, 20, 30, 255 };
@@ -1170,6 +1174,7 @@ static void StackLog(const char* what)
 static void StackB_Init(void)
 {
     StackLog("B.init");
+    CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE);
     tier2_scalars.stackPushInheritsSettings = SameColor(CP_Settings_GetFill(), kStackAFill);
 }
 static void StackB_Update(void)
@@ -1180,13 +1185,17 @@ static void StackB_Update(void)
 }
 static void StackB_Exit(void) { StackLog("B.exit"); }
 
-static void StackC_Init(void) { StackLog("C.init"); }
+static void StackC_Init(void) { StackLog("C.init"); CP_Engine_SetGameStatePassThrough(CP_STATE_NONE); }
 static void StackC_Update(void)
 {
     CaptureInto(tier2_stackHiddenPixels);
     CP_Engine_PopGameState();
 }
 static void StackC_Exit(void) { StackLog("C.exit"); }
+
+static void StackF_Init(void) { StackLog("F.init"); CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE); }
+static void StackF_Update(void) {}
+static void StackF_Exit(void) { StackLog("F.exit"); }
 
 static void StackA_Init(void)
 {
@@ -1204,6 +1213,11 @@ static void StackA_Update(void)
         tier2_scalars.stackRunningBelowIsNotTop = TRUE;
         tier2_scalars.stackRunningBelowKeyMuted = !CP_Input_KeyDown(KEY_ANY) && !CP_Input_MouseDown(MOUSE_BUTTON_LEFT);
         tier2_scalars.stackRunningBelowMouseX = CP_Input_GetMouseX();
+        if (stackAFrame == 3)
+        {
+            // under F: takes F off too
+            CP_Engine_PopGameState();
+        }
         return;
     }
     switch (stackAFrame++)
@@ -1218,14 +1232,16 @@ static void StackA_Update(void)
         tier2_scalars.stackPushedTime = CP_Engine_GetGameStateTime();
         CP_Settings_Fill(kStackAFill);
         tier2_scalars.stackMouseXWhenCovered = CP_Input_GetMouseX();
-        CP_Engine_PushGameStateAdvanced(StackB_Init, StackB_Update, StackB_Exit, CP_BELOW_RUNNING);
+        CP_Engine_PushGameState(StackB_Init, StackB_Update, StackB_Exit);
         break;
     case 1:
         tier2_scalars.stackSettingsBackAfterPop = SameColor(CP_Settings_GetFill(), kStackAFill);
-        CP_Engine_PushGameStateAdvanced(StackC_Init, StackC_Update, StackC_Exit, CP_BELOW_HIDDEN);
+        CP_Engine_PushGameState(StackC_Init, StackC_Update, StackC_Exit);
+        break;
+    case 2:
+        CP_Engine_PushGameState(StackF_Init, StackF_Update, StackF_Exit);
         break;
     default:
-        CP_Engine_PopGameState();
         break;
     }
 }
@@ -1359,7 +1375,9 @@ static void Scn_ImageDrawInto(void)
 
 // Pushed on the next-to-last frame, running, so the harness keeps going:
 // still on the stack when the program ends, its exit must run
-static void ShutdownProbe_Update(void) {}
+// pushed with no init, so it says what it lets through in its update: the
+// harness under it misses one frame, then keeps running
+static void ShutdownProbe_Update(void) { CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE); }
 static void ShutdownProbe_Exit(void) { tier2_scalars.stackShutdownExitRan = TRUE; }
 
 static void Scn_InputQuiescentDefaults(void)
@@ -1706,7 +1724,7 @@ static void HarnessUpdate(void)
 
     if (scenarioIndex == SCN_COUNT - 2)
     {
-        CP_Engine_PushGameStateAdvanced(NULL, ShutdownProbe_Update, ShutdownProbe_Exit, CP_BELOW_RUNNING);
+        CP_Engine_PushGameState(NULL, ShutdownProbe_Update, ShutdownProbe_Exit);
     }
 
     if (scenarioIndex >= SCN_COUNT - 1)

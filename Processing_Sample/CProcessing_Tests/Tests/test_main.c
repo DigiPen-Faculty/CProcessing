@@ -222,7 +222,10 @@ int main(void)
     RUN_TEST(test_gamestate_stack_and_queue_limits);
     RUN_TEST(test_gamestate_which_states_run);
     RUN_TEST(test_gamestate_which_states_are_seen);
-    RUN_TEST(test_gamestate_a_bottom_state_is_never_hidden_or_running_below);
+    RUN_TEST(test_gamestate_a_set_state_starts_with_the_default_pass_through);
+    RUN_TEST(test_gamestate_pass_throughs_combine);
+    RUN_TEST(test_gamestate_pop_from_below_the_top_takes_the_states_above_too);
+    RUN_TEST(test_gamestate_pop_from_a_state_that_left_does_nothing);
 
     // test_cp_input_logic.c
     RUN_TEST(test_inputlogic_triggered_truth_table);

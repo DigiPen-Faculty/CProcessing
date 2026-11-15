@@ -12,28 +12,36 @@ changes to build with the new version.
 
 ### Added
 
-- **A stack of game states, for pause menus and more:**
-  `CP_Engine_PushGameState` puts a state on top of the current one, and
-  `CP_Engine_PopGameState` takes it off again. The state underneath stops,
-  without its exit running, and its last picture stays visible behind the new
-  one. When the top state is popped, the one underneath carries on where it
-  was, without its init running. So a pause menu is a state of its own that
-  shows the frozen game behind it, with no flags.
-  - `CP_Engine_SetNextGameState` works as before. From a stack, it ends every
-    state, top first.
+- **A stack of game states, for pause menus and more:** think of states as
+  cards on a table. `CP_Engine_SetNextGameState` clears the table and puts
+  down a new card, as it always has: use it for a new part of the game.
+  `CP_Engine_PushGameState` puts a card on top of the others: use it when the
+  game stays where it is but something comes up, like a pause menu or a
+  dialog box. The states underneath stop, without their exits running, and
+  stay visible behind the new one. `CP_Engine_PopGameState` takes the card
+  off again, and the state underneath carries on where it was, without its
+  init running. So a pause menu is a state of its own that shows the frozen
+  game behind it, with no flags.
+  - `CP_Engine_PopGameState` takes off the state that calls it, with any
+    states above it.
   - When the program ends, every state on the stack exits, not only the top
     one.
   - Each state keeps its own drawing settings while another state draws.
-  - `CP_Engine_PushGameStateAdvanced` chooses what happens to the states
-    underneath:
-    - `CP_BELOW_FROZEN`, the default;
-    - `CP_BELOW_RUNNING`: they keep running and drawing, but get no input,
-      for a dialog over a live world;
-    - `CP_BELOW_HIDDEN`: they stop and can't be seen.
+  - Only the top state gets input.
+  - `CP_Engine_SetGameStatePassThrough` lets a state choose what the states
+    under it do, usually in its init:
+    - `CP_STATE_FROZEN`, the default: they stop and stay visible;
+    - `CP_STATE_PASSIVE`: they keep running and drawing, without input, for
+      a dialog over a world that keeps moving;
+    - `CP_STATE_NONE`: they stop and can't be seen, for a page that fills
+      the window.
+    
+    The values are bits (`CP_STATE_UPDATING`, `CP_STATE_VISIBLE`), and a
+    state under several gets only what all of them let through.
   - `CP_Engine_GetGameStateDepth`, `CP_Engine_IsTopGameState` and
     `CP_Engine_GetGameStateTime` tell a state about itself.
     `CP_Engine_GetGameStateTime` gives the seconds a state has run, not
-    counting time spent frozen.
+    counting time spent stopped.
   - A change asked for in an init or exit function now happens in the next
     frame. Before, it was lost.
 - **Transitions between game states:**
@@ -59,9 +67,13 @@ changes to build with the new version.
   a minimap, a trail that fades, a picture to save as a screenshot.
   `CP_Image_GetPixelData` and `UpdatePixelData` work on these images as on
   any other.
-- **`Examples/state_stack.c`** shows the stack, the modes, transitions
-  (including one drawn by the program) and a trail drawn into an image.
-  `Examples/game_states.c` now pauses by pushing a state, not with a flag.
+- **`Examples/state_stack.c`** shows the stack, pass-through, a HUD drawn by
+  a function, transitions (including one drawn by the program) and a trail
+  drawn into an image. **`Examples/state_effects.c`** shows effects written
+  with ordinary CProcessing functions: easing into slow motion under a
+  level-up box (a time scale of your own, and the sound's pitch), and
+  turning the music down under a pause. `Examples/game_states.c` now pauses
+  by pushing a state, not with a flag.
 - **Window and frame rate options:** `CP_System_SetWindowResizable` lets the
   player resize the window (drawing follows the new size), `CP_System_SetVSync`
   turns vsync on, `CP_System_IsFullscreen` tells if the window is fullscreen,

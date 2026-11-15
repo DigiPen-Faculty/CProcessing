@@ -991,14 +991,15 @@ static void CP_GameStates_Warn(CP_GSL_Result result)
 	}
 }
 
-static void CP_GameStates_Request(CP_GSL_RequestKind kind, FunctionPtr init, FunctionPtr update, FunctionPtr exit, CP_BELOW_MODE below)
+static void CP_GameStates_Request(CP_GSL_RequestKind kind, FunctionPtr init, FunctionPtr update, FunctionPtr exit)
 {
 	if (_runningGhost)
 	{
 		// a state that is leaving can't change the stack
 		return;
 	}
-	CP_GSL_State state = { init, update, exit, below };
+	// a new state lets the ones under it be seen, frozen, until it says otherwise
+	CP_GSL_State state = { init, update, exit, CP_STATE_FROZEN };
 	CP_GameStates_Warn(CP_GSL_Ask(&_stack, kind, state));
 }
 
@@ -1434,37 +1435,48 @@ CP_API void CP_Engine_Terminate(void)
 // state. update must have a valid input function, init and exit may be NULL.
 CP_API void CP_Engine_SetNextGameState(FunctionPtr init, FunctionPtr update, FunctionPtr exit)
 {
-	CP_GameStates_Request(CP_GSL_SET, init, update, exit, CP_BELOW_FROZEN);
+	CP_GameStates_Request(CP_GSL_SET, init, update, exit);
 }
 
 // The same, but it also restarts the state it's already in: its exit runs,
 // then its init.
 CP_API void CP_Engine_SetNextGameStateForced(FunctionPtr init, FunctionPtr update, FunctionPtr exit)
 {
-	CP_GameStates_Request(CP_GSL_SET_FORCED, init, update, exit, CP_BELOW_FROZEN);
+	CP_GameStates_Request(CP_GSL_SET_FORCED, init, update, exit);
 }
 
-// Put a state on top of the current one, like a pause menu: the one below
-// stops, and its last picture stays visible behind the new one
+// Put a state on top of the others, like a pause menu: the ones under it stay,
+// stopped, and can still be seen behind it (CP_Engine_SetGameStatePassThrough
+// changes that). It always goes on top, whichever state asks.
 CP_API void CP_Engine_PushGameState(FunctionPtr init, FunctionPtr update, FunctionPtr exit)
 {
-	CP_GameStates_Request(CP_GSL_PUSH, init, update, exit, CP_BELOW_FROZEN);
+	CP_GameStates_Request(CP_GSL_PUSH, init, update, exit);
 }
 
-CP_API void CP_Engine_PushGameStateAdvanced(FunctionPtr init, FunctionPtr update, FunctionPtr exit, CP_BELOW_MODE below)
-{
-	if (below != CP_BELOW_RUNNING && below != CP_BELOW_HIDDEN)
-	{
-		below = CP_BELOW_FROZEN;
-	}
-	CP_GameStates_Request(CP_GSL_PUSH, init, update, exit, below);
-}
-
-// Take the top state off: its exit runs, and the one below carries on where
-// it was (its init doesn't run again)
+// Take the state that calls this off, with any states above it: their exits
+// run (the top one first), and the state under it carries on where it was (its
+// init doesn't run again). Called from a pre- or post-update function, it
+// takes the top state off.
 CP_API void CP_Engine_PopGameState(void)
 {
-	CP_GameStates_Request(CP_GSL_POP, NULL, NULL, NULL, CP_BELOW_FROZEN);
+	if (_runningGhost)
+	{
+		return;
+	}
+	CP_GameStates_Warn(CP_GSL_AskPop(&_stack, _runningSlot));
+}
+
+// What the states under the one that calls this can do while it is there:
+// CP_STATE_FROZEN (the default) stops them and keeps them visible,
+// CP_STATE_PASSIVE keeps them running and drawing (without input), and
+// CP_STATE_NONE stops them and hides them. Usually called in a state's init.
+CP_API void CP_Engine_SetGameStatePassThrough(CP_STATE passThrough)
+{
+	if (_runningGhost || _runningSlot < 0 || _runningSlot >= _stack.depth)
+	{
+		return;
+	}
+	_stack.states[_runningSlot].passThrough = passThrough & (CP_STATE_UPDATING | CP_STATE_VISIBLE);
 }
 
 CP_API int CP_Engine_GetGameStateDepth(void)

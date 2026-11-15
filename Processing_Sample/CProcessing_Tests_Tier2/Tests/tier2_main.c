@@ -126,9 +126,9 @@ int main(void)
     // test_tier2_gamestates.c
     RUN_TEST(test_tier2_gamestate_push_and_pop_run_inits_and_exits_in_order);
     RUN_TEST(test_tier2_gamestate_a_pushed_state_draws_over_the_frozen_one_below);
-    RUN_TEST(test_tier2_gamestate_hidden_mode_hides_the_states_below);
+    RUN_TEST(test_tier2_gamestate_passing_none_through_hides_the_states_below);
     RUN_TEST(test_tier2_gamestate_queries_in_a_pushed_state);
-    RUN_TEST(test_tier2_gamestate_running_mode_keeps_the_state_below_running_without_input);
+    RUN_TEST(test_tier2_gamestate_passing_passive_through_keeps_the_state_below_running_without_input);
     RUN_TEST(test_tier2_gamestate_a_frozen_state_is_not_updated);
     RUN_TEST(test_tier2_gamestate_each_state_keeps_its_own_settings);
     RUN_TEST(test_tier2_gamestate_states_still_pushed_exit_when_the_program_ends);

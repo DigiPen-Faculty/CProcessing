@@ -195,7 +195,10 @@ void test_gamestate_requests_made_while_applying_wait_for_the_next_frame(void);
 void test_gamestate_stack_and_queue_limits(void);
 void test_gamestate_which_states_run(void);
 void test_gamestate_which_states_are_seen(void);
-void test_gamestate_a_bottom_state_is_never_hidden_or_running_below(void);
+void test_gamestate_a_set_state_starts_with_the_default_pass_through(void);
+void test_gamestate_pass_throughs_combine(void);
+void test_gamestate_pop_from_below_the_top_takes_the_states_above_too(void);
+void test_gamestate_pop_from_a_state_that_left_does_nothing(void);
 
 // test_internal_monitor.c -- Tier 1: which monitor a window is on (Internal_Monitor.h).
 void test_monitor_window_inside_one_monitor(void);

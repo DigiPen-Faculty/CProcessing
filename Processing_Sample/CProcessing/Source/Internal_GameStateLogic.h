@@ -2,12 +2,12 @@
 // file:	Internal_GameStateLogic.h
 // brief:	The rules of the game state stack, used by CP_System.c.
 //
-//			Game states form a stack. CP_Engine_PushGameState puts a state on
-//			top (the one below stays in memory and is "covered"),
-//			CP_Engine_PopGameState takes the top one off (the one below carries
-//			on), and CP_Engine_SetNextGameState ends every state and starts a
-//			new one. Requests are queued and applied at the start of the next
-//			frame.
+//			Game states form a stack, like cards on a table.
+//			CP_Engine_SetNextGameState clears the table and puts down a new
+//			card; CP_Engine_PushGameState puts a card on top (the ones under it
+//			stay, frozen by default); CP_Engine_PopGameState takes the card
+//			that asks off, with any on top of it. Requests are queued and
+//			applied at the start of the next frame.
 //
 //			This file is only the bookkeeping: which state is where, what is
 //			queued, and in what order init and exit run. It calls back into
@@ -39,7 +39,7 @@ typedef struct CP_GSL_State
 	FunctionPtr init;
 	FunctionPtr update;
 	FunctionPtr exit;
-	CP_BELOW_MODE below;	// what happens to the states under this one
+	CP_STATE passThrough;	// what the states under this one can do
 } CP_GSL_State;
 
 typedef enum CP_GSL_RequestKind
@@ -54,6 +54,7 @@ typedef struct CP_GSL_Request
 {
 	CP_GSL_RequestKind kind;
 	CP_GSL_State state;		// unused for a pop
+	int from;				// a pop: the state that asked (it leaves with those above it); -1 for the top
 } CP_GSL_Request;
 
 typedef enum CP_GSL_Result
@@ -61,7 +62,8 @@ typedef enum CP_GSL_Result
 	CP_GSL_DONE,
 	CP_GSL_SAME_STATE,		// a set for the state that is already the only one: nothing to do
 	CP_GSL_NO_UPDATE,		// a push or set without an update function: ignored
-	CP_GSL_POP_LAST,		// a pop with only one state: ignored (the game needs a state)
+	CP_GSL_POP_LAST,		// a pop that would leave no state: ignored (the game needs a state)
+	CP_GSL_GONE,			// a pop from a state that has already left: nothing to do
 	CP_GSL_STACK_FULL,		// a push past CP_MAX_GAME_STATES: ignored
 	CP_GSL_QUEUE_FULL		// more than CP_MAX_GAME_STATE_REQUESTS in one frame: ignored
 } CP_GSL_Result;
@@ -113,12 +115,26 @@ static inline CP_GSL_Result CP_GSL_Ask(CP_GSL_Stack* stack, CP_GSL_RequestKind k
 	CP_GSL_Request* request = &stack->queue[stack->queued++];
 	request->kind = kind;
 	request->state = state;
+	request->from = -1;
 	if (kind == CP_GSL_POP)
 	{
 		request->state.init = request->state.update = request->state.exit = NULL;
-		request->state.below = CP_BELOW_FROZEN;
+		request->state.passThrough = CP_STATE_FROZEN;
 	}
 	return CP_GSL_DONE;
+}
+
+// A pop asked for by the state at index `from` (-1: the top): that state and
+// every state above it leave
+static inline CP_GSL_Result CP_GSL_AskPop(CP_GSL_Stack* stack, int from)
+{
+	const CP_GSL_State none = { NULL, NULL, NULL, CP_STATE_FROZEN };
+	const CP_GSL_Result result = CP_GSL_Ask(stack, CP_GSL_POP, none);
+	if (result == CP_GSL_DONE)
+	{
+		stack->queue[stack->queued - 1].from = from;
+	}
+	return result;
 }
 
 // Moves the waiting requests into `out` (room for CP_MAX_GAME_STATE_REQUESTS)
@@ -179,16 +195,29 @@ static inline CP_GSL_Result CP_GSL_Apply(CP_GSL_Stack* stack, const CP_GSL_Reque
 		return CP_GSL_DONE;
 
 	case CP_GSL_POP:
-		if (stack->depth <= 1)
+	{
+		const int from = request->from < 0 ? stack->depth - 1 : request->from;
+		if (from >= stack->depth)
+		{
+			return CP_GSL_GONE;
+		}
+		if (from <= 0)
 		{
 			return CP_GSL_POP_LAST;
 		}
-		CP_GSL_LeaveTop(stack, hooks, CP_GSL_POP);
-		if (hooks && hooks->uncover)
+		// From the top down to the one that asked. Each state below the top
+		// is the top again (uncovered) just before its own exit, and the one
+		// left on top at the end carries on.
+		while (stack->depth > from)
 		{
-			hooks->uncover(hooks->user, stack->depth - 1);
+			CP_GSL_LeaveTop(stack, hooks, CP_GSL_POP);
+			if (hooks && hooks->uncover)
+			{
+				hooks->uncover(hooks->user, stack->depth - 1);
+			}
 		}
 		return CP_GSL_DONE;
+	}
 
 	case CP_GSL_SET:
 	case CP_GSL_SET_FORCED:
@@ -200,7 +229,7 @@ static inline CP_GSL_Result CP_GSL_Apply(CP_GSL_Stack* stack, const CP_GSL_Reque
 		}
 		CP_GSL_LeaveAll(stack, hooks, request->kind);
 		stack->states[0] = request->state;
-		stack->states[0].below = CP_BELOW_FROZEN;
+		stack->states[0].passThrough = CP_STATE_FROZEN;
 		stack->depth = 1;
 		if (hooks && hooks->enter)
 		{
@@ -213,12 +242,13 @@ static inline CP_GSL_Result CP_GSL_Apply(CP_GSL_Stack* stack, const CP_GSL_Reque
 //------------------------------------------------------------------------------
 // Which states run and which are seen
 //
-// A state pushed with CP_BELOW_FROZEN stops the states under it (they keep
-// their last picture), CP_BELOW_RUNNING lets them keep running (without
-// input), and CP_BELOW_HIDDEN stops them and hides them.
+// Each state's pass-through says what the states under it can do: be
+// updated (CP_STATE_UPDATING) and be seen (CP_STATE_VISIBLE). A state under
+// several can do only what all of them let through. The top state does
+// everything, and is the only one with input.
 
 // Is the state at index updated this frame? The top always is; one below it
-// only if every state above it was pushed with CP_BELOW_RUNNING.
+// only if every state above it lets CP_STATE_UPDATING through.
 static inline bool CP_GSL_IsRunning(const CP_GSL_Stack* stack, int index)
 {
 	if (index < 0 || index >= stack->depth)
@@ -227,7 +257,7 @@ static inline bool CP_GSL_IsRunning(const CP_GSL_Stack* stack, int index)
 	}
 	for (int above = index + 1; above < stack->depth; ++above)
 	{
-		if (stack->states[above].below != CP_BELOW_RUNNING)
+		if ((stack->states[above].passThrough & CP_STATE_UPDATING) == 0)
 		{
 			return false;
 		}
@@ -236,12 +266,13 @@ static inline bool CP_GSL_IsRunning(const CP_GSL_Stack* stack, int index)
 }
 
 // The lowest state that can be seen: everything from here to the top is
-// drawn. A state pushed with CP_BELOW_HIDDEN hides everything under it.
+// drawn. A state that doesn't let CP_STATE_VISIBLE through hides everything
+// under it.
 static inline int CP_GSL_LowestVisible(const CP_GSL_State* states, int depth)
 {
 	for (int i = depth - 1; i > 0; --i)
 	{
-		if (states[i].below == CP_BELOW_HIDDEN)
+		if ((states[i].passThrough & CP_STATE_VISIBLE) == 0)
 		{
 			return i;
 		}

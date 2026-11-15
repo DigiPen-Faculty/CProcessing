@@ -284,7 +284,7 @@ typedef struct
     float stackPushedTime;              // CP_Engine_GetGameStateTime in its first update
     CP_BOOL stackPushInheritsSettings;  // a pushed state starts with the settings in use
     CP_BOOL stackRunningStateIsTop;
-    int stackUpdatesWhileRunningBelow;  // the state under a CP_BELOW_RUNNING one kept running
+    int stackUpdatesWhileRunningBelow;  // the state under one letting CP_STATE_PASSIVE through kept running
     CP_BOOL stackRunningBelowIsNotTop;
     CP_BOOL stackRunningBelowKeyMuted;  // keys and buttons read as up while it runs below
     float stackRunningBelowMouseX;      // the mouse it sees: where it was when covered
@@ -323,7 +323,7 @@ typedef struct
 
 extern Tier2Scalars tier2_scalars;
 
-// What a state pushed with CP_BELOW_HIDDEN shows (see Scn_GameStateStack)
+// What a state letting CP_STATE_NONE through shows (see Scn_GameStateStack)
 extern CP_Color tier2_stackHiddenPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 // What a transition function drew (see Scn_GameStateTransition)
 extern CP_Color tier2_transitionCustomPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
