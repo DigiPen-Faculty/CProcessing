@@ -20,8 +20,10 @@
 //   switching      CP_Engine_SetNextGameState, and the Forced version to
 //                  restart the state you're already in
 //   shared values  global variables outlive every state (the best score)
-//   one drawing    play and pause both call DrawGame, so pause shows the
-//                  frozen game
+//   cards          SetNextGameState clears the table and puts down a new
+//                  card. PushGameState puts the pause on top of the game,
+//                  which stays underneath, frozen and visible, and
+//                  PopGameState takes the pause off again.
 //
 // To run it, copy this file over the template's main.c.
 //
@@ -60,8 +62,8 @@ int lives = 3;
 CP_Color background;
 CP_Color white;
 
-// Seconds since this state began. Each state's init sets it to 0, and the
-// fade-in uses it.
+// Seconds since this state began. The menu, play and game over set it to 0
+// in their init, and the fade-in uses it.
 float stateTime = 0.0f;
 
 void DrawCenteredText(const char* text, float y, float size)
@@ -104,10 +106,6 @@ float spawnGap;			// seconds between new bubbles, shorter as you go
 const float burstRadius = 55.0f;
 const float growSpeed = 22.0f;		// pixels of radius per second
 
-// Set when we leave play for the pause, so play_init knows this is not a
-// new game
-CP_BOOL resuming = FALSE;
-
 void SpawnBubble(void)
 {
 	for (int i = 0; i < BUBBLE_COUNT; i++)
@@ -122,8 +120,8 @@ void SpawnBubble(void)
 	}
 }
 
-// Draws the game as it is now. Play and pause both use it: the pause state
-// does not run the game, but it still shows it.
+// Draws the game as it is now. Updating the game in one place and drawing
+// it in another keeps each part short and easy to read.
 void DrawGame(void)
 {
 	CP_Graphics_ClearBackground(background);
@@ -196,14 +194,8 @@ void play_init(void)
 {
 	stateTime = 0.0f;
 
-	// init runs every time we ENTER play, which includes coming back from the
-	// pause. Then the game must carry on, not start again.
-	if (resuming)
-	{
-		resuming = FALSE;
-		return;
-	}
-
+	// A new game. (Coming back from the pause doesn't run init: the pause
+	// was pushed on top of play, so play never ended.)
 	for (int i = 0; i < BUBBLE_COUNT; i++)
 	{
 		bubbles[i].active = FALSE;
@@ -219,11 +211,11 @@ void play_update(void)
 	const float dt = CP_System_GetDt();
 	stateTime += dt;
 
+	// P puts the pause on top of the game. play_exit doesn't run, and play
+	// stays underneath, frozen and visible, until the pause is taken off.
 	if (CP_Input_KeyTriggered(KEY_P))
 	{
-		resuming = TRUE;
-		CP_Engine_SetNextGameState(pause_init, pause_update, pause_exit);
-		return;		// this frame is over: nothing else may change the game
+		CP_Engine_PushGameState(pause_init, pause_update, pause_exit);
 	}
 
 	// R starts over. The state we want is the one we're already in, so the
@@ -231,7 +223,6 @@ void play_update(void)
 	// play_exit and play_init anyway.
 	if (CP_Input_KeyTriggered(KEY_R))
 	{
-		resuming = FALSE;
 		CP_Engine_SetNextGameStateForced(play_init, play_update, play_exit);
 		return;
 	}
@@ -282,41 +273,45 @@ void play_exit(void)
 }
 
 //---------------------------------------------------------
-// PAUSE STATE. Nothing moves, because pause_update never changes the game.
+// PAUSE STATE. It is pushed on top of play, like a card on top of another.
+// Play stops being updated, so nothing moves, and its last picture stays
+// visible underneath. The pause draws on a clear sheet of its own, so it
+// only draws what goes on top: a dark cover and the words.
 //---------------------------------------------------------
 void pause_init(void)
 {
-	stateTime = 0.0f;
+	// stateTime isn't touched here: it belongs to play, which carries on
+	// with it when the pause is taken off
 }
 
 void pause_update(void)
 {
-	stateTime += CP_System_GetDt();
-
-	DrawGame();
-	// A dark cover over the frozen game, then the words
-	CP_Settings_NoStroke();
-	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 150));
-	CP_Graphics_DrawRect(CP_System_GetWindowWidth() / 2.0f, CP_System_GetWindowHeight() / 2.0f,
-		(float)CP_System_GetWindowWidth(), (float)CP_System_GetWindowHeight());
+	// The pause's sheet is cleared to a see-through black every frame: a
+	// dark cover over the frozen game. (Drawing a see-through rectangle
+	// without clearing would build up, frame after frame, until it's solid.)
+	// The cover fades in over a fifth of a second. A pushed state has its
+	// own clock: CP_Engine_GetGameStateTime is the seconds since it began.
+	const float progress = CP_Math_ClampFloat(CP_Engine_GetGameStateTime() / 0.2f, 0.0f, 1.0f);
+	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, (int)(150.0f * progress)));
 	DrawCenteredText("PAUSED", 230.0f, 80.0f);
 	DrawCenteredText("P to keep playing", 320.0f, 26.0f);
 	DrawCenteredText("R to start over, M for the menu", 360.0f, 26.0f);
 
+	// Only the state on top gets input, so these keys don't reach play
 	if (CP_Input_KeyTriggered(KEY_P))
 	{
-		// resuming is already TRUE, so play_init will carry on
-		CP_Engine_SetNextGameState(play_init, play_update, play_exit);
+		// Take the pause off: pause_exit runs, and play carries on where it
+		// was, without play_init running again
+		CP_Engine_PopGameState();
 	}
 	if (CP_Input_KeyTriggered(KEY_R))
 	{
-		// A new game, so not resuming
-		resuming = FALSE;
+		// SetNextGameState clears the table: pause_exit and play_exit run,
+		// then play_init starts a new game
 		CP_Engine_SetNextGameState(play_init, play_update, play_exit);
 	}
 	if (CP_Input_KeyTriggered(KEY_M))
 	{
-		resuming = FALSE;
 		CP_Engine_SetNextGameState(menu_init, menu_update, menu_exit);
 	}
 }

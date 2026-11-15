@@ -4,13 +4,13 @@
 
 **You will make:** a complete game with four screens: a menu, the game, a pause and a game over. The game is **Pop!**: bubbles grow, and you click them before they burst.
 
-**You will learn:** what a game state is, how to switch between them, why each has three functions, how states share values, and how to pause and restart without bugs.
+**You will learn:** what a game state is, how to switch between them, why each has three functions, how states share values, how to put a pause on top of the game, and how to restart without bugs.
 
 **Time:** about 60 minutes.
 
 **You need:** [Lesson 4](Lesson-04-Input) and [Lesson 6](Lesson-06-Collision) (a point inside a circle). Lesson 7's easing is used for a fade.
 
-The finished program is in the repository as [Examples/Lessons/09_game_states/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/Lessons/09_game_states/main.c). The [game states example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/game_states.c) is a different game with the same structure, and pauses with a flag instead. Play both.
+The finished program is in the repository as [Examples/Lessons/09_game_states/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/Lessons/09_game_states/main.c). The [game states example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/game_states.c) is a different game with the same structure. Play both.
 
 ---
 
@@ -100,43 +100,46 @@ if (lives <= 0)
 
 New bubbles come faster as the score goes up, which is the whole difficulty curve.
 
-## Step 6: Pause is a state too
+## Step 6: Pause is a card on top
 
-Press P, and the game freezes. Pause could be a variable, as in the example, but there's something to learn in making it a state. Its update **doesn't change the game at all**: it draws it, then a dark cover and some words, and listens for P, R and M.
+Think of game states as **cards on a table**. `CP_Engine_SetNextGameState` clears the table and puts down a new card. That's right for a new part of the game: from the menu to the game, or from the game to game over. The old card is finished with, so its exit runs.
 
-For it to draw the game, **drawing is in its own function**, `DrawGame`, that both `play_update` and `pause_update` call. This is a good habit anyway: update the game in one place, and draw it in another.
+A pause is different. The game isn't over, it's waiting, and when the pause ends it should carry on exactly where it was. So the pause is **put on top** of the game, like a card on top of another:
+
+```C
+// in play_update
+if (CP_Input_KeyTriggered(KEY_P))
+{
+	CP_Engine_PushGameState(pause_init, pause_update, pause_exit);
+}
+```
+
+At the start of the next frame `pause_init` runs, and then `pause_update` every frame. Play is still on the table, underneath: **`play_exit` doesn't run**, `play_update` stops running, so nothing moves, and play's last picture **stays visible** behind the pause. Only the state on top gets input, so the keys you press in the pause don't reach the game.
+
+The pause draws on a clear sheet of its own over the game, so it only draws what goes on top. Clearing its sheet to a see-through black every frame makes a dark cover over the frozen game:
 
 ```C
 void pause_update(void)
 {
-	DrawGame();
-	// a dark cover, then the words...
+	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 150));
+	DrawCenteredText("PAUSED", 230.0f, 80.0f);
+	...
 	if (CP_Input_KeyTriggered(KEY_P))
 	{
-		CP_Engine_SetNextGameState(play_init, play_update, play_exit);
+		CP_Engine_PopGameState();
 	}
 }
 ```
 
-Here is the catch. Going back to the game runs **`play_init`**, which sets up a **new game**. The bubbles vanish and the score goes to 0, so pausing would be a way to cheat out of a bad round. The program fixes it with a flag, `resuming`:
+**`CP_Engine_PopGameState` takes the card off**: `pause_exit` runs, and play carries on where it was. **`play_init` doesn't run again**, so the bubbles and the score are as you left them.
 
-```C
-// in play_update, when P is pressed
-resuming = TRUE;
-CP_Engine_SetNextGameState(pause_init, pause_update, pause_exit);
-return;
+R and M in the pause are new parts of the game, so they use `SetNextGameState`, which clears the table: both `pause_exit` and `play_exit` run, then `play_init` (a new game) or `menu_init`.
 
-// in play_init, right at the top
-if (resuming)
-{
-	resuming = FALSE;
-	return;		// carry on: don't reset anything
-}
-```
+So: **SetNextGameState for a new part of the game, PushGameState when the game stays where it is but something comes up** (a pause, a dialog box, a "level up!" message), and PopGameState to take it off.
 
-R and M in the pause menu set `resuming` back to `FALSE` before they leave, so those start a new game or go to the menu. The `return` after asking for the pause is on purpose too: it ends the frame so nothing else (like a bubble bursting) can change the game or ask for a different state, and leave `resuming` set when it shouldn't be.
+> **Try it:** change the push to `CP_Engine_SetNextGameState(pause_init, pause_update, pause_exit)`, and the pop to `CP_Engine_SetNextGameState(play_init, play_update, play_exit)`. Pause in the middle of a game, and unpause. What happened to the bubbles and the score, and why? (Which functions ran?) Then put it back.
 
-Honestly, for a simple game a **flag** (`paused` as a TRUE or FALSE that `play_update` checks) is easier, and is what the [example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/game_states.c) does. A separate state is better when the pause is a whole screen, with its own buttons, like an options menu. Now you know what both cost.
+**Another way: a flag.** Before CProcessing had `PushGameState`, games often paused with a variable: `paused`, a TRUE or FALSE that `play_update` checks, so that it still draws the game but skips moving it. That works too, and you will see it in other code. A pushed state keeps the pause's code out of the game's, and is easier when the pause becomes a whole screen of its own, with buttons and an options menu.
 
 ## Step 7: Restart
 
@@ -156,7 +159,7 @@ Use it when you want to restart the same state. That's the only difference.
 
 ## Step 8: A soft switch
 
-Switching is sudden, and a sudden change is a little jarring. Each state sets `stateTime` to 0 in its init, and adds `dt` to it in its update, so it's the seconds since the state started. `DrawFadeIn` uses it to draw a black cover over everything that fades away over half a second, using lesson 7's `EaseOutQuad`:
+Switching is sudden, and a sudden change is a little jarring. The menu, play and game over set `stateTime` to 0 in their init, and add `dt` to it in their update, so it's the seconds since the state started. (The pause doesn't touch it: `stateTime` belongs to play, which carries on with it after the pause. The pause fades its cover in with `CP_Engine_GetGameStateTime()`, a clock the engine keeps for each state.) `DrawFadeIn` uses it to draw a black cover over everything that fades away over half a second, using lesson 7's `EaseOutQuad`:
 
 ```C
 const float progress = CP_Math_ClampFloat(stateTime / 0.5f, 0.0f, 1.0f);
@@ -170,7 +173,7 @@ It is a small thing, but it makes the switches feel like they were meant.
 
 Pick two or more.
 
-1. **How to play.** Add a state reached from the menu with H. It needs three functions, a declaration at the top, and a way back.
+1. **How to play.** Add a state reached from the menu with H. It needs three functions, a declaration at the top, and a way back. Should it be a new card, or a card on top of the menu?
 2. **Faster over time.** Make the bubbles grow faster the longer the game lasts. (Keep a timer in `play_init`, and add to it with `dt`.)
 3. **Bubble types.** Make some bubbles gold: rarer, small, worth ten times as much.
 4. **Pick a mode.** Put two buttons on the menu, "Easy" and "Hard" (lesson 6's point in a box), that change `growSpeed` and the lives.
@@ -182,7 +185,8 @@ Pick two or more.
 * When does a switch to another state happen?
 * How does a state hand a value to the next one?
 * What goes wrong if play's init forgets to reset a value?
-* Why does going back from the pause need a flag?
+* Why does the pause use `PushGameState`, and not `SetNextGameState`?
+* Which functions run when the pause is taken off with `PopGameState`?
 * When do you need `SetNextGameStateForced`?
 
 ## Common mistakes
@@ -190,7 +194,8 @@ Pick two or more.
 * **The second game starts where the first ended.** Something isn't reset in init.
 * **A state never changes.** `SetNextGameState` was asked to switch to the state it's in. Use the Forced version.
 * **The program won't build: "undeclared" or "implicit declaration".** A state's functions are used before they're written, and aren't declared at the top.
-* **Pausing starts a new game.** `play_init` runs when returning. Use a flag, or pause with a variable.
+* **Pausing starts a new game.** The pause was started, or ended, with `SetNextGameState`, so `play_exit` and `play_init` ran. Push the pause, and pop it.
+* **The pause cover turns solid black.** A see-through rectangle drawn every frame without clearing builds up on the pause's sheet. Clear it with a see-through color instead.
 * **Things load again and again, or never free.** Loading in `update`, or an init without an exit to match it. Each state frees what it loads.
 * **Two requests in one frame.** The last one wins. Use `return` after the one that matters.
 
