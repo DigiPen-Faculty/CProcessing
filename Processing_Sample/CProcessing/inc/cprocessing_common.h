@@ -59,6 +59,20 @@ extern "C"
 
 
 //---------------------------------------------------------
+// The color, vector and matrix unions below have a struct with no name, so
+// that both c.r and c.rgba[0] work. C11 allows that, but C++ and C99 don't,
+// and GCC and Clang warn about it with -Wpedantic in every file that
+// includes this header. __extension__ tells them it's on purpose. (Visual
+// Studio's warning about it, C4201, is turned off above.)
+
+#if defined(__GNUC__) || defined(__clang__)
+	#define CP_ANONYMOUS_STRUCT __extension__ struct
+#else
+	#define CP_ANONYMOUS_STRUCT struct
+#endif
+
+
+//---------------------------------------------------------
 // CProcessing Types
 
 typedef unsigned int	CP_BOOL;
@@ -103,13 +117,13 @@ typedef					void(*FunctionPtr)(void);
 typedef union CP_Color
 {
 	unsigned char rgba[4];
-	struct { unsigned char r, g, b, a; };
+	CP_ANONYMOUS_STRUCT { unsigned char r, g, b, a; };
 } CP_Color;
 
 typedef union CP_ColorHSL
 {
 	int hsla[4];
-	struct { int h, s, l, a; };
+	CP_ANONYMOUS_STRUCT { int h, s, l, a; };
 } CP_ColorHSL;
 
 
@@ -226,13 +240,13 @@ typedef enum CP_SOUND_GROUP
 typedef union CP_Vector
 {
 	float v[2];
-	struct { float x, y; };
+	CP_ANONYMOUS_STRUCT { float x, y; };
 } CP_Vector;
 
 typedef union CP_Matrix
 {
 	float m[3][3];
-	struct {
+	CP_ANONYMOUS_STRUCT {
 		float m00, m01, m02;
 		float m10, m11, m12;
 		float m20, m21, m22;

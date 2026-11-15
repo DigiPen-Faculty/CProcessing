@@ -140,6 +140,18 @@ changes to build with the new version.
 
 ### Changed
 
+- **The templates build C++ as well as C.** A game can be written in C++ by
+  renaming `main.c` to `main.cpp`.
+  - The Visual Studio template no longer forces every file to compile as C:
+    each file is built by its extension, so a `.cpp` file is C++.
+  - The CMake starter builds every `.c` and `.cpp` file in its folder, and
+    turns C++ on when there is a `.cpp` file. New files no longer need to be
+    added to `CMakeLists.txt`.
+  - Both READMEs say how, and what C++ needs that C doesn't (a cast to make
+    a key from a number, or after `malloc`).
+- **`CP_Image_CreateFromData` and `CP_Image_UpdatePixelData` take `const`
+  data,** since they only read it. C++ can now pass a `const` array. Nothing
+  to do in existing programs.
 - **`CP_Graphics_DrawCircle`, `DrawArc` and `DrawPie` name their size
   `diameter`, not `d`**, so the editor's hint says what the number is (it is
   the width across, not the radius). Only the parameter name changed: nothing
@@ -172,6 +184,18 @@ changes to build with the new version.
 
 ### Fixed
 
+- **`cprocessing_common.h` no longer causes warnings in C++ with
+  `-Wpedantic`.** The color, vector and matrix unions have an unnamed struct
+  (for `c.r` as well as `c.rgba[0]`), which C11 allows but C++ and C99
+  don't, so GCC and Clang gave 8 warnings for every file that included it,
+  and a build with `-Wpedantic -Werror` failed. The header now marks them
+  with `__extension__`, through a `CP_ANONYMOUS_STRUCT` macro.
+- **The demos compile as C++:** casts after `malloc` and `calloc`, and when
+  making a key from a number.
+- **C++ is checked in CI.** Every example, lesson, demo and template
+  `main.c` is also compiled as C++11, with `-Wpedantic` or `/permissive-`,
+  on Windows, Linux and macOS. A small C++ program links with CProcessing
+  and runs with the Tier 1 tests.
 - **A window size chosen in `game_init` now applies before the first
   `game_update`.** It used to apply one frame later, so the first update still
   saw a 400 x 400 window: `CP_System_GetWindowWidth()` was wrong, and a

@@ -327,7 +327,7 @@ CP_API void CP_Image_DrawSubImageAdvanced(CP_Image img, float x, float y, float 
 	CP_Image_DrawInternal(img, x, y, w, h, u0, v0, u1, v1, alpha, degrees);
 }
 
-CP_API CP_Image CP_Image_CreateFromData(int w, int h, unsigned char* pixelDataInput)
+CP_API CP_Image CP_Image_CreateFromData(int w, int h, const unsigned char* pixelDataInput)
 {
 	if (!pixelDataInput)
 	{
@@ -616,7 +616,7 @@ CP_API void CP_Image_GetPixelData(CP_Image img, CP_Color* pixelDataOutput)
     }
 }
 
-CP_API void CP_Image_UpdatePixelData(CP_Image img, CP_Color* pixelDataInput)
+CP_API void CP_Image_UpdatePixelData(CP_Image img, const CP_Color* pixelDataInput)
 {
 	if (!img) return;
 
@@ -628,7 +628,7 @@ CP_API void CP_Image_UpdatePixelData(CP_Image img, CP_Color* pixelDataInput)
 
 	if (!img->drawable)
 	{
-		nvgUpdateImage(CORE->nvg, img->handle, (unsigned char*)pixelDataInput);
+		nvgUpdateImage(CORE->nvg, img->handle, (const unsigned char*)pixelDataInput);
 		return;
 	}
 

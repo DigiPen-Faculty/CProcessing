@@ -42,6 +42,18 @@ were loaded and never freed. Run from Visual Studio, the list appears in the
 The game opens without a console window. Call `CP_System_ShowConsole(TRUE);`
 (it's in `main.c`, commented out) to open one.
 
+## Writing the game in C++
+
+CProcessing works from C++ too. Rename `main.c` to `main.cpp` in Solution
+Explorer (right-click it, **Rename**), and Visual Studio builds it as C++.
+Each file is built by its extension: `.c` files as C, `.cpp` files as C++,
+so a project can have both.
+
+One difference to know: C++ won't turn a number into a named value, such as
+a key, by itself. `CP_Input_KeyDown(KEY_A + i)` needs a cast in C++:
+`CP_Input_KeyDown((CP_KEY)(KEY_A + i))`. The same goes for `malloc`, whose
+result needs a cast: `(CP_Color*)malloc(...)`.
+
 ## Renaming the game
 
 To rename the program from `MyGame`, rename the project in Solution

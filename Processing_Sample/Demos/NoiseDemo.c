@@ -21,8 +21,8 @@ void NoiseDemoInit(void)
 {
 	CP_Settings_Save();
 	CP_Settings_ImageMode(CP_POSITION_CORNER);
-	pixelData = malloc(imageWidth * imageHeight * sizeof(CP_Color));
-	noiseImage = CP_Image_CreateFromData(imageWidth, imageHeight, (unsigned char*)pixelData);
+	pixelData = (CP_Color*)malloc(imageWidth * imageHeight * sizeof(CP_Color));
+	noiseImage = CP_Image_CreateFromData(imageWidth, imageHeight, (const unsigned char*)pixelData);
 }
 
 void NoiseDemoUpdate(void)

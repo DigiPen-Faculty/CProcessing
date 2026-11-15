@@ -175,6 +175,11 @@ output folder, the library search path on Linux and macOS, and a window
 without a console on Windows. `#include "cprocessing.h"` then works exactly as
 it does in the Visual Studio template.
 
+CProcessing can be used from C++ as well as C: the headers are wrapped in
+`extern "C"`, and CI compiles the examples and lessons as C++11 with
+`-Wpedantic` (or `/permissive-` with MSVC) and runs a small C++ program
+against the library (`Processing_Sample/CProcessing_Tests/Cxx`).
+
 To build against a local copy of CProcessing instead of the download, add
 `-DFETCHCONTENT_SOURCE_DIR_CPROCESSING=/path/to/CProcessing` when configuring.
 
