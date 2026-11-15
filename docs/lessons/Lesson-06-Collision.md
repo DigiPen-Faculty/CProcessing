@@ -200,4 +200,4 @@ Pick two or more.
 * **A ball gets stuck inside a wall.** It was moved into the wall, and *then* checked. Check first, and only take steps that are allowed.
 * **Fast things go through walls.** Tunneling: see step 8.
 
-**Next:** Lesson 7: Images and animation (coming soon).
+**Next:** [Lesson 7: Images and animation](Lesson-07-Images-and-Animation).

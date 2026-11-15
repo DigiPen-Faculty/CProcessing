@@ -20,7 +20,7 @@ top.
 ## Lessons
 
 The `Lessons` folder has the finished program for each lesson, one folder
-each (`01_first_window` to `06_collision`), with a `main.c` to copy over your own.
+each (`01_first_window` to `10_capstone`), with a `main.c` to copy over your own.
 The lessons themselves are on the wiki.
 
 ## Running an example

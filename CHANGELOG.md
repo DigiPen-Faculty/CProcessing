@@ -56,7 +56,7 @@ changes to build with the new version.
   `music_and_sounds.c` and `text_input.c`. Each is one file with step-by-step comments and
   ideas to try. They're in an `Examples` folder in every release package
   and in the repository; to run one, copy it over `main.c`.
-- **Lessons 1 to 6 (Your first window, Shapes and the coordinate system, Color, Input, Moving with vectors and delta time, Collision):** each is a page of
+- **Lessons 1 to 10 (Your first window, Shapes and the coordinate system, Color, Input, Moving with vectors and delta time, Collision, Images and animation, Sound, Game states, and a Capstone game):** each is a page of
   step-by-step teaching with a finished program in `Examples/Lessons`, and
   challenges and check-yourself questions. The pages are in `docs/lessons`
   until they are published to the wiki.
