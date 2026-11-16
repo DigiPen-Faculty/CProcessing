@@ -184,17 +184,14 @@ static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float
 	}
 
 	// rotation
-	nvgSave(CORE->nvg);
-	nvgTranslate(CORE->nvg, x + (w / 2.0f), y + (h / 2.0f));
-	nvgRotate(CORE->nvg, CP_Math_Radians(degrees));
-	nvgTranslate(CORE->nvg, -(x + (w / 2.0f)), -(y + (h / 2.0f)));
+	CP_Draw_BeginRotation(x + (w / 2.0f), y + (h / 2.0f), degrees);
 
 	nvgBeginPath(CORE->nvg);
 	nvgRect(CORE->nvg, x, y, w, h);
 	nvgFillPaint(CORE->nvg, image);
 	nvgFill(CORE->nvg);
 
-	nvgRestore(CORE->nvg);
+	CP_Draw_EndRotation();
 }
 
 //------------------------------------------------------------------------------

@@ -1688,9 +1688,6 @@ void CP_Update(void)
 	// Reset camera transforms
 	nvgResetTransform(_CORE.nvg);
 
-	// Audio Update
-	CP_Sound_Update();
-
 	// Image Update
 	CP_Image_Update();
 }
@@ -1863,6 +1860,19 @@ void CP_FrameRate_FrameStart(void)
 
 	// Update frame count
 	CP_IncFrameCount();
+}
+
+void CP_Draw_BeginRotation(float x, float y, float degrees)
+{
+	nvgSave(_CORE.nvg);
+	nvgTranslate(_CORE.nvg, x, y);
+	nvgRotate(_CORE.nvg, CP_Math_Radians(degrees));
+	nvgTranslate(_CORE.nvg, -x, -y);
+}
+
+void CP_Draw_EndRotation(void)
+{
+	nvgRestore(_CORE.nvg);
 }
 
 // Sleep for about one millisecond, giving the time back to other programs
