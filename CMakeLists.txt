@@ -291,6 +291,18 @@ if(CPROCESSING_BUILD_TESTS)
     cprocessing_set_rpath(CProcessing_Tests_Cxx)
     add_test(NAME cxx COMMAND CProcessing_Tests_Cxx)
     set_tests_properties(cxx PROPERTIES LABELS "tier1;cxx")
+
+    # Every test function written is registered (a forgotten RUN_TEST would
+    # silently drop the test). Needs no window, so it runs with Tier 1.
+    add_test(NAME registration_tier1 COMMAND ${CMAKE_COMMAND}
+        -DTESTS_DIR=${TEST_DIR}/Tests -DMAIN_FILE=${TEST_DIR}/Tests/test_main.c
+        -DHEADER=${TEST_DIR}/Tests/test_runner.h
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckTestRegistration.cmake)
+    add_test(NAME registration_tier2 COMMAND ${CMAKE_COMMAND}
+        -DTESTS_DIR=${TIER2_DIR}/Tests -DMAIN_FILE=${TIER2_DIR}/Tests/tier2_main.c
+        -DHEADER=${TIER2_DIR}/Tests/test_runner_tier2.h
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckTestRegistration.cmake)
+    set_tests_properties(registration_tier1 registration_tier2 PROPERTIES LABELS "tier1;registration")
 endif()
 
 #------------------------------------------------------------------------------
