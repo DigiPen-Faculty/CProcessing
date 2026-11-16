@@ -77,6 +77,14 @@ void test_tier2_gamestate_a_screenshot_drawn_in_the_next_state_blends_over_it(vo
     TEST_ASSERT_EQUAL_INT(1, tier2_scalars.snapshotHarnessDepthAfter);
 }
 
+void test_tier2_gamestate_a_screenshot_in_a_pushed_init_is_the_picture_below(void)
+{
+    // E's layer starts clear, so its init sees only D's green under it (and
+    // nothing left in the layer by states pushed earlier)
+    assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_scalars.snapshotInPushedInitCenter);
+    assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_scalars.snapshotInPushedInitCorner);
+}
+
 void test_tier2_image_drawing_into_an_image(void)
 {
     TEST_ASSERT_TRUE(tier2_scalars.drawIntoCreated);

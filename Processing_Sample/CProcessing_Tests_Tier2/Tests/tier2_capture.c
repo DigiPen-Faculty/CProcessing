@@ -1263,9 +1263,21 @@ static void Scn_GameStateStack(void)
 // which is D's green. D pushes E, which clears to blue and draws the
 // screenshot over it at half alpha (captured as this scenario), then pops,
 // and D pops in the frame after.
+//
+// E's init also takes a screenshot. A pushed state's layer starts clear, so
+// that one is the picture below it (D's green), which is how a pause blurs
+// the game under it (Examples/state_effects.c).
 static bool snapshotAwaitingResume = false;
 static int snapshotDFrame = 0;
 static CP_Image snapshotImage = NULL;
+static CP_Color snapshotBelowPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+
+static void SnapshotE_Init(void)
+{
+    CaptureInto(snapshotBelowPixels);
+    tier2_scalars.snapshotInPushedInitCenter = snapshotBelowPixels[100 * TIER2_CANVAS_SIZE + 100];
+    tier2_scalars.snapshotInPushedInitCorner = snapshotBelowPixels[190 * TIER2_CANVAS_SIZE + 10];
+}
 
 static void SnapshotE_Update(void)
 {
@@ -1286,7 +1298,7 @@ static void SnapshotD_Update(void)
         CP_Graphics_ClearBackground(CP_Color_Create(0, 255, 0, 255));
         snapshotImage = CP_Image_Screenshot(0, 0, TIER2_CANVAS_SIZE, TIER2_CANVAS_SIZE);
         tier2_scalars.snapshotTaken = snapshotImage != NULL;
-        CP_Engine_PushGameState(NULL, SnapshotE_Update, NULL);
+        CP_Engine_PushGameState(SnapshotE_Init, SnapshotE_Update, NULL);
         break;
     case 1:
         CP_Engine_PopGameState();

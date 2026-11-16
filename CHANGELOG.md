@@ -58,7 +58,9 @@ changes to build with the new version.
   a function and a trail drawn into an image. **`Examples/state_effects.c`**
   shows effects written with ordinary CProcessing functions: easing into
   slow motion under a level-up box (a time scale of your own, and the
-  sound's pitch), and turning the music down under a pause.
+  sound's pitch), and turning the music down under a pause, with the
+  frozen game blurred or pixelated behind it (a screenshot in the pause's
+  init is the picture below it, drawn small and stretched back up).
   **`Examples/transitions.c`** animates changes of state (fade, crossfade,
   slides, and one the program draws) with a small helper to copy: it takes
   a screenshot of the old state and draws it over the new one from the

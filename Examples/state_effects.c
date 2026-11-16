@@ -16,15 +16,20 @@
 // - slow the sound down with the time (CP_Sound_SetGroupPitch)
 // - turn the music down under the pause menu, instead of stopping it
 //   (CP_Sound_SetGroupVolume), and put it back when the pause ends
+// - show the frozen game through frosted glass under the pause: a screenshot
+//   in the pause's init is the picture below it, and drawing that small and
+//   then stretching it back up blurs it (or pixelates it), without shaders
 //
 // Keys: the arrow keys move, P pauses. Every 5 coins you level up: pick an
-// upgrade with 1 or 2.
+// upgrade with 1 or 2. In the pause, B switches between blurred and
+// pixelated.
 //
 // Try this:
 // - Make the slow motion slower or quicker to start (LEVEL_UP_SLOWEST,
 //   EASE_SECONDS).
 // - Ease the music back up after the pause, in the game's update, instead of
 //   setting it back at once.
+// - Make the glass more or less frosted (FROST_STEPS), or tint it.
 //
 // To run it, copy this file over the template's main.c. It needs Music.wav,
 // Coin.wav and Jump.wav in the Assets folder, which the template includes.
@@ -36,6 +41,7 @@
 void game_init(void);
 void game_update(void);
 void game_exit(void);
+void pause_init(void);
 void pause_update(void);
 void pause_exit(void);
 void level_up_init(void);
@@ -44,6 +50,7 @@ void level_up_update(void);
 #define EASE_SECONDS 0.4f		// how long easing in or out takes
 #define LEVEL_UP_SLOWEST 0.15f	// the time scale under the level-up box
 #define PAUSE_VOLUME 0.4f		// the music volume under the pause
+#define FROST_STEPS 3			// how many times the paused game is halved: more is blurrier
 
 CP_Color white;
 CP_Sound music;
@@ -147,7 +154,7 @@ void game_update(void)
 	// gets input)
 	if (CP_Input_KeyTriggered(KEY_P))
 	{
-		CP_Engine_PushGameState(NULL, pause_update, pause_exit);
+		CP_Engine_PushGameState(pause_init, pause_update, pause_exit);
 	}
 	CP_Vector move = CP_Vector_Zero();
 	if (CP_Input_KeyDown(KEY_LEFT)) move.x -= 1.0f;
@@ -201,18 +208,72 @@ void game_exit(void)
 }
 
 //-------------------------
-// PAUSE: the game freezes behind it (the default), and the music gets quieter
+// PAUSE: the game freezes behind it (the default), the music gets quieter,
+// and the game shows through frosted glass
+
+CP_Image frosted;		// the frozen game, small: made once, when the pause starts
+CP_BOOL pixelated;		// B: stretch it back up blocky instead of smooth
+
+// A copy of an image at half the size. With the linear filter, each pixel of
+// the copy is the average of the 2 x 2 pixels it covers. (Halving a few times
+// averages properly; shrinking 8 times in one go would only average a few of
+// the 64 pixels each one covers, and look speckled.)
+CP_Image Halve(CP_Image image)
+{
+	const int width = CP_Image_GetWidth(image) / 2;
+	const int height = CP_Image_GetHeight(image) / 2;
+	CP_Image half = CP_Image_Create(width, height);
+	CP_Image_BeginDrawing(half);
+	CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_LINEAR);
+	CP_Image_Draw(image, 0.0f, 0.0f, (float)width, (float)height, 255);
+	CP_Image_EndDrawing();
+	return half;
+}
+
+void pause_init(void)
+{
+	// This state's layer starts clear, so a screenshot now is the picture
+	// below it: the game. The game is frozen, so one picture is enough.
+	frosted = CP_Image_Screenshot(0, 0, CP_System_GetWindowWidth(), CP_System_GetWindowHeight());
+	for (int i = 0; i < FROST_STEPS; ++i)
+	{
+		CP_Image half = Halve(frosted);
+		CP_Image_Free(&frosted);
+		frosted = half;
+	}
+	pixelated = FALSE;
+}
 
 void pause_update(void)
 {
 	// Ease the music down over the first moments of the pause. The pause's
 	// own time (CP_Engine_GetGameStateTime) starts at 0 when it is pushed.
-	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, EaseTo(1.0f, PAUSE_VOLUME, CP_Engine_GetGameStateTime(), EASE_SECONDS));
+	const float time = CP_Engine_GetGameStateTime();
+	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, EaseTo(1.0f, PAUSE_VOLUME, time, EASE_SECONDS));
 
-	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 140));
-	DrawPanel(380.0f, 200.0f);
-	DrawCenteredText("PAUSED", 270.0f, 56.0f);
-	DrawCenteredText("P: keep playing", 340.0f, 24.0f);
+	if (CP_Input_KeyTriggered(KEY_B))
+	{
+		pixelated = !pixelated;
+	}
+
+	// Stretch the small picture over the window: the linear filter blends
+	// between its pixels (a blur), nearest keeps them as blocks. It fades in,
+	// so the glass fogs up, and a little white makes it look frosted.
+	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 0));
+	CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Settings_ImageFilterMode(pixelated ? CP_IMAGE_FILTER_NEAREST : CP_IMAGE_FILTER_LINEAR);
+	const int fog = (int)EaseTo(0.0f, 255.0f, time, EASE_SECONDS);
+	CP_Image_Draw(frosted, 0.0f, 0.0f, (float)CP_System_GetWindowWidth(), (float)CP_System_GetWindowHeight(), fog);
+	CP_Settings_NoStroke();
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Fill(CP_Color_Create(255, 255, 255, fog / 8));
+	CP_Graphics_DrawRect(0.0f, 0.0f, (float)CP_System_GetWindowWidth(), (float)CP_System_GetWindowHeight());
+
+	DrawPanel(380.0f, 220.0f);
+	DrawCenteredText("PAUSED", 260.0f, 56.0f);
+	DrawCenteredText("P: keep playing", 320.0f, 24.0f);
+	DrawCenteredText(pixelated ? "B: blurred" : "B: pixelated", 355.0f, 24.0f);
 
 	if (CP_Input_KeyTriggered(KEY_P))
 	{
@@ -222,8 +283,9 @@ void pause_update(void)
 
 void pause_exit(void)
 {
-	// Put the music back as the pause ends
+	// Put the music back as the pause ends, and free the picture
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, 1.0f);
+	CP_Image_Free(&frosted);
 }
 
 //-------------------------

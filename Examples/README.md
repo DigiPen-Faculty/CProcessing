@@ -13,7 +13,7 @@ top.
 | [game_states.c](game_states.c) | A menu, play, pause and game over, each a game state of its own. The pause goes on top of the frozen game. |
 | [state_stack.c](state_stack.c) | Going further with game states: menus on top of menus, a hint over a game that keeps running, a HUD, and a trail drawn into an image. |
 | [transitions.c](transitions.c) | Animated changes between game states: a fade, a crossfade, slides and one you draw, with a small helper to copy into your own game. |
-| [state_effects.c](state_effects.c) | Easing into slow motion under a level-up box, and turning the music down under a pause, with a few lines of your own code. |
+| [state_effects.c](state_effects.c) | Easing into slow motion under a level-up box, and a pause that turns the music down and blurs the game behind it, with a few lines of your own code. |
 | [score_and_text.c](score_and_text.c) | A score, a timer and other text, placed and sized on the screen. |
 | [music_and_sounds.c](music_and_sounds.c) | Looping music and sound effects, each with its own volume. |
 | [text_input.c](text_input.c) | Typing a name: reading typed characters, Backspace, Enter and a blinking cursor. |

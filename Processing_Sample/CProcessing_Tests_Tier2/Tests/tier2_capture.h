@@ -297,6 +297,8 @@ typedef struct
 
     // A screenshot drawn in the next state (see Scn_GameStateSnapshot)
     CP_BOOL snapshotTaken;
+    CP_Color snapshotInPushedInitCenter; // a screenshot in E's init: the picture below, D's green
+    CP_Color snapshotInPushedInitCorner;
     int snapshotHarnessDepthAfter;      // 1
 
     // Drawing into an image (see Scn_ImageDrawInto)
