@@ -81,9 +81,6 @@
     <ClInclude Include="Source\vect.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\tinycthread.h">
-      <Filter>Internal Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Internal_System.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
@@ -138,9 +135,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\vect.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\tinycthread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\CP_System.c">
