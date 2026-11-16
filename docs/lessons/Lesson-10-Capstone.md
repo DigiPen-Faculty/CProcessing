@@ -146,3 +146,5 @@ This is the real challenge: **change this game until it's yours.** Pick at least
 You can make a game: window, shapes, color, input, movement, collision, pictures, sound and states. The rest is practice, and that means making more games, and finishing them. The [wiki](https://github.com/DigiPen-Faculty/CProcessing/wiki) has a page for every function when you want to know exactly what it does, and the demos and examples in the repository show more ideas. When something won't work, `printf` is still the best debugger you have.
 
 Show someone your game. That's the best part.
+
+**Extra:** [Lesson 11](Lesson-11-Your-Own-State-Manager) builds the game states of lesson 9 from scratch, so you know what `PushGameState` really does.
