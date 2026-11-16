@@ -23,7 +23,14 @@ cmake_minimum_required(VERSION 3.20)
 # The game's name, which is also the name of the program file
 project(MyGame C)
 
-add_executable(${PROJECT_NAME} main.c)
+# The game is every .c and .cpp file in this folder, so new files are built
+# without changing this one. To write the game in C++, rename main.c to
+# main.cpp (C++ is only turned on when there is a .cpp file).
+file(GLOB GAME_SOURCES CONFIGURE_DEPENDS *.c *.cpp)
+if(GAME_SOURCES MATCHES "[.]cpp")
+    enable_language(CXX)
+endif()
+add_executable(${PROJECT_NAME} ${GAME_SOURCES})
 
 if(MSVC)
     # Read source files as UTF-8, so text such as "©" or accented letters

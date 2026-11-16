@@ -30,7 +30,7 @@ The most important idea in this lesson. **Don't write the whole game, and then r
 2. **A coin.** Lesson 6: the distance between the slime and the coin. When they touch, add a point and move the coin.
 3. **Balls that bounce.** Lesson 6: a position and a velocity, and turn round at the edges.
 4. **Lives.** A hit takes a life. At 0, for now, just print "game over" to the console.
-5. **States.** Lesson 9: move what you have into `play`, and add a menu and a game over.
+5. **States.** Lesson 9: move what you have into `play`, add a menu and a game over, and push a pause on top of play.
 6. **The slime picture.** Lesson 7: replace the circle with the sprite and animate it.
 7. **Sound.** Lesson 8: a chime for a coin, a thump for a hit, music.
 8. **Polish.** Easing, a combo, the blink after a hit.
@@ -52,7 +52,7 @@ Layers 1 to 5 are the **game**. Layers 6 to 8 are what make it **feel** like a g
 | `CollectCoin`: score, combo, a rising chime | lesson 8 |
 | a hit: a life, a dip in the music, a blink | lessons 6, 8 and 9 |
 | `over_update`: the title bounces in, the best score is kept | lessons 7 and 9 |
-| pause with `P`, and music paused with it | lessons 4, 8 and 9 |
+| the pause: a state pushed on top of play with `P`, whose init pauses the music and whose exit resumes it | lessons 4, 8 and 9 |
 
 Here are four spots where the game makes a choice of its own, and why.
 
@@ -82,7 +82,7 @@ Games call this **invulnerability frames**. A "timer that counts down by `dt`" i
 
 **A combo has a timer.** `combo` goes up with every coin, and `comboTimer` is set to 2 seconds. If the timer runs out before the next coin, the combo goes back to 0. A coin is worth the combo, up to 5 points. The chime goes up with the combo, as in lesson 8.
 
-**Each state frees what it loads.** The menu loads the sprite sheet (to hop on the title screen) and frees it in `menu_exit`. The play state loads its picture and sounds in `play_init` and frees them in `play_exit`. Nothing is loaded twice, nothing is forgotten, and when you close the window, the exit of the current state runs, so closing during a game is clean. That's "whoever loads it frees it", from lesson 7.
+**Each state frees what it loads.** The menu loads the sprite sheet (to hop on the title screen) and frees it in `menu_exit`. The play state loads its picture and sounds in `play_init` and frees them in `play_exit`. Nothing is loaded twice, nothing is forgotten, and when you close the window, the exit of every state on the table runs, the top one first, so closing during a game, or during the pause, is clean. That's "whoever loads it frees it", from lesson 7.
 
 ## Step 4: Tuning
 

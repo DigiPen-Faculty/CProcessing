@@ -109,7 +109,7 @@ static void DemoManagerPreUpdate(void)
 	// The number keys switch demos
 	for (int i = 0; i < DEMO_COUNT && i < 9; ++i)
 	{
-		if (CP_Input_KeyTriggered(KEY_1 + i) && i != currentDemo)
+		if (CP_Input_KeyTriggered((CP_KEY)(KEY_1 + i)) && i != currentDemo)
 		{
 			printf("Switching to demo %d: %s\n", i + 1, demos[i].name);
 			SwitchToDemo(i);

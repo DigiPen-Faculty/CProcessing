@@ -89,6 +89,28 @@ function(cprocessing_set_warnings target)
     endif()
 endfunction()
 
+# Strict warnings for code built as C++, to check that the public headers,
+# and the examples students copy from, work from C++ as well as C.
+# -Wpedantic and /permissive- reject what isn't standard C++.
+function(cprocessing_set_cxx_warnings target)
+    cprocessing_set_utf8(${target})
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /W4 /permissive-)
+        target_compile_definitions(${target} PRIVATE _CRT_SECURE_NO_WARNINGS)
+        if(CPROCESSING_WARNINGS_AS_ERRORS)
+            target_compile_options(${target} PRIVATE /WX)
+        endif()
+    else()
+        # -Wno-missing-braces as for C: { x, y } for the unions is fine
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Wno-missing-braces)
+        if(CPROCESSING_WARNINGS_AS_ERRORS)
+            target_compile_options(${target} PRIVATE -Werror)
+        endif()
+    endif()
+    # The oldest C++ a student is likely to use (MSVC starts at C++14)
+    set_target_properties(${target} PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
+endfunction()
+
 # Let executables find the shared library sitting next to them.
 function(cprocessing_set_rpath target)
     if(APPLE)
@@ -262,6 +284,15 @@ if(CPROCESSING_BUILD_TESTS)
     add_test(NAME tier2 COMMAND CProcessing_Tests_Tier2
         WORKING_DIRECTORY "$<TARGET_FILE_DIR:CProcessing_Tests_Tier2>")
     set_tests_properties(tier2 PROPERTIES LABELS "tier2;gui" TIMEOUT 120)
+
+    # C++: a program written in C++ that includes the headers, links with
+    # CProcessing and calls it. No window, so it runs with Tier 1.
+    add_executable(CProcessing_Tests_Cxx "${TEST_DIR}/Cxx/test_cxx.cpp")
+    target_link_libraries(CProcessing_Tests_Cxx PRIVATE CProcessing)
+    cprocessing_set_cxx_warnings(CProcessing_Tests_Cxx)
+    cprocessing_set_rpath(CProcessing_Tests_Cxx)
+    add_test(NAME cxx COMMAND CProcessing_Tests_Cxx)
+    set_tests_properties(cxx PROPERTIES LABELS "tier1;cxx")
 endif()
 
 #------------------------------------------------------------------------------
@@ -311,4 +342,30 @@ if(CPROCESSING_BUILD_EXAMPLES)
     foreach(target ${example_targets})
         add_dependencies(${target} Example_Assets)
     endforeach()
+
+    # Students often write their game in C++, starting from these files. So
+    # each example and lesson, the demos and the templates' main.c are also
+    # compiled as C++ (not linked: one small file each, in the build folder,
+    # includes the real one). A C-only habit in any of them, such as malloc
+    # without a cast, fails the build here.
+    set(cxx_check_sources ${EXAMPLE_SOURCES} ${LESSON_SOURCES}
+        "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Empty/main.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Empty_CMake/main.c")
+    if(CPROCESSING_BUILD_DEMOS)
+        file(GLOB DEMO_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Sample/Demos/*.c")
+        list(APPEND cxx_check_sources "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Sample/main.c" ${DEMO_SOURCES})
+    endif()
+    set(cxx_wrappers "")
+    foreach(source ${cxx_check_sources})
+        file(RELATIVE_PATH relative "${CMAKE_CURRENT_SOURCE_DIR}" "${source}")
+        string(REGEX REPLACE "[/.]" "_" wrapper_name "${relative}")
+        set(wrapper "${CMAKE_CURRENT_BINARY_DIR}/cxx_check/${wrapper_name}.cpp")
+        file(CONFIGURE OUTPUT "${wrapper}" CONTENT "#include \"${source}\"\n")
+        list(APPEND cxx_wrappers "${wrapper}")
+    endforeach()
+    add_library(Example_CxxCheck OBJECT ${cxx_wrappers})
+    target_include_directories(Example_CxxCheck PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Sample/Demos")
+    target_link_libraries(Example_CxxCheck PRIVATE CProcessing)
+    cprocessing_set_cxx_warnings(Example_CxxCheck)
+    set_target_properties(Example_CxxCheck PROPERTIES FOLDER Examples)
 endif()

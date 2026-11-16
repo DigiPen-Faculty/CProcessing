@@ -9,7 +9,7 @@ Studio template instead (`CProcessingTemplate.zip` on the
 
 | File | What it is |
 |---|---|
-| `main.c` | Your game. |
+| `main.c` | Your game. Every `.c` and `.cpp` file in this folder is built into it. |
 | `Assets/` | Images, sounds and fonts. Each build copies it next to the game. |
 | `CMakeLists.txt` | The build. Change `MyGame` in `project(MyGame C)` to rename the game. |
 | `CProcessing/` | The CProcessing library, already built. Only in the Linux and macOS release packages. |
@@ -44,6 +44,18 @@ After editing `main.c`, run `cmake --build build` again. CProcessing looks
 for assets from the current folder, and then next to the game, so the
 `Assets` folder in `build/bin` is found however the game is started, from a
 terminal or by double-clicking it.
+
+## Writing the game in C++
+
+CProcessing works from C++ too. Rename `main.c` to `main.cpp` and build
+again: every `.c` and `.cpp` file in this folder is part of the game, each
+built by its extension, and C++ is turned on when there's a `.cpp` file.
+On Linux that needs a C++ compiler too (`build-essential` includes one).
+
+One difference to know: C++ won't turn a number into a named value, such as
+a key, by itself. `CP_Input_KeyDown(KEY_A + i)` needs a cast in C++:
+`CP_Input_KeyDown((CP_KEY)(KEY_A + i))`. The same goes for `malloc`, whose
+result needs a cast: `(CP_Color*)malloc(...)`.
 
 ## Seeing `printf` output
 

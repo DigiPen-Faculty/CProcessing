@@ -99,7 +99,7 @@ void GridWaveDemoInit(void)
 	memory_size = sizeof(CP_Vector) * grid_width * grid_height;
 
 	// setup grid positions
-	grid_positions = malloc(sizeof(CP_Vector) * grid_width * grid_height);
+	grid_positions = (CP_Vector*)malloc(sizeof(CP_Vector) * grid_width * grid_height);
 	for (int j = 0; j < grid_height; ++j)
 	{
 		for (int i = 0; i < grid_width; ++i)
@@ -110,11 +110,11 @@ void GridWaveDemoInit(void)
 	}
 
 	// setup grid velocities
-	grid_velocities = calloc(sizeof(CP_Vector), grid_width * grid_height);
+	grid_velocities = (CP_Vector*)calloc(grid_width * grid_height, sizeof(CP_Vector));
 
 	// setup grid offsets
-	grid_offsets = calloc(sizeof(CP_Vector), grid_width * grid_height);
-	grid_offsets_cache = calloc(sizeof(CP_Vector), grid_width * grid_height);
+	grid_offsets = (CP_Vector*)calloc(grid_width * grid_height, sizeof(CP_Vector));
+	grid_offsets_cache = (CP_Vector*)calloc(grid_width * grid_height, sizeof(CP_Vector));
 }
 
 void GridWaveDemoUpdate(void)

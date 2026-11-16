@@ -20,7 +20,8 @@
 //             text bumps
 //   8         sound: music, a chime that rises with the combo, and a hit
 //             that dips the music
-//   9         game states: menu, play, game over
+//   9         game states: menu, play, game over, and a pause pushed on
+//             top of play
 //
 // To run it, copy this file over the template's main.c. It needs
 // SlimeSheet.png, Music.wav, Coin.wav and Hit.wav in the Assets folder,
@@ -42,6 +43,9 @@ void menu_exit(void);
 void play_init(void);
 void play_update(void);
 void play_exit(void);
+void pause_init(void);
+void pause_update(void);
+void pause_exit(void);
 void over_init(void);
 void over_update(void);
 void over_exit(void);
@@ -169,7 +173,6 @@ const float comboWindow = 2.0f;
 
 float scorePop;				// 1 right after a coin, easing to 0
 float musicDip;				// 1 right after a hit, easing to 0
-CP_BOOL paused;
 
 const float hudHeight = 60.0f;	// the arena is below the HUD
 
@@ -226,7 +229,6 @@ void play_init(void)
 	comboTimer = 0.0f;
 	scorePop = 0.0f;
 	musicDip = 0.0f;
-	paused = FALSE;
 	ballCount = 0;
 	AddBall();
 	PlaceCoin();
@@ -260,116 +262,107 @@ void play_update(void)
 	const float dt = CP_System_GetDt();
 	stateTime += dt;
 
+	// P puts the pause on top of the game (lesson 9). play_update stops
+	// running until the pause is taken off, so nothing here moves.
 	if (CP_Input_KeyTriggered(KEY_P))
 	{
-		paused = !paused;
-		if (paused)
-		{
-			CP_Sound_Pause(musicInstance);
-		}
-		else
-		{
-			CP_Sound_Resume(musicInstance);
-		}
+		CP_Engine_PushGameState(pause_init, pause_update, pause_exit);
 	}
 
-	if (!paused)
+	//-------------------------------------------------
+	// The slime moves (lesson 5) and animates (lesson 7)
+	CP_Vector direction = CP_Vector_Zero();
+	if (CP_Input_KeyDown(KEY_A) || CP_Input_KeyDown(KEY_LEFT))
 	{
-		//-------------------------------------------------
-		// The slime moves (lesson 5) and animates (lesson 7)
-		CP_Vector direction = CP_Vector_Zero();
-		if (CP_Input_KeyDown(KEY_A) || CP_Input_KeyDown(KEY_LEFT))
+		direction.x -= 1.0f;
+	}
+	if (CP_Input_KeyDown(KEY_D) || CP_Input_KeyDown(KEY_RIGHT))
+	{
+		direction.x += 1.0f;
+	}
+	if (CP_Input_KeyDown(KEY_W) || CP_Input_KeyDown(KEY_UP))
+	{
+		direction.y -= 1.0f;
+	}
+	if (CP_Input_KeyDown(KEY_S) || CP_Input_KeyDown(KEY_DOWN))
+	{
+		direction.y += 1.0f;
+	}
+	if (direction.x != 0.0f || direction.y != 0.0f)
+	{
+		direction = CP_Vector_Normalize(direction);
+		slimePosition = CP_Vector_Add(slimePosition, CP_Vector_Scale(direction, slimeSpeed * dt));
+		slimePosition.x = CP_Math_ClampFloat(slimePosition.x, slimeRadius, CP_System_GetWindowWidth() - slimeRadius);
+		slimePosition.y = CP_Math_ClampFloat(slimePosition.y, hudHeight + slimeRadius, CP_System_GetWindowHeight() - slimeRadius);
+		if (direction.x != 0.0f)
 		{
-			direction.x -= 1.0f;
-		}
-		if (CP_Input_KeyDown(KEY_D) || CP_Input_KeyDown(KEY_RIGHT))
-		{
-			direction.x += 1.0f;
-		}
-		if (CP_Input_KeyDown(KEY_W) || CP_Input_KeyDown(KEY_UP))
-		{
-			direction.y -= 1.0f;
-		}
-		if (CP_Input_KeyDown(KEY_S) || CP_Input_KeyDown(KEY_DOWN))
-		{
-			direction.y += 1.0f;
-		}
-		if (direction.x != 0.0f || direction.y != 0.0f)
-		{
-			direction = CP_Vector_Normalize(direction);
-			slimePosition = CP_Vector_Add(slimePosition, CP_Vector_Scale(direction, slimeSpeed * dt));
-			slimePosition.x = CP_Math_ClampFloat(slimePosition.x, slimeRadius, CP_System_GetWindowWidth() - slimeRadius);
-			slimePosition.y = CP_Math_ClampFloat(slimePosition.y, hudHeight + slimeRadius, CP_System_GetWindowHeight() - slimeRadius);
-			if (direction.x != 0.0f)
-			{
-				facingLeft = direction.x < 0.0f;
-			}
-
-			frameTimer += dt;
-			while (frameTimer >= 1.0f / 12.0f)
-			{
-				frameTimer -= 1.0f / 12.0f;
-				currentFrame = (currentFrame + 1) % FRAME_COUNT;
-			}
-		}
-		else
-		{
-			currentFrame = 0;
-			frameTimer = 0.0f;
+			facingLeft = direction.x < 0.0f;
 		}
 
-		//-------------------------------------------------
-		// Timers that count down by dt
-		coinAge += dt;
-		if (safeTimer > 0.0f)
+		frameTimer += dt;
+		while (frameTimer >= 1.0f / 12.0f)
 		{
-			safeTimer -= dt;
+			frameTimer -= 1.0f / 12.0f;
+			currentFrame = (currentFrame + 1) % FRAME_COUNT;
 		}
-		if (comboTimer > 0.0f)
+	}
+	else
+	{
+		currentFrame = 0;
+		frameTimer = 0.0f;
+	}
+
+	//-------------------------------------------------
+	// Timers that count down by dt
+	coinAge += dt;
+	if (safeTimer > 0.0f)
+	{
+		safeTimer -= dt;
+	}
+	if (comboTimer > 0.0f)
+	{
+		comboTimer -= dt;
+		if (comboTimer <= 0.0f)
 		{
-			comboTimer -= dt;
-			if (comboTimer <= 0.0f)
-			{
-				combo = 0;
-			}
+			combo = 0;
 		}
-		scorePop = CP_Math_ClampFloat(scorePop - dt / 0.35f, 0.0f, 1.0f);
-		musicDip = CP_Math_ClampFloat(musicDip - dt / 0.9f, 0.0f, 1.0f);
-		CP_Sound_SetGroupPitch(CP_SOUND_GROUP_MUSIC, 1.0f - 0.35f * CP_Math_EaseOutQuad(musicDip));
+	}
+	scorePop = CP_Math_ClampFloat(scorePop - dt / 0.35f, 0.0f, 1.0f);
+	musicDip = CP_Math_ClampFloat(musicDip - dt / 0.9f, 0.0f, 1.0f);
+	CP_Sound_SetGroupPitch(CP_SOUND_GROUP_MUSIC, 1.0f - 0.35f * CP_Math_EaseOutQuad(musicDip));
 
-		//-------------------------------------------------
-		// Collision (lesson 6): the coin, then the balls
-		if (CP_Vector_Distance(slimePosition, coinPosition) <= slimeRadius + coinRadius)
+	//-------------------------------------------------
+	// Collision (lesson 6): the coin, then the balls
+	if (CP_Vector_Distance(slimePosition, coinPosition) <= slimeRadius + coinRadius)
+	{
+		CollectCoin();
+	}
+
+	for (int i = 0; i < ballCount; i++)
+	{
+		ballPositions[i] = CP_Vector_Add(ballPositions[i], CP_Vector_Scale(ballVelocities[i], dt));
+
+		// Bounce off the edges of the arena: turn round across or down
+		if (ballPositions[i].x < ballRadius || ballPositions[i].x > CP_System_GetWindowWidth() - ballRadius)
 		{
-			CollectCoin();
+			ballPositions[i].x = CP_Math_ClampFloat(ballPositions[i].x, ballRadius, CP_System_GetWindowWidth() - ballRadius);
+			ballVelocities[i].x = -ballVelocities[i].x;
+		}
+		if (ballPositions[i].y < hudHeight + ballRadius || ballPositions[i].y > CP_System_GetWindowHeight() - ballRadius)
+		{
+			ballPositions[i].y = CP_Math_ClampFloat(ballPositions[i].y, hudHeight + ballRadius, CP_System_GetWindowHeight() - ballRadius);
+			ballVelocities[i].y = -ballVelocities[i].y;
 		}
 
-		for (int i = 0; i < ballCount; i++)
+		// A hit costs a life, unless the slime is still safe from the
+		// last one
+		if (safeTimer <= 0.0f && CP_Vector_Distance(slimePosition, ballPositions[i]) <= slimeRadius + ballRadius)
 		{
-			ballPositions[i] = CP_Vector_Add(ballPositions[i], CP_Vector_Scale(ballVelocities[i], dt));
-
-			// Bounce off the edges of the arena: turn round across or down
-			if (ballPositions[i].x < ballRadius || ballPositions[i].x > CP_System_GetWindowWidth() - ballRadius)
-			{
-				ballPositions[i].x = CP_Math_ClampFloat(ballPositions[i].x, ballRadius, CP_System_GetWindowWidth() - ballRadius);
-				ballVelocities[i].x = -ballVelocities[i].x;
-			}
-			if (ballPositions[i].y < hudHeight + ballRadius || ballPositions[i].y > CP_System_GetWindowHeight() - ballRadius)
-			{
-				ballPositions[i].y = CP_Math_ClampFloat(ballPositions[i].y, hudHeight + ballRadius, CP_System_GetWindowHeight() - ballRadius);
-				ballVelocities[i].y = -ballVelocities[i].y;
-			}
-
-			// A hit costs a life, unless the slime is still safe from the
-			// last one
-			if (safeTimer <= 0.0f && CP_Vector_Distance(slimePosition, ballPositions[i]) <= slimeRadius + ballRadius)
-			{
-				lives--;
-				safeTimer = safeTime;
-				combo = 0;
-				musicDip = 1.0f;
-				CP_Sound_PlayAdvanced(hitSound, 1.0f, CP_Random_RangeFloat(0.95f, 1.05f), FALSE, CP_SOUND_GROUP_SFX);
-			}
+			lives--;
+			safeTimer = safeTime;
+			combo = 0;
+			musicDip = 1.0f;
+			CP_Sound_PlayAdvanced(hitSound, 1.0f, CP_Random_RangeFloat(0.95f, 1.05f), FALSE, CP_SOUND_GROUP_SFX);
 		}
 	}
 
@@ -423,15 +416,6 @@ void play_update(void)
 		CP_Graphics_DrawCircle(700.0f + i * 30.0f, hudHeight / 2.0f, 20.0f);
 	}
 
-	if (paused)
-	{
-		CP_Settings_Fill(CP_Color_Create(0, 0, 0, 150));
-		CP_Graphics_DrawRect(CP_System_GetWindowWidth() / 2.0f, CP_System_GetWindowHeight() / 2.0f,
-			(float)CP_System_GetWindowWidth(), (float)CP_System_GetWindowHeight());
-		DrawCenteredText("PAUSED", 270.0f, 80.0f);
-		DrawCenteredText("P to keep playing", 350.0f, 26.0f);
-	}
-
 	if (lives <= 0)
 	{
 		CP_Engine_SetNextGameState(over_init, over_update, over_exit);
@@ -446,6 +430,36 @@ void play_exit(void)
 	CP_Sound_Free(&music);
 	CP_Sound_Free(&coinSound);
 	CP_Sound_Free(&hitSound);
+}
+
+//---------------------------------------------------------
+// PAUSE STATE. Pushed on top of play, which stays underneath, frozen and
+// visible, without play_exit running. Its init and exit pause and resume
+// the music, so the music stops exactly as long as the pause is on.
+//---------------------------------------------------------
+void pause_init(void)
+{
+	CP_Sound_Pause(musicInstance);
+}
+
+void pause_update(void)
+{
+	// A see-through black sheet over the frozen game, then the words
+	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 150));
+	DrawCenteredText("PAUSED", 270.0f, 80.0f);
+	DrawCenteredText("P to keep playing", 350.0f, 26.0f);
+
+	if (CP_Input_KeyTriggered(KEY_P))
+	{
+		// Take the pause off: pause_exit runs, and play carries on
+		CP_Engine_PopGameState();
+	}
+}
+
+void pause_exit(void)
+{
+	// Also runs if the window is closed during the pause, before play_exit
+	CP_Sound_Resume(musicInstance);
 }
 
 //---------------------------------------------------------

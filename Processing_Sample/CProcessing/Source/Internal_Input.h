@@ -35,6 +35,8 @@ void CP_Input_MouseWheelCallback(GLFWwindow* window, double xoffset, double yoff
 void CP_Input_CharCallback(GLFWwindow* window, unsigned int codepoint);
 void CP_Input_TextUpdate(void);
 void CP_Input_Init(void);
+// While a game state runs under another one, it gets no input (CP_System.c)
+void CP_Input_SetMuted(CP_BOOL muted, CP_Vector mouse, CP_Vector worldMouse);
 void CP_Input_Update(void);
 void CP_Input_KeyboardUpdate(void);
 void CP_Input_MouseUpdate(void);

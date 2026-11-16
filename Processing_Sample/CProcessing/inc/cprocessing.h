@@ -62,6 +62,12 @@ CP_API void				CP_Engine_Run						(void);
 CP_API void				CP_Engine_Terminate					(void);
 CP_API void				CP_Engine_SetNextGameState			(FunctionPtr init, FunctionPtr update, FunctionPtr exit);
 CP_API void				CP_Engine_SetNextGameStateForced	(FunctionPtr init, FunctionPtr update, FunctionPtr exit);
+CP_API void				CP_Engine_PushGameState				(FunctionPtr init, FunctionPtr update, FunctionPtr exit);
+CP_API void				CP_Engine_PopGameState				(void);
+CP_API void				CP_Engine_SetGameStatePassThrough	(CP_STATE passThrough);
+CP_API int				CP_Engine_GetGameStateDepth			(void);
+CP_API CP_BOOL			CP_Engine_IsTopGameState			(void);
+CP_API float			CP_Engine_GetGameStateTime			(void);
 CP_API void				CP_Engine_SetPreUpdateFunction		(FunctionPtr preUpdateFunction);
 CP_API void				CP_Engine_SetPostUpdateFunction		(FunctionPtr postUpdateFunction);
 
@@ -183,10 +189,13 @@ CP_API void				CP_Image_Draw						(CP_Image img, float x, float y, float w, floa
 CP_API void				CP_Image_DrawAdvanced				(CP_Image img, float x, float y, float w, float h, int alpha, float degrees);
 CP_API void				CP_Image_DrawSubImage				(CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha);
 CP_API void				CP_Image_DrawSubImageAdvanced       (CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha, float degrees);
-CP_API CP_Image			CP_Image_CreateFromData				(int w, int h, unsigned char* pixelDataInput);
+CP_API CP_Image			CP_Image_CreateFromData				(int w, int h, const unsigned char* pixelDataInput);
+CP_API CP_Image			CP_Image_Create						(int width, int height);
+CP_API void				CP_Image_BeginDrawing				(CP_Image img);
+CP_API void				CP_Image_EndDrawing					(void);
 CP_API CP_Image			CP_Image_Screenshot					(int x, int y, int w, int h);
 CP_API void				CP_Image_GetPixelData				(CP_Image img, CP_Color* pixelDataOutput);
-CP_API void				CP_Image_UpdatePixelData			(CP_Image img, CP_Color* pixelDataInput);
+CP_API void				CP_Image_UpdatePixelData			(CP_Image img, const CP_Color* pixelDataInput);
 
 
 //---------------------------------------------------------

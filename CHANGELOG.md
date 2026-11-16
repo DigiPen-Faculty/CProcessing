@@ -12,6 +12,61 @@ changes to build with the new version.
 
 ### Added
 
+- **A stack of game states, for pause menus and more:** think of states as
+  cards on a table. `CP_Engine_SetNextGameState` clears the table and puts
+  down a new card, as it always has: use it for a new part of the game.
+  `CP_Engine_PushGameState` puts a card on top of the others: use it when the
+  game stays where it is but something comes up, like a pause menu or a
+  dialog box. The states underneath stop, without their exits running, and
+  stay visible behind the new one. `CP_Engine_PopGameState` takes the card
+  off again, and the state underneath carries on where it was, without its
+  init running. So a pause menu is a state of its own that shows the frozen
+  game behind it, with no flags.
+  - `CP_Engine_PopGameState` takes off the state that calls it, with any
+    states above it.
+  - When the program ends, every state on the stack exits, not only the top
+    one.
+  - Each state keeps its own drawing settings while another state draws.
+  - Only the top state gets input.
+  - `CP_Engine_SetGameStatePassThrough` lets a state choose what the states
+    under it do, usually in its init:
+    - `CP_STATE_FROZEN`, the default: they stop and stay visible;
+    - `CP_STATE_PASSIVE`: they keep running and drawing, without input, for
+      a dialog over a world that keeps moving;
+    - `CP_STATE_NONE`: they stop and can't be seen, for a page that fills
+      the window.
+    
+    The values are bits (`CP_STATE_UPDATING`, `CP_STATE_VISIBLE`), and a
+    state under several gets only what all of them let through.
+  - `CP_Engine_GetGameStateDepth`, `CP_Engine_IsTopGameState` and
+    `CP_Engine_GetGameStateTime` tell a state about itself.
+    `CP_Engine_GetGameStateTime` gives the seconds a state has run, not
+    counting time spent stopped.
+  - A change asked for in an init or exit function now happens in the next
+    frame. Before, it was lost.
+- **Drawing into an image:** `CP_Image_Create(width, height)` makes a blank,
+  transparent image. Everything drawn between `CP_Image_BeginDrawing(image)`
+  and `CP_Image_EndDrawing()` goes into it instead of the window:
+  - (0, 0) is the image's top left corner, and one unit is one of its pixels;
+  - settings changed inside are put back by `EndDrawing`.
+  
+  Use it to draw something once and reuse it: a background built from tiles,
+  a minimap, a trail that fades, a picture to save as a screenshot.
+  `CP_Image_GetPixelData` and `UpdatePixelData` work on these images as on
+  any other.
+- **`Examples/state_stack.c`** shows the stack, pass-through, a HUD drawn by
+  a function and a trail drawn into an image. **`Examples/state_effects.c`**
+  shows effects written with ordinary CProcessing functions: easing into
+  slow motion under a level-up box (a time scale of your own, and the
+  sound's pitch), and turning the music down under a pause, with the
+  frozen game blurred or pixelated behind it (a screenshot in the pause's
+  init is the picture below it, drawn small and stretched back up).
+  **`Examples/transitions.c`** animates changes of state (fade, crossfade,
+  slides, and one the program draws) with a small helper to copy: it takes
+  a screenshot of the old state and draws it over the new one from the
+  post-update function. The old state's exit still runs before the new
+  state's init. `Examples/game_states.c` now pauses
+  by pushing a state, not with a flag.
 - **Window and frame rate options:** `CP_System_SetWindowResizable` lets the
   player resize the window (drawing follows the new size), `CP_System_SetVSync`
   turns vsync on, `CP_System_IsFullscreen` tells if the window is fullscreen,
@@ -78,6 +133,18 @@ changes to build with the new version.
 
 ### Changed
 
+- **The templates build C++ as well as C.** A game can be written in C++ by
+  renaming `main.c` to `main.cpp`.
+  - The Visual Studio template no longer forces every file to compile as C:
+    each file is built by its extension, so a `.cpp` file is C++.
+  - The CMake starter builds every `.c` and `.cpp` file in its folder, and
+    turns C++ on when there is a `.cpp` file. New files no longer need to be
+    added to `CMakeLists.txt`.
+  - Both READMEs say how, and what C++ needs that C doesn't (a cast to make
+    a key from a number, or after `malloc`).
+- **`CP_Image_CreateFromData` and `CP_Image_UpdatePixelData` take `const`
+  data,** since they only read it. C++ can now pass a `const` array. Nothing
+  to do in existing programs.
 - **`CP_Graphics_DrawCircle`, `DrawArc` and `DrawPie` name their size
   `diameter`, not `d`**, so the editor's hint says what the number is (it is
   the width across, not the radius). Only the parameter name changed: nothing
@@ -110,6 +177,18 @@ changes to build with the new version.
 
 ### Fixed
 
+- **`cprocessing_common.h` no longer causes warnings in C++ with
+  `-Wpedantic`.** The color, vector and matrix unions have an unnamed struct
+  (for `c.r` as well as `c.rgba[0]`), which C11 allows but C++ and C99
+  don't, so GCC and Clang gave 8 warnings for every file that included it,
+  and a build with `-Wpedantic -Werror` failed. The header now marks them
+  with `__extension__`, through a `CP_ANONYMOUS_STRUCT` macro.
+- **The demos compile as C++:** casts after `malloc` and `calloc`, and when
+  making a key from a number.
+- **C++ is checked in CI.** Every example, lesson, demo and template
+  `main.c` is also compiled as C++11, with `-Wpedantic` or `/permissive-`,
+  on Windows, Linux and macOS. A small C++ program links with CProcessing
+  and runs with the Tier 1 tests.
 - **A window size chosen in `game_init` now applies before the first
   `game_update`.** It used to apply one frame later, so the first update still
   saw a 400 x 400 window: `CP_System_GetWindowWidth()` was wrong, and a

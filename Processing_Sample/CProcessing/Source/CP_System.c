@@ -10,9 +10,11 @@
 #include "cprocessing.h"
 #include "Internal_System.h"
 #include "Internal_Monitor.h"
+#include "Internal_GameStateLogic.h"
 #include "tinycthread.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 #if !defined(_WIN32)
 	#include <unistd.h>	// isatty
 #endif
@@ -48,17 +50,6 @@ static CP_BOOL _deferredFullscreen = FALSE;
 // stored here and applied when CP_Initialize creates the window
 static CP_CURSOR_MODE _cursorMode = CP_CURSOR_NORMAL;
 static char _windowTitle[256] = "CProcessing Application";
-
-typedef struct GameStateFuncs
-{
-	FunctionPtr init;
-	FunctionPtr update;
-	FunctionPtr exit;
-} GameStateFuncs;
-
-static GameStateFuncs _currState = { NULL, NULL, NULL };
-static GameStateFuncs _nextState = { NULL, NULL, NULL };
-static bool _stateIsChanging = false;
 
 static FunctionPtr _preUpdateFunction = NULL;
 static FunctionPtr _postUpdateFunction = NULL;
@@ -228,136 +219,472 @@ static void CP_FramebufferSizeCallback(GLFWwindow* window, int width, int height
 
 
 //---------------------------------------------------------
-// CANVAS:
+// CANVAS AND LAYERS:
 //		CProcessing, like Processing, does not clear the screen between frames:
-//		whatever was drawn stays until it is drawn over. Every frame is drawn
-//		into a persistent offscreen framebuffer (the "canvas") that is copied
-//		to a normal double-buffered window at the end of the frame.
-//		Screenshots read back from the canvas.
+//		whatever was drawn stays until it is drawn over. Drawing goes into a
+//		persistent offscreen framebuffer (a "layer") that is copied to a
+//		normal double-buffered window at the end of the frame. Screenshots
+//		read back from it.
+//
+//		Each game state on the stack draws into a layer of its own. The
+//		bottom state's layer is the canvas a single-state program has always
+//		had: it starts with whatever the state before it drew, and is copied
+//		straight to the window. A state pushed on top gets a new layer that
+//		starts transparent, and is blended over the ones below it. A state
+//		that is covered isn't updated, so its layer keeps its last picture:
+//		that's how a frozen game shows behind a pause.
+//
+//		Layers drawn on top hold premultiplied alpha (what NanoVG draws), so
+//		CP_Graphics_ClearBackground premultiplies its color there. The bottom
+//		layer is copied, not blended, exactly as the single canvas was.
 //
 //		(CProcessing used to draw straight into a single-buffered window on
 //		Windows instead. Single-buffered windows are not available everywhere -
 //		Wayland/EGL has none, and macOS core profile contexts are unreliable
-//		with them - so the canvas is used on every platform for consistency.)
+//		with them - so a canvas is used on every platform for consistency.)
 //
 //		After the copy, the window's own framebuffer (0) stays bound through
-//		the swap, and the canvas is bound again at the start of the next frame:
-//		on macOS, a frame swapped while another framebuffer is bound is never
-//		displayed, and the window stays black (SDL documents the same for
-//		SDL_GL_SwapWindow).
+//		the swap, and the drawing layer is bound again at the start of the
+//		next frame: on macOS, a frame swapped while another framebuffer is
+//		bound is never displayed, and the window stays black (SDL documents
+//		the same for SDL_GL_SwapWindow).
 
-static GLuint _canvasFramebuffer = 0;
-static GLuint _canvasColorBuffer = 0;
-static GLuint _canvasDepthStencilBuffer = 0;
-static int _canvasBufferWidth = 0;
-static int _canvasBufferHeight = 0;
+#define CP_MAX_LAYERS (CP_MAX_GAME_STATES + 4)	// one per state, and spares
+
+typedef struct CP_Layer
+{
+	GLuint framebuffer;		// 0 when the layer has no GL objects
+	GLuint color;			// texture
+	int width;
+	int height;
+	int image;				// NanoVG image of the texture, made when first blended (0: none yet)
+	bool inUse;
+} CP_Layer;
+
+static CP_Layer _layers[CP_MAX_LAYERS];
+static GLuint _layerDepthStencil = 0;	// shared: NanoVG only needs stencil while it draws
+static int _layerWidth = 0;
+static int _layerHeight = 0;
+
+static int _drawLayer = -1;				// where drawing goes now
+static bool _drawLayerPremultiplied = false;
+static bool _nvgFrameOpen = false;		// between the frame's nvgBeginFrame and nvgEndFrame
+static int _readLayer = -1;				// a spare layer to put the picture together in, for reading it
+
+static void CP_Layer_DestroyGL(CP_Layer* layer)
+{
+	if (layer->image && _CORE.nvg)
+	{
+		nvgDeleteImage(_CORE.nvg, layer->image);	// NVG_IMAGE_NODELETE: the texture stays
+	}
+	if (layer->framebuffer)
+	{
+		glDeleteFramebuffers(1, &layer->framebuffer);
+		glDeleteTextures(1, &layer->color);
+	}
+	layer->framebuffer = layer->color = 0;
+	layer->image = 0;
+	layer->width = layer->height = 0;
+}
+
+static bool CP_Layer_CreateGL(CP_Layer* layer, int width, int height)
+{
+	GLuint color = 0, framebuffer = 0;
+	glGenTextures(1, &color);
+	glBindTexture(GL_TEXTURE_2D, color);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenFramebuffers(1, &framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _layerDepthStencil);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		printf("CProcessing: could not create a %d x %d drawing canvas.\n", width, height);
+		glDeleteFramebuffers(1, &framebuffer);
+		glDeleteTextures(1, &color);
+		return false;
+	}
+
+	glDisable(GL_SCISSOR_TEST);
+	glViewport(0, 0, width, height);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	layer->framebuffer = framebuffer;
+	layer->color = color;
+	layer->width = width;
+	layer->height = height;
+	layer->image = 0;
+	return true;
+}
+
+// Make drawing go to the layer that should get it now
+static void CP_Canvas_Bind(void)
+{
+	if (_drawLayer >= 0 && _layers[_drawLayer].framebuffer)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, _layers[_drawLayer].framebuffer);
+		glViewport(0, 0, _layers[_drawLayer].width, _layers[_drawLayer].height);
+	}
+}
+
+// Draw into another layer from now on, finishing what was drawn so far
+static void CP_SetDrawLayer(int layer, bool premultiplied)
+{
+	_drawLayerPremultiplied = premultiplied;
+	if (layer == _drawLayer)
+	{
+		return;
+	}
+	if (_nvgFrameOpen)
+	{
+		nvgEndFrame(_CORE.nvg);
+	}
+	_drawLayer = layer;
+	CP_Canvas_Bind();
+	if (_nvgFrameOpen)
+	{
+		nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
+	}
+}
+
+// A layer that isn't in use, at the canvas size, cleared to a color
+static int CP_Layer_Acquire(float r, float g, float b, float a)
+{
+	int found = -1;
+	for (int i = 0; i < CP_MAX_LAYERS && found < 0; ++i)
+	{
+		if (!_layers[i].inUse && _layers[i].framebuffer)
+		{
+			found = i;		// one with GL objects already: reuse it
+		}
+	}
+	for (int i = 0; i < CP_MAX_LAYERS && found < 0; ++i)
+	{
+		if (!_layers[i].inUse)
+		{
+			found = i;
+		}
+	}
+	if (found < 0)
+	{
+		printf("CProcessing: too many drawing layers in use.\n");
+		return -1;
+	}
+
+	CP_Layer* layer = &_layers[found];
+	if (!layer->framebuffer && !CP_Layer_CreateGL(layer, _layerWidth, _layerHeight))
+	{
+		CP_Canvas_Bind();
+		return -1;
+	}
+	layer->inUse = true;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, layer->framebuffer);
+	glViewport(0, 0, layer->width, layer->height);
+	glDisable(GL_SCISSOR_TEST);
+	glClearColor(r, g, b, a);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	CP_Canvas_Bind();
+	return found;
+}
+
+static void CP_Layer_Release(int layer)
+{
+	if (layer >= 0 && layer < CP_MAX_LAYERS)
+	{
+		_layers[layer].inUse = false;
+	}
+}
+
+// The NanoVG image of a layer's texture, for blending it
+static int CP_Layer_Image(int layer)
+{
+	CP_Layer* l = &_layers[layer];
+	if (!l->image)
+	{
+		// GL textures are bottom-up, and NanoVG draws premultiplied alpha
+		l->image = nvglCreateImageFromHandleGL3(_CORE.nvg, l->color, l->width, l->height,
+			(int)NVG_IMAGE_FLIPY | (int)NVG_IMAGE_PREMULTIPLIED | (int)NVG_IMAGE_NODELETE);
+	}
+	return l->image;
+}
 
 static void CP_Canvas_Destroy(void)
 {
-	if (_canvasFramebuffer)
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	for (int i = 0; i < CP_MAX_LAYERS; ++i)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glDeleteFramebuffers(1, &_canvasFramebuffer);
-		glDeleteRenderbuffers(1, &_canvasColorBuffer);
-		glDeleteRenderbuffers(1, &_canvasDepthStencilBuffer);
+		CP_Layer_DestroyGL(&_layers[i]);
+		_layers[i].inUse = false;
 	}
-	_canvasFramebuffer = _canvasColorBuffer = _canvasDepthStencilBuffer = 0;
-	_canvasBufferWidth = _canvasBufferHeight = 0;
+	if (_layerDepthStencil)
+	{
+		glDeleteRenderbuffers(1, &_layerDepthStencil);
+	}
+	_layerDepthStencil = 0;
+	_layerWidth = _layerHeight = 0;
+	_drawLayer = -1;
+	_readLayer = -1;
 }
 
-// Make the canvas the target of everything CProcessing draws
-static void CP_Canvas_Bind(void)
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
-	glViewport(0, 0, _canvasBufferWidth, _canvasBufferHeight);
-}
-
-// (Re)create the canvas at the given size, keeping whatever was already drawn
-// (anchored to the top-left corner, matching CProcessing's coordinate origin).
+// (Re)create every layer in use at the given size, keeping whatever was
+// already drawn on it (anchored to the top-left corner, matching
+// CProcessing's coordinate origin). The first call makes the first canvas.
 static bool CP_Canvas_Resize(int width, int height)
 {
 	if (width <= 0 || height <= 0)
 	{
 		return false;
 	}
-	if (_canvasFramebuffer && width == _canvasBufferWidth && height == _canvasBufferHeight)
+	if (_layerDepthStencil && width == _layerWidth && height == _layerHeight)
 	{
 		return true;
 	}
 
-	GLuint framebuffer = 0, color = 0, depthStencil = 0;
-	glGenFramebuffers(1, &framebuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-	glGenRenderbuffers(1, &color);
-	glBindRenderbuffer(GL_RENDERBUFFER, color);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color);
-
-	// NanoVG needs a stencil buffer for fills and stencil strokes
-	glGenRenderbuffers(1, &depthStencil);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthStencil);
+	GLuint oldDepthStencil = _layerDepthStencil;
+	glGenRenderbuffers(1, &_layerDepthStencil);
+	glBindRenderbuffer(GL_RENDERBUFFER, _layerDepthStencil);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencil);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	bool ok = true;
+	for (int i = 0; i < CP_MAX_LAYERS; ++i)
 	{
-		printf("CProcessing: could not create the %d x %d drawing canvas.\n", width, height);
-		glBindFramebuffer(GL_FRAMEBUFFER, _canvasFramebuffer);
-		glDeleteFramebuffers(1, &framebuffer);
-		glDeleteRenderbuffers(1, &color);
-		glDeleteRenderbuffers(1, &depthStencil);
-		return false;
+		CP_Layer* layer = &_layers[i];
+		if (!layer->inUse)
+		{
+			CP_Layer_DestroyGL(layer);	// made again at the new size when needed
+			continue;
+		}
+		CP_Layer old = *layer;
+		if (!CP_Layer_CreateGL(layer, width, height))
+		{
+			*layer = old;
+			ok = false;
+			continue;
+		}
+		if (old.framebuffer)
+		{
+			// carry the old drawing over to the new layer
+			const int copyWidth = width < old.width ? width : old.width;
+			const int copyHeight = height < old.height ? height : old.height;
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, old.framebuffer);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, layer->framebuffer);
+			glDisable(GL_SCISSOR_TEST);
+			glBlitFramebuffer(0, old.height - copyHeight, copyWidth, old.height,
+				0, height - copyHeight, copyWidth, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			CP_Layer_DestroyGL(&old);
+		}
 	}
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-	if (_canvasFramebuffer)
+	if (oldDepthStencil)
 	{
-		// carry the old drawing over to the new canvas
-		int copyWidth = width < _canvasBufferWidth ? width : _canvasBufferWidth;
-		int copyHeight = height < _canvasBufferHeight ? height : _canvasBufferHeight;
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, _canvasFramebuffer);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
-		glDisable(GL_SCISSOR_TEST);
-		glBlitFramebuffer(0, _canvasBufferHeight - copyHeight, copyWidth, _canvasBufferHeight,
-			0, height - copyHeight, copyWidth, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		glDeleteFramebuffers(1, &_canvasFramebuffer);
-		glDeleteRenderbuffers(1, &_canvasColorBuffer);
-		glDeleteRenderbuffers(1, &_canvasDepthStencilBuffer);
+		glDeleteRenderbuffers(1, &oldDepthStencil);
 	}
+	_layerWidth = width;
+	_layerHeight = height;
 
-	_canvasFramebuffer = framebuffer;
-	_canvasColorBuffer = color;
-	_canvasDepthStencilBuffer = depthStencil;
-	_canvasBufferWidth = width;
-	_canvasBufferHeight = height;
-
+	if (_drawLayer < 0)
+	{
+		// The very first canvas: black, until something is drawn
+		_drawLayer = CP_Layer_Acquire(0.0f, 0.0f, 0.0f, 1.0f);
+		ok = _drawLayer >= 0;
+	}
 	CP_Canvas_Bind();
-	return true;
+	return ok;
 }
 
-// Copy the canvas to the window's back buffer (call before swapping). This
-// leaves the window's framebuffer bound for the swap; CP_Canvas_Bind goes
-// back to the canvas.
-static void CP_Canvas_Present(void)
+// One layer of the picture on screen. A layer of -1 is a black cover.
+typedef struct CP_ComposeItem
 {
-	if (!_canvasFramebuffer)
+	int layer;
+	bool bottom;		// a bottom layer: copied, not blended, when it can be
+	float alpha;
+	float dx;			// offset, in window coordinates
+	float dy;
+} CP_ComposeItem;
+
+#define CP_MAX_COMPOSE_ITEMS (CP_MAX_LAYERS + 2)
+
+static bool CP_ComposeItem_IsPlainCopy(const CP_ComposeItem* item)
+{
+	return item->layer >= 0 && item->bottom && item->alpha >= 1.0f && item->dx == 0.0f && item->dy == 0.0f;
+}
+
+// Draw the picture made of the items, in order, into a framebuffer
+static void CP_Compose(const CP_ComposeItem* items, int count, GLuint target, int targetWidth, int targetHeight)
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, target);
+	glViewport(0, 0, targetWidth, targetHeight);
+	glDisable(GL_SCISSOR_TEST);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	int first = 0;
+	if (count > 0 && CP_ComposeItem_IsPlainCopy(&items[0]))
+	{
+		// the usual case: a straight copy, anchored to the top left
+		const CP_Layer* layer = &_layers[items[0].layer];
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, layer->framebuffer);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target);
+		glBlitFramebuffer(0, 0, layer->width, layer->height,
+			0, targetHeight - layer->height, layer->width, targetHeight,
+			GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_FRAMEBUFFER, target);
+		first = 1;
+	}
+	if (first >= count)
 	{
 		return;
 	}
+
+	const float ratio = _CORE.pixel_ratio > 0.0f ? _CORE.pixel_ratio : 1.0f;
+	NVGcontext* vg = _CORE.nvg;
+	nvgBeginFrame(vg, targetWidth / ratio, targetHeight / ratio, ratio);
+	nvgSave(vg);
+	nvgReset(vg);
+	for (int i = first; i < count; ++i)
+	{
+		const CP_ComposeItem* item = &items[i];
+		const float alpha = item->alpha < 0.0f ? 0.0f : (item->alpha > 1.0f ? 1.0f : item->alpha);
+		nvgBeginPath(vg);
+		if (item->layer < 0)
+		{
+			nvgRect(vg, 0.0f, 0.0f, targetWidth / ratio, targetHeight / ratio);
+			nvgFillColor(vg, nvgRGBAf(0.0f, 0.0f, 0.0f, alpha));
+		}
+		else
+		{
+			const CP_Layer* layer = &_layers[item->layer];
+			const float w = layer->width / ratio;
+			const float h = layer->height / ratio;
+			nvgRect(vg, item->dx, item->dy, w, h);
+			nvgFillPaint(vg, nvgImagePattern(vg, item->dx, item->dy, w, h, 0.0f, CP_Layer_Image(item->layer), alpha));
+		}
+		nvgFill(vg);
+	}
+	nvgRestore(vg);
+	nvgEndFrame(vg);
+}
+
+static int CP_GameStates_BuildPicture(CP_ComposeItem* items);
+
+// Copy the picture (every layer that can be seen) to the window's back
+// buffer (call before swapping). This leaves the window's framebuffer bound
+// for the swap; CP_Canvas_Bind goes back to the drawing layer.
+static void CP_Canvas_Present(void)
+{
 	int windowFbWidth = 0, windowFbHeight = 0;
 	glfwGetFramebufferSize(_CORE.window, &windowFbWidth, &windowFbHeight);
-
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, _canvasFramebuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glDisable(GL_SCISSOR_TEST);
-	glBlitFramebuffer(0, 0, _canvasBufferWidth, _canvasBufferHeight,
-		0, windowFbHeight - _canvasBufferHeight, _canvasBufferWidth, windowFbHeight,
-		GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	CP_ComposeItem items[CP_MAX_COMPOSE_ITEMS];
+	const int count = CP_GameStates_BuildPicture(items);
+	CP_Compose(items, count, 0, windowFbWidth, windowFbHeight);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+// For reading pixels (CP_Image_Screenshot): bind the picture as it will be
+// shown. With one layer that's the layer itself; otherwise the layers are
+// put together in a spare layer first. (NanoVG's frame must be finished.)
+void CP_Canvas_BindForReading(void)
+{
+	CP_ComposeItem items[CP_MAX_COMPOSE_ITEMS];
+	const int count = CP_GameStates_BuildPicture(items);
+	if (count == 1 && CP_ComposeItem_IsPlainCopy(&items[0]))
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, _layers[items[0].layer].framebuffer);
+		return;
+	}
+	if (_readLayer < 0)
+	{
+		_readLayer = CP_Layer_Acquire(0.0f, 0.0f, 0.0f, 1.0f);
+		if (_readLayer < 0)
+		{
+			return;
+		}
+	}
+	CP_Compose(items, count, _layers[_readLayer].framebuffer, _layers[_readLayer].width, _layers[_readLayer].height);
+	glBindFramebuffer(GL_FRAMEBUFFER, _layers[_readLayer].framebuffer);
+}
+
+static bool _drawingIntoImage = false;
+static GLuint _imageFramebuffer = 0;
+static int _imageWidth = 0;
+static int _imageHeight = 0;
+static bool _premultipliedBeforeImage = false;
+
+void CP_Canvas_EndReading(void)
+{
+	if (_drawingIntoImage)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, _imageFramebuffer);
+		glViewport(0, 0, _imageWidth, _imageHeight);
+		return;
+	}
+	CP_Canvas_Bind();
+}
+
+void CP_Canvas_ResumeFrame(void)
+{
+	if (_drawingIntoImage)
+	{
+		nvgBeginFrame(_CORE.nvg, (float)_imageWidth, (float)_imageHeight, 1.0f);
+	}
+	else
+	{
+		nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
+	}
+}
+
+// Drawing into an image: finish what was drawn so far, and draw into the
+// image's framebuffer, one image pixel to one unit, until CP_Canvas_EndImage
+void CP_Canvas_BeginImage(unsigned framebuffer, int width, int height)
+{
+	if (_nvgFrameOpen)
+	{
+		nvgEndFrame(_CORE.nvg);
+	}
+	_drawingIntoImage = true;
+	_imageFramebuffer = framebuffer;
+	_imageWidth = width;
+	_imageHeight = height;
+	_premultipliedBeforeImage = _drawLayerPremultiplied;
+	_drawLayerPremultiplied = true;		// NanoVG draws premultiplied alpha
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	glViewport(0, 0, width, height);
+	nvgBeginFrame(_CORE.nvg, (float)width, (float)height, 1.0f);
+}
+
+void CP_Canvas_EndImage(void)
+{
+	if (!_drawingIntoImage)
+	{
+		return;
+	}
+	nvgEndFrame(_CORE.nvg);
+	_drawingIntoImage = false;
+	_drawLayerPremultiplied = _premultipliedBeforeImage;
+	CP_Canvas_Bind();
+	if (_nvgFrameOpen)
+	{
+		nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
+	}
+}
+
+CP_BOOL CP_Canvas_IsDrawingIntoImage(void)
+{
+	return _drawingIntoImage ? TRUE : FALSE;
+}
+
+CP_BOOL CP_Canvas_IsPremultiplied(void)
+{
+	return _drawLayerPremultiplied ? TRUE : FALSE;
 }
 
 CP_CorePtr GetCPCore(void)
@@ -377,6 +704,271 @@ CP_DrawInfoPtr GetDrawInfo(void)
 	return &_CORE.states[_CORE.nstates - 1];
 }
 
+
+//---------------------------------------------------------
+// GAME STATES:
+//		A stack of states (Internal_GameStateLogic.h has the rules). Each
+//		state in it has a slot here with what the engine keeps for it: its
+//		layer, its drawing settings while another state draws, and its time.
+
+typedef struct CP_StateSlot
+{
+	int layer;					// where it draws
+	bool bottom;				// the bottom state: its layer is the canvas
+	float time;					// seconds it has been updated
+	CP_DrawInfo settings;		// its settings, while another state's are in use
+	CP_Vector mouseWhenCovered;	// what it sees of the mouse while it runs under another state
+	CP_Vector worldMouseWhenCovered;
+} CP_StateSlot;
+
+static CP_GSL_Stack _stack;
+static CP_StateSlot _slots[CP_MAX_GAME_STATES];
+static int _inheritLayer = -1;				// the picture the next bottom state starts with
+static CP_StateSlot* _settingsOwner = NULL;	// the state whose settings are in use
+static int _runningSlot = -1;				// the slot whose function is running
+
+static int CP_GameStates_Top(void)
+{
+	return _stack.depth - 1;
+}
+
+// Make a state the one that draws and whose settings are in use, before
+// running one of its functions
+static void CP_GameStates_Activate(CP_StateSlot* slot, bool top)
+{
+	if (_settingsOwner != slot)
+	{
+		CP_DrawInfoPtr DI = GetDrawInfo();
+		if (_settingsOwner)
+		{
+			_settingsOwner->settings = *DI;
+		}
+		*DI = slot->settings;
+		CP_Settings_ApplyAll();
+		_settingsOwner = slot;
+		if (_CORE.nvg)
+		{
+			// each state starts drawing untransformed, as a frame does
+			nvgResetTransform(_CORE.nvg);
+		}
+	}
+	CP_SetDrawLayer(slot->layer, !slot->bottom);
+	CP_Input_SetMuted(top ? FALSE : TRUE, slot->mouseWhenCovered, slot->worldMouseWhenCovered);
+}
+
+static void CP_GameStates_MakeCurrent(int index)
+{
+	CP_GameStates_Activate(&_slots[index], index == CP_GameStates_Top());
+	_runningSlot = index;
+}
+
+static void CP_GameStates_Enter(void* user, int index, CP_GSL_RequestKind why)
+{
+	UNREFERENCED_PARAMETER(user);
+	UNREFERENCED_PARAMETER(why);
+	CP_StateSlot* slot = &_slots[index];
+	slot->time = 0.0f;
+	if (index == 0)
+	{
+		// A new bottom state draws on the canvas, starting with what the last
+		// one drew, as it always has
+		slot->bottom = true;
+		if (_inheritLayer >= 0)
+		{
+			slot->layer = _inheritLayer;
+			_inheritLayer = -1;
+		}
+		else
+		{
+			slot->layer = CP_Layer_Acquire(0.0f, 0.0f, 0.0f, 1.0f);
+		}
+	}
+	else
+	{
+		// A state on top starts with a clear sheet over the ones below
+		slot->bottom = false;
+		slot->layer = CP_Layer_Acquire(0.0f, 0.0f, 0.0f, 0.0f);
+		_slots[index - 1].mouseWhenCovered = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
+		_slots[index - 1].worldMouseWhenCovered = CP_Vector_Set(CP_Input_GetMouseWorldX(), CP_Input_GetMouseWorldY());
+	}
+
+	// It starts with the settings in use now, as a new state always has
+	if (_settingsOwner && _settingsOwner != slot)
+	{
+		_settingsOwner->settings = *GetDrawInfo();
+	}
+	slot->settings = *GetDrawInfo();
+	_settingsOwner = slot;
+
+	CP_GameStates_MakeCurrent(index);
+	const FunctionPtr init = _stack.states[index].init;
+	if (init)
+	{
+		init();
+	}
+	CP_ApplyWindowSizeChosenInInit();
+}
+
+static void CP_GameStates_Leave(void* user, int index, CP_GSL_RequestKind why)
+{
+	UNREFERENCED_PARAMETER(user);
+	CP_StateSlot* slot = &_slots[index];
+	CP_GameStates_MakeCurrent(index);
+
+	const FunctionPtr exit = _stack.states[index].exit;
+	if (exit)
+	{
+		exit();
+	}
+	if (index == 0 && why != CP_GSL_POP)
+	{
+		// the next bottom state starts with this picture
+		_inheritLayer = slot->layer;
+	}
+	else
+	{
+		CP_Layer_Release(slot->layer);
+	}
+	slot->layer = -1;
+	// its settings stay in use, so the next state starts with them
+	_settingsOwner = NULL;
+	_runningSlot = -1;
+}
+
+static void CP_GameStates_Uncover(void* user, int index)
+{
+	UNREFERENCED_PARAMETER(user);
+	CP_GameStates_MakeCurrent(index);
+}
+
+static const CP_GSL_Hooks _hooks = {
+	CP_GameStates_Enter,
+	CP_GameStates_Leave,
+	CP_GameStates_Uncover,
+	NULL
+};
+
+static void CP_GameStates_Warn(CP_GSL_Result result)
+{
+	switch (result)
+	{
+	case CP_GSL_NO_UPDATE:
+		printf("CProcessing: a game state needs an update function; this one was ignored.\n");
+		break;
+	case CP_GSL_POP_LAST:
+		printf("CProcessing: CP_Engine_PopGameState was called with only one game state, so it was ignored.\n"
+			"Use CP_Engine_SetNextGameState to go to another state, or CP_Engine_Terminate to quit.\n");
+		break;
+	case CP_GSL_STACK_FULL:
+		printf("CProcessing: CP_Engine_PushGameState was ignored: there are already %d game states.\n", CP_MAX_GAME_STATES);
+		break;
+	case CP_GSL_QUEUE_FULL:
+		printf("CProcessing: more than %d game state changes in one frame; the extra ones were ignored.\n", CP_MAX_GAME_STATE_REQUESTS);
+		break;
+	default:
+		break;
+	}
+}
+
+static void CP_GameStates_Request(CP_GSL_RequestKind kind, FunctionPtr init, FunctionPtr update, FunctionPtr exit)
+{
+	// a new state lets the ones under it be seen, frozen, until it says otherwise
+	CP_GSL_State state = { init, update, exit, CP_STATE_FROZEN };
+	CP_GameStates_Warn(CP_GSL_Ask(&_stack, kind, state));
+}
+
+// Apply the changes asked for since the last frame
+static void CP_GameStates_ApplyRequests(void)
+{
+	CP_GSL_Request requests[CP_MAX_GAME_STATE_REQUESTS];
+	const int count = CP_GSL_TakeRequests(&_stack, requests);
+	for (int i = 0; i < count; ++i)
+	{
+		CP_GameStates_Warn(CP_GSL_Apply(&_stack, &requests[i], &_hooks));
+	}
+	if (count > 0 && _stack.depth > 0)
+	{
+		CP_GameStates_MakeCurrent(CP_GameStates_Top());
+	}
+}
+
+// Run this frame's updates: the states running under the top one (from the
+// bottom up, each on its own layer and without input), then the top one
+static void CP_GameStates_Update(void)
+{
+	const float dt = CP_System_GetDt();
+
+	const int top = CP_GameStates_Top();
+	if (top < 0)
+	{
+		return;
+	}
+	for (int i = 0; i < top; ++i)
+	{
+		if (CP_GSL_IsRunning(&_stack, i))
+		{
+			CP_GameStates_MakeCurrent(i);
+			_slots[i].time += dt;
+			_stack.states[i].update();
+		}
+	}
+	// (an update above can't change the stack: changes wait for the next frame)
+	CP_GameStates_MakeCurrent(top);
+	_slots[top].time += dt;
+	_stack.states[top].update();
+	// the pre- and post-update functions draw as the top state
+	CP_GameStates_MakeCurrent(top);
+}
+
+//---------------------------------------------------------
+// The picture on screen
+
+// The layers of a list of states that can be seen, from the bottom up
+static int CP_GameStates_AddVisible(CP_ComposeItem* items, int count, const CP_GSL_State* states, const CP_StateSlot* const* slots, int depth)
+{
+	for (int i = CP_GSL_LowestVisible(states, depth); i < depth; ++i)
+	{
+		if (slots[i]->layer >= 0)
+		{
+			CP_ComposeItem item = { slots[i]->layer, slots[i]->bottom, 1.0f, 0.0f, 0.0f };
+			items[count++] = item;
+		}
+	}
+	return count;
+}
+
+// The layers that make up the picture on screen, from the bottom up
+static int CP_GameStates_BuildPicture(CP_ComposeItem* items)
+{
+	if (_stack.depth == 0)
+	{
+		int count = 0;
+		if (_drawLayer >= 0)
+		{
+			CP_ComposeItem item = { _drawLayer, true, 1.0f, 0.0f, 0.0f };
+			items[count++] = item;
+		}
+		return count;
+	}
+	const CP_StateSlot* slots[CP_MAX_GAME_STATES];
+	for (int i = 0; i < _stack.depth; ++i)
+	{
+		slots[i] = &_slots[i];
+	}
+	return CP_GameStates_AddVisible(items, 0, _stack.states, slots, _stack.depth);
+}
+
+// A freed font must not stay in a state's saved settings (CP_Text.c)
+void CP_GameStates_ForgetFont(CP_Font font)
+{
+	for (int i = 0; i < CP_MAX_GAME_STATES; ++i)
+	{
+		if (_slots[i].settings.font == font)
+		{
+			_slots[i].settings.font = NULL;
+		}
+	}
+}
 
 //---------------------------------------------------------
 // ENGINE:
@@ -399,6 +991,8 @@ CP_API void CP_Engine_Run(void)
 		// window/context creation failed - the reason has already been printed
 		return;
 	}
+	// the first state starts with the first canvas
+	_inheritLayer = _drawLayer;
 
 	// main loop
 	while (isRunning)
@@ -408,35 +1002,24 @@ CP_API void CP_Engine_Run(void)
 
 		if (_preUpdateFunction) _preUpdateFunction();
 
-		// change states and call associated functions
-		if (_stateIsChanging)
-		{
-			// exit current state
-			if (_currState.exit) _currState.exit();
+		// change states, and call their init and exit functions
+		CP_GameStates_ApplyRequests();
 
-			// switch state tracking variables
-			_currState.init = _nextState.init;
-			_currState.update = _nextState.update;
-			_currState.exit = _nextState.exit;
-
-			// init
-			if (_currState.init) _currState.init();
-			CP_ApplyWindowSizeChosenInInit();
-
-			_stateIsChanging = false;
-		}
-
-		if (_currState.update) _currState.update();
+		CP_GameStates_Update();
 
 		if (_postUpdateFunction) _postUpdateFunction();
 
 		CP_FrameEnd();
 	}
 
-	// Exit the current state when the program is terminating (anything it
-	// draws or screenshots uses the canvas, as during a frame)
+	// End every state when the program is terminating, from the top down
+	// (anything they draw or screenshot uses their layers, as during a frame)
 	CP_Canvas_Bind();
-	if (_currState.exit) _currState.exit();
+	nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
+	_nvgFrameOpen = true;
+	CP_GSL_LeaveAll(&_stack, &_hooks, CP_GSL_SET_FORCED);
+	nvgEndFrame(_CORE.nvg);
+	_nvgFrameOpen = false;
 
 	CP_Shutdown();
 }
@@ -450,28 +1033,68 @@ CP_API void CP_Engine_Terminate(void)
 	}
 }
 
-// Set the init, update and exit functions which CProcessing will call.
-// This is aware of the current state and won't re-initialize if called with the same functions.
-// update must have a valid input function, init and exit may be NULL if desired.
+// Go to a state: at the start of the next frame, every state ends (the top
+// one first) and this one starts. Nothing happens if it is already the only
+// state. update must have a valid input function, init and exit may be NULL.
 CP_API void CP_Engine_SetNextGameState(FunctionPtr init, FunctionPtr update, FunctionPtr exit)
 {
-	if (update == NULL || (_currState.init == init && _currState.update == update && _currState.exit == exit))
+	CP_GameStates_Request(CP_GSL_SET, init, update, exit);
+}
+
+// The same, but it also restarts the state it's already in: its exit runs,
+// then its init.
+CP_API void CP_Engine_SetNextGameStateForced(FunctionPtr init, FunctionPtr update, FunctionPtr exit)
+{
+	CP_GameStates_Request(CP_GSL_SET_FORCED, init, update, exit);
+}
+
+// Put a state on top of the others, like a pause menu: the ones under it stay,
+// stopped, and can still be seen behind it (CP_Engine_SetGameStatePassThrough
+// changes that). It always goes on top, whichever state asks.
+CP_API void CP_Engine_PushGameState(FunctionPtr init, FunctionPtr update, FunctionPtr exit)
+{
+	CP_GameStates_Request(CP_GSL_PUSH, init, update, exit);
+}
+
+// Take the state that calls this off, with any states above it: their exits
+// run (the top one first), and the state under it carries on where it was (its
+// init doesn't run again). Called from a pre- or post-update function, it
+// takes the top state off.
+CP_API void CP_Engine_PopGameState(void)
+{
+	CP_GameStates_Warn(CP_GSL_AskPop(&_stack, _runningSlot));
+}
+
+// What the states under the one that calls this can do while it is there:
+// CP_STATE_FROZEN (the default) stops them and keeps them visible,
+// CP_STATE_PASSIVE keeps them running and drawing (without input), and
+// CP_STATE_NONE stops them and hides them. Usually called in a state's init.
+CP_API void CP_Engine_SetGameStatePassThrough(CP_STATE passThrough)
+{
+	if (_runningSlot < 0 || _runningSlot >= _stack.depth)
 	{
 		return;
 	}
-
-	CP_Engine_SetNextGameStateForced(init, update, exit);
+	_stack.states[_runningSlot].passThrough = passThrough & (CP_STATE_UPDATING | CP_STATE_VISIBLE);
 }
 
-// This forcefully overrides the current state so you can call this function
-// with the same inputs and it will cause the state to exit and re-initialize.
-// update must have a valid input function, init and exit may be NULL if desired.
-CP_API void CP_Engine_SetNextGameStateForced(FunctionPtr init, FunctionPtr update, FunctionPtr exit)
+CP_API int CP_Engine_GetGameStateDepth(void)
 {
-	_stateIsChanging = true;
-	_nextState.init = init;
-	_nextState.update = update;
-	_nextState.exit = exit;
+	return _stack.depth;
+}
+
+CP_API CP_BOOL CP_Engine_IsTopGameState(void)
+{
+	return (_runningSlot >= 0 && _runningSlot == CP_GameStates_Top()) ? TRUE : FALSE;
+}
+
+CP_API float CP_Engine_GetGameStateTime(void)
+{
+	if (_runningSlot >= 0 && _runningSlot < _stack.depth)
+	{
+		return _slots[_runningSlot].time;
+	}
+	return 0.0f;
 }
 
 CP_API void CP_Engine_SetPreUpdateFunction(FunctionPtr preUpdateFunction)
@@ -1121,7 +1744,8 @@ static void CP_ReportLoadedAssets(void)
 		"%s%s"
 		"CProcessing freed them, but every CP_Image_Load, CP_Sound_Load,\n"
 		"CP_Sound_LoadStream and CP_Font_Load needs its own Free, and so does\n"
-		"every image from CP_Image_CreateFromData or CP_Image_Screenshot.\n"
+		"every image from CP_Image_Create, CP_Image_CreateFromData or\n"
+		"CP_Image_Screenshot.\n"
 		"Load assets once, in an init function, and free them in the exit\n"
 		"function: https://github.com/DigiPen-Faculty/CProcessing/wiki/Assets-and-paths\n",
 		report.text, report.truncated ? "  ...and more\n" : "");
@@ -1190,16 +1814,23 @@ void CP_FrameStart(void)
 	}
 
 	// follow any window size change the window system has applied, and draw
-	// into the canvas again (the last frame ended with the window bound)
+	// into the drawing layer again (the last frame ended with the window bound)
 	CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height);
 	CP_Canvas_Bind();
 
 	nvgBeginFrame(_CORE.nvg, (float)_CORE.window_width, (float)_CORE.window_height, _CORE.pixel_ratio);
+	_nvgFrameOpen = true;
 }
 
 void CP_FrameEnd(void)
 {
+	if (_drawingIntoImage)
+	{
+		printf("CProcessing: CP_Image_BeginDrawing had no CP_Image_EndDrawing before the end of the frame.\n");
+		CP_Image_EndDrawing();
+	}
 	nvgEndFrame(_CORE.nvg);
+	_nvgFrameOpen = false;
 	CP_Canvas_Present();	// leaves the window's framebuffer bound, as macOS needs for the swap
 	glfwSwapBuffers(_CORE.window);
 	glFlush();

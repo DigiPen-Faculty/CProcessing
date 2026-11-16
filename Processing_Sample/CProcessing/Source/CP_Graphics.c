@@ -98,7 +98,17 @@ CP_API void CP_Graphics_ClearBackground(CP_Color c)
 
 	// Set the background color
 	nvgCancelFrame(CORE->nvg);	// also wipe any prior render calls this frame
-	glClearColor(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
+	const float a = c.a / 255.0f;
+	if (CP_Canvas_IsPremultiplied())
+	{
+		// a state pushed on top of another draws on a layer that is blended
+		// over the ones below, with premultiplied alpha, as NanoVG draws
+		glClearColor(c.r / 255.0f * a, c.g / 255.0f * a, c.b / 255.0f * a, a);
+	}
+	else
+	{
+		glClearColor(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, a);
+	}
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
