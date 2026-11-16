@@ -58,6 +58,9 @@ jobs:
           - platform: x64
             configuration: Release
             outDir: x64
+          - platform: x86
+            configuration: Release
+            outDir: Win32
     steps:
       - uses: actions/checkout@v7
 
