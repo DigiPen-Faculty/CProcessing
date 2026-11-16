@@ -98,6 +98,7 @@ int main(void)
     // test_tier2_image.c
     RUN_TEST(test_tier2_image_load_reports_correct_dimensions);
     RUN_TEST(test_tier2_image_draw_places_quadrants_correctly);
+    RUN_TEST(test_tier2_image_drawadvanced_turns_the_image_about_its_center);
     RUN_TEST(test_tier2_image_createfromdata_roundtrips_exactly);
     RUN_TEST(test_tier2_image_updatepixeldata_roundtrips_exactly);
     RUN_TEST(test_tier2_image_drawsubimage_selects_correct_region);

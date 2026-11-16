@@ -63,6 +63,16 @@ void test_tier2_image_draw_places_quadrants_correctly(void)
     assertColorWithin(2, CP_Color_Create(255, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_LOAD_AND_DRAW, 120, 120)); // BR yellow
 }
 
+void test_tier2_image_drawadvanced_turns_the_image_about_its_center(void)
+{
+    // 90 degrees clockwise: red goes top left to top right, green top right to
+    // bottom right, yellow bottom right to bottom left, blue bottom left to top left
+    assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_IMAGE_DRAW_ROTATED, 120, 80));
+    assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_DRAW_ROTATED, 120, 120));
+    assertColorWithin(2, CP_Color_Create(255, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_DRAW_ROTATED, 80, 120));
+    assertColorWithin(2, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_IMAGE_DRAW_ROTATED, 80, 80));
+}
+
 void test_tier2_image_createfromdata_roundtrips_exactly(void)
 {
     CP_Color expected[4] = {

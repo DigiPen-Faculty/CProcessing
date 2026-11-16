@@ -613,6 +613,20 @@ static void Scn_SettingsSaveRestore(void)
 // a photo, and keeps this project's test assets independent of the demo
 // app's Assets folder.
 
+// The quadrants image (top left red, top right green, bottom left blue,
+// bottom right yellow) turned 90 degrees clockwise about its center, which
+// moves each quadrant one corner clockwise
+static void Scn_ImageDrawRotated(void)
+{
+    CP_Graphics_ClearBackground(WHITE);
+    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+    CP_Settings_ImageMode(CP_POSITION_CENTER);
+
+    CP_Image img = CP_Image_Load("Assets/quadrants.png");
+    CP_Image_DrawAdvanced(img, 100, 100, 80, 80, 255, 90);
+    CP_Image_Free(&img);
+}
+
 static void Scn_ImageLoadAndDraw(void)
 {
     CP_Graphics_ClearBackground(WHITE);
@@ -1611,6 +1625,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
     [SCN_SETTINGS_SAVE_RESTORE] = Scn_SettingsSaveRestore,
     [SCN_IMAGE_LOAD_AND_DRAW] = Scn_ImageLoadAndDraw,
     [SCN_IMAGE_SUBIMAGE] = Scn_ImageSubImage,
+    [SCN_IMAGE_DRAW_ROTATED] = Scn_ImageDrawRotated,
     [SCN_IMAGE_16_BIT] = Scn_Image16Bit,
     [SCN_IMAGE_MANY] = Scn_ImageMany,
     [SCN_SHARED_ASSETS] = Scn_SharedAssets,
