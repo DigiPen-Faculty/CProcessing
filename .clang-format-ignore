@@ -1,0 +1,10 @@
+# Files clang-format leaves alone (see .clang-format)
+Processing_Sample/CProcessing/nanovg/**
+Processing_Sample/CProcessing/GLAD/**
+Processing_Sample/CProcessing/GLFW/**
+Processing_Sample/CProcessing/soloud/**
+Processing_Sample/CProcessing/lib/**
+Processing_Sample/CProcessing/Source/nanovg_gl3.c
+Processing_Sample/CProcessing_Tests/ThirdParty/**
+# the public headers are aligned by hand in columns
+Processing_Sample/CProcessing/inc/*

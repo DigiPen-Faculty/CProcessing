@@ -1,3 +1,18 @@
 # Shell scripts run on Linux and macOS (including from a Windows checkout
 # under WSL), so they always keep LF line endings
 *.sh text eol=lf
+
+# Windows build files are checked out with Windows line endings on every
+# platform (a .bat file with LF endings can misbehave, and Visual Studio
+# rewrites a project or solution that doesn't match). The repository itself
+# stores every text file with LF.
+*.bat text eol=crlf
+*.sln text eol=crlf
+*.vcxproj text eol=crlf
+*.filters text eol=crlf
+*.props text eol=crlf
+*.targets text eol=crlf
+
+# Let git decide which of the rest are text, so a checkout without
+# core.autocrlf still stores LF
+* text=auto

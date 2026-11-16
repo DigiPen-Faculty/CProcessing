@@ -1,0 +1,27 @@
+# The house style of CProcessing's own source: tabs, braces on their own
+# lines, `Type* name`. It is a starting point for new code and for reformatting
+# a module in a commit of its own; nothing is reformatted automatically.
+#
+# Vendored code (NanoVG, GLAD, stb, SoLoud, GLFW, Unity) keeps its upstream
+# style, so that updates stay easy to compare (see DEPENDENCIES.md), and the
+# public headers are aligned by hand in columns: both are listed in
+# .clang-format-ignore.
+BasedOnStyle: LLVM
+Language: Cpp
+IndentWidth: 4
+TabWidth: 4
+UseTab: Always
+ColumnLimit: 0
+BreakBeforeBraces: Allman
+PointerAlignment: Left
+IndentCaseLabels: false
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortLoopsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+AllowShortBlocksOnASingleLine: Empty
+AlignTrailingComments: true
+SpaceBeforeParens: ControlStatements
+# Include order matters here (windows.h and GLAD before GLFW)
+SortIncludes: Never
+MaxEmptyLinesToKeep: 2
+KeepEmptyLinesAtTheStartOfBlocks: false
