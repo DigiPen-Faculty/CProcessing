@@ -22,7 +22,7 @@
 // The player: where it is, how big it is, and how fast it moves
 CP_Vector playerPosition;
 const float playerSize = 50.0f;
-const float playerSpeed = 300.0f;	// pixels per second
+const float playerSpeed = 300.0f; // pixels per second
 
 void game_init(void)
 {

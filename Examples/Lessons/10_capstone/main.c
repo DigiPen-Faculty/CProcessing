@@ -63,7 +63,7 @@ int coinsCollected = 0;
 CP_Color background;
 CP_Color white;
 
-float stateTime = 0.0f;		// seconds since this state began
+float stateTime = 0.0f; // seconds since this state began
 
 void DrawCenteredText(const char* text, float y, float size)
 {
@@ -151,13 +151,13 @@ CP_BOOL facingLeft;
 int currentFrame;
 float frameTimer;
 int lives;
-float safeTimer;			// seconds of safety left after a hit
+float safeTimer; // seconds of safety left after a hit
 const float safeTime = 1.6f;
 
 // The coin
 const float coinRadius = 14.0f;
 CP_Vector coinPosition;
-float coinAge;				// seconds since it appeared, for its pop in
+float coinAge; // seconds since it appeared, for its pop in
 
 // The balls
 #define MAX_BALLS 7
@@ -171,10 +171,10 @@ int combo;
 float comboTimer;
 const float comboWindow = 2.0f;
 
-float scorePop;				// 1 right after a coin, easing to 0
-float musicDip;				// 1 right after a hit, easing to 0
+float scorePop; // 1 right after a coin, easing to 0
+float musicDip; // 1 right after a hit, easing to 0
 
-const float hudHeight = 60.0f;	// the arena is below the HUD
+const float hudHeight = 60.0f; // the arena is below the HUD
 
 // A random place in the arena that is at least `distance` from `away`
 CP_Vector RandomSpot(CP_Vector away, float distance, float margin)

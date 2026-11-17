@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 // file:	CP_Graphics.c
 // author:	Daniel Hamilton
-// brief:	Manipulate and draw basic vector shapes 
+// brief:	Manipulate and draw basic vector shapes
 //
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2019-2026 DigiPen Institute of Technology
@@ -30,7 +30,7 @@ static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, flo
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// make sure corner radius isn't negative
 	cornerRadius = cornerRadius < 0 ? 0 : cornerRadius;
@@ -91,10 +91,10 @@ CP_API void CP_Graphics_ClearBackground(CP_Color c)
 	CP_CorePtr CORE = GetCPCore();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// Set the background color
-	nvgCancelFrame(CORE->nvg);	// also wipe any prior render calls this frame
+	nvgCancelFrame(CORE->nvg); // also wipe any prior render calls this frame
 	const float a = c.a / 255.0f;
 	if (CP_Canvas_IsPremultiplied())
 	{
@@ -115,7 +115,7 @@ CP_API void CP_Graphics_DrawPoint(float x, float y)
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// A point follows the line settings, like CP_Graphics_DrawLine: the
 	// stroke color, the stroke weight as its size, and the line cap as its
@@ -149,7 +149,7 @@ CP_API void CP_Graphics_DrawLine(float x1, float y1, float x2, float y2)
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// Line stroke
 	if (DI->stroke)
@@ -167,7 +167,7 @@ CP_API void CP_Graphics_DrawLineAdvanced(float x1, float y1, float x2, float y2,
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// rotation
 	CP_Draw_BeginRotation(((x1 + x2) / 2.0f), ((y1 + y2) / 2.0f), degrees);
@@ -205,7 +205,7 @@ CP_API void CP_Graphics_DrawEllipse(float x, float y, float w, float h)
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// nanoVG wants a radius
 	float rw = w * 0.5f;
@@ -242,7 +242,7 @@ CP_API void CP_Graphics_DrawEllipseAdvanced(float x, float y, float w, float h, 
 	CP_CorePtr CORE = GetCPCore();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	float pointOfRotationX = x;
 	float pointOfRotationY = y;
@@ -287,7 +287,7 @@ CP_API void CP_Graphics_DrawArc(float x, float y, float diameter, float startDeg
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// Just the curved line, like DrawLine: it has no fill
 	if (DI->stroke)
@@ -303,7 +303,7 @@ CP_API void CP_Graphics_DrawPie(float x, float y, float diameter, float startDeg
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	ArcPath(CORE, DI, x, y, diameter, startDegrees, sweepDegrees, TRUE);
 	if (DI->fill)
@@ -322,7 +322,7 @@ CP_API void CP_Graphics_DrawBezier(float x1, float y1, float controlX1, float co
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// A curve is a line: stroke only, no fill
 	if (DI->stroke)
@@ -340,7 +340,7 @@ CP_API void CP_Graphics_DrawTriangle(float x1, float y1, float x2, float y2, flo
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// Triangle path
 	nvgBeginPath(CORE->nvg);
@@ -364,7 +364,7 @@ CP_API void CP_Graphics_DrawTriangleAdvanced(float x1, float y1, float x2, float
 	CP_CorePtr CORE = GetCPCore();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// rotation
 	CP_Draw_BeginRotation(((x1 + x2 + x3) / 3.0f), ((y1 + y2 + y3) / 3.0f), degrees);
@@ -388,7 +388,7 @@ CP_API void CP_Graphics_DrawQuad(float x1, float y1, float x2, float y2, float x
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// Quad path
 	nvgBeginPath(CORE->nvg);
@@ -413,7 +413,7 @@ CP_API void CP_Graphics_DrawQuadAdvanced(float x1, float y1, float x2, float y2,
 	CP_CorePtr CORE = GetCPCore();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// rotation
 	CP_Draw_BeginRotation(((x1 + x2 + x3 + x4) / 4.0f), ((y1 + y2 + y3 + y4) / 4.0f), degrees);
@@ -428,7 +428,7 @@ CP_API void CP_Graphics_BeginShape(void)
 	CP_CorePtr CORE = GetCPCore();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 	nvgBeginPath(CORE->nvg);
 	firstVertex = TRUE;
 }
@@ -438,7 +438,7 @@ CP_API void CP_Graphics_AddVertex(float x, float y)
 	CP_CorePtr CORE = GetCPCore();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	if (firstVertex)
 	{
@@ -459,7 +459,7 @@ CP_API void CP_Graphics_EndShape(void)
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
 	if (!CORE->nvg)
-		return;	// no window yet: CP_Engine_Run hasn't started
+		return; // no window yet: CP_Engine_Run hasn't started
 
 	// Shape fill
 	if (DI->fill)

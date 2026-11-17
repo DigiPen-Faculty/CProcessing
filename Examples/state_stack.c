@@ -107,8 +107,8 @@ void menu_update(void)
 CP_Vector player;
 CP_Vector balls[BALL_COUNT];
 CP_Vector ballVelocities[BALL_COUNT];
-CP_Image trail;		// drawn into every frame: the path the player took
-CP_BOOL showTrail = TRUE;	// the options page turns it on and off
+CP_Image trail;           // drawn into every frame: the path the player took
+CP_BOOL showTrail = TRUE; // the options page turns it on and off
 
 void game_init(void)
 {
@@ -233,7 +233,7 @@ void pause_update(void)
 
 	if (CP_Input_KeyTriggered(KEY_P))
 	{
-		CP_Engine_PopGameState();		// the game carries on where it was
+		CP_Engine_PopGameState(); // the game carries on where it was
 	}
 	if (CP_Input_KeyTriggered(KEY_O))
 	{
@@ -241,7 +241,7 @@ void pause_update(void)
 	}
 	if (CP_Input_KeyTriggered(KEY_M))
 	{
-		CP_Engine_SetNextGameState(menu_init, menu_update, NULL);	// ends the pause, then the game
+		CP_Engine_SetNextGameState(menu_init, menu_update, NULL); // ends the pause, then the game
 	}
 	if (CP_Input_KeyTriggered(KEY_Q))
 	{
@@ -268,7 +268,7 @@ void options_update(void)
 	}
 	if (CP_Input_KeyTriggered(KEY_B))
 	{
-		CP_Engine_PopGameState();		// back to the pause
+		CP_Engine_PopGameState(); // back to the pause
 	}
 
 	CP_Graphics_ClearBackground(CP_Color_Create(50, 30, 60, 255));
@@ -293,7 +293,7 @@ void confirm_update(void)
 
 	if (CP_Input_KeyTriggered(KEY_Y))
 	{
-		CP_Engine_Terminate();			// every state on the stack exits, top first
+		CP_Engine_Terminate(); // every state on the stack exits, top first
 	}
 	if (CP_Input_KeyTriggered(KEY_N))
 	{

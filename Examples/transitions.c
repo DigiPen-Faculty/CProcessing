@@ -48,32 +48,37 @@
 
 typedef enum TransitionKind
 {
-	TRANSITION_FADE,		// to black, then the new state comes in from black
-	TRANSITION_CROSSFADE,	// the old picture fades away over the new state
-	TRANSITION_SLIDE_LEFT,	// the old picture slides away to the left
+	TRANSITION_FADE,       // to black, then the new state comes in from black
+	TRANSITION_CROSSFADE,  // the old picture fades away over the new state
+	TRANSITION_SLIDE_LEFT, // the old picture slides away to the left
 	TRANSITION_SLIDE_RIGHT,
 	TRANSITION_SLIDE_UP,
 	TRANSITION_SLIDE_DOWN,
-	TRANSITION_DRAWN		// a function of yours draws the old picture
+	TRANSITION_DRAWN // a function of yours draws the old picture
 } TransitionKind;
 
 // Draws the picture of the old state (`before`) over the new one, as it
 // should look at `progress`, from 0 (all old) to 1 (all new)
 typedef void (*TransitionDrawFunction)(CP_Image before, float progress);
 
-typedef enum TransitionChange { CHANGE_SET, CHANGE_PUSH, CHANGE_POP } TransitionChange;
+typedef enum TransitionChange
+{
+	CHANGE_SET,
+	CHANGE_PUSH,
+	CHANGE_POP
+} TransitionChange;
 
 typedef struct Transition
 {
 	CP_BOOL playing;
-	CP_BOOL asked;			// the change has been asked for
+	CP_BOOL asked; // the change has been asked for
 	TransitionKind kind;
 	TransitionDrawFunction draw;
 	float seconds;
 	float time;
 	TransitionChange change;
 	FunctionPtr init, update, exit;
-	CP_Image before;		// the old picture (not for a fade)
+	CP_Image before; // the old picture (not for a fade)
 } Transition;
 
 Transition transition;
@@ -83,7 +88,7 @@ static void Transition_Start(TransitionChange change, TransitionKind kind, float
 {
 	if (transition.playing)
 	{
-		return;		// one at a time
+		return; // one at a time
 	}
 	transition.playing = TRUE;
 	transition.asked = FALSE;
@@ -213,7 +218,7 @@ void Transition_Draw(void)
 	if (transition.time >= transition.seconds)
 	{
 		transition.playing = FALSE;
-		CP_Image_Free(&transition.before);		// (nothing to free after a fade)
+		CP_Image_Free(&transition.before); // (nothing to free after a fade)
 	}
 }
 

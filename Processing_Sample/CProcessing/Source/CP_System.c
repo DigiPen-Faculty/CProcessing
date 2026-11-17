@@ -21,8 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 #if !defined(_WIN32)
-	#include <time.h>		// nanosleep
-	#include <unistd.h>	// isatty
+	#include <time.h>   // nanosleep
+	#include <unistd.h> // isatty
 #endif
 
 // Native window access (used only by CP_System_GetWindowHandle)
@@ -255,33 +255,33 @@ static void CP_FramebufferSizeCallback(GLFWwindow* window, int width, int height
 //		bound is never displayed, and the window stays black (SDL documents
 //		the same for SDL_GL_SwapWindow).
 
-#define CP_MAX_LAYERS (CP_MAX_GAME_STATES + 4)	// one per state, and spares
+#define CP_MAX_LAYERS (CP_MAX_GAME_STATES + 4) // one per state, and spares
 
 typedef struct CP_Layer
 {
-	GLuint framebuffer;		// 0 when the layer has no GL objects
-	GLuint color;			// texture
+	GLuint framebuffer; // 0 when the layer has no GL objects
+	GLuint color;       // texture
 	int width;
 	int height;
-	int image;				// NanoVG image of the texture, made when first blended (0: none yet)
+	int image; // NanoVG image of the texture, made when first blended (0: none yet)
 	bool inUse;
 } CP_Layer;
 
 static CP_Layer _layers[CP_MAX_LAYERS];
-static GLuint _layerDepthStencil = 0;	// shared: NanoVG only needs stencil while it draws
+static GLuint _layerDepthStencil = 0; // shared: NanoVG only needs stencil while it draws
 static int _layerWidth = 0;
 static int _layerHeight = 0;
 
-static int _drawLayer = -1;				// where drawing goes now
+static int _drawLayer = -1; // where drawing goes now
 static bool _drawLayerPremultiplied = false;
-static bool _nvgFrameOpen = false;		// between the frame's nvgBeginFrame and nvgEndFrame
-static int _readLayer = -1;				// a spare layer to put the picture together in, for reading it
+static bool _nvgFrameOpen = false; // between the frame's nvgBeginFrame and nvgEndFrame
+static int _readLayer = -1;        // a spare layer to put the picture together in, for reading it
 
 static void CP_Layer_DestroyGL(CP_Layer* layer)
 {
 	if (layer->image && _CORE.nvg)
 	{
-		nvgDeleteImage(_CORE.nvg, layer->image);	// NVG_IMAGE_NODELETE: the texture stays
+		nvgDeleteImage(_CORE.nvg, layer->image); // NVG_IMAGE_NODELETE: the texture stays
 	}
 	if (layer->framebuffer)
 	{
@@ -369,7 +369,7 @@ static int CP_Layer_Acquire(float r, float g, float b, float a)
 	{
 		if (!_layers[i].inUse && _layers[i].framebuffer)
 		{
-			found = i;		// one with GL objects already: reuse it
+			found = i; // one with GL objects already: reuse it
 		}
 	}
 	for (int i = 0; i < CP_MAX_LAYERS && found < 0; ++i)
@@ -467,7 +467,7 @@ static bool CP_Canvas_Resize(int width, int height)
 		CP_Layer* layer = &_layers[i];
 		if (!layer->inUse)
 		{
-			CP_Layer_DestroyGL(layer);	// made again at the new size when needed
+			CP_Layer_DestroyGL(layer); // made again at the new size when needed
 			continue;
 		}
 		CP_Layer old = *layer;
@@ -511,9 +511,9 @@ static bool CP_Canvas_Resize(int width, int height)
 typedef struct CP_ComposeItem
 {
 	int layer;
-	bool bottom;		// a bottom layer: copied, not blended, when it can be
+	bool bottom; // a bottom layer: copied, not blended, when it can be
 	float alpha;
-	float dx;			// offset, in window coordinates
+	float dx; // offset, in window coordinates
 	float dy;
 } CP_ComposeItem;
 
@@ -661,7 +661,7 @@ void CP_Canvas_BeginImage(unsigned framebuffer, int width, int height)
 	_imageWidth = width;
 	_imageHeight = height;
 	_premultipliedBeforeImage = _drawLayerPremultiplied;
-	_drawLayerPremultiplied = true;		// NanoVG draws premultiplied alpha
+	_drawLayerPremultiplied = true; // NanoVG draws premultiplied alpha
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 	glViewport(0, 0, width, height);
 	nvgBeginFrame(_CORE.nvg, (float)width, (float)height, 1.0f);
@@ -719,19 +719,19 @@ CP_DrawInfoPtr GetDrawInfo(void)
 
 typedef struct CP_StateSlot
 {
-	int layer;					// where it draws
-	bool bottom;				// the bottom state: its layer is the canvas
-	float time;					// seconds it has been updated
-	CP_DrawInfo settings;		// its settings, while another state's are in use
-	CP_Vector mouseWhenCovered;	// what it sees of the mouse while it runs under another state
+	int layer;                  // where it draws
+	bool bottom;                // the bottom state: its layer is the canvas
+	float time;                 // seconds it has been updated
+	CP_DrawInfo settings;       // its settings, while another state's are in use
+	CP_Vector mouseWhenCovered; // what it sees of the mouse while it runs under another state
 	CP_Vector worldMouseWhenCovered;
 } CP_StateSlot;
 
 static CP_GSL_Stack _stack;
 static CP_StateSlot _slots[CP_MAX_GAME_STATES];
-static int _inheritLayer = -1;				// the picture the next bottom state starts with
-static CP_StateSlot* _settingsOwner = NULL;	// the state whose settings are in use
-static int _runningSlot = -1;				// the slot whose function is running
+static int _inheritLayer = -1;              // the picture the next bottom state starts with
+static CP_StateSlot* _settingsOwner = NULL; // the state whose settings are in use
+static int _runningSlot = -1;               // the slot whose function is running
 
 static int CP_GameStates_Top(void)
 {
@@ -863,7 +863,7 @@ static void CP_GameStates_Warn(CP_GSL_Result result)
 		break;
 	case CP_GSL_POP_LAST:
 		printf("CProcessing: CP_Engine_PopGameState was called with only one game state, so it was ignored.\n"
-			"Use CP_Engine_SetNextGameState to go to another state, or CP_Engine_Terminate to quit.\n");
+			   "Use CP_Engine_SetNextGameState to go to another state, or CP_Engine_Terminate to quit.\n");
 		break;
 	case CP_GSL_STACK_FULL:
 		printf("CProcessing: CP_Engine_PushGameState was ignored: there are already %d game states.\n", CP_MAX_GAME_STATES);
@@ -1350,7 +1350,7 @@ CP_API CP_CURSOR_MODE CP_System_GetCursorMode(void)
 
 static bool _consoleStreamsReady = false;
 #if defined(_WIN32)
-static HWND _consoleWindow = NULL;	// a console window the program has to itself, which may be hidden
+static HWND _consoleWindow = NULL; // a console window the program has to itself, which may be hidden
 static bool _consoleHidden = false;
 
 // Point a standard stream at the console, unless it already goes somewhere
@@ -1515,7 +1515,8 @@ void CP_Initialize(void)
 	glfwSetErrorCallback(error_callback_glfw);
 
 	// Initialize GLFW
-	if (!glfwInit()) {
+	if (!glfwInit())
+	{
 		printf("Failed to init GLFW (is a display available?).\n");
 		return;
 	}
@@ -1550,7 +1551,7 @@ void CP_Initialize(void)
 	// so only Debug builds ask for one
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 #endif
-	glfwWindowHint(GLFW_DOUBLEBUFFER, 1);	// persistence comes from the canvas framebuffer
+	glfwWindowHint(GLFW_DOUBLEBUFFER, 1); // persistence comes from the canvas framebuffer
 	glfwWindowHint(GLFW_RESIZABLE, _windowResizable);
 	glfwWindowHint(GLFW_VISIBLE, 0);
 #if defined(__APPLE__)
@@ -1563,7 +1564,8 @@ void CP_Initialize(void)
 #endif
 	_CORE.window = glfwCreateWindow(_CORE.window_width, _CORE.window_height, _windowTitle, _CORE.isFullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 
-	if (!_CORE.window) {
+	if (!_CORE.window)
+	{
 		printf("Failed to create the CProcessing window.\n");
 		CP_InitializeFailed();
 		return;
@@ -1758,14 +1760,14 @@ static void CP_ReportLoadedAssets(void)
 #if defined(_WIN32)
 	// Windows programs usually have no console: Visual Studio's Output window
 	OutputDebugStringA(message);
-#if !defined(NDEBUG)
+	#if !defined(NDEBUG)
 	// Debug library, started from Visual Studio: make sure it's seen. Never
 	// otherwise, so a game someone double-clicks, or a test run, can't stop here.
 	if (IsDebuggerPresent())
 	{
 		MessageBoxA(NULL, message, "CProcessing: files still loaded", MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND);
 	}
-#endif
+	#endif
 #endif
 }
 
@@ -1834,7 +1836,7 @@ void CP_FrameEnd(void)
 	}
 	nvgEndFrame(_CORE.nvg);
 	_nvgFrameOpen = false;
-	CP_Canvas_Present();	// leaves the window's framebuffer bound, as macOS needs for the swap
+	CP_Canvas_Present(); // leaves the window's framebuffer bound, as macOS needs for the swap
 	glfwSwapBuffers(_CORE.window);
 	glFlush();
 	glfwPollEvents();
@@ -1888,7 +1890,7 @@ static void CP_SleepOneMillisecond(void)
 }
 
 static double averageSleepCycles = 0.002;
-static double additionalBuffer = 0.001;	// Sleep() isn't very accurate and we want to make sure we don't over sleep
+static double additionalBuffer = 0.001; // Sleep() isn't very accurate and we want to make sure we don't over sleep
 
 void CP_FrameRate_FrameEnd(void)
 {
@@ -1918,7 +1920,7 @@ void CP_FrameRate_FrameEnd(void)
 			currSeconds = _frametimeTarget - ElapsedSeconds;
 
 			// update the average sleep over 16 samples so we maintain awareness of the system's margin of error.
-			averageSleepCycles = ((averageSleepCycles * 15.0) + (prevSeconds - currSeconds)) / 16.0;	// multiply by 15, add new sample, divide by 16
+			averageSleepCycles = ((averageSleepCycles * 15.0) + (prevSeconds - currSeconds)) / 16.0; // multiply by 15, add new sample, divide by 16
 		}
 
 	} while (ElapsedSeconds < _frametimeTarget);

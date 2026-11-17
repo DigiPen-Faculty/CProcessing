@@ -47,10 +47,10 @@ void pause_exit(void);
 void level_up_init(void);
 void level_up_update(void);
 
-#define EASE_SECONDS 0.4f		// how long easing in or out takes
-#define LEVEL_UP_SLOWEST 0.15f	// the time scale under the level-up box
-#define PAUSE_VOLUME 0.4f		// the music volume under the pause
-#define FROST_STEPS 3			// how many times the paused game is halved: more is blurrier
+#define EASE_SECONDS     0.4f  // how long easing in or out takes
+#define LEVEL_UP_SLOWEST 0.15f // the time scale under the level-up box
+#define PAUSE_VOLUME     0.4f  // the music volume under the pause
+#define FROST_STEPS      3     // how many times the paused game is halved: more is blurrier
 
 CP_Color white;
 CP_Sound music;
@@ -105,7 +105,7 @@ CP_Vector coinVelocities[COIN_COUNT];
 int coinsCollected;
 int level;
 float playerSpeed;
-float reach;		// how close a coin has to be to collect it
+float reach; // how close a coin has to be to collect it
 
 void PlaceCoin(int i)
 {
@@ -211,8 +211,8 @@ void game_exit(void)
 // PAUSE: the game freezes behind it (the default), the music gets quieter,
 // and the game shows through frosted glass
 
-CP_Image frosted;		// the frozen game, small: made once, when the pause starts
-CP_BOOL pixelated;		// B: stretch it back up blocky instead of smooth
+CP_Image frosted;  // the frozen game, small: made once, when the pause starts
+CP_BOOL pixelated; // B: stretch it back up blocky instead of smooth
 
 // A copy of an image at half the size. With the linear filter, each pixel of
 // the copy is the average of the 2 x 2 pixels it covers. (Halving a few times
@@ -293,7 +293,7 @@ void pause_exit(void)
 // player picks an upgrade, time speeds back up, and then the box goes.
 
 CP_BOOL levelUpClosing;
-float levelUpClosedAt;		// the box's time when the upgrade was picked
+float levelUpClosedAt; // the box's time when the upgrade was picked
 
 void level_up_init(void)
 {

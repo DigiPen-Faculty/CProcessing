@@ -1,6 +1,6 @@
 //---------------------------------------------------------
 // file:	NoiseDemo.c
-// 
+//
 // CProcessing features in this demo:
 // CP_Image_CreateFromData	- create an image at runtime from raw pixel data
 // CP_Image_UpdatePixelData - modify raw pixel data and update the image for drawing

@@ -77,12 +77,12 @@ void CP_Settings_InitDefaults(CP_DrawInfoPtr DI)
 	DI->stroke_weight = 3.0f;
 	DI->line_cap = CP_LINE_CAP_BUTT;
 	DI->line_joint = CP_LINE_JOINT_BEVEL;
-	DI->tint = CP_Color_Create(255, 255, 255, 255);	// no tint
+	DI->tint = CP_Color_Create(255, 255, 255, 255); // no tint
 	DI->anti_alias = TRUE;
 	DI->blend_mode = CP_BLEND_ALPHA;
 	DI->filter_mode = CP_IMAGE_FILTER_LINEAR;
 	DI->wrap_mode = CP_IMAGE_WRAP_CLAMP;
-	DI->text_size = 16.0f;	// NanoVG's default
+	DI->text_size = 16.0f; // NanoVG's default
 	DI->text_align = (int)CP_TEXT_ALIGN_H_LEFT | (int)CP_TEXT_ALIGN_V_BASELINE;
 	DI->font = NULL;
 }
@@ -274,7 +274,7 @@ CP_API void CP_Settings_Scale(float xScale, float yScale)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
 	if (!vg)
-		return;	// transforms are reset every frame; nothing to do yet
+		return; // transforms are reset every frame; nothing to do yet
 
 	nvgScale(vg, xScale, yScale);
 
@@ -359,7 +359,7 @@ CP_API void CP_Settings_Save(void)
 {
 	CP_CorePtr CORE = GetCPCore();
 	if (!CORE->nvg)
-		return;	// Save and Restore only matter while drawing
+		return; // Save and Restore only matter while drawing
 
 	nvgSave(CORE->nvg);
 

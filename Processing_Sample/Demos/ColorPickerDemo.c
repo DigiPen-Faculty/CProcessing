@@ -27,12 +27,17 @@
 // The sliders, in the order they're drawn
 enum
 {
-	RED, GREEN, BLUE, HUE, SATURATION, LIGHTNESS, ALPHA,
+	RED,
+	GREEN,
+	BLUE,
+	HUE,
+	SATURATION,
+	LIGHTNESS,
+	ALPHA,
 	SLIDER_COUNT
 };
 
-static const char* sliderNames[SLIDER_COUNT] =
-	{ "Red", "Green", "Blue", "Hue", "Saturation", "Lightness", "Alpha" };
+static const char* sliderNames[SLIDER_COUNT] = { "Red", "Green", "Blue", "Hue", "Saturation", "Lightness", "Alpha" };
 static const int sliderMax[SLIDER_COUNT] = { 255, 255, 255, 359, 100, 100, 255 };
 
 // Where the sliders are: a column on the left of the window
@@ -47,7 +52,7 @@ static const float sliderHeight = 26.0f;
 // converting every frame, because a gray has no hue: converting it
 // back would lose the hue chosen with the slider.
 static int value[SLIDER_COUNT];
-static int draggedSlider;		// the slider being dragged, or -1
+static int draggedSlider; // the slider being dragged, or -1
 
 // The colors kept in slots A and B
 static CP_Color slotA;

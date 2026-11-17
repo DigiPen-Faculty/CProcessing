@@ -43,7 +43,7 @@ extern "C" {
 // Public Functions:
 //------------------------------------------------------------------------------
 
-void mat3_convert_nvg_to_std(CP_Matrix * mat);
+void mat3_convert_nvg_to_std(CP_Matrix* mat);
 
 #ifdef __cplusplus
 }

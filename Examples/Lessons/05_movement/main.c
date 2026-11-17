@@ -30,12 +30,12 @@
 //---------------------------------------------------------
 // The frame rate experiment
 //---------------------------------------------------------
-const float ballSpeed = 300.0f;			// pixels per second
-const float stepPerFrame = 5.0f;		// 5 pixels a frame is 300 a second, at 60 frames a second
+const float ballSpeed = 300.0f;  // pixels per second
+const float stepPerFrame = 5.0f; // 5 pixels a frame is 300 a second, at 60 frames a second
 
-CP_Vector dtBall;						// moves by speed * dt
-CP_Vector frameBall;					// moves by a fixed step every frame
-float dtDirection = 1.0f;				// +1 is right, -1 is left
+CP_Vector dtBall;         // moves by speed * dt
+CP_Vector frameBall;      // moves by a fixed step every frame
+float dtDirection = 1.0f; // +1 is right, -1 is left
 float frameDirection = 1.0f;
 
 // Moves a ball along x by `amount` pixels, and turns it round at the edges
@@ -96,9 +96,9 @@ void DoExperiment(void)
 //---------------------------------------------------------
 // The player
 //---------------------------------------------------------
-const float playerSpeed = 250.0f;		// pixels per second
+const float playerSpeed = 250.0f; // pixels per second
 const float playerSize = 50.0f;
-const float areaTop = 235.0f;			// the player stays below this line
+const float areaTop = 235.0f; // the player stays below this line
 
 CP_Vector playerPosition;
 CP_BOOL normalizeDirection = TRUE;

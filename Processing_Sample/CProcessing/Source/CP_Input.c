@@ -30,8 +30,8 @@
 
 static int valid_keys[CP_VALID_KEY_MAX] = {
 	32, 39, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 59, 61, 65,
-	66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82,	83,	84,
-	85,	86,	87,	88,	89,	90,	91,	92,	93,	96,	161, 162, 256, 257, 258, 259, 260,
+	66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
+	85, 86, 87, 88, 89, 90, 91, 92, 93, 96, 161, 162, 256, 257, 258, 259, 260,
 	261, 262, 263, 264, 265, 266, 267, 268, 269, 280, 281, 282, 283, 284, 290,
 	291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305,
 	306, 307, 308, 309, 310, 311, 312, 313, 314, 320, 321, 322, 323, 324, 325,
@@ -42,7 +42,7 @@ static bool valid_keys_sparse[CP_NUM_KEYS] = { false };
 
 // Track keyboard states
 static int key_states_previous[CP_NUM_KEYS] = { 0 };
-static int key_states_current[CP_NUM_KEYS]  = { 0 };
+static int key_states_current[CP_NUM_KEYS] = { 0 };
 static int key_states_realtime[CP_NUM_KEYS] = { 0 };
 static bool key_pressed_since_update[CP_NUM_KEYS] = { false }; // see CP_InputLogic_SampleButton
 static bool key_any_triggered = false;
@@ -53,7 +53,7 @@ static bool key_any_released = false;
 // Typed text: characters arrive from the OS any time, and are moved into
 // the text for the frame when input is updated, like the key states
 static char typed_text_realtime[CP_TYPED_TEXT_CAPACITY] = { 0 };
-static int  typed_text_realtime_length = 0;
+static int typed_text_realtime_length = 0;
 static char typed_text_current[CP_TYPED_TEXT_CAPACITY] = { 0 };
 
 //-------------------------------------
@@ -61,24 +61,24 @@ static char typed_text_current[CP_TYPED_TEXT_CAPACITY] = { 0 };
 
 // Track mouse states
 static int mouse_states_previous[CP_NUM_MOUSE_BUTTONS] = { 0 };
-static int mouse_states_current[CP_NUM_MOUSE_BUTTONS]  = { 0 };
+static int mouse_states_current[CP_NUM_MOUSE_BUTTONS] = { 0 };
 static int mouse_states_realtime[CP_NUM_MOUSE_BUTTONS] = { 0 };
 static bool mouse_pressed_since_update[CP_NUM_MOUSE_BUTTONS] = { false };
 
 // Mouse Wheel
-static int   mouse_wheel_captured  = FALSE;
+static int mouse_wheel_captured = FALSE;
 static float mouse_wheelx_previous = 0.0f;
 static float mouse_wheely_previous = 0.0f;
-static float mouse_wheelx_current  = 0.0f;
-static float mouse_wheely_current  = 0.0f;
+static float mouse_wheelx_current = 0.0f;
+static float mouse_wheely_current = 0.0f;
 static float mouse_wheelx_realtime = 0.0f;
 static float mouse_wheely_realtime = 0.0f;
 
 static double previous_click_time = 0;
-static double current_click_time  = 0;
+static double current_click_time = 0;
 
-static int	mouse_double_clicked_current  = FALSE;
-static int	mouse_double_clicked_realtime = FALSE;
+static int mouse_double_clicked_current = FALSE;
+static int mouse_double_clicked_realtime = FALSE;
 
 // Mouse Information
 static float _mouseX = 0;
@@ -110,80 +110,80 @@ static int _defaultGamepadId = -1;
 
 void CP_Input_KeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    UNREFERENCED_PARAMETER(mods);
-    UNREFERENCED_PARAMETER(scancode);
-    UNREFERENCED_PARAMETER(window);
+	UNREFERENCED_PARAMETER(mods);
+	UNREFERENCED_PARAMETER(scancode);
+	UNREFERENCED_PARAMETER(window);
 
-    // GLFW reports keys it can't map (media keys, some layouts) as
-    // GLFW_KEY_UNKNOWN (-1); ignore anything outside the tracked range
-    if (key < 0 || key >= CP_NUM_KEYS)
-    {
-        return;
-    }
+	// GLFW reports keys it can't map (media keys, some layouts) as
+	// GLFW_KEY_UNKNOWN (-1); ignore anything outside the tracked range
+	if (key < 0 || key >= CP_NUM_KEYS)
+	{
+		return;
+	}
 
-    switch (action)
-    {
-    case GLFW_PRESS:
-        key_states_realtime[key] = TRUE;
-        key_pressed_since_update[key] = true;
-        break;
-    case GLFW_RELEASE:
-        key_states_realtime[key] = FALSE;
-        break;
-    case GLFW_REPEAT:
-        break;
-    default:
-        break;
-    }
+	switch (action)
+	{
+	case GLFW_PRESS:
+		key_states_realtime[key] = TRUE;
+		key_pressed_since_update[key] = true;
+		break;
+	case GLFW_RELEASE:
+		key_states_realtime[key] = FALSE;
+		break;
+	case GLFW_REPEAT:
+		break;
+	default:
+		break;
+	}
 }
 
 void CP_Input_MouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    UNREFERENCED_PARAMETER(mods);
-    UNREFERENCED_PARAMETER(window);
+	UNREFERENCED_PARAMETER(mods);
+	UNREFERENCED_PARAMETER(window);
 
-    if (button < 0 || button >= CP_NUM_MOUSE_BUTTONS)
-    {
-        return;
-    }
+	if (button < 0 || button >= CP_NUM_MOUSE_BUTTONS)
+	{
+		return;
+	}
 
-    switch (action)
-    {
-    case GLFW_PRESS:
-        mouse_states_realtime[button] = TRUE;
-        mouse_pressed_since_update[button] = true;
-        break;
-    case GLFW_RELEASE:
-        mouse_states_realtime[button] = FALSE;
+	switch (action)
+	{
+	case GLFW_PRESS:
+		mouse_states_realtime[button] = TRUE;
+		mouse_pressed_since_update[button] = true;
+		break;
+	case GLFW_RELEASE:
+		mouse_states_realtime[button] = FALSE;
 
-        // Update click times
-        if (button == MOUSE_BUTTON_1)
-        {
-            previous_click_time = current_click_time;
-            current_click_time = glfwGetTime();
+		// Update click times
+		if (button == MOUSE_BUTTON_1)
+		{
+			previous_click_time = current_click_time;
+			current_click_time = glfwGetTime();
 
-            if (CP_InputLogic_IsDoubleClick(previous_click_time, current_click_time))
-            {
-                mouse_double_clicked_realtime = TRUE;
-            }
-        }
-        break;
-    case GLFW_REPEAT:
-        break;
-    default:
-        break;
-    }
+			if (CP_InputLogic_IsDoubleClick(previous_click_time, current_click_time))
+			{
+				mouse_double_clicked_realtime = TRUE;
+			}
+		}
+		break;
+	case GLFW_REPEAT:
+		break;
+	default:
+		break;
+	}
 }
 
-void CP_Input_MouseWheelCallback(GLFWwindow * window, double xoffset, double yoffset)
+void CP_Input_MouseWheelCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    UNREFERENCED_PARAMETER(window);
+	UNREFERENCED_PARAMETER(window);
 
-    mouse_wheelx_realtime = (float)xoffset;
-    mouse_wheely_realtime = (float)yoffset;
+	mouse_wheelx_realtime = (float)xoffset;
+	mouse_wheely_realtime = (float)yoffset;
 
-    // Mark that the wheel was captured this frame
-    mouse_wheel_captured  = TRUE;
+	// Mark that the wheel was captured this frame
+	mouse_wheel_captured = TRUE;
 }
 
 void CP_Input_CharCallback(GLFWwindow* window, unsigned int codepoint)
@@ -209,8 +209,8 @@ void CP_Input_Init(void)
 		valid_keys_sparse[valid_keys[i]] = true;
 	}
 
-    CP_CorePtr CORE = GetCPCore();
-    glfwSetInputMode(CORE->window, GLFW_STICKY_MOUSE_BUTTONS, 1);
+	CP_CorePtr CORE = GetCPCore();
+	glfwSetInputMode(CORE->window, GLFW_STICKY_MOUSE_BUTTONS, 1);
 
 	CP_Input_MouseUpdate();
 	CP_Input_MouseUpdate(); // intentionally called twice to setup curr and prev mouse values
@@ -268,39 +268,39 @@ void CP_Input_MouseUpdate(void)
 	_mouseX = (float)mx;
 	_mouseY = (float)my;
 
-    CP_Input_WorldMouseUpdate();
+	CP_Input_WorldMouseUpdate();
 
-    // Update Mouse Buttons
-    int size = sizeof(mouse_states_previous[0]) * CP_NUM_MOUSE_BUTTONS;
-    memcpy(mouse_states_previous, mouse_states_current, size);
-    for (int button = 0; button < CP_NUM_MOUSE_BUTTONS; ++button)
-    {
-        mouse_states_current[button] = CP_InputLogic_SampleButton(mouse_states_realtime[button], mouse_pressed_since_update[button]);
-        mouse_pressed_since_update[button] = false;
-    }
+	// Update Mouse Buttons
+	int size = sizeof(mouse_states_previous[0]) * CP_NUM_MOUSE_BUTTONS;
+	memcpy(mouse_states_previous, mouse_states_current, size);
+	for (int button = 0; button < CP_NUM_MOUSE_BUTTONS; ++button)
+	{
+		mouse_states_current[button] = CP_InputLogic_SampleButton(mouse_states_realtime[button], mouse_pressed_since_update[button]);
+		mouse_pressed_since_update[button] = false;
+	}
 
-    // Update mouse wheel
-    mouse_wheelx_previous = mouse_wheelx_current;
-    mouse_wheely_previous = mouse_wheely_current;
+	// Update mouse wheel
+	mouse_wheelx_previous = mouse_wheelx_current;
+	mouse_wheely_previous = mouse_wheely_current;
 
-    if (mouse_wheel_captured)
-    {
-        mouse_wheelx_current = mouse_wheelx_realtime;
-        mouse_wheely_current = mouse_wheely_realtime;
-        mouse_wheel_captured = FALSE;
-    }
-    else
-    {
-        mouse_wheelx_current = 0.0f;
-        mouse_wheely_current = 0.0f;
+	if (mouse_wheel_captured)
+	{
+		mouse_wheelx_current = mouse_wheelx_realtime;
+		mouse_wheely_current = mouse_wheely_realtime;
+		mouse_wheel_captured = FALSE;
+	}
+	else
+	{
+		mouse_wheelx_current = 0.0f;
+		mouse_wheely_current = 0.0f;
 
-        mouse_wheelx_realtime = 0.0f;
-        mouse_wheely_realtime = 0.0f;
-    }
+		mouse_wheelx_realtime = 0.0f;
+		mouse_wheely_realtime = 0.0f;
+	}
 
-    // Update double clicks
-    mouse_double_clicked_current = mouse_double_clicked_realtime;
-    mouse_double_clicked_realtime = FALSE;
+	// Update double clicks
+	mouse_double_clicked_current = mouse_double_clicked_realtime;
+	mouse_double_clicked_realtime = FALSE;
 }
 
 void CP_Input_GamepadUpdate(void)
@@ -368,8 +368,8 @@ void CP_Input_WorldMouseUpdate(void)
 
 	float worldToScreen[6] = { 0 };
 	float screenToWorld[6] = { 0 };
-	nvgCurrentTransform(CORE->nvg, worldToScreen); // world to screen
-	nvgTransformInverse(screenToWorld, worldToScreen);         // screen to world
+	nvgCurrentTransform(CORE->nvg, worldToScreen);     // world to screen
+	nvgTransformInverse(screenToWorld, worldToScreen); // screen to world
 	nvgTransformPoint(&_worldMouseX, &_worldMouseY, screenToWorld, _mouseX, _mouseY);
 	_worldMouseIsDirty = FALSE;
 }
@@ -391,7 +391,7 @@ CP_BOOL CP_Input_IsValidKey(CP_KEY key)
 
 CP_BOOL CP_Input_IsValidMouse(CP_MOUSE button)
 {
-    return (button >= 0 && button <= MOUSE_BUTTON_LAST);
+	return (button >= 0 && button <= MOUSE_BUTTON_LAST);
 }
 
 CP_BOOL CP_Input_IsValidGamepad(CP_GAMEPAD button)
@@ -433,13 +433,13 @@ CP_API CP_BOOL CP_Input_KeyTriggered(CP_KEY keyCode)
 	{
 		return key_any_triggered;
 	}
-    if (CP_Input_IsValidKey(keyCode))
-    {
-        // Wasn't pressed last frame and is pressed this frame
-        return CP_InputLogic_Triggered(key_states_current[keyCode], key_states_previous[keyCode]);
-    }
+	if (CP_Input_IsValidKey(keyCode))
+	{
+		// Wasn't pressed last frame and is pressed this frame
+		return CP_InputLogic_Triggered(key_states_current[keyCode], key_states_previous[keyCode]);
+	}
 
-    return FALSE;
+	return FALSE;
 }
 
 CP_API CP_BOOL CP_Input_KeyReleased(CP_KEY keyCode)
@@ -449,13 +449,13 @@ CP_API CP_BOOL CP_Input_KeyReleased(CP_KEY keyCode)
 	{
 		return key_any_released;
 	}
-    if (CP_Input_IsValidKey(keyCode))
-    {
-        // Was pressed last frame and isn't pressed this frame
-        return CP_InputLogic_Released(key_states_current[keyCode], key_states_previous[keyCode]);
-    }
+	if (CP_Input_IsValidKey(keyCode))
+	{
+		// Was pressed last frame and isn't pressed this frame
+		return CP_InputLogic_Released(key_states_current[keyCode], key_states_previous[keyCode]);
+	}
 
-    return FALSE;
+	return FALSE;
 }
 
 CP_API CP_BOOL CP_Input_KeyDown(CP_KEY keyCode)
@@ -465,13 +465,13 @@ CP_API CP_BOOL CP_Input_KeyDown(CP_KEY keyCode)
 	{
 		return key_any_down;
 	}
-    if (CP_Input_IsValidKey(keyCode))
-    {
-        // Is the key down?
-        return key_states_current[keyCode];
-    }
+	if (CP_Input_IsValidKey(keyCode))
+	{
+		// Is the key down?
+		return key_states_current[keyCode];
+	}
 
-    return FALSE;
+	return FALSE;
 }
 
 //-------------------------------------
@@ -485,7 +485,7 @@ CP_API CP_BOOL CP_Input_MouseTriggered(CP_MOUSE button)
 		return FALSE;
 	}
 
-    return CP_InputLogic_Triggered(mouse_states_current[button], mouse_states_previous[button]);
+	return CP_InputLogic_Triggered(mouse_states_current[button], mouse_states_previous[button]);
 }
 
 CP_API CP_BOOL CP_Input_MouseReleased(CP_MOUSE button)
@@ -496,7 +496,7 @@ CP_API CP_BOOL CP_Input_MouseReleased(CP_MOUSE button)
 		return FALSE;
 	}
 
-    return CP_InputLogic_Released(mouse_states_current[button], mouse_states_previous[button]);
+	return CP_InputLogic_Released(mouse_states_current[button], mouse_states_previous[button]);
 }
 
 CP_API CP_BOOL CP_Input_MouseDown(CP_MOUSE button)
@@ -507,33 +507,33 @@ CP_API CP_BOOL CP_Input_MouseDown(CP_MOUSE button)
 		return FALSE;
 	}
 
-    return mouse_states_current[button];
+	return mouse_states_current[button];
 }
 
 CP_API CP_BOOL CP_Input_MouseMoved(void)
 {
-    return ((CP_Input_GetMouseX() != CP_Input_GetMousePreviousX()) || (CP_Input_GetMouseY() != CP_Input_GetMousePreviousY()));
+	return ((CP_Input_GetMouseX() != CP_Input_GetMousePreviousX()) || (CP_Input_GetMouseY() != CP_Input_GetMousePreviousY()));
 }
 
 CP_API CP_BOOL CP_Input_MouseClicked(void)
 {
-    return CP_Input_MouseReleased(MOUSE_BUTTON_LEFT);
+	return CP_Input_MouseReleased(MOUSE_BUTTON_LEFT);
 }
 
 CP_API CP_BOOL CP_Input_MouseDoubleClicked(void)
 {
 	if (_inputMuted) return FALSE;
-    return mouse_double_clicked_current;
+	return mouse_double_clicked_current;
 }
 
 CP_API CP_BOOL CP_Input_MouseDragged(CP_MOUSE button)
 {
-    if (!CP_Input_IsValidMouse(button))
+	if (!CP_Input_IsValidMouse(button))
 	{
 		return FALSE;
 	}
 
-    return (mouse_states_current[button] && mouse_states_previous[button]) && CP_Input_MouseMoved();
+	return (mouse_states_current[button] && mouse_states_previous[button]) && CP_Input_MouseMoved();
 }
 
 CP_API const char* CP_Input_GetTypedText(void)

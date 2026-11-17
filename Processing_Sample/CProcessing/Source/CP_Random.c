@@ -52,7 +52,9 @@ static uint32_t xorshift128(void)
 	uint32_t s, t = state[3];
 	t ^= t << 11;
 	t ^= t >> 8;
-	state[3] = state[2]; state[2] = state[1]; state[1] = s = state[0];
+	state[3] = state[2];
+	state[2] = state[1];
+	state[1] = s = state[0];
 	t ^= s;
 	t ^= s >> 19;
 	state[0] = t;
@@ -109,7 +111,7 @@ CP_API uint32_t CP_Random_RangeInt(unsigned int lowerBound, unsigned int upperBo
 	// That's under count values out of 2^32, so for ordinary ranges a draw is
 	// almost never thrown away, and seeded sequences stay the same.
 	const uint32_t count = range + 1;
-	const uint32_t threshold = (0u - count) % count;	// = 2^32 % count
+	const uint32_t threshold = (0u - count) % count; // = 2^32 % count
 	uint32_t r;
 	do
 	{

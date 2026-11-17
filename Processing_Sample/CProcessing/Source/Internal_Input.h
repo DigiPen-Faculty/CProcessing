@@ -43,9 +43,9 @@ void CP_Input_MouseUpdate(void);
 void CP_Input_GamepadUpdate(void);
 void CP_Input_WorldMouseUpdate(void);
 void CP_Input_SetWorldMouseDirty(void);
-CP_BOOL  CP_Input_IsValidKey(CP_KEY key);
-CP_BOOL  CP_Input_IsValidMouse(CP_MOUSE button);
-CP_BOOL  CP_Input_IsValidGamepad(CP_GAMEPAD button);
+CP_BOOL CP_Input_IsValidKey(CP_KEY key);
+CP_BOOL CP_Input_IsValidMouse(CP_MOUSE button);
+CP_BOOL CP_Input_IsValidGamepad(CP_GAMEPAD button);
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus

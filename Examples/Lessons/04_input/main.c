@@ -75,8 +75,8 @@ void DrawLamp(const char* label, float x, float y, CP_BOOL lit, CP_Color color)
 int triggeredCount = 0;
 int framesDown = 0;
 int releasedCount = 0;
-float triggeredLampUntil = 0.0f;		// a frame is too short to see, so a lamp
-float releasedLampUntil = 0.0f;			// stays lit for a moment after it happens
+float triggeredLampUntil = 0.0f; // a frame is too short to see, so a lamp
+float releasedLampUntil = 0.0f;  // stays lit for a moment after it happens
 
 void DoKeyboard(float cellX, float cellY)
 {
@@ -119,7 +119,7 @@ void DoKeyboard(float cellX, float cellY)
 //---------------------------------------------------------
 #define RING_COUNT 8
 CP_Vector ringPosition[RING_COUNT];
-float ringAge[RING_COUNT];				// seconds since the click, or -1 for unused
+float ringAge[RING_COUNT]; // seconds since the click, or -1 for unused
 float ballSize = 60.0f;
 
 void DoMouse(float cellX, float cellY)
@@ -235,7 +235,7 @@ void DoTyping(float cellX, float cellY)
 // 0 until it is pushed past a small "dead zone", about a quarter of the way.
 //---------------------------------------------------------
 const float stickRadius = 60.0f;
-const float deadZoneRadius = 0.27f;		// as a share of the way out: about right
+const float deadZoneRadius = 0.27f; // as a share of the way out: about right
 
 void DrawStick(const char* label, CP_Vector stick, float x, float y)
 {

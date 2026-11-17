@@ -10,40 +10,40 @@
 // All coordinates below were computed by hand against the actual source
 // (CP_Graphics.c, CP_Setting.c) rather than assumed -- see the Phase D
 // commit message for the worked geometry on the rotation/transform cases.
-#define _CRT_SECURE_NO_WARNINGS     // fopen, in the exit report capture
+#define _CRT_SECURE_NO_WARNINGS // fopen, in the exit report capture
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "tier2_capture.h"
 #if defined(_WIN32)
-    #include <io.h>
-    #define tier2_dup _dup
-    #define tier2_dup2 _dup2
-    #define tier2_close _close
-    #define tier2_fileno _fileno
+	#include <io.h>
+	#define tier2_dup    _dup
+	#define tier2_dup2   _dup2
+	#define tier2_close  _close
+	#define tier2_fileno _fileno
 #else
-    #include <unistd.h>
-    #define tier2_dup dup
-    #define tier2_dup2 dup2
-    #define tier2_close close
-    #define tier2_fileno fileno
+	#include <unistd.h>
+	#define tier2_dup    dup
+	#define tier2_dup2   dup2
+	#define tier2_close  close
+	#define tier2_fileno fileno
 #endif
 
 // For Scn_AssetsNextToProgram, which runs in another folder for a moment
 #if defined(_WIN32)
-    #include <direct.h>
-    #define tier2_getcwd _getcwd
-    #define tier2_chdir _chdir
-    #define tier2_mkdir(path) _mkdir(path)
-    #define tier2_rmdir _rmdir
+	#include <direct.h>
+	#define tier2_getcwd      _getcwd
+	#define tier2_chdir       _chdir
+	#define tier2_mkdir(path) _mkdir(path)
+	#define tier2_rmdir       _rmdir
 #else
-    #include <sys/stat.h>
-    #include <unistd.h>
-    #define tier2_getcwd getcwd
-    #define tier2_chdir chdir
-    #define tier2_mkdir(path) mkdir(path, 0755)
-    #define tier2_rmdir rmdir
+	#include <sys/stat.h>
+	#include <unistd.h>
+	#define tier2_getcwd      getcwd
+	#define tier2_chdir       chdir
+	#define tier2_mkdir(path) mkdir(path, 0755)
+	#define tier2_rmdir       rmdir
 #endif
 
 CP_Color tier2_snapshots[SCN_COUNT][TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
@@ -51,8 +51,8 @@ Tier2Scalars tier2_scalars = { 0 };
 
 #define WHITE CP_Color_Create(255, 255, 255, 255)
 #define BLACK CP_Color_Create(0, 0, 0, 255)
-#define RED CP_Color_Create(255, 0, 0, 255)
-#define BLUE CP_Color_Create(0, 0, 255, 255)
+#define RED   CP_Color_Create(255, 0, 0, 255)
+#define BLUE  CP_Color_Create(0, 0, 255, 255)
 #define GREEN CP_Color_Create(0, 200, 0, 255)
 
 static int frameCount = 0;
@@ -65,34 +65,34 @@ static int firstScenarioFrame = -1;
 // WARMUP_FRAMES and then until the canvas reports the requested size, giving
 // up after MAX_WARMUP_FRAMES (the size test then fails with a clear message
 // instead of every pixel test failing mysteriously).
-#define WARMUP_FRAMES 15
+#define WARMUP_FRAMES     15
 #define MAX_WARMUP_FRAMES 600
 
 static void CaptureInto(CP_Color* pixels)
 {
-    CP_Image shot = CP_Image_Screenshot(0, 0, TIER2_CANVAS_SIZE, TIER2_CANVAS_SIZE);
-    CP_Image_GetPixelData(shot, pixels);
-    CP_Image_Free(&shot);
+	CP_Image shot = CP_Image_Screenshot(0, 0, TIER2_CANVAS_SIZE, TIER2_CANVAS_SIZE);
+	CP_Image_GetPixelData(shot, pixels);
+	CP_Image_Free(&shot);
 }
 
 static void CaptureCurrentFrame(Tier2Scenario scenario)
 {
-    CaptureInto(tier2_snapshots[scenario]);
+	CaptureInto(tier2_snapshots[scenario]);
 }
 
 // Known-good baseline so each scenario starts from the same state
 // regardless of what the previous scenario left behind.
 static void ResetToBaseline(void)
 {
-    CP_Settings_ResetMatrix();
-    CP_Settings_Fill(WHITE);
-    CP_Settings_Stroke(BLACK);
-    CP_Settings_StrokeWeight(3.0f);
-    CP_Settings_LineCapMode(CP_LINE_CAP_BUTT);
-    CP_Settings_RectMode(CP_POSITION_CENTER);
-    CP_Settings_EllipseMode(CP_POSITION_CENTER);
-    CP_Settings_BlendMode(CP_BLEND_ALPHA);
-    CP_System_SetFrameRate(60.0f);
+	CP_Settings_ResetMatrix();
+	CP_Settings_Fill(WHITE);
+	CP_Settings_Stroke(BLACK);
+	CP_Settings_StrokeWeight(3.0f);
+	CP_Settings_LineCapMode(CP_LINE_CAP_BUTT);
+	CP_Settings_RectMode(CP_POSITION_CENTER);
+	CP_Settings_EllipseMode(CP_POSITION_CENTER);
+	CP_Settings_BlendMode(CP_BLEND_ALPHA);
+	CP_System_SetFrameRate(60.0f);
 }
 
 // Draws with the settings made before CP_Engine_Run (tier2_RunCaptureOnce):
@@ -100,8 +100,8 @@ static void ResetToBaseline(void)
 // existed, and the default stroke, black and 3 wide.
 static void Scn_SettingsBeforeRun(void)
 {
-    CP_Graphics_ClearBackground(BLUE);
-    CP_Graphics_DrawRect(50, 50, 100, 100); // CORNER: spans [50,150] x [50,150]
+	CP_Graphics_ClearBackground(BLUE);
+	CP_Graphics_DrawRect(50, 50, 100, 100); // CORNER: spans [50,150] x [50,150]
 }
 
 // Vsync and a resizable window were turned on before CP_Engine_Run
@@ -109,96 +109,96 @@ static void Scn_SettingsBeforeRun(void)
 // back off here, so the other scenarios run as they always have.
 static void Scn_SystemGetters(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
+	CP_Graphics_ClearBackground(WHITE);
 
-    tier2_scalars.vsyncInRun = CP_System_GetVSync();
-    tier2_scalars.resizableInRun = CP_System_GetWindowResizable();
-    tier2_scalars.fullscreenInRun = CP_System_IsFullscreen();
-    CP_System_SetVSync(FALSE);
-    CP_System_SetWindowResizable(FALSE);
-    tier2_scalars.vsyncSetOff = !CP_System_GetVSync();
-    tier2_scalars.resizableSetOff = !CP_System_GetWindowResizable();
+	tier2_scalars.vsyncInRun = CP_System_GetVSync();
+	tier2_scalars.resizableInRun = CP_System_GetWindowResizable();
+	tier2_scalars.fullscreenInRun = CP_System_IsFullscreen();
+	CP_System_SetVSync(FALSE);
+	CP_System_SetWindowResizable(FALSE);
+	tier2_scalars.vsyncSetOff = !CP_System_GetVSync();
+	tier2_scalars.resizableSetOff = !CP_System_GetWindowResizable();
 
-    // ResetToBaseline set 60 frames a second
-    tier2_scalars.targetFrameRateDefault = CP_System_GetTargetFrameRate();
-    CP_System_SetFrameRate(30.0f);
-    tier2_scalars.targetFrameRateSet30 = CP_System_GetTargetFrameRate();
-    CP_System_SetFrameRate(0.0f);
-    tier2_scalars.targetFrameRateSet0 = CP_System_GetTargetFrameRate();
-    CP_System_SetFrameRate(-30.0f);
-    tier2_scalars.targetFrameRateSetNegative = CP_System_GetTargetFrameRate();
-    CP_System_SetFrameRate(60.0f);
+	// ResetToBaseline set 60 frames a second
+	tier2_scalars.targetFrameRateDefault = CP_System_GetTargetFrameRate();
+	CP_System_SetFrameRate(30.0f);
+	tier2_scalars.targetFrameRateSet30 = CP_System_GetTargetFrameRate();
+	CP_System_SetFrameRate(0.0f);
+	tier2_scalars.targetFrameRateSet0 = CP_System_GetTargetFrameRate();
+	CP_System_SetFrameRate(-30.0f);
+	tier2_scalars.targetFrameRateSetNegative = CP_System_GetTargetFrameRate();
+	CP_System_SetFrameRate(60.0f);
 }
 
 // Each getter gives back what was set, and Save and Restore bring them back
 static void Scn_SettingsGetters(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
+	CP_Graphics_ClearBackground(WHITE);
 
-    const CP_Color fill = CP_Color_Create(10, 20, 30, 40);
-    const CP_Color stroke = CP_Color_Create(50, 60, 70, 80);
-    CP_Settings_Fill(fill);
-    CP_Settings_Stroke(stroke);
-    CP_Settings_StrokeWeight(7.5f);
-    CP_Settings_TextSize(33.0f);
-    CP_Color gotFill = CP_Settings_GetFill();
-    CP_Color gotStroke = CP_Settings_GetStroke();
-    tier2_scalars.fillGetsWhatWasSet = gotFill.r == 10 && gotFill.g == 20 && gotFill.b == 30 && gotFill.a == 40;
-    tier2_scalars.strokeGetsWhatWasSet = gotStroke.r == 50 && gotStroke.g == 60 && gotStroke.b == 70 && gotStroke.a == 80;
-    tier2_scalars.strokeWeightGetsWhatWasSet = CP_Settings_GetStrokeWeight() == 7.5f;
-    tier2_scalars.textSizeGetsWhatWasSet = CP_Settings_GetTextSize() == 33.0f;
+	const CP_Color fill = CP_Color_Create(10, 20, 30, 40);
+	const CP_Color stroke = CP_Color_Create(50, 60, 70, 80);
+	CP_Settings_Fill(fill);
+	CP_Settings_Stroke(stroke);
+	CP_Settings_StrokeWeight(7.5f);
+	CP_Settings_TextSize(33.0f);
+	CP_Color gotFill = CP_Settings_GetFill();
+	CP_Color gotStroke = CP_Settings_GetStroke();
+	tier2_scalars.fillGetsWhatWasSet = gotFill.r == 10 && gotFill.g == 20 && gotFill.b == 30 && gotFill.a == 40;
+	tier2_scalars.strokeGetsWhatWasSet = gotStroke.r == 50 && gotStroke.g == 60 && gotStroke.b == 70 && gotStroke.a == 80;
+	tier2_scalars.strokeWeightGetsWhatWasSet = CP_Settings_GetStrokeWeight() == 7.5f;
+	tier2_scalars.textSizeGetsWhatWasSet = CP_Settings_GetTextSize() == 33.0f;
 
-    // The colors stay what they were, though there is no fill or stroke now
-    CP_Settings_NoFill();
-    CP_Settings_NoStroke();
-    gotFill = CP_Settings_GetFill();
-    gotStroke = CP_Settings_GetStroke();
-    tier2_scalars.fillKeptAfterNoFill = gotFill.r == 10 && gotFill.a == 40;
-    tier2_scalars.strokeKeptAfterNoStroke = gotStroke.r == 50 && gotStroke.a == 80;
+	// The colors stay what they were, though there is no fill or stroke now
+	CP_Settings_NoFill();
+	CP_Settings_NoStroke();
+	gotFill = CP_Settings_GetFill();
+	gotStroke = CP_Settings_GetStroke();
+	tier2_scalars.fillKeptAfterNoFill = gotFill.r == 10 && gotFill.a == 40;
+	tier2_scalars.strokeKeptAfterNoStroke = gotStroke.r == 50 && gotStroke.a == 80;
 
-    // Changes made after Save are undone by Restore
-    CP_Settings_Save();
-    CP_Settings_Fill(CP_Color_Create(1, 2, 3, 4));
-    CP_Settings_Stroke(CP_Color_Create(5, 6, 7, 8));
-    CP_Settings_StrokeWeight(1.0f);
-    CP_Settings_TextSize(10.0f);
-    CP_Settings_Restore();
-    gotFill = CP_Settings_GetFill();
-    gotStroke = CP_Settings_GetStroke();
-    tier2_scalars.settingsBackAfterRestore = gotFill.r == 10 && gotStroke.r == 50 &&
-        CP_Settings_GetStrokeWeight() == 7.5f && CP_Settings_GetTextSize() == 33.0f;
+	// Changes made after Save are undone by Restore
+	CP_Settings_Save();
+	CP_Settings_Fill(CP_Color_Create(1, 2, 3, 4));
+	CP_Settings_Stroke(CP_Color_Create(5, 6, 7, 8));
+	CP_Settings_StrokeWeight(1.0f);
+	CP_Settings_TextSize(10.0f);
+	CP_Settings_Restore();
+	gotFill = CP_Settings_GetFill();
+	gotStroke = CP_Settings_GetStroke();
+	tier2_scalars.settingsBackAfterRestore = gotFill.r == 10 && gotStroke.r == 50 &&
+											 CP_Settings_GetStrokeWeight() == 7.5f && CP_Settings_GetTextSize() == 33.0f;
 }
 
 // The font starts as the default one, is the one that CP_Font_Set chose, goes
 // back with Restore, and is the default again if it is freed while in use
 static void Scn_FontGetCurrent(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
+	CP_Graphics_ClearBackground(WHITE);
 
-    const CP_Font defaultFont = CP_Font_GetDefault();
-    tier2_scalars.fontStartsAsDefault = CP_Font_GetCurrent() == defaultFont;
+	const CP_Font defaultFont = CP_Font_GetDefault();
+	tier2_scalars.fontStartsAsDefault = CP_Font_GetCurrent() == defaultFont;
 
-    CP_Font custom = CP_Font_Load("Assets/Exo2-Regular.otf");
-    CP_Font_Set(custom);
-    tier2_scalars.fontSetIsCurrent = custom != NULL && CP_Font_GetCurrent() == custom;
+	CP_Font custom = CP_Font_Load("Assets/Exo2-Regular.otf");
+	CP_Font_Set(custom);
+	tier2_scalars.fontSetIsCurrent = custom != NULL && CP_Font_GetCurrent() == custom;
 
-    CP_Settings_Save();
-    CP_Font_Set(defaultFont);
-    CP_Settings_Restore();
-    tier2_scalars.fontBackAfterRestore = CP_Font_GetCurrent() == custom;
+	CP_Settings_Save();
+	CP_Font_Set(defaultFont);
+	CP_Settings_Restore();
+	tier2_scalars.fontBackAfterRestore = CP_Font_GetCurrent() == custom;
 
-    CP_Font_Free(&custom);
-    tier2_scalars.freedFontFallsBackToDefault = CP_Font_GetCurrent() == defaultFont;
-    CP_Font_Set(defaultFont);
+	CP_Font_Free(&custom);
+	tier2_scalars.freedFontFallsBackToDefault = CP_Font_GetCurrent() == defaultFont;
+	CP_Font_Set(defaultFont);
 }
 
 static void Scn_ClearBackground(void)
 {
-    CP_Graphics_ClearBackground(CP_Color_Create(10, 20, 30, 255));
-    // Captured here (one of the first scenarios) and again in Scn_SystemEngineState
-    // (one of the last) so the test suite can confirm frame count actually
-    // advances across the scripted run.
-    tier2_scalars.frameCountEarly = CP_System_GetFrameCount();
+	CP_Graphics_ClearBackground(CP_Color_Create(10, 20, 30, 255));
+	// Captured here (one of the first scenarios) and again in Scn_SystemEngineState
+	// (one of the last) so the test suite can confirm frame count actually
+	// advances across the scripted run.
+	tier2_scalars.frameCountEarly = CP_System_GetFrameCount();
 }
 
 // A point follows the line settings, as the wiki documents: the stroke
@@ -206,284 +206,284 @@ static void Scn_ClearBackground(void)
 // has no fill. See test_tier2_graphics_drawpoint_follows_stroke_settings.
 static void Scn_DrawPoint(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255));
-    CP_Settings_Stroke(RED);
-    CP_Settings_StrokeWeight(20.0f);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255));
+	CP_Settings_Stroke(RED);
+	CP_Settings_StrokeWeight(20.0f);
 
-    // Round cap: a circle 20 across. Square cap: a 20x20 square.
-    CP_Settings_LineCapMode(CP_LINE_CAP_ROUND);
-    CP_Graphics_DrawPoint(50, 50);
-    CP_Settings_LineCapMode(CP_LINE_CAP_SQUARE);
-    CP_Graphics_DrawPoint(150, 50);
+	// Round cap: a circle 20 across. Square cap: a 20x20 square.
+	CP_Settings_LineCapMode(CP_LINE_CAP_ROUND);
+	CP_Graphics_DrawPoint(50, 50);
+	CP_Settings_LineCapMode(CP_LINE_CAP_SQUARE);
+	CP_Graphics_DrawPoint(150, 50);
 
-    // Drawing a point leaves the fill color alone
-    CP_Settings_NoStroke();
-    CP_Graphics_DrawRect(100, 100, 20, 20);
+	// Drawing a point leaves the fill color alone
+	CP_Settings_NoStroke();
+	CP_Graphics_DrawRect(100, 100, 20, 20);
 
-    // No stroke hides a point; no fill doesn't
-    CP_Graphics_DrawPoint(100, 150);
-    CP_Settings_Stroke(RED);
-    CP_Settings_NoFill();
-    CP_Graphics_DrawPoint(50, 150);
+	// No stroke hides a point; no fill doesn't
+	CP_Graphics_DrawPoint(100, 150);
+	CP_Settings_Stroke(RED);
+	CP_Settings_NoFill();
+	CP_Graphics_DrawPoint(50, 150);
 
-    // A stroke color undone by CP_Settings_Restore is undone for points too
-    CP_Settings_Save();
-    CP_Settings_Stroke(CP_Color_Create(0, 0, 255, 255));
-    CP_Settings_Restore();
-    CP_Graphics_DrawPoint(150, 150);
+	// A stroke color undone by CP_Settings_Restore is undone for points too
+	CP_Settings_Save();
+	CP_Settings_Stroke(CP_Color_Create(0, 0, 255, 255));
+	CP_Settings_Restore();
+	CP_Graphics_DrawPoint(150, 150);
 }
 
 static void Scn_DrawLine(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Stroke(RED);
-    CP_Settings_StrokeWeight(10.0f);
-    CP_Graphics_DrawLine(20, 100, 180, 100);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Stroke(RED);
+	CP_Settings_StrokeWeight(10.0f);
+	CP_Graphics_DrawLine(20, 100, 180, 100);
 }
 
 static void Scn_DrawLineAdvanced(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Stroke(RED);
-    CP_Settings_StrokeWeight(10.0f);
-    // Rotated 90 degrees about its own midpoint (100,100): a horizontal
-    // line becomes vertical, so the original endpoint is no longer covered.
-    CP_Graphics_DrawLineAdvanced(20, 100, 180, 100, 90);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Stroke(RED);
+	CP_Settings_StrokeWeight(10.0f);
+	// Rotated 90 degrees about its own midpoint (100,100): a horizontal
+	// line becomes vertical, so the original endpoint is no longer covered.
+	CP_Graphics_DrawLineAdvanced(20, 100, 180, 100, 90);
 }
 
 static void Scn_DrawRect(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Graphics_DrawRect(100, 100, 80, 80);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_DrawRect(100, 100, 80, 80);
 }
 
 static void Scn_DrawRectAdvanced(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    // An 80x20 rect rotated 45 degrees about its center (100,100).
-    CP_Graphics_DrawRectAdvanced(100, 100, 80, 20, 45, 0);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	// An 80x20 rect rotated 45 degrees about its center (100,100).
+	CP_Graphics_DrawRectAdvanced(100, 100, 80, 20, 45, 0);
 }
 
 static void Scn_DrawCircle(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Graphics_DrawCircle(100, 100, 80);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_DrawCircle(100, 100, 80);
 }
 
 static void Scn_DrawEllipse(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Graphics_DrawEllipse(100, 100, 120, 40); // half-w 60, half-h 20
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_DrawEllipse(100, 100, 120, 40); // half-w 60, half-h 20
 }
 
 static void Scn_DrawEllipseAdvanced(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    // Same 120x40 ellipse, rotated 90 degrees: the wide axis becomes vertical.
-    CP_Graphics_DrawEllipseAdvanced(100, 100, 120, 40, 90);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	// Same 120x40 ellipse, rotated 90 degrees: the wide axis becomes vertical.
+	CP_Graphics_DrawEllipseAdvanced(100, 100, 120, 40, 90);
 }
 
 // A quarter of a circle of diameter 160 around (100, 100), from the angle 0
 // (to the right) clockwise, so down: it passes (180, 100) and (100, 180).
 static void Scn_DrawArc(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Fill(RED);          // an arc is a line: this must not fill it
-    CP_Graphics_DrawArc(100, 100, 160, 0, 90);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(RED); // an arc is a line: this must not fill it
+	CP_Graphics_DrawArc(100, 100, 160, 0, 90);
 }
 
 // The same quarter, but a negative sweep goes the other way: up
 static void Scn_DrawArcCounterclockwise(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Graphics_DrawArc(100, 100, 160, 0, -90);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Graphics_DrawArc(100, 100, 160, 0, -90);
 }
 
 // A filled quarter of the circle: the bottom right
 static void Scn_DrawPie(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Graphics_DrawPie(100, 100, 160, 0, 90);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_DrawPie(100, 100, 160, 0, 90);
 }
 
 // In CORNER ellipse mode the circle's top left is the position: this is the
 // bottom right quarter of the circle centered on (100, 100), as above
 static void Scn_DrawPieCornerMode(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Settings_EllipseMode(CP_POSITION_CORNER);
-    CP_Graphics_DrawPie(20, 20, 160, 0, 90);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Settings_EllipseMode(CP_POSITION_CORNER);
+	CP_Graphics_DrawPie(20, 20, 160, 0, 90);
 }
 
 // A curve from (20, 150) to (180, 150) pulled up by both control points; at
 // half way along it is at (100, 52.5)
 static void Scn_DrawBezier(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Fill(RED);          // a curve is a line: this must not fill it
-    CP_Graphics_DrawBezier(20, 150, 20, 20, 180, 20, 180, 150);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(RED); // a curve is a line: this must not fill it
+	CP_Graphics_DrawBezier(20, 150, 20, 20, 180, 20, 180, 150);
 }
 
 static void Scn_DrawTriangle(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    // Centroid is exactly (100,100): ((100+143+57)/3, (50+125+125)/3).
-    CP_Graphics_DrawTriangle(100, 50, 143, 125, 57, 125);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	// Centroid is exactly (100,100): ((100+143+57)/3, (50+125+125)/3).
+	CP_Graphics_DrawTriangle(100, 50, 143, 125, 57, 125);
 }
 
 static void Scn_DrawTriangleAdvanced(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    // Same triangle, rotated 180 degrees about its centroid (100,100):
-    // the apex that was at the top (100,50) is now at the bottom (100,150).
-    CP_Graphics_DrawTriangleAdvanced(100, 50, 143, 125, 57, 125, 180);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	// Same triangle, rotated 180 degrees about its centroid (100,100):
+	// the apex that was at the top (100,50) is now at the bottom (100,150).
+	CP_Graphics_DrawTriangleAdvanced(100, 50, 143, 125, 57, 125, 180);
 }
 
 static void Scn_DrawQuad(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    // An axis-aligned 60x60 square (half-size 30) centered at (100,100).
-    CP_Graphics_DrawQuad(70, 70, 130, 70, 130, 130, 70, 130);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	// An axis-aligned 60x60 square (half-size 30) centered at (100,100).
+	CP_Graphics_DrawQuad(70, 70, 130, 70, 130, 130, 70, 130);
 }
 
 static void Scn_DrawQuadAdvanced(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    // Same square, rotated 45 degrees about its center: a diamond whose
-    // reach along the pure-vertical/horizontal axes grows from 30 to
-    // 30*sqrt(2) =~ 42.4, covering points the unrotated square did not.
-    CP_Graphics_DrawQuadAdvanced(70, 70, 130, 70, 130, 130, 70, 130, 45);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	// Same square, rotated 45 degrees about its center: a diamond whose
+	// reach along the pure-vertical/horizontal axes grows from 30 to
+	// 30*sqrt(2) =~ 42.4, covering points the unrotated square did not.
+	CP_Graphics_DrawQuadAdvanced(70, 70, 130, 70, 130, 130, 70, 130, 45);
 }
 
 static void Scn_CustomShape(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Graphics_BeginShape();
-    CP_Graphics_AddVertex(70, 70);
-    CP_Graphics_AddVertex(130, 70);
-    CP_Graphics_AddVertex(130, 130);
-    CP_Graphics_AddVertex(70, 130);
-    CP_Graphics_EndShape();
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_BeginShape();
+	CP_Graphics_AddVertex(70, 70);
+	CP_Graphics_AddVertex(130, 70);
+	CP_Graphics_AddVertex(130, 130);
+	CP_Graphics_AddVertex(70, 130);
+	CP_Graphics_EndShape();
 }
 
 static void Scn_SettingsNoFill(void)
 {
-    CP_Graphics_ClearBackground(GREEN);
-    CP_Settings_NoFill();
-    CP_Settings_Stroke(BLUE);
-    CP_Settings_StrokeWeight(16.0f);
-    CP_Graphics_DrawRect(100, 100, 80, 80); // edges at y=60 and y=140
+	CP_Graphics_ClearBackground(GREEN);
+	CP_Settings_NoFill();
+	CP_Settings_Stroke(BLUE);
+	CP_Settings_StrokeWeight(16.0f);
+	CP_Graphics_DrawRect(100, 100, 80, 80); // edges at y=60 and y=140
 }
 
 static void Scn_SettingsStrokeWeight(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoFill();
-    CP_Settings_Stroke(RED);
-    CP_Settings_StrokeWeight(30.0f); // half-width 15
-    CP_Graphics_DrawLine(100, 20, 100, 180);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoFill();
+	CP_Settings_Stroke(RED);
+	CP_Settings_StrokeWeight(30.0f); // half-width 15
+	CP_Graphics_DrawLine(100, 20, 100, 180);
 }
 
 static void Scn_SettingsRectModeCorner(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Settings_RectMode(CP_POSITION_CORNER);
-    CP_Graphics_DrawRect(50, 50, 60, 60); // CORNER: spans [50,110] x [50,110]
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Graphics_DrawRect(50, 50, 60, 60); // CORNER: spans [50,110] x [50,110]
 }
 
 static void Scn_SettingsEllipseModeCorner(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Settings_EllipseMode(CP_POSITION_CORNER);
-    CP_Graphics_DrawEllipse(50, 50, 80, 80); // CORNER: center (90,90), r=40
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Settings_EllipseMode(CP_POSITION_CORNER);
+	CP_Graphics_DrawEllipse(50, 50, 80, 80); // CORNER: center (90,90), r=40
 }
 
 static void Scn_SettingsTranslate(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Settings_Translate(50, 50);
-    CP_Graphics_DrawRect(0, 0, 40, 40); // ends up centered at world (50,50)
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Settings_Translate(50, 50);
+	CP_Graphics_DrawRect(0, 0, 40, 40); // ends up centered at world (50,50)
 }
 
 static void Scn_SettingsScale(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Settings_Translate(100, 100);
-    CP_Settings_Scale(2.0f, 2.0f);
-    CP_Graphics_DrawRect(0, 0, 20, 20); // half-size 10 * scale 2 = 20 in world space
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Settings_Translate(100, 100);
+	CP_Settings_Scale(2.0f, 2.0f);
+	CP_Graphics_DrawRect(0, 0, 20, 20); // half-size 10 * scale 2 = 20 in world space
 }
 
 static void Scn_SettingsRotate(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Settings_Translate(100, 100);
-    CP_Settings_Rotate(45);
-    CP_Graphics_DrawRect(0, 0, 60, 10); // local half-extents x:+-30, y:+-5
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Settings_Translate(100, 100);
+	CP_Settings_Rotate(45);
+	CP_Graphics_DrawRect(0, 0, 60, 10); // local half-extents x:+-30, y:+-5
 }
 
 static void Scn_SettingsResetMatrix(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Settings_Translate(50, 50);
-    CP_Settings_ResetMatrix(); // cancels the translate above
-    CP_Graphics_DrawRect(0, 0, 40, 40); // back at world origin, mostly off-canvas
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Settings_Translate(50, 50);
+	CP_Settings_ResetMatrix();          // cancels the translate above
+	CP_Graphics_DrawRect(0, 0, 40, 40); // back at world origin, mostly off-canvas
 }
 
 static void Scn_SettingsApplyMatrix(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Settings_ApplyMatrix(CP_Matrix_Translate(CP_Vector_Set(70, 70)));
-    CP_Graphics_DrawRect(0, 0, 40, 40); // centered at world (70,70)
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Settings_ApplyMatrix(CP_Matrix_Translate(CP_Vector_Set(70, 70)));
+	CP_Graphics_DrawRect(0, 0, 40, 40); // centered at world (70,70)
 }
 
 static void Scn_SettingsBlendModeAdd(void)
 {
-    CP_Graphics_ClearBackground(BLACK);
-    CP_Settings_BlendMode(CP_BLEND_ADD);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(CP_Color_Create(100, 0, 0, 255));
-    CP_Graphics_DrawRect(80, 100, 60, 60); // spans x:[50,110]
-    CP_Settings_Fill(CP_Color_Create(0, 100, 0, 255));
-    CP_Graphics_DrawRect(120, 100, 60, 60); // spans x:[90,150]; overlap x:[90,110]
+	CP_Graphics_ClearBackground(BLACK);
+	CP_Settings_BlendMode(CP_BLEND_ADD);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(CP_Color_Create(100, 0, 0, 255));
+	CP_Graphics_DrawRect(80, 100, 60, 60); // spans x:[50,110]
+	CP_Settings_Fill(CP_Color_Create(0, 100, 0, 255));
+	CP_Graphics_DrawRect(120, 100, 60, 60); // spans x:[90,150]; overlap x:[90,110]
 }
 
 // ---- Settings that CProcessing patches into NanoVG ----
@@ -495,45 +495,47 @@ static void Scn_SettingsBlendModeAdd(void)
 // subtract (background minus square), multiply, min and max.
 static void Scn_SettingsBlendModes(void)
 {
-    CP_Graphics_ClearBackground(CP_Color_Create(200, 100, 50, 255));
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(CP_Color_Create(100, 100, 100, 255));
-    const CP_BLEND_MODE modes[4] = { CP_BLEND_SUBTRACT, CP_BLEND_MULTIPLY, CP_BLEND_MIN, CP_BLEND_MAX };
-    for (int i = 0; i < 4; ++i)
-    {
-        CP_Settings_BlendMode(modes[i]);
-        CP_Graphics_DrawRect(40.0f + 40.0f * i, 100, 30, 30);
-    }
+	CP_Graphics_ClearBackground(CP_Color_Create(200, 100, 50, 255));
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(CP_Color_Create(100, 100, 100, 255));
+	const CP_BLEND_MODE modes[4] = { CP_BLEND_SUBTRACT, CP_BLEND_MULTIPLY, CP_BLEND_MIN, CP_BLEND_MAX };
+	for (int i = 0; i < 4; ++i)
+	{
+		CP_Settings_BlendMode(modes[i]);
+		CP_Graphics_DrawRect(40.0f + 40.0f * i, 100, 30, 30);
+	}
 }
 
 // Tint multiplies what is drawn, weighted by the tint's alpha: white
 // squares tinted red and half-strength blue, and a white image tinted green.
 static void Scn_SettingsTint(void)
 {
-    CP_Graphics_ClearBackground(BLACK);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(WHITE);
-    CP_Settings_Tint(CP_Color_Create(255, 0, 0, 255));
-    CP_Graphics_DrawRect(50, 50, 40, 40);
-    CP_Settings_Tint(CP_Color_Create(0, 0, 255, 128));
-    CP_Graphics_DrawRect(150, 50, 40, 40);
+	CP_Graphics_ClearBackground(BLACK);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(WHITE);
+	CP_Settings_Tint(CP_Color_Create(255, 0, 0, 255));
+	CP_Graphics_DrawRect(50, 50, 40, 40);
+	CP_Settings_Tint(CP_Color_Create(0, 0, 255, 128));
+	CP_Graphics_DrawRect(150, 50, 40, 40);
 
-    CP_Color white[4] = { WHITE, WHITE, WHITE, WHITE };
-    CP_Image image = CP_Image_CreateFromData(2, 2, (unsigned char*)white);
-    CP_Settings_Tint(CP_Color_Create(0, 255, 0, 255));
-    CP_Image_Draw(image, 100, 150, 40, 40, 255);
-    CP_Image_Free(&image);
-    CP_Settings_NoTint();
+	CP_Color white[4] = { WHITE, WHITE, WHITE, WHITE };
+	CP_Image image = CP_Image_CreateFromData(2, 2, (unsigned char*)white);
+	CP_Settings_Tint(CP_Color_Create(0, 255, 0, 255));
+	CP_Image_Draw(image, 100, 150, 40, 40, 255);
+	CP_Image_Free(&image);
+	CP_Settings_NoTint();
 }
 
 // A 2x2 image: red, green / blue, yellow
 static CP_Image CreateFourColorImage(void)
 {
-    CP_Color pixels[4] = {
-        CP_Color_Create(255, 0, 0, 255), CP_Color_Create(0, 255, 0, 255),
-        CP_Color_Create(0, 0, 255, 255), CP_Color_Create(255, 255, 0, 255),
-    };
-    return CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+	CP_Color pixels[4] = {
+		CP_Color_Create(255, 0, 0, 255),
+		CP_Color_Create(0, 255, 0, 255),
+		CP_Color_Create(0, 0, 255, 255),
+		CP_Color_Create(255, 255, 0, 255),
+	};
+	return CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
 }
 
 // The image drawn 100x100, nearest on the left half of the canvas and
@@ -541,14 +543,14 @@ static CP_Image CreateFourColorImage(void)
 // in the middle.
 static void Scn_ImageFilterModes(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_ImageMode(CP_POSITION_CORNER);
-    CP_Image image = CreateFourColorImage();
-    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
-    CP_Image_Draw(image, 0, 50, 100, 100, 255);
-    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_LINEAR);
-    CP_Image_Draw(image, 100, 50, 100, 100, 255);
-    CP_Image_Free(&image);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Image image = CreateFourColorImage();
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Image_Draw(image, 0, 50, 100, 100, 255);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_LINEAR);
+	CP_Image_Draw(image, 100, 50, 100, 100, 255);
+	CP_Image_Free(&image);
 }
 
 // The image drawn once per wrap mode as an 80x80 tile, with a source
@@ -558,20 +560,20 @@ static void Scn_ImageFilterModes(void)
 // mirror (110, 110).
 static void Scn_ImageWrapModes(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_ImageMode(CP_POSITION_CORNER);
-    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
-    CP_Image image = CreateFourColorImage();
-    const CP_IMAGE_WRAP_MODE modes[4] = {
-        CP_IMAGE_WRAP_CLAMP, CP_IMAGE_WRAP_CLAMP_EDGE, CP_IMAGE_WRAP_REPEAT, CP_IMAGE_WRAP_MIRROR
-    };
-    for (int i = 0; i < 4; ++i)
-    {
-        CP_Settings_ImageWrapMode(modes[i]);
-        CP_Image_DrawSubImage(image, 10.0f + 100.0f * (i % 2), 10.0f + 100.0f * (i / 2), 80, 80, 0, 0, 4, 4, 255);
-    }
-    CP_Image_Free(&image);
-    CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_CLAMP);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Image image = CreateFourColorImage();
+	const CP_IMAGE_WRAP_MODE modes[4] = {
+		CP_IMAGE_WRAP_CLAMP, CP_IMAGE_WRAP_CLAMP_EDGE, CP_IMAGE_WRAP_REPEAT, CP_IMAGE_WRAP_MIRROR
+	};
+	for (int i = 0; i < 4; ++i)
+	{
+		CP_Settings_ImageWrapMode(modes[i]);
+		CP_Image_DrawSubImage(image, 10.0f + 100.0f * (i % 2), 10.0f + 100.0f * (i / 2), 80, 80, 0, 0, 4, 4, 255);
+	}
+	CP_Image_Free(&image);
+	CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_CLAMP);
 }
 
 // Settings carry over to the next frame, as in Processing (NanoVG resets
@@ -580,29 +582,29 @@ static void Scn_ImageWrapModes(void)
 // pixels tall; at NanoVG's reset size of 16 it would be 11.
 static void Scn_SettingsLastFrameSetsTextSize(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_TextSize(150.0f);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_TextSize(150.0f);
 }
 
 static void Scn_SettingsCarryToNextFrame(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Fill(BLACK);
-    CP_Font_Set(CP_Font_GetDefault());
-    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
-    CP_Font_DrawText("H", 20, 150);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(BLACK);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
+	CP_Font_DrawText("H", 20, 150);
 }
 
 static void Scn_SettingsSaveRestore(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Fill(RED);
-    CP_Settings_Save();
-    CP_Settings_Fill(BLUE);
-    CP_Settings_Translate(50, 50);
-    CP_Settings_Restore(); // should undo both the fill change and the translate
-    CP_Settings_NoStroke();
-    CP_Graphics_DrawRect(100, 100, 40, 40);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(RED);
+	CP_Settings_Save();
+	CP_Settings_Fill(BLUE);
+	CP_Settings_Translate(50, 50);
+	CP_Settings_Restore(); // should undo both the fill change and the translate
+	CP_Settings_NoStroke();
+	CP_Graphics_DrawRect(100, 100, 40, 40);
 }
 
 // ---- CP_Image (Phase E) ----
@@ -618,61 +620,61 @@ static void Scn_SettingsSaveRestore(void)
 // moves each quadrant one corner clockwise
 static void Scn_ImageDrawRotated(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
-    CP_Settings_ImageMode(CP_POSITION_CENTER);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Settings_ImageMode(CP_POSITION_CENTER);
 
-    CP_Image img = CP_Image_Load("Assets/quadrants.png");
-    CP_Image_DrawAdvanced(img, 100, 100, 80, 80, 255, 90);
-    CP_Image_Free(&img);
+	CP_Image img = CP_Image_Load("Assets/quadrants.png");
+	CP_Image_DrawAdvanced(img, 100, 100, 80, 80, 255, 90);
+	CP_Image_Free(&img);
 }
 
 static void Scn_ImageLoadAndDraw(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST); // crisp quadrant edges, no bilinear bleed
-    CP_Settings_ImageMode(CP_POSITION_CENTER);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST); // crisp quadrant edges, no bilinear bleed
+	CP_Settings_ImageMode(CP_POSITION_CENTER);
 
-    CP_Image img = CP_Image_Load("Assets/quadrants.png");
-    tier2_scalars.quadImageWidth = CP_Image_GetWidth(img);
-    tier2_scalars.quadImageHeight = CP_Image_GetHeight(img);
+	CP_Image img = CP_Image_Load("Assets/quadrants.png");
+	tier2_scalars.quadImageWidth = CP_Image_GetWidth(img);
+	tier2_scalars.quadImageHeight = CP_Image_GetHeight(img);
 
-    // Drawn as an 80x80 square centered on the canvas: spans x:[60,140], y:[60,140].
-    CP_Image_Draw(img, 100, 100, 80, 80, 255);
-    CP_Image_Free(&img);
+	// Drawn as an 80x80 square centered on the canvas: spans x:[60,140], y:[60,140].
+	CP_Image_Draw(img, 100, 100, 80, 80, 255);
+	CP_Image_Free(&img);
 
-    // CP_Image_CreateFromData / GetPixelData / UpdatePixelData round-trip,
-    // entirely independent of any file -- a 2x2 synthetic buffer.
-    CP_Color source[4] = {
-        CP_Color_Create(10, 20, 30, 255), CP_Color_Create(40, 50, 60, 255),
-        CP_Color_Create(70, 80, 90, 255), CP_Color_Create(100, 110, 120, 255)
-    };
-    CP_Image synthetic = CP_Image_CreateFromData(2, 2, (unsigned char*)source);
-    CP_Image_GetPixelData(synthetic, tier2_scalars.createFromDataReadback);
+	// CP_Image_CreateFromData / GetPixelData / UpdatePixelData round-trip,
+	// entirely independent of any file -- a 2x2 synthetic buffer.
+	CP_Color source[4] = {
+		CP_Color_Create(10, 20, 30, 255), CP_Color_Create(40, 50, 60, 255),
+		CP_Color_Create(70, 80, 90, 255), CP_Color_Create(100, 110, 120, 255)
+	};
+	CP_Image synthetic = CP_Image_CreateFromData(2, 2, (unsigned char*)source);
+	CP_Image_GetPixelData(synthetic, tier2_scalars.createFromDataReadback);
 
-    CP_Color updated[4] = {
-        CP_Color_Create(200, 0, 0, 255), CP_Color_Create(0, 200, 0, 255),
-        CP_Color_Create(0, 0, 200, 255), CP_Color_Create(200, 200, 0, 255)
-    };
-    CP_Image_UpdatePixelData(synthetic, updated);
-    CP_Image_GetPixelData(synthetic, tier2_scalars.updatePixelDataReadback);
-    CP_Image_Free(&synthetic);
+	CP_Color updated[4] = {
+		CP_Color_Create(200, 0, 0, 255), CP_Color_Create(0, 200, 0, 255),
+		CP_Color_Create(0, 0, 200, 255), CP_Color_Create(200, 200, 0, 255)
+	};
+	CP_Image_UpdatePixelData(synthetic, updated);
+	CP_Image_GetPixelData(synthetic, tier2_scalars.updatePixelDataReadback);
+	CP_Image_Free(&synthetic);
 }
 
 static void Scn_ImageSubImage(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
-    CP_Settings_ImageMode(CP_POSITION_CENTER);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Settings_ImageMode(CP_POSITION_CENTER);
 
-    CP_Image img = CP_Image_Load("Assets/quadrants.png");
-    // s0/t0/s1/t1 are *pixel* coordinates into the source image, not
-    // normalized [0,1] UVs (CP_Image.c:102-145, confirmed against the
-    // wiki's Image page). (2,0)-(4,2) selects just the top-right (green)
-    // quadrant of the 4x4 fixture; drawn as a 60x60 square centered on the
-    // canvas.
-    CP_Image_DrawSubImage(img, 100, 100, 60, 60, 2, 0, 4, 2, 255);
-    CP_Image_Free(&img);
+	CP_Image img = CP_Image_Load("Assets/quadrants.png");
+	// s0/t0/s1/t1 are *pixel* coordinates into the source image, not
+	// normalized [0,1] UVs (CP_Image.c:102-145, confirmed against the
+	// wiki's Image page). (2,0)-(4,2) selects just the top-right (green)
+	// quadrant of the 4x4 fixture; drawn as a 60x60 square centered on the
+	// canvas.
+	CP_Image_DrawSubImage(img, 100, 100, 60, 60, 2, 0, 4, 2, 255);
+	CP_Image_Free(&img);
 }
 
 // A PNG with 16 bits per channel, as paint programs often save: the same
@@ -680,13 +682,13 @@ static void Scn_ImageSubImage(void)
 // these at all (CProcessing had 2.10 until 3.0).
 static void Scn_Image16Bit(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
-    CP_Settings_ImageMode(CP_POSITION_CENTER);
-    CP_Image img = CP_Image_Load("Assets/quadrants16.png");
-    tier2_scalars.image16BitWidth = CP_Image_GetWidth(img);
-    CP_Image_Draw(img, 100, 100, 80, 80, 255);
-    CP_Image_Free(&img);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Settings_ImageMode(CP_POSITION_CENTER);
+	CP_Image img = CP_Image_Load("Assets/quadrants16.png");
+	tier2_scalars.image16BitWidth = CP_Image_GetWidth(img);
+	CP_Image_Draw(img, 100, 100, 80, 80, 255);
+	CP_Image_Free(&img);
 }
 
 // More images than CProcessing's lists start out holding (12), so they have
@@ -697,28 +699,28 @@ static void Scn_Image16Bit(void)
 
 static void Scn_ImageMany(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
-    CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Settings_ImageMode(CP_POSITION_CORNER);
 
-    CP_Color pixels[4] = { BLUE, BLUE, BLUE, BLUE };
-    CP_Image images[MANY_IMAGES];
-    for (int i = 0; i < MANY_IMAGES; ++i)
-    {
-        images[i] = CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
-        tier2_scalars.manyImagesCreated += images[i] != NULL;
-        CP_Image_Draw(images[i], (float)(i % 8) * 20, (float)(i / 8) * 20, 10, 10, 255);
-    }
+	CP_Color pixels[4] = { BLUE, BLUE, BLUE, BLUE };
+	CP_Image images[MANY_IMAGES];
+	for (int i = 0; i < MANY_IMAGES; ++i)
+	{
+		images[i] = CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+		tier2_scalars.manyImagesCreated += images[i] != NULL;
+		CP_Image_Draw(images[i], (float)(i % 8) * 20, (float)(i / 8) * 20, 10, 10, 255);
+	}
 
-    CP_Image fromFile = CP_Image_Load("Assets/quadrants.png");
-    tier2_scalars.manyImagesFileWidth = CP_Image_GetWidth(fromFile);
-    CP_Image_Free(&fromFile);
+	CP_Image fromFile = CP_Image_Load("Assets/quadrants.png");
+	tier2_scalars.manyImagesFileWidth = CP_Image_GetWidth(fromFile);
+	CP_Image_Free(&fromFile);
 
-    for (int i = 0; i < MANY_IMAGES; ++i)
-    {
-        CP_Image_Free(&images[i]);
-        tier2_scalars.manyImagesFreed += images[i] == NULL;
-    }
+	for (int i = 0; i < MANY_IMAGES; ++i)
+	{
+		CP_Image_Free(&images[i]);
+		tier2_scalars.manyImagesFreed += images[i] == NULL;
+	}
 }
 
 // Loading a file that's already loaded returns the same handle. Freeing one
@@ -727,48 +729,48 @@ static void Scn_ImageMany(void)
 // free must therefore give back the handle still in use, not a new copy.
 static void Scn_SharedAssets(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_ImageMode(CP_POSITION_CORNER);
-    CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
 
-    CP_Image first = CP_Image_Load("Assets/quadrants.png");
-    CP_Image second = CP_Image_Load("Assets/quadrants.png");
-    tier2_scalars.sharedImageSame = first != NULL && first == second;
-    CP_Image_Free(&first);
-    tier2_scalars.sharedImageFirstCleared = first == NULL;
-    CP_Image third = CP_Image_Load("Assets/quadrants.png");
-    tier2_scalars.sharedImageReloadSame = third != NULL && third == second;
-    CP_Image_Draw(second, 0, 0, 200, 200, 255);
+	CP_Image first = CP_Image_Load("Assets/quadrants.png");
+	CP_Image second = CP_Image_Load("Assets/quadrants.png");
+	tier2_scalars.sharedImageSame = first != NULL && first == second;
+	CP_Image_Free(&first);
+	tier2_scalars.sharedImageFirstCleared = first == NULL;
+	CP_Image third = CP_Image_Load("Assets/quadrants.png");
+	tier2_scalars.sharedImageReloadSame = third != NULL && third == second;
+	CP_Image_Draw(second, 0, 0, 200, 200, 255);
 
-    // Images made from data have no path, so an empty path can't find them
-    CP_Color pixels[4] = { RED, RED, RED, RED };
-    CP_Image fromData = CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
-    tier2_scalars.emptyPathLoadIsNull = CP_Image_Load("") == NULL;
-    CP_Image_Free(&fromData);
-    CP_Image_Free(&second);
-    CP_Image_Free(&third);
+	// Images made from data have no path, so an empty path can't find them
+	CP_Color pixels[4] = { RED, RED, RED, RED };
+	CP_Image fromData = CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+	tier2_scalars.emptyPathLoadIsNull = CP_Image_Load("") == NULL;
+	CP_Image_Free(&fromData);
+	CP_Image_Free(&second);
+	CP_Image_Free(&third);
 
-    CP_Font font1 = CP_Font_Load("Assets/Exo2-Regular.otf");
-    CP_Font font2 = CP_Font_Load("Assets/Exo2-Regular.otf");
-    tier2_scalars.sharedFontSame = font1 != NULL && font1 == font2;
-    CP_Font_Free(&font1);
-    CP_Font font3 = CP_Font_Load("Assets/Exo2-Regular.otf");
-    tier2_scalars.sharedFontReloadSame = font3 != NULL && font3 == font2;
-    CP_Font_Free(&font2);
-    CP_Font_Free(&font3);
+	CP_Font font1 = CP_Font_Load("Assets/Exo2-Regular.otf");
+	CP_Font font2 = CP_Font_Load("Assets/Exo2-Regular.otf");
+	tier2_scalars.sharedFontSame = font1 != NULL && font1 == font2;
+	CP_Font_Free(&font1);
+	CP_Font font3 = CP_Font_Load("Assets/Exo2-Regular.otf");
+	tier2_scalars.sharedFontReloadSame = font3 != NULL && font3 == font2;
+	CP_Font_Free(&font2);
+	CP_Font_Free(&font3);
 
-    // Without an audio device sounds don't load, and the test is skipped
-    CP_Sound sound1 = CP_Sound_Load("Assets/beep.wav");
-    tier2_scalars.soundAvailable = sound1 != NULL;
-    CP_Sound stream = CP_Sound_LoadStream("Assets/beep.wav");
-    tier2_scalars.soundAndStreamDiffer = sound1 != NULL && stream != NULL && stream != sound1;
-    CP_Sound sound2 = CP_Sound_Load("Assets/beep.wav");
-    CP_Sound_Free(&sound1);
-    CP_Sound sound3 = CP_Sound_Load("Assets/beep.wav");
-    tier2_scalars.sharedSoundReloadSame = sound3 != NULL && sound3 == sound2;
-    CP_Sound_Free(&sound2);
-    CP_Sound_Free(&sound3);
-    CP_Sound_Free(&stream);
+	// Without an audio device sounds don't load, and the test is skipped
+	CP_Sound sound1 = CP_Sound_Load("Assets/beep.wav");
+	tier2_scalars.soundAvailable = sound1 != NULL;
+	CP_Sound stream = CP_Sound_LoadStream("Assets/beep.wav");
+	tier2_scalars.soundAndStreamDiffer = sound1 != NULL && stream != NULL && stream != sound1;
+	CP_Sound sound2 = CP_Sound_Load("Assets/beep.wav");
+	CP_Sound_Free(&sound1);
+	CP_Sound sound3 = CP_Sound_Load("Assets/beep.wav");
+	tier2_scalars.sharedSoundReloadSame = sound3 != NULL && sound3 == sound2;
+	CP_Sound_Free(&sound2);
+	CP_Sound_Free(&sound3);
+	CP_Sound_Free(&stream);
 }
 
 // ---- CP_Font (Phase E) ----
@@ -778,24 +780,24 @@ static void Scn_SharedAssets(void)
 
 static void Scn_FontDrawText(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Fill(BLACK);
-    CP_Font_Set(CP_Font_GetDefault());
-    CP_Settings_TextSize(60.0f);
-    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
-    CP_Font_DrawText("I", 40, 40); // a single bold vertical stroke, cheap to bound reliably
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(BLACK);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(60.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
+	CP_Font_DrawText("I", 40, 40); // a single bold vertical stroke, cheap to bound reliably
 }
 
 static void Scn_FontLoadFree(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Fill(BLACK);
-    CP_Font customFont = CP_Font_Load("Assets/Exo2-Regular.ttf");
-    CP_Font_Set(customFont);
-    CP_Settings_TextSize(60.0f);
-    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
-    CP_Font_DrawText("I", 40, 40);
-    CP_Font_Free(&customFont);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(BLACK);
+	CP_Font customFont = CP_Font_Load("Assets/Exo2-Regular.ttf");
+	CP_Font_Set(customFont);
+	CP_Settings_TextSize(60.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
+	CP_Font_DrawText("I", 40, 40);
+	CP_Font_Free(&customFont);
 }
 
 // ---- OpenType fonts with CFF outlines (v3) ----
@@ -805,16 +807,16 @@ static void Scn_FontLoadFree(void)
 // capital H at size 100 is 69 pixels tall too.
 static void Scn_FontOpenType(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Fill(BLACK);
-    CP_Font font = CP_Font_Load("Assets/Exo2-Regular.otf");
-    tier2_scalars.openTypeFontLoaded = font != NULL;
-    CP_Font_Set(font);
-    CP_Settings_TextSize(100.0f);
-    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
-    CP_Font_DrawText("H", 20, 150);
-    CP_Font_Free(&font);
-    CP_Font_Set(CP_Font_GetDefault());
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(BLACK);
+	CP_Font font = CP_Font_Load("Assets/Exo2-Regular.otf");
+	tier2_scalars.openTypeFontLoaded = font != NULL;
+	CP_Font_Set(font);
+	CP_Settings_TextSize(100.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
+	CP_Font_DrawText("H", 20, 150);
+	CP_Font_Free(&font);
+	CP_Font_Set(CP_Font_GetDefault());
 }
 
 // ---- Freeing a font keeps the others working (v3) ----
@@ -830,44 +832,44 @@ static CP_Color fontFreeAfter[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 
 static void DrawWithTwoFonts(CP_Font upper, CP_Font lower)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Font_Set(upper);
-    CP_Font_DrawText("Hello", 100, 50);
-    CP_Font_Set(lower);
-    CP_Font_DrawText("Hello", 100, 150);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Font_Set(upper);
+	CP_Font_DrawText("Hello", 100, 50);
+	CP_Font_Set(lower);
+	CP_Font_DrawText("Hello", 100, 150);
 }
 
 static void Scn_FontFreeKeepsOthers(void)
 {
-    CP_Settings_Fill(BLACK);
-    CP_Settings_TextSize(40.0f);
-    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
-    CP_Font first = CP_Font_Load("Assets/Exo2-Regular.ttf");
-    CP_Font second = CP_Font_Load("Assets/./Exo2-Regular.ttf");
-    CP_Font third = CP_Font_Load("Assets/../Assets/Exo2-Regular.ttf");
-    tier2_scalars.fontFreeLoaded = (first != NULL) + (second != NULL) + (third != NULL);
+	CP_Settings_Fill(BLACK);
+	CP_Settings_TextSize(40.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+	CP_Font first = CP_Font_Load("Assets/Exo2-Regular.ttf");
+	CP_Font second = CP_Font_Load("Assets/./Exo2-Regular.ttf");
+	CP_Font third = CP_Font_Load("Assets/../Assets/Exo2-Regular.ttf");
+	tier2_scalars.fontFreeLoaded = (first != NULL) + (second != NULL) + (third != NULL);
 
-    DrawWithTwoFonts(second, third);
-    CaptureInto(fontFreeBefore);
-    CP_Font_Free(&first);
-    DrawWithTwoFonts(second, third);
-    CaptureInto(fontFreeAfter);
+	DrawWithTwoFonts(second, third);
+	CaptureInto(fontFreeBefore);
+	CP_Font_Free(&first);
+	DrawWithTwoFonts(second, third);
+	CaptureInto(fontFreeAfter);
 
-    for (int i = 0; i < TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE; ++i)
-    {
-        tier2_scalars.fontFreeInkBefore += fontFreeBefore[i].r < 128;
-        tier2_scalars.fontFreeMismatched += (fontFreeBefore[i].r < 128) != (fontFreeAfter[i].r < 128);
-    }
+	for (int i = 0; i < TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE; ++i)
+	{
+		tier2_scalars.fontFreeInkBefore += fontFreeBefore[i].r < 128;
+		tier2_scalars.fontFreeMismatched += (fontFreeBefore[i].r < 128) != (fontFreeAfter[i].r < 128);
+	}
 
-    CP_Font later = CP_Font_Load("Assets/./../Assets/Exo2-Regular.ttf");
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Font_Set(later);
-    CP_Font_DrawText("Hello", 100, 100);
+	CP_Font later = CP_Font_Load("Assets/./../Assets/Exo2-Regular.ttf");
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Font_Set(later);
+	CP_Font_DrawText("Hello", 100, 100);
 
-    CP_Font_Free(&second);
-    CP_Font_Free(&third);
-    CP_Font_Free(&later);
-    CP_Font_Set(CP_Font_GetDefault());
+	CP_Font_Free(&second);
+	CP_Font_Free(&third);
+	CP_Font_Free(&later);
+	CP_Font_Set(CP_Font_GetDefault());
 }
 
 // ---- Text animated by size or by scale (v3) ----
@@ -885,9 +887,9 @@ static void Scn_FontFreeKeepsOthers(void)
 // current atlas, so the first draw must match it. Comparing two draws from
 // the same run keeps this independent of how a given GPU renders glyphs.
 
-#define SWEEP_FRAMES 240
+#define SWEEP_FRAMES            240
 // Many different glyphs, so the atlas fills quickly
-#define SWEEP_TEXT "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+#define SWEEP_TEXT              "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 // A channel that differs by more than this is a real difference, not
 // filtering noise.
 #define SWEEP_CHANNEL_TOLERANCE 64
@@ -895,84 +897,84 @@ static void Scn_FontFreeKeepsOthers(void)
 // twenty had a single pixel off, on a frame with no atlas switch. A broken
 // frame loses whole glyphs: typically thousands of pixels, and at least 16
 // (the "A" alone at size 10).
-#define SWEEP_STRAY_PIXELS 4
+#define SWEEP_STRAY_PIXELS      4
 
 static CP_Color sweepDraw[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 static CP_Color sweepRedraw[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 
 static void DrawSweepText(float textSize, float scale)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_ResetMatrix();
-    CP_Settings_Translate(4, 4);
-    CP_Settings_Scale(scale, scale);
-    CP_Settings_TextSize(textSize);
-    CP_Font_DrawText(SWEEP_TEXT, 0, 0);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_ResetMatrix();
+	CP_Settings_Translate(4, 4);
+	CP_Settings_Scale(scale, scale);
+	CP_Settings_TextSize(textSize);
+	CP_Font_DrawText(SWEEP_TEXT, 0, 0);
 }
 
 static void RunTextSweep(Tier2TextSweep* result, bool animateScale)
 {
-    CP_Settings_Fill(BLACK);
-    CP_Font_Set(CP_Font_GetDefault());
-    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
+	CP_Settings_Fill(BLACK);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
 
-    result->frames = SWEEP_FRAMES;
-    result->firstBadFrame = -1;
-    for (int frame = 0; frame < SWEEP_FRAMES; ++frame)
-    {
-        // 0 to 1 and back, about three times over the sweep. Either way the
-        // text ends up 10 to 100 pixels tall.
-        float wave = 0.5f - 0.5f * cosf(frame * 0.08f);
-        float textSize = animateScale ? 25.0f : 10.0f + 90.0f * wave;
-        float scale = animateScale ? 0.4f + 3.6f * wave : 1.0f;
+	result->frames = SWEEP_FRAMES;
+	result->firstBadFrame = -1;
+	for (int frame = 0; frame < SWEEP_FRAMES; ++frame)
+	{
+		// 0 to 1 and back, about three times over the sweep. Either way the
+		// text ends up 10 to 100 pixels tall.
+		float wave = 0.5f - 0.5f * cosf(frame * 0.08f);
+		float textSize = animateScale ? 25.0f : 10.0f + 90.0f * wave;
+		float scale = animateScale ? 0.4f + 3.6f * wave : 1.0f;
 
-        DrawSweepText(textSize, scale);
-        CaptureInto(sweepDraw);
-        DrawSweepText(textSize, scale);
-        CaptureInto(sweepRedraw);
+		DrawSweepText(textSize, scale);
+		CaptureInto(sweepDraw);
+		DrawSweepText(textSize, scale);
+		CaptureInto(sweepRedraw);
 
-        int differing = 0;
-        bool inked = false;
-        for (int i = 0; i < TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE; ++i)
-        {
-            for (int c = 0; c < 3; ++c)
-            {
-                if (abs(sweepDraw[i].rgba[c] - sweepRedraw[i].rgba[c]) > SWEEP_CHANNEL_TOLERANCE)
-                {
-                    ++differing;
-                    break;
-                }
-            }
-            inked = inked || sweepRedraw[i].r < 128;
-        }
+		int differing = 0;
+		bool inked = false;
+		for (int i = 0; i < TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE; ++i)
+		{
+			for (int c = 0; c < 3; ++c)
+			{
+				if (abs(sweepDraw[i].rgba[c] - sweepRedraw[i].rgba[c]) > SWEEP_CHANNEL_TOLERANCE)
+				{
+					++differing;
+					break;
+				}
+			}
+			inked = inked || sweepRedraw[i].r < 128;
+		}
 
-        if (differing > result->worstPixels)
-        {
-            result->worstPixels = differing;
-        }
-        if (differing > SWEEP_STRAY_PIXELS)
-        {
-            ++result->badFrames;
-            if (result->firstBadFrame < 0)
-            {
-                result->firstBadFrame = frame;
-            }
-        }
-        if (!inked)
-        {
-            ++result->blankFrames;
-        }
-    }
+		if (differing > result->worstPixels)
+		{
+			result->worstPixels = differing;
+		}
+		if (differing > SWEEP_STRAY_PIXELS)
+		{
+			++result->badFrames;
+			if (result->firstBadFrame < 0)
+			{
+				result->firstBadFrame = frame;
+			}
+		}
+		if (!inked)
+		{
+			++result->blankFrames;
+		}
+	}
 }
 
 static void Scn_FontSizeSweep(void)
 {
-    RunTextSweep(&tier2_scalars.textSizeSweep, false);
+	RunTextSweep(&tier2_scalars.textSizeSweep, false);
 }
 
 static void Scn_FontScaleSweep(void)
 {
-    RunTextSweep(&tier2_scalars.textScaleSweep, true);
+	RunTextSweep(&tier2_scalars.textScaleSweep, true);
 }
 
 // ---- Text size is the em size (v3) ----
@@ -983,25 +985,25 @@ static void Scn_FontScaleSweep(void)
 // made the H 57.5 pixels tall.
 static void Scn_FontEmSize(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Fill(BLACK);
-    CP_Font_Set(CP_Font_GetDefault());
-    CP_Settings_TextSize(100.0f);
-    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
-    CP_Font_DrawText("H", 20, 150);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(BLACK);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(100.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
+	CP_Font_DrawText("H", 20, 150);
 
-    // Measuring text, at the same size
-    tier2_scalars.textWidthH = CP_Font_GetTextWidth("H");
-    tier2_scalars.textWidthHH = CP_Font_GetTextWidth("HH");
-    tier2_scalars.textWidthHSpace = CP_Font_GetTextWidth("H ");
-    tier2_scalars.textSizeH = CP_Font_GetTextSize("H");
-    tier2_scalars.textSizeLong = CP_Font_GetTextSize("Hello, world");
-    tier2_scalars.textBoxOneLine = CP_Font_GetTextBoxSize("Hi", 1000.0f);
-    tier2_scalars.textBoxWrapped = CP_Font_GetTextBoxSize("one two three four five six", 300.0f);
-    tier2_scalars.textWidthNull = CP_Font_GetTextWidth(NULL);
-    CP_Settings_TextSize(200.0f);
-    tier2_scalars.textWidthH200 = CP_Font_GetTextWidth("H");
-    CP_Settings_TextSize(100.0f);
+	// Measuring text, at the same size
+	tier2_scalars.textWidthH = CP_Font_GetTextWidth("H");
+	tier2_scalars.textWidthHH = CP_Font_GetTextWidth("HH");
+	tier2_scalars.textWidthHSpace = CP_Font_GetTextWidth("H ");
+	tier2_scalars.textSizeH = CP_Font_GetTextSize("H");
+	tier2_scalars.textSizeLong = CP_Font_GetTextSize("Hello, world");
+	tier2_scalars.textBoxOneLine = CP_Font_GetTextBoxSize("Hi", 1000.0f);
+	tier2_scalars.textBoxWrapped = CP_Font_GetTextBoxSize("one two three four five six", 300.0f);
+	tier2_scalars.textWidthNull = CP_Font_GetTextWidth(NULL);
+	CP_Settings_TextSize(200.0f);
+	tier2_scalars.textWidthH200 = CP_Font_GetTextWidth("H");
+	CP_Settings_TextSize(100.0f);
 }
 
 // ---- Large text (v3) ----
@@ -1013,12 +1015,12 @@ static void Scn_FontEmSize(void)
 // fails on 32-bit (x86) builds; 64-bit ones always had room.
 static void Scn_FontLarge(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Fill(BLACK);
-    CP_Font_Set(CP_Font_GetDefault());
-    CP_Settings_TextSize(600.0f);
-    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
-    CP_Font_DrawText("@", 100, 100);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(BLACK);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(600.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+	CP_Font_DrawText("@", 100, 100);
 }
 
 // ---- Mirrored and flipped text (v3) ----
@@ -1029,23 +1031,23 @@ static void Scn_FontLarge(void)
 // mirrored about x = 100 (y = 100), and flipped about y = 167.
 static void DrawTextTransformed(float y, float scaleX, float scaleY)
 {
-    CP_Settings_ResetMatrix();
-    CP_Settings_Translate(100, y);
-    CP_Settings_Scale(scaleX, scaleY);
-    CP_Font_DrawText("Hello", 0, 0);
+	CP_Settings_ResetMatrix();
+	CP_Settings_Translate(100, y);
+	CP_Settings_Scale(scaleX, scaleY);
+	CP_Font_DrawText("Hello", 0, 0);
 }
 
 static void Scn_FontMirrored(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_Fill(BLACK);
-    CP_Font_Set(CP_Font_GetDefault());
-    CP_Settings_TextSize(40.0f);
-    CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
-    DrawTextTransformed(33, 1, 1);
-    DrawTextTransformed(100, -1, 1);
-    DrawTextTransformed(167, 1, -1);
-    CP_Settings_ResetMatrix();
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(BLACK);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(40.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+	DrawTextTransformed(33, 1, 1);
+	DrawTextTransformed(100, -1, 1);
+	DrawTextTransformed(167, 1, -1);
+	CP_Settings_ResetMatrix();
 }
 
 // ---- CP_System / CP_Engine (Phase E) ----
@@ -1063,24 +1065,24 @@ static void PostUpdateHook(void) { ++postUpdateHookCount; }
 
 static void Scn_SystemEngineState(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
+	CP_Graphics_ClearBackground(WHITE);
 
-    tier2_scalars.windowWidthAfterSet = CP_System_GetWindowWidth();
-    tier2_scalars.windowHeightAfterSet = CP_System_GetWindowHeight();
-    tier2_scalars.frameCountLater = CP_System_GetFrameCount();
-    tier2_scalars.dtSample = CP_System_GetDt();
-    tier2_scalars.millisSample = CP_System_GetMillis();
-    tier2_scalars.secondsSample = CP_System_GetSeconds();
-    tier2_scalars.frameRateSample = CP_System_GetFrameRate();
-    tier2_scalars.windowFocusSample = CP_System_GetWindowFocus();
-    tier2_scalars.displayWidth = CP_System_GetDisplayWidth();
-    tier2_scalars.displayHeight = CP_System_GetDisplayHeight();
-    tier2_scalars.displayRefreshRate = CP_System_GetDisplayRefreshRate();
-    tier2_scalars.preUpdateHookCount = preUpdateHookCount;
-    tier2_scalars.postUpdateHookCount = postUpdateHookCount;
-    tier2_scalars.windowHandleIsNull = CP_System_GetWindowHandle() == NULL;
+	tier2_scalars.windowWidthAfterSet = CP_System_GetWindowWidth();
+	tier2_scalars.windowHeightAfterSet = CP_System_GetWindowHeight();
+	tier2_scalars.frameCountLater = CP_System_GetFrameCount();
+	tier2_scalars.dtSample = CP_System_GetDt();
+	tier2_scalars.millisSample = CP_System_GetMillis();
+	tier2_scalars.secondsSample = CP_System_GetSeconds();
+	tier2_scalars.frameRateSample = CP_System_GetFrameRate();
+	tier2_scalars.windowFocusSample = CP_System_GetWindowFocus();
+	tier2_scalars.displayWidth = CP_System_GetDisplayWidth();
+	tier2_scalars.displayHeight = CP_System_GetDisplayHeight();
+	tier2_scalars.displayRefreshRate = CP_System_GetDisplayRefreshRate();
+	tier2_scalars.preUpdateHookCount = preUpdateHookCount;
+	tier2_scalars.postUpdateHookCount = postUpdateHookCount;
+	tier2_scalars.windowHandleIsNull = CP_System_GetWindowHandle() == NULL;
 
-    CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture"); // just must not crash
+	CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture"); // just must not crash
 }
 
 // A frame rate of 0 or less means no limit. 1 / 0 used to make the frame
@@ -1088,10 +1090,10 @@ static void Scn_SystemEngineState(void)
 // captured. ResetToBaseline puts 60 back for the next one.
 static void Scn_SystemFrameRateNoLimit(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_System_SetFrameRate(0.0f);
-    CP_System_SetFrameRate(-30.0f);
-    tier2_scalars.frameRateNoLimitSet = true;
+	CP_Graphics_ClearBackground(WHITE);
+	CP_System_SetFrameRate(0.0f);
+	CP_System_SetFrameRate(-30.0f);
+	tier2_scalars.frameRateNoLimitSet = true;
 }
 
 // ---- CP_Sound (Phase E) ----
@@ -1102,48 +1104,48 @@ static void Scn_SystemFrameRateNoLimit(void)
 
 static void Scn_SoundRoundTrip(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
+	CP_Graphics_ClearBackground(WHITE);
 
-    CP_Sound sound = CP_Sound_Load("Assets/beep.wav");
+	CP_Sound sound = CP_Sound_Load("Assets/beep.wav");
 
-    CP_Sound_SetGroupVolume(CP_SOUND_GROUP_SFX, 0.3f);
-    tier2_scalars.volumeAfterSet = CP_Sound_GetGroupVolume(CP_SOUND_GROUP_SFX);
-    CP_Sound_SetGroupPitch(CP_SOUND_GROUP_SFX, 1.5f);
-    tier2_scalars.pitchAfterSet = CP_Sound_GetGroupPitch(CP_SOUND_GROUP_SFX);
+	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_SFX, 0.3f);
+	tier2_scalars.volumeAfterSet = CP_Sound_GetGroupVolume(CP_SOUND_GROUP_SFX);
+	CP_Sound_SetGroupPitch(CP_SOUND_GROUP_SFX, 1.5f);
+	tier2_scalars.pitchAfterSet = CP_Sound_GetGroupPitch(CP_SOUND_GROUP_SFX);
 
-    // One playing sound, by its instance: two looping copies, stop one
-    tier2_scalars.soundLoaded = sound != NULL;
-    CP_SoundInstance first = CP_Sound_PlayAdvanced(sound, 0.0f, 1.0f, TRUE, CP_SOUND_GROUP_SFX);
-    CP_SoundInstance second = CP_Sound_PlayAdvanced(sound, 0.0f, 1.0f, TRUE, CP_SOUND_GROUP_SFX);
-    tier2_scalars.instanceGiven = first != 0 && second != 0 && first != second;
-    tier2_scalars.playingAfterPlay = CP_Sound_IsPlaying(first);
-    CP_Sound_Pause(first);
-    CP_Sound_Resume(first);
-    CP_Sound_SetVolume(first, 0.0f);
-    CP_Sound_SetPitch(first, 1.0f);
-    tier2_scalars.playingAfterPauseResume = CP_Sound_IsPlaying(first);
-    CP_Sound_Stop(first);
-    tier2_scalars.playingAfterStop = CP_Sound_IsPlaying(first);
-    tier2_scalars.otherPlayingAfterStop = CP_Sound_IsPlaying(second);
-    CP_Sound_Stop(second);
-    CP_Sound_Stop(first);       // stopping a sound that has stopped is fine
-    CP_Sound_Pause(0);
-    CP_Sound_Resume(0);
-    CP_Sound_Stop(0);
-    CP_Sound_SetVolume(0, 1.0f);
-    CP_Sound_SetPitch(0, 1.0f);
-    tier2_scalars.noInstanceIsNotPlaying = !CP_Sound_IsPlaying(0);
+	// One playing sound, by its instance: two looping copies, stop one
+	tier2_scalars.soundLoaded = sound != NULL;
+	CP_SoundInstance first = CP_Sound_PlayAdvanced(sound, 0.0f, 1.0f, TRUE, CP_SOUND_GROUP_SFX);
+	CP_SoundInstance second = CP_Sound_PlayAdvanced(sound, 0.0f, 1.0f, TRUE, CP_SOUND_GROUP_SFX);
+	tier2_scalars.instanceGiven = first != 0 && second != 0 && first != second;
+	tier2_scalars.playingAfterPlay = CP_Sound_IsPlaying(first);
+	CP_Sound_Pause(first);
+	CP_Sound_Resume(first);
+	CP_Sound_SetVolume(first, 0.0f);
+	CP_Sound_SetPitch(first, 1.0f);
+	tier2_scalars.playingAfterPauseResume = CP_Sound_IsPlaying(first);
+	CP_Sound_Stop(first);
+	tier2_scalars.playingAfterStop = CP_Sound_IsPlaying(first);
+	tier2_scalars.otherPlayingAfterStop = CP_Sound_IsPlaying(second);
+	CP_Sound_Stop(second);
+	CP_Sound_Stop(first); // stopping a sound that has stopped is fine
+	CP_Sound_Pause(0);
+	CP_Sound_Resume(0);
+	CP_Sound_Stop(0);
+	CP_Sound_SetVolume(0, 1.0f);
+	CP_Sound_SetPitch(0, 1.0f);
+	tier2_scalars.noInstanceIsNotPlaying = !CP_Sound_IsPlaying(0);
 
-    CP_Sound_PlayAdvanced(sound, 0.1f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
-    CP_Sound_PauseGroup(CP_SOUND_GROUP_SFX);
-    CP_Sound_ResumeGroup(CP_SOUND_GROUP_SFX);
-    CP_Sound_PauseAll();
-    CP_Sound_ResumeAll();
-    CP_Sound_StopGroup(CP_SOUND_GROUP_SFX);
-    CP_Sound_Play(sound);
-    CP_Sound_StopAll();
+	CP_Sound_PlayAdvanced(sound, 0.1f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
+	CP_Sound_PauseGroup(CP_SOUND_GROUP_SFX);
+	CP_Sound_ResumeGroup(CP_SOUND_GROUP_SFX);
+	CP_Sound_PauseAll();
+	CP_Sound_ResumeAll();
+	CP_Sound_StopGroup(CP_SOUND_GROUP_SFX);
+	CP_Sound_Play(sound);
+	CP_Sound_StopAll();
 
-    CP_Sound_Free(&sound);
+	CP_Sound_Free(&sound);
 }
 
 // ---- CP_Input (Phase F, partial -- see the Phase F commit message) ----
@@ -1176,98 +1178,106 @@ CP_Color tier2_stackHiddenPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 
 static bool SameColor(CP_Color a, CP_Color b)
 {
-    return a.r == b.r && a.g == b.g && a.b == b.b && a.a == b.a;
+	return a.r == b.r && a.g == b.g && a.b == b.b && a.a == b.a;
 }
 
 static void StackLog(const char* what)
 {
-    size_t used = strlen(tier2_scalars.stackLog);
-    snprintf(tier2_scalars.stackLog + used, sizeof(tier2_scalars.stackLog) - used, "%s%s", used ? " " : "", what);
+	size_t used = strlen(tier2_scalars.stackLog);
+	snprintf(tier2_scalars.stackLog + used, sizeof(tier2_scalars.stackLog) - used, "%s%s", used ? " " : "", what);
 }
 
 static void StackB_Init(void)
 {
-    StackLog("B.init");
-    CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE);
-    tier2_scalars.stackPushInheritsSettings = SameColor(CP_Settings_GetFill(), kStackAFill);
+	StackLog("B.init");
+	CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE);
+	tier2_scalars.stackPushInheritsSettings = SameColor(CP_Settings_GetFill(), kStackAFill);
 }
 static void StackB_Update(void)
 {
-    CP_Settings_Fill(CP_Color_Create(255, 255, 0, 255));    // must not leak back into A
-    tier2_scalars.stackRunningStateIsTop = CP_Engine_IsTopGameState();
-    CP_Engine_PopGameState();
+	CP_Settings_Fill(CP_Color_Create(255, 255, 0, 255)); // must not leak back into A
+	tier2_scalars.stackRunningStateIsTop = CP_Engine_IsTopGameState();
+	CP_Engine_PopGameState();
 }
 static void StackB_Exit(void) { StackLog("B.exit"); }
 
-static void StackC_Init(void) { StackLog("C.init"); CP_Engine_SetGameStatePassThrough(CP_STATE_NONE); }
+static void StackC_Init(void)
+{
+	StackLog("C.init");
+	CP_Engine_SetGameStatePassThrough(CP_STATE_NONE);
+}
 static void StackC_Update(void)
 {
-    CaptureInto(tier2_stackHiddenPixels);
-    CP_Engine_PopGameState();
+	CaptureInto(tier2_stackHiddenPixels);
+	CP_Engine_PopGameState();
 }
 static void StackC_Exit(void) { StackLog("C.exit"); }
 
-static void StackF_Init(void) { StackLog("F.init"); CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE); }
+static void StackF_Init(void)
+{
+	StackLog("F.init");
+	CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE);
+}
 static void StackF_Update(void) {}
 static void StackF_Exit(void) { StackLog("F.exit"); }
 
 static void StackA_Init(void)
 {
-    StackLog("A.init");
-    tier2_scalars.stackDepthInPushedInit = CP_Engine_GetGameStateDepth();
-    stackAFrame = 0;
+	StackLog("A.init");
+	tier2_scalars.stackDepthInPushedInit = CP_Engine_GetGameStateDepth();
+	stackAFrame = 0;
 }
 static void StackA_Update(void)
 {
-    ++tier2_scalars.stackUpdatesOfFirstPushed;
-    if (!CP_Engine_IsTopGameState())
-    {
-        // running under B
-        ++tier2_scalars.stackUpdatesWhileRunningBelow;
-        tier2_scalars.stackRunningBelowIsNotTop = TRUE;
-        tier2_scalars.stackRunningBelowKeyMuted = !CP_Input_KeyDown(KEY_ANY) && !CP_Input_MouseDown(MOUSE_BUTTON_LEFT);
-        tier2_scalars.stackRunningBelowMouseX = CP_Input_GetMouseX();
-        if (stackAFrame == 3)
-        {
-            // under F: takes F off too
-            CP_Engine_PopGameState();
-        }
-        return;
-    }
-    switch (stackAFrame++)
-    {
-    case 0:
-        CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 128));
-        CP_Settings_NoStroke();
-        CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255));
-        CP_Graphics_DrawRect(100.0f, 100.0f, 50.0f, 50.0f);
-        CaptureCurrentFrame(SCN_GAMESTATE_STACK);
-        tier2_scalars.stackPushedIsTop = CP_Engine_IsTopGameState();
-        tier2_scalars.stackPushedTime = CP_Engine_GetGameStateTime();
-        CP_Settings_Fill(kStackAFill);
-        tier2_scalars.stackMouseXWhenCovered = CP_Input_GetMouseX();
-        CP_Engine_PushGameState(StackB_Init, StackB_Update, StackB_Exit);
-        break;
-    case 1:
-        tier2_scalars.stackSettingsBackAfterPop = SameColor(CP_Settings_GetFill(), kStackAFill);
-        CP_Engine_PushGameState(StackC_Init, StackC_Update, StackC_Exit);
-        break;
-    case 2:
-        CP_Engine_PushGameState(StackF_Init, StackF_Update, StackF_Exit);
-        break;
-    default:
-        break;
-    }
+	++tier2_scalars.stackUpdatesOfFirstPushed;
+	if (!CP_Engine_IsTopGameState())
+	{
+		// running under B
+		++tier2_scalars.stackUpdatesWhileRunningBelow;
+		tier2_scalars.stackRunningBelowIsNotTop = TRUE;
+		tier2_scalars.stackRunningBelowKeyMuted = !CP_Input_KeyDown(KEY_ANY) && !CP_Input_MouseDown(MOUSE_BUTTON_LEFT);
+		tier2_scalars.stackRunningBelowMouseX = CP_Input_GetMouseX();
+		if (stackAFrame == 3)
+		{
+			// under F: takes F off too
+			CP_Engine_PopGameState();
+		}
+		return;
+	}
+	switch (stackAFrame++)
+	{
+	case 0:
+		CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 128));
+		CP_Settings_NoStroke();
+		CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255));
+		CP_Graphics_DrawRect(100.0f, 100.0f, 50.0f, 50.0f);
+		CaptureCurrentFrame(SCN_GAMESTATE_STACK);
+		tier2_scalars.stackPushedIsTop = CP_Engine_IsTopGameState();
+		tier2_scalars.stackPushedTime = CP_Engine_GetGameStateTime();
+		CP_Settings_Fill(kStackAFill);
+		tier2_scalars.stackMouseXWhenCovered = CP_Input_GetMouseX();
+		CP_Engine_PushGameState(StackB_Init, StackB_Update, StackB_Exit);
+		break;
+	case 1:
+		tier2_scalars.stackSettingsBackAfterPop = SameColor(CP_Settings_GetFill(), kStackAFill);
+		CP_Engine_PushGameState(StackC_Init, StackC_Update, StackC_Exit);
+		break;
+	case 2:
+		CP_Engine_PushGameState(StackF_Init, StackF_Update, StackF_Exit);
+		break;
+	default:
+		break;
+	}
 }
 static void StackA_Exit(void) { StackLog("A.exit"); }
 
 static void Scn_GameStateStack(void)
 {
-    CP_Graphics_ClearBackground(RED);
-    CP_Settings_Fill(kStackHarnessFill);
-    CP_Engine_PopGameState();       // only one state: ignored, with a message
-    CP_Engine_PushGameState(StackA_Init, StackA_Update, StackA_Exit);
-    stackAwaitingResume = true;
+	CP_Graphics_ClearBackground(RED);
+	CP_Settings_Fill(kStackHarnessFill);
+	CP_Engine_PopGameState(); // only one state: ignored, with a message
+	CP_Engine_PushGameState(StackA_Init, StackA_Update, StackA_Exit);
+	stackAwaitingResume = true;
 }
 
 //-------------------------
@@ -1288,45 +1298,45 @@ static CP_Color snapshotBelowPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 
 static void SnapshotE_Init(void)
 {
-    CaptureInto(snapshotBelowPixels);
-    tier2_scalars.snapshotInPushedInitCenter = snapshotBelowPixels[100 * TIER2_CANVAS_SIZE + 100];
-    tier2_scalars.snapshotInPushedInitCorner = snapshotBelowPixels[190 * TIER2_CANVAS_SIZE + 10];
+	CaptureInto(snapshotBelowPixels);
+	tier2_scalars.snapshotInPushedInitCenter = snapshotBelowPixels[100 * TIER2_CANVAS_SIZE + 100];
+	tier2_scalars.snapshotInPushedInitCorner = snapshotBelowPixels[190 * TIER2_CANVAS_SIZE + 10];
 }
 
 static void SnapshotE_Update(void)
 {
-    CP_Graphics_ClearBackground(BLUE);
-    CP_Settings_ImageMode(CP_POSITION_CORNER);
-    CP_Image_Draw(snapshotImage, 0.0f, 0.0f, (float)TIER2_CANVAS_SIZE, (float)TIER2_CANVAS_SIZE, 128);
-    CaptureCurrentFrame(SCN_GAMESTATE_SNAPSHOT);
-    CP_Image_Free(&snapshotImage);
-    CP_Engine_PopGameState();
+	CP_Graphics_ClearBackground(BLUE);
+	CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Image_Draw(snapshotImage, 0.0f, 0.0f, (float)TIER2_CANVAS_SIZE, (float)TIER2_CANVAS_SIZE, 128);
+	CaptureCurrentFrame(SCN_GAMESTATE_SNAPSHOT);
+	CP_Image_Free(&snapshotImage);
+	CP_Engine_PopGameState();
 }
 
 static void SnapshotD_Init(void) { snapshotDFrame = 0; }
 static void SnapshotD_Update(void)
 {
-    switch (snapshotDFrame++)
-    {
-    case 0:
-        CP_Graphics_ClearBackground(CP_Color_Create(0, 255, 0, 255));
-        snapshotImage = CP_Image_Screenshot(0, 0, TIER2_CANVAS_SIZE, TIER2_CANVAS_SIZE);
-        tier2_scalars.snapshotTaken = snapshotImage != NULL;
-        CP_Engine_PushGameState(SnapshotE_Init, SnapshotE_Update, NULL);
-        break;
-    case 1:
-        CP_Engine_PopGameState();
-        break;
-    default:
-        break;
-    }
+	switch (snapshotDFrame++)
+	{
+	case 0:
+		CP_Graphics_ClearBackground(CP_Color_Create(0, 255, 0, 255));
+		snapshotImage = CP_Image_Screenshot(0, 0, TIER2_CANVAS_SIZE, TIER2_CANVAS_SIZE);
+		tier2_scalars.snapshotTaken = snapshotImage != NULL;
+		CP_Engine_PushGameState(SnapshotE_Init, SnapshotE_Update, NULL);
+		break;
+	case 1:
+		CP_Engine_PopGameState();
+		break;
+	default:
+		break;
+	}
 }
 
 static void Scn_GameStateSnapshot(void)
 {
-    CP_Graphics_ClearBackground(RED);
-    CP_Engine_PushGameState(SnapshotD_Init, SnapshotD_Update, NULL);
-    snapshotAwaitingResume = true;
+	CP_Graphics_ClearBackground(RED);
+	CP_Engine_PushGameState(SnapshotD_Init, SnapshotD_Update, NULL);
+	snapshotAwaitingResume = true;
 }
 
 // Drawing into an image: a 50x50 image gets a red square in its top left
@@ -1334,41 +1344,41 @@ static void Scn_GameStateSnapshot(void)
 // over white at 4 times its size (captured)
 static void Scn_ImageDrawInto(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Image image = CP_Image_Create(50, 50);
-    tier2_scalars.drawIntoCreated = image != NULL && CP_Image_GetWidth(image) == 50;
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Image image = CP_Image_Create(50, 50);
+	tier2_scalars.drawIntoCreated = image != NULL && CP_Image_GetWidth(image) == 50;
 
-    CP_Settings_Fill(kStackHarnessFill);
-    CP_Image_BeginDrawing(image);
-    CP_Settings_NoStroke();
-    CP_Settings_RectMode(CP_POSITION_CORNER);
-    CP_Settings_Fill(RED);
-    CP_Graphics_DrawRect(0.0f, 0.0f, 25.0f, 25.0f);
-    CP_Settings_Fill(CP_Color_Create(0, 0, 255, 128));
-    CP_Graphics_DrawRect(25.0f, 25.0f, 25.0f, 25.0f);
-    CP_Image_EndDrawing();
-    tier2_scalars.drawIntoSettingsBack = SameColor(CP_Settings_GetFill(), kStackHarnessFill);
+	CP_Settings_Fill(kStackHarnessFill);
+	CP_Image_BeginDrawing(image);
+	CP_Settings_NoStroke();
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Fill(RED);
+	CP_Graphics_DrawRect(0.0f, 0.0f, 25.0f, 25.0f);
+	CP_Settings_Fill(CP_Color_Create(0, 0, 255, 128));
+	CP_Graphics_DrawRect(25.0f, 25.0f, 25.0f, 25.0f);
+	CP_Image_EndDrawing();
+	tier2_scalars.drawIntoSettingsBack = SameColor(CP_Settings_GetFill(), kStackHarnessFill);
 
-    CP_Settings_ImageMode(CP_POSITION_CENTER);     // (not part of the baseline)
-    CP_Image_Draw(image, 100.0f, 100.0f, 200.0f, 200.0f, 255);
+	CP_Settings_ImageMode(CP_POSITION_CENTER); // (not part of the baseline)
+	CP_Image_Draw(image, 100.0f, 100.0f, 200.0f, 200.0f, 255);
 
-    CP_Color pixels[50 * 50];
-    CP_Image_GetPixelData(image, pixels);
-    tier2_scalars.drawIntoTopLeft = pixels[5 * 50 + 5];
-    tier2_scalars.drawIntoBottomRight = pixels[45 * 50 + 45];
+	CP_Color pixels[50 * 50];
+	CP_Image_GetPixelData(image, pixels);
+	tier2_scalars.drawIntoTopLeft = pixels[5 * 50 + 5];
+	tier2_scalars.drawIntoBottomRight = pixels[45 * 50 + 45];
 
-    pixels[0] = CP_Color_Create(10, 200, 30, 255);
-    CP_Image_UpdatePixelData(image, pixels);
-    CP_Color again[50 * 50];
-    CP_Image_GetPixelData(image, again);
-    tier2_scalars.drawIntoAfterUpdate = again[0];
-    CP_Image_Free(&image);
+	pixels[0] = CP_Color_Create(10, 200, 30, 255);
+	CP_Image_UpdatePixelData(image, pixels);
+	CP_Color again[50 * 50];
+	CP_Image_GetPixelData(image, again);
+	tier2_scalars.drawIntoAfterUpdate = again[0];
+	CP_Image_Free(&image);
 
-    CP_Image loaded = CP_Image_Load("Assets/quadrants16.png");
-    CP_Image_BeginDrawing(loaded);       // refused, with a message
-    tier2_scalars.drawIntoLoadedRefused = TRUE;
-    CP_Image_EndDrawing();               // nothing to end: harmless
-    CP_Image_Free(&loaded);
+	CP_Image loaded = CP_Image_Load("Assets/quadrants16.png");
+	CP_Image_BeginDrawing(loaded); // refused, with a message
+	tier2_scalars.drawIntoLoadedRefused = TRUE;
+	CP_Image_EndDrawing(); // nothing to end: harmless
+	CP_Image_Free(&loaded);
 }
 
 // Pushed on the next-to-last frame, running, so the harness keeps going:
@@ -1380,18 +1390,18 @@ static void ShutdownProbe_Exit(void) { tier2_scalars.stackShutdownExitRan = TRUE
 
 static void Scn_InputQuiescentDefaults(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
+	CP_Graphics_ClearBackground(WHITE);
 
-    // Assumes no gamepad is actually attached to the machine running this;
-    // true in CI once Phase G lands, and was true on the dev machine this
-    // was verified on, but is a real caveat for local runs elsewhere.
-    tier2_scalars.gamepadConnected = CP_Input_GamepadConnected();
-    tier2_scalars.gamepad0ConnectedAdvanced = CP_Input_GamepadConnectedAdvanced(0);
-    tier2_scalars.mouseWheel = CP_Input_MouseWheel();
-    tier2_scalars.mouseDoubleClicked = CP_Input_MouseDoubleClicked();
-    tier2_scalars.keyADown = CP_Input_KeyDown(KEY_A);
-    tier2_scalars.mouseLeftDown = CP_Input_MouseDown(MOUSE_BUTTON_LEFT);
-    tier2_scalars.typedTextIsEmpty = CP_Input_GetTypedText() != NULL && CP_Input_GetTypedText()[0] == '\0';
+	// Assumes no gamepad is actually attached to the machine running this;
+	// true in CI once Phase G lands, and was true on the dev machine this
+	// was verified on, but is a real caveat for local runs elsewhere.
+	tier2_scalars.gamepadConnected = CP_Input_GamepadConnected();
+	tier2_scalars.gamepad0ConnectedAdvanced = CP_Input_GamepadConnectedAdvanced(0);
+	tier2_scalars.mouseWheel = CP_Input_MouseWheel();
+	tier2_scalars.mouseDoubleClicked = CP_Input_MouseDoubleClicked();
+	tier2_scalars.keyADown = CP_Input_KeyDown(KEY_A);
+	tier2_scalars.mouseLeftDown = CP_Input_MouseDown(MOUSE_BUTTON_LEFT);
+	tier2_scalars.typedTextIsEmpty = CP_Input_GetTypedText() != NULL && CP_Input_GetTypedText()[0] == '\0';
 }
 
 // ---- Drawing persistence (cross-platform work) ----
@@ -1403,18 +1413,18 @@ static void Scn_InputQuiescentDefaults(void)
 
 static void Scn_PersistFirstFrame(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(RED);
-    CP_Graphics_DrawRect(50, 50, 40, 40);
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_DrawRect(50, 50, 40, 40);
 }
 
 static void Scn_PersistNextFrame(void)
 {
-    // deliberately no ClearBackground
-    CP_Settings_NoStroke();
-    CP_Settings_Fill(BLUE);
-    CP_Graphics_DrawRect(150, 150, 40, 40);
+	// deliberately no ClearBackground
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(BLUE);
+	CP_Graphics_DrawRect(150, 150, 40, 40);
 }
 
 // ---- CP_Image_Screenshot of sub-regions (cross-platform work) ----
@@ -1424,42 +1434,42 @@ static void Scn_PersistNextFrame(void)
 
 static CP_Color SampleImage(CP_Image image, int x, int y)
 {
-    static CP_Color pixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
-    int w = CP_Image_GetWidth(image);
-    CP_Image_GetPixelData(image, pixels);
-    return pixels[y * w + x];
+	static CP_Color pixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
+	int w = CP_Image_GetWidth(image);
+	CP_Image_GetPixelData(image, pixels);
+	return pixels[y * w + x];
 }
 
 static void Scn_ScreenshotSubregion(void)
 {
-    CP_Settings_NoStroke();
-    CP_Settings_RectMode(CP_POSITION_CORNER);
-    CP_Settings_Fill(RED);
-    CP_Graphics_DrawRect(0, 0, 100, 100);
-    CP_Settings_Fill(GREEN);
-    CP_Graphics_DrawRect(100, 0, 100, 100);
-    CP_Settings_Fill(BLUE);
-    CP_Graphics_DrawRect(0, 100, 100, 100);
-    CP_Settings_Fill(CP_Color_Create(255, 255, 0, 255));
-    CP_Graphics_DrawRect(100, 100, 100, 100);
+	CP_Settings_NoStroke();
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Fill(RED);
+	CP_Graphics_DrawRect(0, 0, 100, 100);
+	CP_Settings_Fill(GREEN);
+	CP_Graphics_DrawRect(100, 0, 100, 100);
+	CP_Settings_Fill(BLUE);
+	CP_Graphics_DrawRect(0, 100, 100, 100);
+	CP_Settings_Fill(CP_Color_Create(255, 255, 0, 255));
+	CP_Graphics_DrawRect(100, 100, 100, 100);
 
-    CP_Image topRight = CP_Image_Screenshot(100, 0, 100, 100);
-    tier2_scalars.subTopRightWidth = CP_Image_GetWidth(topRight);
-    tier2_scalars.subTopRightHeight = CP_Image_GetHeight(topRight);
-    tier2_scalars.subTopRightCenter = SampleImage(topRight, 50, 50);
-    CP_Image_Free(&topRight);
+	CP_Image topRight = CP_Image_Screenshot(100, 0, 100, 100);
+	tier2_scalars.subTopRightWidth = CP_Image_GetWidth(topRight);
+	tier2_scalars.subTopRightHeight = CP_Image_GetHeight(topRight);
+	tier2_scalars.subTopRightCenter = SampleImage(topRight, 50, 50);
+	CP_Image_Free(&topRight);
 
-    CP_Image bottomLeft = CP_Image_Screenshot(0, 100, 100, 100);
-    tier2_scalars.subBottomLeftCenter = SampleImage(bottomLeft, 50, 50);
-    CP_Image_Free(&bottomLeft);
+	CP_Image bottomLeft = CP_Image_Screenshot(0, 100, 100, 100);
+	tier2_scalars.subBottomLeftCenter = SampleImage(bottomLeft, 50, 50);
+	CP_Image_Free(&bottomLeft);
 
-    // 50x50 region centered on the point where all four quadrants meet
-    CP_Image straddle = CP_Image_Screenshot(75, 75, 50, 50);
-    tier2_scalars.straddleCorners[0] = SampleImage(straddle, 5, 5);
-    tier2_scalars.straddleCorners[1] = SampleImage(straddle, 44, 5);
-    tier2_scalars.straddleCorners[2] = SampleImage(straddle, 5, 44);
-    tier2_scalars.straddleCorners[3] = SampleImage(straddle, 44, 44);
-    CP_Image_Free(&straddle);
+	// 50x50 region centered on the point where all four quadrants meet
+	CP_Image straddle = CP_Image_Screenshot(75, 75, 50, 50);
+	tier2_scalars.straddleCorners[0] = SampleImage(straddle, 5, 5);
+	tier2_scalars.straddleCorners[1] = SampleImage(straddle, 44, 5);
+	tier2_scalars.straddleCorners[2] = SampleImage(straddle, 5, 44);
+	tier2_scalars.straddleCorners[3] = SampleImage(straddle, 44, 44);
+	CP_Image_Free(&straddle);
 }
 
 // ---- Error paths (cross-platform work) ----
@@ -1469,35 +1479,34 @@ static void Scn_ScreenshotSubregion(void)
 
 static void Scn_ErrorPaths(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
+	CP_Graphics_ClearBackground(WHITE);
 
-    CP_Image missingImage = CP_Image_Load("Assets/this_file_does_not_exist.png");
-    tier2_scalars.missingImageIsNull = missingImage == NULL;
-    CP_Font missingFont = CP_Font_Load("Assets/this_file_does_not_exist.ttf");
-    tier2_scalars.missingFontIsNull = missingFont == NULL;
-    CP_Sound missingSound = CP_Sound_Load("Assets/this_file_does_not_exist.wav");
-    tier2_scalars.missingSoundIsNull = missingSound == NULL;
-    // a NULL path is treated like a missing file
-    tier2_scalars.missingImageIsNull = tier2_scalars.missingImageIsNull && CP_Image_Load(NULL) == NULL;
-    tier2_scalars.missingFontIsNull = tier2_scalars.missingFontIsNull && CP_Font_Load(NULL) == NULL;
-    tier2_scalars.missingSoundIsNull = tier2_scalars.missingSoundIsNull && CP_Sound_Load(NULL) == NULL
-        && CP_Sound_LoadStream(NULL) == NULL;
+	CP_Image missingImage = CP_Image_Load("Assets/this_file_does_not_exist.png");
+	tier2_scalars.missingImageIsNull = missingImage == NULL;
+	CP_Font missingFont = CP_Font_Load("Assets/this_file_does_not_exist.ttf");
+	tier2_scalars.missingFontIsNull = missingFont == NULL;
+	CP_Sound missingSound = CP_Sound_Load("Assets/this_file_does_not_exist.wav");
+	tier2_scalars.missingSoundIsNull = missingSound == NULL;
+	// a NULL path is treated like a missing file
+	tier2_scalars.missingImageIsNull = tier2_scalars.missingImageIsNull && CP_Image_Load(NULL) == NULL;
+	tier2_scalars.missingFontIsNull = tier2_scalars.missingFontIsNull && CP_Font_Load(NULL) == NULL;
+	tier2_scalars.missingSoundIsNull = tier2_scalars.missingSoundIsNull && CP_Sound_Load(NULL) == NULL && CP_Sound_LoadStream(NULL) == NULL;
 
-    // None of these may crash
-    CP_Image nullImage = NULL;
-    CP_Sound nullSound = NULL;
-    CP_Font nullFont = NULL;
-    CP_Image_Draw(NULL, 10, 10, 10, 10, 255);
-    CP_Image_Free(NULL);
-    CP_Image_Free(&nullImage);
-    CP_Sound_Play(NULL);
-    CP_Sound_PlayAdvanced(NULL, 1.0f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
-    CP_Sound_Free(NULL);
-    CP_Sound_Free(&nullSound);
-    CP_Font_Set(NULL);
-    CP_Font_Free(NULL);
-    CP_Font_Free(&nullFont);
-    tier2_scalars.survivedNullCalls = TRUE;
+	// None of these may crash
+	CP_Image nullImage = NULL;
+	CP_Sound nullSound = NULL;
+	CP_Font nullFont = NULL;
+	CP_Image_Draw(NULL, 10, 10, 10, 10, 255);
+	CP_Image_Free(NULL);
+	CP_Image_Free(&nullImage);
+	CP_Sound_Play(NULL);
+	CP_Sound_PlayAdvanced(NULL, 1.0f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
+	CP_Sound_Free(NULL);
+	CP_Sound_Free(&nullSound);
+	CP_Font_Set(NULL);
+	CP_Font_Free(NULL);
+	CP_Font_Free(&nullFont);
+	tier2_scalars.survivedNullCalls = TRUE;
 }
 
 // ---- Cursor and console (v3) ----
@@ -1514,31 +1523,31 @@ static void Scn_ErrorPaths(void)
 // (C in the demo program).
 static void Scn_SystemWindowSettings(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
+	CP_Graphics_ClearBackground(WHITE);
 
-    CP_System_ShowCursor(TRUE);
-    tier2_scalars.cursorVisibleAfterShow = CP_System_GetCursorVisible();
-    CP_System_ShowCursor(FALSE);
-    CP_System_ShowCursor(FALSE);    // repeating a call is harmless
-    tier2_scalars.cursorVisibleAfterHide = CP_System_GetCursorVisible();
+	CP_System_ShowCursor(TRUE);
+	tier2_scalars.cursorVisibleAfterShow = CP_System_GetCursorVisible();
+	CP_System_ShowCursor(FALSE);
+	CP_System_ShowCursor(FALSE); // repeating a call is harmless
+	tier2_scalars.cursorVisibleAfterHide = CP_System_GetCursorVisible();
 
-    CP_System_SetCursorMode(CP_CURSOR_DISABLED);
-    tier2_scalars.cursorModeAfterDisable = CP_System_GetCursorMode();
-    tier2_scalars.cursorVisibleWhileDisabled = CP_System_GetCursorVisible();
-    CP_System_SetCursorMode(CP_CURSOR_CAPTURED);
-    tier2_scalars.cursorModeAfterCapture = CP_System_GetCursorMode();
-    tier2_scalars.cursorVisibleWhileCaptured = CP_System_GetCursorVisible();
-    CP_System_SetCursorMode((CP_CURSOR_MODE)99);    // not a mode: ignored
-    tier2_scalars.cursorModeAfterInvalid = CP_System_GetCursorMode();
-    CP_System_ShowCursor(TRUE);
-    tier2_scalars.cursorModeAfterShow = CP_System_GetCursorMode();
+	CP_System_SetCursorMode(CP_CURSOR_DISABLED);
+	tier2_scalars.cursorModeAfterDisable = CP_System_GetCursorMode();
+	tier2_scalars.cursorVisibleWhileDisabled = CP_System_GetCursorVisible();
+	CP_System_SetCursorMode(CP_CURSOR_CAPTURED);
+	tier2_scalars.cursorModeAfterCapture = CP_System_GetCursorMode();
+	tier2_scalars.cursorVisibleWhileCaptured = CP_System_GetCursorVisible();
+	CP_System_SetCursorMode((CP_CURSOR_MODE)99); // not a mode: ignored
+	tier2_scalars.cursorModeAfterInvalid = CP_System_GetCursorMode();
+	CP_System_ShowCursor(TRUE);
+	tier2_scalars.cursorModeAfterShow = CP_System_GetCursorMode();
 
-    CP_System_ShowConsole(FALSE);
-    CP_System_ShowConsole(FALSE);
-    tier2_scalars.consoleVisibleAfterHide = CP_System_GetConsoleVisible();
-    tier2_scalars.printfAfterHideConsole = printf("Tier 2: printf while the console is hidden\n");
-    CP_System_ShowConsole(TRUE);    // leave it visible for the test results
-    tier2_scalars.consoleVisibleAfterReshow = CP_System_GetConsoleVisible();
+	CP_System_ShowConsole(FALSE);
+	CP_System_ShowConsole(FALSE);
+	tier2_scalars.consoleVisibleAfterHide = CP_System_GetConsoleVisible();
+	tier2_scalars.printfAfterHideConsole = printf("Tier 2: printf while the console is hidden\n");
+	CP_System_ShowConsole(TRUE); // leave it visible for the test results
+	tier2_scalars.consoleVisibleAfterReshow = CP_System_GetConsoleVisible();
 }
 
 // ---- Assets next to the program (3.0.2) ----
@@ -1552,185 +1561,184 @@ static void Scn_SystemWindowSettings(void)
 
 static void Scn_AssetsNextToProgram(void)
 {
-    CP_Graphics_ClearBackground(WHITE);
+	CP_Graphics_ClearBackground(WHITE);
 
-    // CI runners may have no audio device, and then no sound loads at all
-    CP_Sound probe = CP_Sound_Load("Assets/beep.wav");
-    tier2_scalars.assetSoundAvailable = probe != NULL;
-    CP_Sound_Free(&probe);
+	// CI runners may have no audio device, and then no sound loads at all
+	CP_Sound probe = CP_Sound_Load("Assets/beep.wav");
+	tier2_scalars.assetSoundAvailable = probe != NULL;
+	CP_Sound_Free(&probe);
 
-    char previousFolder[4096];
-    if (tier2_getcwd(previousFolder, sizeof previousFolder) == NULL)
-    {
-        return;
-    }
-    tier2_mkdir(TIER2_EMPTY_FOLDER);    // it may be left over from an interrupted run
-    tier2_scalars.assetFolderEntered = tier2_chdir(TIER2_EMPTY_FOLDER) == 0;
+	char previousFolder[4096];
+	if (tier2_getcwd(previousFolder, sizeof previousFolder) == NULL)
+	{
+		return;
+	}
+	tier2_mkdir(TIER2_EMPTY_FOLDER); // it may be left over from an interrupted run
+	tier2_scalars.assetFolderEntered = tier2_chdir(TIER2_EMPTY_FOLDER) == 0;
 
-    CP_Image image = CP_Image_Load("./Assets/quadrants.png");
-    CP_Font font = CP_Font_Load("./Assets/Exo2-Regular.ttf");
-    CP_Sound sound = CP_Sound_Load("./Assets/beep.wav");
-    tier2_scalars.assetImageLoaded = image != NULL;
-    tier2_scalars.assetFontLoaded = font != NULL;
-    tier2_scalars.assetSoundLoaded = sound != NULL;
+	CP_Image image = CP_Image_Load("./Assets/quadrants.png");
+	CP_Font font = CP_Font_Load("./Assets/Exo2-Regular.ttf");
+	CP_Sound sound = CP_Sound_Load("./Assets/beep.wav");
+	tier2_scalars.assetImageLoaded = image != NULL;
+	tier2_scalars.assetFontLoaded = font != NULL;
+	tier2_scalars.assetSoundLoaded = sound != NULL;
 
-    tier2_chdir(previousFolder);
-    tier2_rmdir(TIER2_EMPTY_FOLDER);
-    CP_Image_Free(&image);
-    CP_Font_Free(&font);
-    CP_Sound_Free(&sound);
+	tier2_chdir(previousFolder);
+	tier2_rmdir(TIER2_EMPTY_FOLDER);
+	CP_Image_Free(&image);
+	CP_Font_Free(&font);
+	CP_Sound_Free(&sound);
 }
 
 typedef void (*ScenarioFunc)(void);
 
 static const ScenarioFunc kScenarios[SCN_COUNT] = {
-    [SCN_SETTINGS_BEFORE_RUN] = Scn_SettingsBeforeRun,
-    [SCN_SYSTEM_GETTERS] = Scn_SystemGetters,
-    [SCN_SETTINGS_GETTERS] = Scn_SettingsGetters,
-    [SCN_CLEAR_BACKGROUND] = Scn_ClearBackground,
-    [SCN_DRAW_POINT] = Scn_DrawPoint,
-    [SCN_DRAW_LINE] = Scn_DrawLine,
-    [SCN_DRAW_LINE_ADVANCED] = Scn_DrawLineAdvanced,
-    [SCN_DRAW_RECT] = Scn_DrawRect,
-    [SCN_DRAW_RECT_ADVANCED] = Scn_DrawRectAdvanced,
-    [SCN_DRAW_CIRCLE] = Scn_DrawCircle,
-    [SCN_DRAW_ELLIPSE] = Scn_DrawEllipse,
-    [SCN_DRAW_ELLIPSE_ADVANCED] = Scn_DrawEllipseAdvanced,
-    [SCN_DRAW_ARC] = Scn_DrawArc,
-    [SCN_DRAW_ARC_COUNTERCLOCKWISE] = Scn_DrawArcCounterclockwise,
-    [SCN_DRAW_PIE] = Scn_DrawPie,
-    [SCN_DRAW_PIE_CORNER_MODE] = Scn_DrawPieCornerMode,
-    [SCN_DRAW_BEZIER] = Scn_DrawBezier,
-    [SCN_DRAW_TRIANGLE] = Scn_DrawTriangle,
-    [SCN_DRAW_TRIANGLE_ADVANCED] = Scn_DrawTriangleAdvanced,
-    [SCN_DRAW_QUAD] = Scn_DrawQuad,
-    [SCN_DRAW_QUAD_ADVANCED] = Scn_DrawQuadAdvanced,
-    [SCN_CUSTOM_SHAPE] = Scn_CustomShape,
-    [SCN_SETTINGS_NOFILL] = Scn_SettingsNoFill,
-    [SCN_SETTINGS_STROKEWEIGHT] = Scn_SettingsStrokeWeight,
-    [SCN_SETTINGS_RECTMODE_CORNER] = Scn_SettingsRectModeCorner,
-    [SCN_SETTINGS_ELLIPSEMODE_CORNER] = Scn_SettingsEllipseModeCorner,
-    [SCN_SETTINGS_TRANSLATE] = Scn_SettingsTranslate,
-    [SCN_SETTINGS_SCALE] = Scn_SettingsScale,
-    [SCN_SETTINGS_ROTATE] = Scn_SettingsRotate,
-    [SCN_SETTINGS_RESETMATRIX] = Scn_SettingsResetMatrix,
-    [SCN_SETTINGS_APPLYMATRIX] = Scn_SettingsApplyMatrix,
-    [SCN_SETTINGS_BLENDMODE_ADD] = Scn_SettingsBlendModeAdd,
-    [SCN_SETTINGS_BLEND_MODES] = Scn_SettingsBlendModes,
-    [SCN_SETTINGS_TINT] = Scn_SettingsTint,
-    [SCN_IMAGE_FILTER_MODES] = Scn_ImageFilterModes,
-    [SCN_IMAGE_WRAP_MODES] = Scn_ImageWrapModes,
-    [SCN_SETTINGS_LAST_FRAME_SETS_TEXT_SIZE] = Scn_SettingsLastFrameSetsTextSize,
-    [SCN_SETTINGS_CARRY_TO_NEXT_FRAME] = Scn_SettingsCarryToNextFrame,
-    [SCN_SETTINGS_SAVE_RESTORE] = Scn_SettingsSaveRestore,
-    [SCN_IMAGE_LOAD_AND_DRAW] = Scn_ImageLoadAndDraw,
-    [SCN_IMAGE_SUBIMAGE] = Scn_ImageSubImage,
-    [SCN_IMAGE_DRAW_ROTATED] = Scn_ImageDrawRotated,
-    [SCN_IMAGE_16_BIT] = Scn_Image16Bit,
-    [SCN_IMAGE_MANY] = Scn_ImageMany,
-    [SCN_SHARED_ASSETS] = Scn_SharedAssets,
-    [SCN_FONT_DRAWTEXT] = Scn_FontDrawText,
-    [SCN_FONT_LOAD_FREE] = Scn_FontLoadFree,
-    [SCN_FONT_GET_CURRENT] = Scn_FontGetCurrent,
-    [SCN_FONT_FREE_KEEPS_OTHERS] = Scn_FontFreeKeepsOthers,
-    [SCN_FONT_OPENTYPE] = Scn_FontOpenType,
-    [SCN_FONT_SIZE_SWEEP] = Scn_FontSizeSweep,
-    [SCN_FONT_SCALE_SWEEP] = Scn_FontScaleSweep,
-    [SCN_FONT_EM_SIZE] = Scn_FontEmSize,
-    [SCN_FONT_LARGE] = Scn_FontLarge,
-    [SCN_FONT_MIRRORED] = Scn_FontMirrored,
-    [SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
-    [SCN_SYSTEM_FRAME_RATE_NO_LIMIT] = Scn_SystemFrameRateNoLimit,
-    [SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
-    [SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,
-    [SCN_GAMESTATE_STACK] = Scn_GameStateStack,
-    [SCN_GAMESTATE_SNAPSHOT] = Scn_GameStateSnapshot,
-    [SCN_IMAGE_DRAW_INTO] = Scn_ImageDrawInto,
-    [SCN_PERSIST_FIRST_FRAME] = Scn_PersistFirstFrame,
-    [SCN_PERSIST_NEXT_FRAME] = Scn_PersistNextFrame,
-    [SCN_SCREENSHOT_SUBREGION] = Scn_ScreenshotSubregion,
-    [SCN_ERROR_PATHS] = Scn_ErrorPaths,
-    [SCN_SYSTEM_WINDOW_SETTINGS] = Scn_SystemWindowSettings,
-    [SCN_ASSETS_NEXT_TO_PROGRAM] = Scn_AssetsNextToProgram,
+	[SCN_SETTINGS_BEFORE_RUN] = Scn_SettingsBeforeRun,
+	[SCN_SYSTEM_GETTERS] = Scn_SystemGetters,
+	[SCN_SETTINGS_GETTERS] = Scn_SettingsGetters,
+	[SCN_CLEAR_BACKGROUND] = Scn_ClearBackground,
+	[SCN_DRAW_POINT] = Scn_DrawPoint,
+	[SCN_DRAW_LINE] = Scn_DrawLine,
+	[SCN_DRAW_LINE_ADVANCED] = Scn_DrawLineAdvanced,
+	[SCN_DRAW_RECT] = Scn_DrawRect,
+	[SCN_DRAW_RECT_ADVANCED] = Scn_DrawRectAdvanced,
+	[SCN_DRAW_CIRCLE] = Scn_DrawCircle,
+	[SCN_DRAW_ELLIPSE] = Scn_DrawEllipse,
+	[SCN_DRAW_ELLIPSE_ADVANCED] = Scn_DrawEllipseAdvanced,
+	[SCN_DRAW_ARC] = Scn_DrawArc,
+	[SCN_DRAW_ARC_COUNTERCLOCKWISE] = Scn_DrawArcCounterclockwise,
+	[SCN_DRAW_PIE] = Scn_DrawPie,
+	[SCN_DRAW_PIE_CORNER_MODE] = Scn_DrawPieCornerMode,
+	[SCN_DRAW_BEZIER] = Scn_DrawBezier,
+	[SCN_DRAW_TRIANGLE] = Scn_DrawTriangle,
+	[SCN_DRAW_TRIANGLE_ADVANCED] = Scn_DrawTriangleAdvanced,
+	[SCN_DRAW_QUAD] = Scn_DrawQuad,
+	[SCN_DRAW_QUAD_ADVANCED] = Scn_DrawQuadAdvanced,
+	[SCN_CUSTOM_SHAPE] = Scn_CustomShape,
+	[SCN_SETTINGS_NOFILL] = Scn_SettingsNoFill,
+	[SCN_SETTINGS_STROKEWEIGHT] = Scn_SettingsStrokeWeight,
+	[SCN_SETTINGS_RECTMODE_CORNER] = Scn_SettingsRectModeCorner,
+	[SCN_SETTINGS_ELLIPSEMODE_CORNER] = Scn_SettingsEllipseModeCorner,
+	[SCN_SETTINGS_TRANSLATE] = Scn_SettingsTranslate,
+	[SCN_SETTINGS_SCALE] = Scn_SettingsScale,
+	[SCN_SETTINGS_ROTATE] = Scn_SettingsRotate,
+	[SCN_SETTINGS_RESETMATRIX] = Scn_SettingsResetMatrix,
+	[SCN_SETTINGS_APPLYMATRIX] = Scn_SettingsApplyMatrix,
+	[SCN_SETTINGS_BLENDMODE_ADD] = Scn_SettingsBlendModeAdd,
+	[SCN_SETTINGS_BLEND_MODES] = Scn_SettingsBlendModes,
+	[SCN_SETTINGS_TINT] = Scn_SettingsTint,
+	[SCN_IMAGE_FILTER_MODES] = Scn_ImageFilterModes,
+	[SCN_IMAGE_WRAP_MODES] = Scn_ImageWrapModes,
+	[SCN_SETTINGS_LAST_FRAME_SETS_TEXT_SIZE] = Scn_SettingsLastFrameSetsTextSize,
+	[SCN_SETTINGS_CARRY_TO_NEXT_FRAME] = Scn_SettingsCarryToNextFrame,
+	[SCN_SETTINGS_SAVE_RESTORE] = Scn_SettingsSaveRestore,
+	[SCN_IMAGE_LOAD_AND_DRAW] = Scn_ImageLoadAndDraw,
+	[SCN_IMAGE_SUBIMAGE] = Scn_ImageSubImage,
+	[SCN_IMAGE_DRAW_ROTATED] = Scn_ImageDrawRotated,
+	[SCN_IMAGE_16_BIT] = Scn_Image16Bit,
+	[SCN_IMAGE_MANY] = Scn_ImageMany,
+	[SCN_SHARED_ASSETS] = Scn_SharedAssets,
+	[SCN_FONT_DRAWTEXT] = Scn_FontDrawText,
+	[SCN_FONT_LOAD_FREE] = Scn_FontLoadFree,
+	[SCN_FONT_GET_CURRENT] = Scn_FontGetCurrent,
+	[SCN_FONT_FREE_KEEPS_OTHERS] = Scn_FontFreeKeepsOthers,
+	[SCN_FONT_OPENTYPE] = Scn_FontOpenType,
+	[SCN_FONT_SIZE_SWEEP] = Scn_FontSizeSweep,
+	[SCN_FONT_SCALE_SWEEP] = Scn_FontScaleSweep,
+	[SCN_FONT_EM_SIZE] = Scn_FontEmSize,
+	[SCN_FONT_LARGE] = Scn_FontLarge,
+	[SCN_FONT_MIRRORED] = Scn_FontMirrored,
+	[SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
+	[SCN_SYSTEM_FRAME_RATE_NO_LIMIT] = Scn_SystemFrameRateNoLimit,
+	[SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
+	[SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,
+	[SCN_GAMESTATE_STACK] = Scn_GameStateStack,
+	[SCN_GAMESTATE_SNAPSHOT] = Scn_GameStateSnapshot,
+	[SCN_IMAGE_DRAW_INTO] = Scn_ImageDrawInto,
+	[SCN_PERSIST_FIRST_FRAME] = Scn_PersistFirstFrame,
+	[SCN_PERSIST_NEXT_FRAME] = Scn_PersistNextFrame,
+	[SCN_SCREENSHOT_SUBREGION] = Scn_ScreenshotSubregion,
+	[SCN_ERROR_PATHS] = Scn_ErrorPaths,
+	[SCN_SYSTEM_WINDOW_SETTINGS] = Scn_SystemWindowSettings,
+	[SCN_ASSETS_NEXT_TO_PROGRAM] = Scn_AssetsNextToProgram,
 };
 
 static void HarnessInit(void)
 {
-    // the window now exists; the cursor was hidden before it did
-    tier2_scalars.cursorVisibleAtStart = CP_System_GetCursorVisible();
+	// the window now exists; the cursor was hidden before it did
+	tier2_scalars.cursorVisibleAtStart = CP_System_GetCursorVisible();
 
-    CP_System_SetWindowSize(TIER2_CANVAS_SIZE, TIER2_CANVAS_SIZE);
-    CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture");
-    CP_Engine_SetPreUpdateFunction(PreUpdateHook);
-    CP_Engine_SetPostUpdateFunction(PostUpdateHook);
-    frameCount = 0;
-    firstScenarioFrame = -1;
+	CP_System_SetWindowSize(TIER2_CANVAS_SIZE, TIER2_CANVAS_SIZE);
+	CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture");
+	CP_Engine_SetPreUpdateFunction(PreUpdateHook);
+	CP_Engine_SetPostUpdateFunction(PostUpdateHook);
+	frameCount = 0;
+	firstScenarioFrame = -1;
 }
 
 static void LeaveAssetsLoadedForTheExitReport(void);
 
 static void HarnessUpdate(void)
 {
-    if (stackAwaitingResume)
-    {
-        // the states pushed in Scn_GameStateStack have all popped
-        stackAwaitingResume = false;
-        tier2_scalars.stackHarnessSettingsBack = SameColor(CP_Settings_GetFill(), kStackHarnessFill);
-        tier2_scalars.stackHarnessDepthAfter = CP_Engine_GetGameStateDepth();
-    }
-    if (snapshotAwaitingResume)
-    {
-        snapshotAwaitingResume = false;
-        tier2_scalars.snapshotHarnessDepthAfter = CP_Engine_GetGameStateDepth();
-    }
+	if (stackAwaitingResume)
+	{
+		// the states pushed in Scn_GameStateStack have all popped
+		stackAwaitingResume = false;
+		tier2_scalars.stackHarnessSettingsBack = SameColor(CP_Settings_GetFill(), kStackHarnessFill);
+		tier2_scalars.stackHarnessDepthAfter = CP_Engine_GetGameStateDepth();
+	}
+	if (snapshotAwaitingResume)
+	{
+		snapshotAwaitingResume = false;
+		tier2_scalars.snapshotHarnessDepthAfter = CP_Engine_GetGameStateDepth();
+	}
 
-    if (frameCount == 0)
-    {
-        // HarnessInit chose the window size in the same frame
-        tier2_scalars.windowWidthInFirstUpdate = CP_System_GetWindowWidth();
-    }
+	if (frameCount == 0)
+	{
+		// HarnessInit chose the window size in the same frame
+		tier2_scalars.windowWidthInFirstUpdate = CP_System_GetWindowWidth();
+	}
 
-    // Let the deferred window resize (requested in HarnessInit) take effect
-    // before drawing/capturing anything.
-    if (firstScenarioFrame < 0)
-    {
-        bool sizeSettled = CP_System_GetWindowWidth() == TIER2_CANVAS_SIZE
-            && CP_System_GetWindowHeight() == TIER2_CANVAS_SIZE;
-        if ((frameCount >= WARMUP_FRAMES && sizeSettled) || frameCount >= MAX_WARMUP_FRAMES)
-        {
-            firstScenarioFrame = frameCount;
-        }
-        else
-        {
-            ++frameCount;
-            return;
-        }
-    }
+	// Let the deferred window resize (requested in HarnessInit) take effect
+	// before drawing/capturing anything.
+	if (firstScenarioFrame < 0)
+	{
+		bool sizeSettled = CP_System_GetWindowWidth() == TIER2_CANVAS_SIZE && CP_System_GetWindowHeight() == TIER2_CANVAS_SIZE;
+		if ((frameCount >= WARMUP_FRAMES && sizeSettled) || frameCount >= MAX_WARMUP_FRAMES)
+		{
+			firstScenarioFrame = frameCount;
+		}
+		else
+		{
+			++frameCount;
+			return;
+		}
+	}
 
-    int scenarioIndex = frameCount - firstScenarioFrame;
-    ++frameCount;
+	int scenarioIndex = frameCount - firstScenarioFrame;
+	++frameCount;
 
-    if (scenarioIndex < SCN_COUNT)
-    {
-        if (scenarioIndex != SCN_SETTINGS_BEFORE_RUN)
-        {
-            ResetToBaseline();
-        }
-        kScenarios[scenarioIndex]();
-        CaptureCurrentFrame((Tier2Scenario)scenarioIndex);
-        ++tier2_scalars.scenariosCaptured;
-    }
+	if (scenarioIndex < SCN_COUNT)
+	{
+		if (scenarioIndex != SCN_SETTINGS_BEFORE_RUN)
+		{
+			ResetToBaseline();
+		}
+		kScenarios[scenarioIndex]();
+		CaptureCurrentFrame((Tier2Scenario)scenarioIndex);
+		++tier2_scalars.scenariosCaptured;
+	}
 
-    if (scenarioIndex == SCN_COUNT - 2)
-    {
-        CP_Engine_PushGameState(NULL, ShutdownProbe_Update, ShutdownProbe_Exit);
-    }
+	if (scenarioIndex == SCN_COUNT - 2)
+	{
+		CP_Engine_PushGameState(NULL, ShutdownProbe_Update, ShutdownProbe_Exit);
+	}
 
-    if (scenarioIndex >= SCN_COUNT - 1)
-    {
-        LeaveAssetsLoadedForTheExitReport();
-        CP_Engine_Terminate();
-    }
+	if (scenarioIndex >= SCN_COUNT - 1)
+	{
+		LeaveAssetsLoadedForTheExitReport();
+		CP_Engine_Terminate();
+	}
 }
 
 // When it shuts down, CProcessing reports the assets that were never freed,
@@ -1742,82 +1750,82 @@ static int savedStderr = -1;
 
 static void LeaveAssetsLoadedForTheExitReport(void)
 {
-    CP_Image_Load("Assets/quadrants16.png");
-    CP_Image_Load("Assets/quadrants16.png");
-    CP_Color pixels[4] = { RED, RED, RED, RED };
-    CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+	CP_Image_Load("Assets/quadrants16.png");
+	CP_Image_Load("Assets/quadrants16.png");
+	CP_Color pixels[4] = { RED, RED, RED, RED };
+	CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
 
-    fflush(stderr);
-    exitReportFile = fopen("tier2_exit_report.txt", "w+");
-    if (exitReportFile)
-    {
-        savedStderr = tier2_dup(tier2_fileno(stderr));
-        tier2_dup2(tier2_fileno(exitReportFile), tier2_fileno(stderr));
-    }
+	fflush(stderr);
+	exitReportFile = fopen("tier2_exit_report.txt", "w+");
+	if (exitReportFile)
+	{
+		savedStderr = tier2_dup(tier2_fileno(stderr));
+		tier2_dup2(tier2_fileno(exitReportFile), tier2_fileno(stderr));
+	}
 }
 
 static void ReadExitReport(void)
 {
-    if (!exitReportFile)
-    {
-        return;
-    }
-    fflush(stderr);
-    tier2_dup2(savedStderr, tier2_fileno(stderr));
-    tier2_close(savedStderr);
+	if (!exitReportFile)
+	{
+		return;
+	}
+	fflush(stderr);
+	tier2_dup2(savedStderr, tier2_fileno(stderr));
+	tier2_close(savedStderr);
 
-    rewind(exitReportFile);
-    size_t length = fread(tier2_scalars.exitReport, 1, sizeof(tier2_scalars.exitReport) - 1, exitReportFile);
-    tier2_scalars.exitReport[length] = '\0';
-    fclose(exitReportFile);
-    remove("tier2_exit_report.txt");
+	rewind(exitReportFile);
+	size_t length = fread(tier2_scalars.exitReport, 1, sizeof(tier2_scalars.exitReport) - 1, exitReportFile);
+	tier2_scalars.exitReport[length] = '\0';
+	fclose(exitReportFile);
+	remove("tier2_exit_report.txt");
 
-    // Still show it in the log
-    fputs(tier2_scalars.exitReport, stderr);
+	// Still show it in the log
+	fputs(tier2_scalars.exitReport, stderr);
 }
 
 void tier2_RunCaptureOnce(void)
 {
-    // Before the window exists: settings are stored for later, queries
-    // return "nothing yet", and none of it may crash
-    // Vsync and a resizable window, chosen before the window exists
-    CP_System_SetVSync(TRUE);
-    CP_System_SetWindowResizable(TRUE);
-    tier2_scalars.vsyncBeforeRun = CP_System_GetVSync();
-    tier2_scalars.resizableBeforeRun = CP_System_GetWindowResizable();
-    tier2_scalars.fullscreenBeforeRun = CP_System_IsFullscreen();
-    CP_System_ShowCursor(FALSE);
-    tier2_scalars.cursorVisibleBeforeRun = CP_System_GetCursorVisible();
-    tier2_scalars.cursorModeBeforeRun = CP_System_GetCursorMode();
-    CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture");
-    tier2_scalars.windowFocusBeforeRun = CP_System_GetWindowFocus();
-    tier2_scalars.displayRefreshRateBeforeRun = CP_System_GetDisplayRefreshRate();
-    CP_Engine_Terminate();          // nothing to terminate yet: must not stop the run below
-    CP_System_ShowConsole(TRUE);
-    CP_System_ShowConsole(FALSE);
-    CP_System_ShowConsole(TRUE);
-    tier2_scalars.consoleVisibleBeforeRun = CP_System_GetConsoleVisible();
-    tier2_scalars.printfAfterShowConsole = printf("Tier 2: capturing scenarios\n");
+	// Before the window exists: settings are stored for later, queries
+	// return "nothing yet", and none of it may crash
+	// Vsync and a resizable window, chosen before the window exists
+	CP_System_SetVSync(TRUE);
+	CP_System_SetWindowResizable(TRUE);
+	tier2_scalars.vsyncBeforeRun = CP_System_GetVSync();
+	tier2_scalars.resizableBeforeRun = CP_System_GetWindowResizable();
+	tier2_scalars.fullscreenBeforeRun = CP_System_IsFullscreen();
+	CP_System_ShowCursor(FALSE);
+	tier2_scalars.cursorVisibleBeforeRun = CP_System_GetCursorVisible();
+	tier2_scalars.cursorModeBeforeRun = CP_System_GetCursorMode();
+	CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture");
+	tier2_scalars.windowFocusBeforeRun = CP_System_GetWindowFocus();
+	tier2_scalars.displayRefreshRateBeforeRun = CP_System_GetDisplayRefreshRate();
+	CP_Engine_Terminate(); // nothing to terminate yet: must not stop the run below
+	CP_System_ShowConsole(TRUE);
+	CP_System_ShowConsole(FALSE);
+	CP_System_ShowConsole(TRUE);
+	tier2_scalars.consoleVisibleBeforeRun = CP_System_GetConsoleVisible();
+	tier2_scalars.printfAfterShowConsole = printf("Tier 2: capturing scenarios\n");
 
-    // Drawing settings made before the window exists are kept and applied
-    // when it opens (Scn_SettingsBeforeRun checks them). Transforms,
-    // Save/Restore and drawing do nothing yet, and none of it may crash.
-    CP_Settings_Fill(CP_Color_Create(12, 200, 34, 255));
-    tier2_scalars.fillBeforeRun = CP_Settings_GetFill();
-    CP_Settings_RectMode(CP_POSITION_CORNER);
-    CP_Settings_Translate(30.0f, 30.0f);
-    CP_Settings_Rotate(45.0f);
-    CP_Settings_Save();
-    CP_Settings_Restore();
-    CP_Graphics_ClearBackground(RED);
-    CP_Graphics_DrawRect(10.0f, 10.0f, 20.0f, 20.0f);
-    CP_Graphics_DrawCircle(10.0f, 10.0f, 20.0f);
-    CP_Graphics_BeginShape();
-    CP_Graphics_AddVertex(0.0f, 0.0f);
-    CP_Graphics_AddVertex(10.0f, 0.0f);
-    CP_Graphics_EndShape();
+	// Drawing settings made before the window exists are kept and applied
+	// when it opens (Scn_SettingsBeforeRun checks them). Transforms,
+	// Save/Restore and drawing do nothing yet, and none of it may crash.
+	CP_Settings_Fill(CP_Color_Create(12, 200, 34, 255));
+	tier2_scalars.fillBeforeRun = CP_Settings_GetFill();
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Translate(30.0f, 30.0f);
+	CP_Settings_Rotate(45.0f);
+	CP_Settings_Save();
+	CP_Settings_Restore();
+	CP_Graphics_ClearBackground(RED);
+	CP_Graphics_DrawRect(10.0f, 10.0f, 20.0f, 20.0f);
+	CP_Graphics_DrawCircle(10.0f, 10.0f, 20.0f);
+	CP_Graphics_BeginShape();
+	CP_Graphics_AddVertex(0.0f, 0.0f);
+	CP_Graphics_AddVertex(10.0f, 0.0f);
+	CP_Graphics_EndShape();
 
-    CP_Engine_SetNextGameState(HarnessInit, HarnessUpdate, NULL);
-    CP_Engine_Run();
-    ReadExitReport();
+	CP_Engine_SetNextGameState(HarnessInit, HarnessUpdate, NULL);
+	CP_Engine_Run();
+	ReadExitReport();
 }

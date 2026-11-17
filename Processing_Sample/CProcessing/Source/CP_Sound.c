@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 // file:	CP_Sound.c
 // author:	Daniel Hamilton, Andrea Ellinger, Justin Chambers
-// brief:	Load, play and manipulate sound files 
+// brief:	Load, play and manipulate sound files
 //
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2019-2026 DigiPen Institute of Technology
@@ -25,7 +25,7 @@
 // Defines and Internal Variables:
 //------------------------------------------------------------------------------
 
-#define CP_INITIAL_SOUND_CAPACITY   12
+#define CP_INITIAL_SOUND_CAPACITY 12
 
 VECT_GENERATE_TYPE(CP_Sound)
 
@@ -191,7 +191,7 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 	sound = (CP_Sound)malloc(sizeof(CP_Sound_Struct));
 	if (!sound)
 	{
-		// TODO handle error 
+		// TODO handle error
 		return NULL;
 	}
 

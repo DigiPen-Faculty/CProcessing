@@ -99,18 +99,17 @@ CP_Vector playerStart;
 CP_Vector playerPosition;
 
 CP_Vector coinPositions[COIN_COUNT];
-CP_BOOL coinTaken[COIN_COUNT];			// has this coin been collected?
+CP_BOOL coinTaken[COIN_COUNT]; // has this coin been collected?
 int coinsTaken = 0;
 
 CP_Vector ballPositions[BALL_COUNT];
-CP_Vector ballVelocities[BALL_COUNT];	// pixels per second
+CP_Vector ballVelocities[BALL_COUNT]; // pixels per second
 int hits = 0;
 
 // Can a circle be at this spot? It must be inside the window and not touch a wall.
 CP_BOOL CanBeAt(CP_Vector center, float radius)
 {
-	if (center.x - radius < 0.0f || center.x + radius > (float)CP_System_GetWindowWidth()
-		|| center.y - radius < 0.0f || center.y + radius > (float)CP_System_GetWindowHeight())
+	if (center.x - radius < 0.0f || center.x + radius > (float)CP_System_GetWindowWidth() || center.y - radius < 0.0f || center.y + radius > (float)CP_System_GetWindowHeight())
 	{
 		return FALSE;
 	}

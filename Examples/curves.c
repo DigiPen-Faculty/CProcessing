@@ -28,8 +28,8 @@
 #include <math.h>
 #include <stdio.h>
 
-#define SLICE_COUNT 4
-#define HANDLE_COUNT 4		// the curve's two ends and its two control points
+#define SLICE_COUNT   4
+#define HANDLE_COUNT  4 // the curve's two ends and its two control points
 #define HANDLE_RADIUS 12.0f
 
 float sliceValues[SLICE_COUNT] = { 40.0f, 25.0f, 20.0f, 15.0f };
@@ -37,7 +37,7 @@ CP_Color sliceColors[SLICE_COUNT];
 
 // The curve: end, control, control, end
 CP_Vector handles[HANDLE_COUNT];
-int grabbed = -1;				// which handle the mouse holds, or -1
+int grabbed = -1; // which handle the mouse holds, or -1
 
 int octaves = 4;
 
@@ -51,7 +51,7 @@ void DrawPieChart(float x, float y, float diameter)
 
 	CP_Settings_Stroke(CP_Color_Create(30, 30, 50, 255));
 	CP_Settings_StrokeWeight(2.0f);
-	float start = -90.0f;		// start at the top
+	float start = -90.0f; // start at the top
 	for (int i = 0; i < SLICE_COUNT; ++i)
 	{
 		const float sweep = sliceValues[i] / total * 360.0f;
@@ -71,7 +71,7 @@ void DrawLoadingRing(float x, float y, float diameter)
 
 	CP_Settings_Stroke(CP_Color_Create(80, 80, 110, 255));
 	CP_Settings_StrokeWeight(12.0f);
-	CP_Graphics_DrawArc(x, y, diameter, 0.0f, 360.0f);		// the track
+	CP_Graphics_DrawArc(x, y, diameter, 0.0f, 360.0f); // the track
 
 	CP_Settings_Stroke(CP_Color_Create(255, 200, 60, 255));
 	CP_Settings_LineCapMode(CP_LINE_CAP_ROUND);

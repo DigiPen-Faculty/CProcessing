@@ -58,8 +58,8 @@ typedef struct Screen
 
 #define MAX_SCREENS 8
 
-const Screen* stack[MAX_SCREENS];	// the screens, the bottom one first
-int depth = 0;						// how many are on the stack
+const Screen* stack[MAX_SCREENS]; // the screens, the bottom one first
+int depth = 0;                    // how many are on the stack
 
 // What was asked for this frame, and when it happens (the start of the next)
 typedef enum Request
@@ -265,8 +265,8 @@ void DrawPanel(float width, float height)
 //---------------------------------------------------------
 // THE GAME'S DATA: stars fall, and a basket under the mouse catches them
 //---------------------------------------------------------
-#define STAR_COUNT 6
-#define BASKET_Y 540.0f
+#define STAR_COUNT   6
+#define BASKET_Y     540.0f
 #define BASKET_WIDTH 110.0f
 
 typedef struct Star

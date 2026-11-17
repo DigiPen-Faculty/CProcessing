@@ -7,20 +7,20 @@
 
 void test_tier2_input_no_gamepad_attached_reports_disconnected(void)
 {
-    TEST_ASSERT_FALSE(tier2_scalars.gamepadConnected);
-    TEST_ASSERT_FALSE(tier2_scalars.gamepad0ConnectedAdvanced);
+	TEST_ASSERT_FALSE(tier2_scalars.gamepadConnected);
+	TEST_ASSERT_FALSE(tier2_scalars.gamepad0ConnectedAdvanced);
 }
 
 void test_tier2_input_mouse_wheel_is_zero_at_rest(void)
 {
-    TEST_ASSERT_EQUAL_FLOAT(0.0f, tier2_scalars.mouseWheel);
+	TEST_ASSERT_EQUAL_FLOAT(0.0f, tier2_scalars.mouseWheel);
 }
 
 void test_tier2_input_no_clicks_or_keys_in_a_quiescent_frame(void)
 {
-    TEST_ASSERT_FALSE(tier2_scalars.mouseDoubleClicked);
-    TEST_ASSERT_FALSE(tier2_scalars.keyADown);
-    TEST_ASSERT_FALSE(tier2_scalars.mouseLeftDown);
-    // and no text was typed
-    TEST_ASSERT_TRUE(tier2_scalars.typedTextIsEmpty);
+	TEST_ASSERT_FALSE(tier2_scalars.mouseDoubleClicked);
+	TEST_ASSERT_FALSE(tier2_scalars.keyADown);
+	TEST_ASSERT_FALSE(tier2_scalars.mouseLeftDown);
+	// and no text was typed
+	TEST_ASSERT_TRUE(tier2_scalars.typedTextIsEmpty);
 }
