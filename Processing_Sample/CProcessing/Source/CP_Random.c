@@ -10,7 +10,6 @@
 #include "cprocessing.h"
 #include "Internal_Random.h"
 #include <stdint.h>
-#include <stdlib.h>
 #include <math.h>
 #include <time.h>
 
@@ -18,57 +17,37 @@
 // Defines and Internal Variables:
 //------------------------------------------------------------------------------
 
-// define USE_XORSHIFT to use the faster and more complete RNG
-#define USE_XORSHIFT
-
-#ifdef USE_XORSHIFT
-static const uint32_t MAX_RAND_INT = UINT32_MAX;
-// The state array must be initialized to not be all zero
+// The generator is xoshiro128** by David Blackman and Sebastiano Vigna
+// (public domain): 128 bits of state, 32 random bits per call, and good
+// quality in every bit (the old xorshift128's lowest bit was a plain
+// linear-feedback bit, and CP_Random_GetBool uses the lowest bit).
+// The state must not be all zero; CP_Random_Seed makes sure of that.
 static uint32_t state[4];
-#else
-static const uint32_t MAX_RAND_INT = RAND_MAX;
-#endif
+
+// Gaussian numbers are made two at a time; this is the second one, waiting
+static double gaussianSpare = 0.0;
+static int gaussianHasSpare = 0;
 
 //------------------------------------------------------------------------------
 // Internal Functions:
 //------------------------------------------------------------------------------
 
-#ifdef USE_XORSHIFT
-static void xorshiftSeed(int seed)
+static inline uint32_t rotateLeft(uint32_t x, int k)
 {
-	srand(seed);
-	for (unsigned index = 0; index < 4; ++index)
-	{
-		// unsigned shift: RAND_MAX is 2^31-1 on glibc/macOS, so shifting the
-		// signed int would overflow (MSVC's RAND_MAX is 32767, unaffected)
-		state[index] = (uint32_t)rand() << 16;
-		state[index] |= (uint32_t)rand();
-	}
+	return (x << k) | (x >> (32 - k));
 }
-
-static uint32_t xorshift128(void)
-{
-	// Algorithm "xor128" from p. 5 of Marsaglia, "Xorshift RNGs"
-	uint32_t s, t = state[3];
-	t ^= t << 11;
-	t ^= t >> 8;
-	state[3] = state[2];
-	state[2] = state[1];
-	state[1] = s = state[0];
-	t ^= s;
-	t ^= s >> 19;
-	state[0] = t;
-	return t;
-}
-#endif
 
 static inline uint32_t internalRand(void)
 {
-#ifdef USE_XORSHIFT
-	return xorshift128();
-#else
-	return rand();
-#endif
+	const uint32_t result = rotateLeft(state[1] * 5, 7) * 9;
+	const uint32_t t = state[1] << 9;
+	state[2] ^= state[0];
+	state[3] ^= state[1];
+	state[1] ^= state[2];
+	state[0] ^= state[3];
+	state[2] ^= t;
+	state[3] = rotateLeft(state[3], 11);
+	return result;
 }
 
 void CP_Random_Init(void)
@@ -112,7 +91,7 @@ CP_API int CP_Random_RangeInt(int lowerBound, int upperBound)
 	// internalRand() % count favors the low numbers when count doesn't divide
 	// 2^32 evenly. Throwing away the first 2^32 % count values makes it even.
 	// That's under count values out of 2^32, so for ordinary ranges a draw is
-	// almost never thrown away, and seeded sequences stay the same.
+	// almost never thrown away.
 	const uint32_t count = range + 1;
 	const uint32_t threshold = (0u - count) % count; // = 2^32 % count
 	uint32_t r;
@@ -127,56 +106,58 @@ CP_API int CP_Random_RangeInt(int lowerBound, int upperBound)
 
 CP_API float CP_Random_GetFloat(void)
 {
-	return (float)internalRand() / (float)(MAX_RAND_INT);
+	return CP_Random_FloatFromBits(internalRand());
 }
 
 CP_API float CP_Random_RangeFloat(float lowerBound, float upperBound)
 {
-	if (upperBound < lowerBound)
-	{
-		float temp = lowerBound;
-		lowerBound = upperBound;
-		upperBound = temp;
-	}
-	return lowerBound + CP_Random_GetFloat() * (upperBound - lowerBound);
+	return CP_Random_RangeFloatFromUnit(lowerBound, upperBound, CP_Random_GetFloat());
 }
 
 CP_API void CP_Random_Seed(int seed)
 {
-#ifdef USE_XORSHIFT
-	xorshiftSeed(seed);
-#else
-	srand(seed);
-#endif
+	// SplitMix64 turns the seed into the generator's state without the C
+	// runtime's srand and rand, whose numbers differ between compilers and
+	// operating systems (and which a program may be using for itself). The
+	// same seed now gives the same numbers on every platform.
+	uint64_t stream = (uint64_t)(uint32_t)seed;
+	const uint64_t a = CP_Random_SplitMix64(&stream);
+	const uint64_t b = CP_Random_SplitMix64(&stream);
+	state[0] = (uint32_t)a;
+	state[1] = (uint32_t)(a >> 32);
+	state[2] = (uint32_t)b;
+	state[3] = (uint32_t)(b >> 32);
+	if ((state[0] | state[1] | state[2] | state[3]) == 0)
+	{
+		state[0] = 1; // all zero is the one state the generator can't leave
+	}
+
+	// A Gaussian number waiting from before the seed would break "the same
+	// seed gives the same numbers"
+	gaussianHasSpare = 0;
 }
 
 //		Gaussian returns a normally distributed value where the mean is 0 and the standard deviation is 1.0
 CP_API float CP_Random_Gaussian(void)
 {
-	double mean = 0;
-	double stddev = 1.0;
-	double U1, U2, W, mult;
-	static double X1, X2;
-	static int recompute = 1;
-
-	if (recompute == 0)
+	if (gaussianHasSpare)
 	{
-		recompute = !recompute;
-		return (float)(mean + stddev * X2);
+		gaussianHasSpare = 0;
+		return (float)gaussianSpare;
 	}
 
+	// The polar form of the Box-Muller method: pick a point in the unit
+	// circle (not the middle), and turn it into two Gaussian numbers
+	double U1, U2, W;
 	do
 	{
-		U1 = -1 + ((double)internalRand() / MAX_RAND_INT) * 2;
-		U2 = -1 + ((double)internalRand() / MAX_RAND_INT) * 2;
-		W = pow(U1, 2) + pow(U2, 2);
+		U1 = -1 + ((double)internalRand() / (double)UINT32_MAX) * 2;
+		U2 = -1 + ((double)internalRand() / (double)UINT32_MAX) * 2;
+		W = U1 * U1 + U2 * U2;
 	} while (W >= 1 || W == 0);
 
-	mult = sqrt((-2 * log(W)) / W);
-	X1 = U1 * mult;
-	X2 = U2 * mult;
-
-	recompute = !recompute;
-
-	return (float)(mean + stddev * X1);
+	const double multiplier = sqrt((-2 * log(W)) / W);
+	gaussianSpare = U2 * multiplier;
+	gaussianHasSpare = 1;
+	return (float)(U1 * multiplier);
 }

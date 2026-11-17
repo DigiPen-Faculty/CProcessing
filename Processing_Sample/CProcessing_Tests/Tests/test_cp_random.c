@@ -1,24 +1,24 @@
 // Tier 1 coverage for CP_Random (9 functions) plus the two CP_Noise
 // functions the plan groups with it.
 //
-// Determinism caveat (06-test-suite-plan.md): CP_Random_Seed reseeds an
-// xorshift128 generator, but seeds its *state* using the C runtime's
-// rand()/srand() (CP_Random.c:36-44), and CP_Random_NoiseSeed builds its
-// permutation table directly from rand() (CP_Noise.c:41-70). rand()'s
-// output is implementation-defined per C runtime, so "same seed -> same
-// exact sequence" is only reliable on a given platform/toolchain. The
-// tests below are split into:
-//   (a) MSVC-pinned regression tests for the exact sequence on this
-//       platform, clearly labeled so they are easy to find and replace
-//       with a per-platform variant rather than silently deleted when a
-//       Linux/macOS port lands (04-roadmap.md).
-//   (b) platform-independent property tests (bounds, swapped-bounds
-//       ordering, reseed reproducibility, rough distribution shape) that
-//       should hold on any platform.
+// Determinism: a seed gives the same numbers, and the same noise, on every
+// platform. CP_Random_Seed and CP_Random_NoiseSeed don't use the C runtime's
+// srand and rand (whose output differs between compilers and operating
+// systems); they use SplitMix64 and xoshiro128**, which are plain integer
+// arithmetic. So the tests below are of two kinds:
+//   (a) pinned values for seed 42 (the exact numbers), which run on
+//       Windows, Linux and macOS in CI. If one fails after a change to the
+//       generator or the seeding, every program that seeds will get
+//       different numbers: change them on purpose, with a CHANGELOG entry.
+//   (b) property tests (bounds, swapped-bounds ordering, reseed
+//       reproducibility, rough distribution shape).
 #include <limits.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "unity.h"
 #include "cprocessing.h"
+#include "Internal_Random.h"
 
 #define SAMPLE_COUNT 10000
 
@@ -202,7 +202,7 @@ void test_random_getfloat_stays_within_0_and_1(void)
 	{
 		float v = CP_Random_GetFloat();
 		TEST_ASSERT_GREATER_OR_EQUAL_FLOAT(0.0f, v);
-		TEST_ASSERT_LESS_OR_EQUAL_FLOAT(1.0f, v);
+		TEST_ASSERT_LESS_THAN_FLOAT(1.0f, v); // from 0 up to, but not including, 1
 	}
 }
 
@@ -213,7 +213,7 @@ void test_random_rangefloat_respects_bounds(void)
 	{
 		float v = CP_Random_RangeFloat(-5.0f, 5.0f);
 		TEST_ASSERT_GREATER_OR_EQUAL_FLOAT(-5.0f, v);
-		TEST_ASSERT_LESS_OR_EQUAL_FLOAT(5.0f, v);
+		TEST_ASSERT_LESS_THAN_FLOAT(5.0f, v); // up to, but not including, the upper bound
 	}
 }
 
@@ -230,7 +230,7 @@ void test_random_rangefloat_swaps_reversed_bounds(void)
 
 // ---- CP_Random_Seed ----
 
-void test_random_seed_reproduces_sequence_on_this_platform(void)
+void test_random_seed_reproduces_sequence(void)
 {
 	CP_Random_Seed(1234);
 	unsigned int firstRun[5];
@@ -259,14 +259,174 @@ void test_random_seed_different_seeds_diverge(void)
 // If this ever needs to change (toolchain swap, platform port), add a
 // platform-specific variant alongside it rather than deleting it --
 // see the file banner and 06-test-suite-plan.md's determinism caveat.
-void test_random_getint_msvc_pinned_sequence_for_seed_42(void)
+// ---- Pinned values: the same on every platform (see the top of this file) ----
+
+void test_random_getint_pinned_sequence_for_seed_42(void)
 {
 	CP_Random_Seed(42);
-	unsigned int first = CP_Random_GetInt();
-	unsigned int second = CP_Random_GetInt();
+	TEST_ASSERT_EQUAL_UINT32(1776835114u, CP_Random_GetInt());
+	TEST_ASSERT_EQUAL_UINT32(4165204688u, CP_Random_GetInt());
+	TEST_ASSERT_EQUAL_UINT32(17111135u, CP_Random_GetInt());
+}
+
+void test_random_rangeint_pinned_dice_for_seed_42(void)
+{
+	const int expected[6] = { 5, 3, 6, 3, 6, 5 };
 	CP_Random_Seed(42);
-	TEST_ASSERT_EQUAL_UINT32(first, CP_Random_GetInt());
-	TEST_ASSERT_EQUAL_UINT32(second, CP_Random_GetInt());
+	for (int i = 0; i < 6; ++i)
+	{
+		TEST_ASSERT_EQUAL_INT(expected[i], CP_Random_RangeInt(1, 6));
+	}
+}
+
+void test_random_float_pinned_values_for_seed_42(void)
+{
+	// the third and fourth draws are RangeFloat's
+	CP_Random_Seed(42);
+	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 0.4137017f, CP_Random_GetFloat());
+	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 0.9697873f, CP_Random_GetFloat());
+	TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.0199200f, CP_Random_RangeFloat(0.0f, 5.0f));
+	TEST_ASSERT_FLOAT_WITHIN(1e-4f, 11.8612108f, CP_Random_RangeFloat(-150.0f, 150.0f));
+}
+
+void test_random_gaussian_pinned_values_for_seed_42(void)
+{
+	CP_Random_Seed(42);
+	TEST_ASSERT_FLOAT_WITHIN(1e-5f, -0.077276f, CP_Random_Gaussian());
+	TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.420673f, CP_Random_Gaussian());
+	TEST_ASSERT_FLOAT_WITHIN(1e-5f, -0.138602f, CP_Random_Gaussian());
+}
+
+void test_random_noise_pinned_values_for_noiseseed_42(void)
+{
+	CP_Random_NoiseSeed(42);
+	TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.375000f, CP_Random_Noise(1.5f, 2.5f, 0.5f));
+	TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.349121f, CP_Random_Noise(10.25f, 0.0f, 0.0f));
+}
+
+// ---- Seeding ----
+
+void test_random_seed_zero_and_one_differ(void)
+{
+	// glibc's srand treats 0 as 1, so these used to be the same sequence there
+	CP_Random_Seed(0);
+	unsigned int a = CP_Random_GetInt();
+	CP_Random_Seed(1);
+	unsigned int b = CP_Random_GetInt();
+	TEST_ASSERT_NOT_EQUAL(a, b);
+
+	CP_Random_NoiseSeed(0);
+	float noiseA = CP_Random_Noise(1.5f, 2.5f, 0.5f);
+	CP_Random_NoiseSeed(1);
+	float noiseB = CP_Random_Noise(1.5f, 2.5f, 0.5f);
+	TEST_ASSERT_TRUE(noiseA != noiseB);
+}
+
+void test_random_seeding_does_not_disturb_the_programs_own_rand(void)
+{
+	srand(1);
+	const int expected = rand();
+	srand(1);
+	CP_Random_Seed(99);
+	CP_Random_NoiseSeed(99);
+	TEST_ASSERT_EQUAL_INT(expected, rand());
+}
+
+void test_random_noiseseed_does_not_change_the_random_sequence(void)
+{
+	CP_Random_Seed(7);
+	const unsigned int expected = CP_Random_GetInt();
+	CP_Random_Seed(7);
+	CP_Random_NoiseSeed(123);
+	TEST_ASSERT_EQUAL_UINT32(expected, CP_Random_GetInt());
+}
+
+void test_random_gaussian_repeats_after_reseeding_with_the_same_seed(void)
+{
+	// Gaussian numbers are made in pairs; the spare of the pair used to
+	// survive a reseed and come out first
+	CP_Random_Seed(5);
+	const float first = CP_Random_Gaussian();
+	CP_Random_Seed(5);
+	TEST_ASSERT_TRUE(first == CP_Random_Gaussian());
+}
+
+// ---- GetFloat and RangeFloat edges ----
+
+void test_random_floatfrombits_never_reaches_1(void)
+{
+	TEST_ASSERT_EQUAL_FLOAT(0.0f, CP_Random_FloatFromBits(0u));
+	TEST_ASSERT_LESS_THAN_FLOAT(1.0f, CP_Random_FloatFromBits(UINT32_MAX));
+	// the 128 largest inputs are the ones that round up to 1.0 in a float
+	for (uint32_t bits = UINT32_MAX - 200u; bits != 0u; ++bits)
+	{
+		TEST_ASSERT_LESS_THAN_FLOAT(1.0f, CP_Random_FloatFromBits(bits));
+	}
+}
+
+void test_random_floatfrombits_is_the_plain_division_below_the_top(void)
+{
+	// Seeded sequences of GetFloat are unchanged by never reaching 1.0:
+	// everything but the top 128 inputs is bits / 2^32 as before
+	CP_Random_Seed(21);
+	for (int i = 0; i < SAMPLE_COUNT; ++i)
+	{
+		const uint32_t bits = CP_Random_GetInt();
+		if (bits < UINT32_MAX - 200u)
+		{
+			TEST_ASSERT_TRUE((float)bits / (float)UINT32_MAX == CP_Random_FloatFromBits(bits));
+		}
+	}
+}
+
+void test_random_rangefloat_never_reaches_the_upper_bound(void)
+{
+	// f at its largest possible value, against ranges where the result
+	// used to round up to the upper bound
+	const float biggestF = 0.99999994f;
+	const float ranges[][2] = {
+		{ 0,     5        },
+		{ 0,     6        },
+		{ 0,     800      },
+		{ 40,    760      },
+		{ 0.95f, 1.05f    },
+		{ -150,  150      },
+		{ 0,     360      },
+		{ 0,     1        },
+		{ 1000,  1000.01f },
+		{ -1000, -999.99f },
+		{ 1e6f,  1e6f + 8 }
+	};
+	for (unsigned i = 0; i < sizeof(ranges) / sizeof(ranges[0]); ++i)
+	{
+		const float v = CP_Random_RangeFloatFromUnit(ranges[i][0], ranges[i][1], biggestF);
+		TEST_ASSERT_LESS_THAN_FLOAT(ranges[i][1], v);
+		TEST_ASSERT_GREATER_OR_EQUAL_FLOAT(ranges[i][0], v);
+	}
+
+	// and for many random ranges
+	CP_Random_Seed(22);
+	for (int i = 0; i < SAMPLE_COUNT; ++i)
+	{
+		const float lower = CP_Random_RangeFloat(-1000.0f, 1000.0f);
+		const float upper = lower + CP_Random_RangeFloat(0.001f, 2000.0f);
+		const float v = CP_Random_RangeFloatFromUnit(lower, upper, biggestF);
+		TEST_ASSERT_LESS_THAN_FLOAT(upper, v);
+		TEST_ASSERT_GREATER_OR_EQUAL_FLOAT(lower, v);
+	}
+}
+
+void test_random_rangefloat_equal_bounds_returns_that_value(void)
+{
+	CP_Random_Seed(23);
+	TEST_ASSERT_EQUAL_FLOAT(3.5f, CP_Random_RangeFloat(3.5f, 3.5f));
+	TEST_ASSERT_EQUAL_FLOAT(-2.0f, CP_Random_RangeFloatFromUnit(-2.0f, -2.0f, 0.99999994f));
+}
+
+void test_random_rangefloat_can_reach_the_lower_bound(void)
+{
+	TEST_ASSERT_EQUAL_FLOAT(2.0f, CP_Random_RangeFloatFromUnit(2.0f, 9.0f, 0.0f));
+	TEST_ASSERT_EQUAL_FLOAT(2.0f, CP_Random_RangeFloatFromUnit(9.0f, 2.0f, 0.0f));
 }
 
 // ---- CP_Random_Gaussian ----

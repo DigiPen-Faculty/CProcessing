@@ -35,11 +35,23 @@ Each change says what to do in an existing project.
   A negative bound used to become a number near 4 billion, so
   `CP_Random_RangeInt(-100, 100)` was wrong on every call, with no warning
   (like `CP_Math_ClampInt` and `CP_Color_Create`, it is now an `int`
-  function). Calls with bounds from 0 up to 2,147,483,647 give the same
-  numbers as before for the same seed. What to do: nothing, unless a bound is
+  function). Calls with bounds from 0 up to 2,147,483,647 work as before
+  (the numbers a given seed gives did change: see the seeding entry below).
+  What to do: nothing, unless a bound is
   above 2,147,483,647 (it can't be any more) or the result is stored in an
   `unsigned` and printed with `%u` (use `int` and `%d`). `CP_Random_GetInt`
   still returns the 32 raw bits as an `unsigned int`.
+- **A seed gives the same numbers, and the same noise, on every computer,
+  so the numbers for a given seed are different from before.** The library
+  used the C runtime's `srand` and `rand` to start its generator and to
+  shuffle the noise, and those differ between Windows, Linux and macOS (for
+  `CP_Random_Seed(42)` the first `CP_Random_GetInt()` was 371,199,488 with
+  Visual Studio and 2,722,490,258 with glibc). Seeding now uses plain integer
+  arithmetic (SplitMix64), and the generator is xoshiro128** instead of
+  xorshift128. What to do: nothing, unless a program depends on the exact
+  numbers a seed used to give (a layout made with `CP_Random_Seed(5)`, say).
+  That layout is now different, but the same on every computer. Unseeded
+  programs behave as before (a different start every run).
 
 ### Added
 
@@ -219,6 +231,21 @@ Each change says what to do in an existing project.
 
 ### Fixed
 
+- **`CP_Random_GetFloat` and `CP_Random_RangeFloat` no longer return their
+  upper bound.** `GetFloat` returned exactly 1.0 for 1 draw in 33 million, so
+  `RangeFloat(0, 5)` could return 5.0 and `(int)CP_Random_RangeFloat(0, 5)`
+  could be 5, one past the end of a 5-element array. `GetFloat` is now 0.0
+  up to, but not including, 1.0, and `RangeFloat` is the lower bound up to,
+  but not including, the upper bound. Every other value is unchanged for
+  `GetFloat`. `RangeFloat` is now worked out in double and rounded once, so
+  it gives the same number whether or not the compiler fuses the multiply and
+  the add (about a quarter of results differed in the last bit between
+  compilers that do and don't).
+- **Seeding no longer disturbs the program's own `rand()`,** `CP_Random_Seed(0)`
+  and `CP_Random_Seed(1)` are no longer the same sequence with glibc (which
+  treats `srand(0)` as `srand(1)`), and **`CP_Random_Gaussian` repeats after
+  reseeding with the same seed:** it keeps the second number of each pair,
+  and that used to survive a reseed and come out first.
 - **`cprocessing_common.h` no longer causes warnings in C++ with
   `-Wpedantic`.** The color, vector and matrix unions have an unnamed struct
   (for `c.r` as well as `c.rgba[0]`), which C11 allows but C++ and C99
@@ -269,7 +296,7 @@ Each change says what to do in an existing project.
 - **`CP_Random_RangeInt` with the whole range crashed** with a division by
   zero (it was `(0, 4294967295)`; it is now `(INT_MIN, INT_MAX)`). Large
   ranges also favored the lower numbers; every number in the range is now
-  equally likely. Seeded sequences for ordinary ranges are unchanged.
+  equally likely.
 - **Loading the same image, font or sound twice and freeing one of them
   freed it for both.** Loading a file that's already loaded gives back the
   same handle, so two parts of a program that each loaded

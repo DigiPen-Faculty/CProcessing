@@ -7,12 +7,13 @@
 // Copyright (c) 2019-2026 DigiPen Institute of Technology
 //---------------------------------------------------------
 
-#include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <time.h>
 #include <math.h>
 #include "cprocessing.h"
 #include "Internal_Noise.h"
+#include "Internal_Random.h"
 
 #define permutationArraySize 256
 static int repeatNoise = -1;
@@ -24,27 +25,32 @@ static int p[permutationArraySize * 2]; // Doubled permutation to avoid overflow
 // Set the value parameter to a constant to return the same pseudo - random numbers each time the software is run.
 CP_API void CP_Random_NoiseSeed(int seed)
 {
-	srand(seed);
+	// A shuffle of 0 to 255 (Fisher-Yates), drawn from a SplitMix64 stream of
+	// its own. It doesn't use the C runtime's srand and rand (whose numbers
+	// differ between compilers and operating systems, and which a program may
+	// be using for itself) and it doesn't touch CP_Random's generator, so a
+	// seed gives the same noise on every platform.
+	uint64_t stream = (uint64_t)(uint32_t)seed ^ 0x6E6F697365ull;
 	int permutation[permutationArraySize];
-	memset(permutation, -1, sizeof(permutation));
 	for (int val = 0; val < permutationArraySize; ++val)
 	{
-		int steps = -1;
-		int randSteps = rand() % (permutationArraySize - val);
-		int index = 0;
-		for (; index < permutationArraySize; ++index)
+		permutation[val] = val;
+	}
+	for (int last = permutationArraySize - 1; last > 0; --last)
+	{
+		// A number from 0 to last, every one equally likely (no modulo bias)
+		const uint32_t count = (uint32_t)last + 1;
+		const uint32_t threshold = (0u - count) % count;
+		uint32_t r;
+		do
 		{
-			if (permutation[index] < 0)
-			{
-				++steps;
-			}
+			r = (uint32_t)(CP_Random_SplitMix64(&stream) >> 32);
+		} while (r < threshold);
+		const int pick = (int)(r % count);
 
-			if (steps >= randSteps)
-			{
-				break;
-			}
-		}
-		permutation[index] = val;
+		const int temp = permutation[last];
+		permutation[last] = permutation[pick];
+		permutation[pick] = temp;
 	}
 
 	memset(p, -1, sizeof(p));
