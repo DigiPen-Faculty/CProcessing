@@ -90,6 +90,18 @@ Each change says what to do in an existing project.
   and `CP_Matrix_Inverse` in the source now match the header. Nothing to do
   in existing programs. CI checks the header against the source
   (`tools/check-api-names.py`).
+- **A sound's volume and pitch combine with its group's, and stay combined.**
+  A sound in a group is heard at its own volume times the group's (0.5 in a
+  group at 0.5 is heard at 0.25), and plays at its own pitch times the group's.
+  Before, `CP_Sound_SetGroupVolume` and `CP_Sound_SetGroupPitch` *replaced*
+  the value of every sound already playing in the group, and
+  `CP_Sound_SetVolume` and `CP_Sound_SetPitch` ignored the group, so a later
+  change of either one threw the other away. Now each sound keeps its own
+  volume and pitch: a group set to 0 and back to 1.0 returns every sound to the
+  volume it had. Programs that played sounds at 1.0 and changed only the group
+  (the examples and lessons) sound the same. A program that set one sound's
+  volume or pitch and then the group's relied on the group winning: set the
+  sound's own value to what it should be inside the group.
 
 ### Added
 

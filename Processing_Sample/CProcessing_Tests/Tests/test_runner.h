@@ -218,6 +218,20 @@ void test_gamestate_pass_throughs_combine(void);
 void test_gamestate_pop_from_below_the_top_takes_the_states_above_too(void);
 void test_gamestate_pop_from_a_state_that_left_does_nothing(void);
 
+// test_internal_sound_logic.c -- Tier 1: how a sound's volume and pitch combine with its group's (Internal_SoundLogic.h).
+void test_soundlogic_combine_multiplies(void);
+void test_soundlogic_a_sound_played_in_a_group_has_its_volume_times_the_groups(void);
+void test_soundlogic_changing_a_group_keeps_each_sounds_own_volume(void);
+void test_soundlogic_a_group_at_zero_and_back_loses_nothing(void);
+void test_soundlogic_many_group_changes_do_not_drift(void);
+void test_soundlogic_changing_one_sound_is_still_times_its_group(void);
+void test_soundlogic_a_group_change_leaves_other_groups_alone(void);
+void test_soundlogic_pitch_is_the_sounds_own_times_the_groups(void);
+void test_soundlogic_a_sound_that_finished_is_not_found_after_pruning(void);
+void test_soundlogic_no_instance_is_never_found_or_added(void);
+void test_soundlogic_a_full_table_drops_finished_sounds_to_make_room(void);
+void test_soundlogic_a_table_full_of_playing_sounds_takes_no_more(void);
+
 // test_internal_monitor.c -- Tier 1: which monitor a window is on (Internal_Monitor.h).
 void test_monitor_window_inside_one_monitor(void);
 void test_monitor_window_across_two_monitors_picks_the_larger_part(void);

@@ -245,6 +245,20 @@ int main(void)
 	RUN_TEST(test_gamestate_pop_from_below_the_top_takes_the_states_above_too);
 	RUN_TEST(test_gamestate_pop_from_a_state_that_left_does_nothing);
 
+	// test_internal_sound_logic.c
+	RUN_TEST(test_soundlogic_combine_multiplies);
+	RUN_TEST(test_soundlogic_a_sound_played_in_a_group_has_its_volume_times_the_groups);
+	RUN_TEST(test_soundlogic_changing_a_group_keeps_each_sounds_own_volume);
+	RUN_TEST(test_soundlogic_a_group_at_zero_and_back_loses_nothing);
+	RUN_TEST(test_soundlogic_many_group_changes_do_not_drift);
+	RUN_TEST(test_soundlogic_changing_one_sound_is_still_times_its_group);
+	RUN_TEST(test_soundlogic_a_group_change_leaves_other_groups_alone);
+	RUN_TEST(test_soundlogic_pitch_is_the_sounds_own_times_the_groups);
+	RUN_TEST(test_soundlogic_a_sound_that_finished_is_not_found_after_pruning);
+	RUN_TEST(test_soundlogic_no_instance_is_never_found_or_added);
+	RUN_TEST(test_soundlogic_a_full_table_drops_finished_sounds_to_make_room);
+	RUN_TEST(test_soundlogic_a_table_full_of_playing_sounds_takes_no_more);
+
 	// test_cp_input_logic.c
 	RUN_TEST(test_inputlogic_triggered_truth_table);
 	RUN_TEST(test_inputlogic_released_truth_table);

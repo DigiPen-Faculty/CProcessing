@@ -75,6 +75,9 @@
     <ClInclude Include="Source\Internal_GameStateLogic.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Internal_SoundLogic.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
     <ClInclude Include="inc\cprocessing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
