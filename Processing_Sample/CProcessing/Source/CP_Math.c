@@ -245,12 +245,12 @@ CP_API CP_Vector CP_Vector_Limit(CP_Vector vec, float maxLength)
 	return CP_Vector_Scale(vec, maxLength / length);
 }
 
-CP_API CP_Vector CP_Vector_MatrixMultiply(CP_Matrix m, CP_Vector v)
+CP_API CP_Vector CP_Vector_MatrixMultiply(CP_Matrix mat, CP_Vector vec)
 {
 	// this is actually transforming a Point because it assumes the third component is 1
 	CP_Vector result = CP_Vector_Zero();
-	result.x = m.m00 * v.x + m.m01 * v.y + m.m02;
-	result.y = m.m10 * v.x + m.m11 * v.y + m.m12;
+	result.x = mat.m00 * vec.x + mat.m01 * vec.y + mat.m02;
+	result.y = mat.m10 * vec.x + mat.m11 * vec.y + mat.m12;
 	return result;
 }
 
@@ -400,13 +400,13 @@ CP_API CP_Matrix CP_Matrix_Transpose(CP_Matrix original)
 	return matrixFromArray(result);
 }
 
-CP_API CP_Matrix CP_Matrix_Inverse(CP_Matrix matrix)
+CP_API CP_Matrix CP_Matrix_Inverse(CP_Matrix original)
 {
 	float m[3][3];
 	float result[3][3];
 	unsigned i, j;
 	float determinant = 0;
-	matrixToArray(matrix, m);
+	matrixToArray(original, m);
 
 	// finding determinant
 	for (i = 0; i < 3; i++)

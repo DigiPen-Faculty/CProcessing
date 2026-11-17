@@ -519,7 +519,7 @@ static void Scn_SettingsTint(void)
 	CP_Graphics_DrawRect(150, 50, 40, 40);
 
 	CP_Color white[4] = { WHITE, WHITE, WHITE, WHITE };
-	CP_Image image = CP_Image_CreateFromData(2, 2, (unsigned char*)white);
+	CP_Image image = CP_Image_CreateFromData(2, 2, white);
 	CP_Settings_Tint(CP_Color_Create(0, 255, 0, 255));
 	CP_Image_Draw(image, 100, 150, 40, 40, 255);
 	CP_Image_Free(&image);
@@ -535,7 +535,7 @@ static CP_Image CreateFourColorImage(void)
 		CP_Color_Create(0, 0, 255, 255),
 		CP_Color_Create(255, 255, 0, 255),
 	};
-	return CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+	return CP_Image_CreateFromData(2, 2, pixels);
 }
 
 // The image drawn 100x100, nearest on the left half of the canvas and
@@ -649,7 +649,7 @@ static void Scn_ImageLoadAndDraw(void)
 		CP_Color_Create(10, 20, 30, 255), CP_Color_Create(40, 50, 60, 255),
 		CP_Color_Create(70, 80, 90, 255), CP_Color_Create(100, 110, 120, 255)
 	};
-	CP_Image synthetic = CP_Image_CreateFromData(2, 2, (unsigned char*)source);
+	CP_Image synthetic = CP_Image_CreateFromData(2, 2, source);
 	CP_Image_GetPixelData(synthetic, tier2_scalars.createFromDataReadback);
 
 	CP_Color updated[4] = {
@@ -707,7 +707,7 @@ static void Scn_ImageMany(void)
 	CP_Image images[MANY_IMAGES];
 	for (int i = 0; i < MANY_IMAGES; ++i)
 	{
-		images[i] = CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+		images[i] = CP_Image_CreateFromData(2, 2, pixels);
 		tier2_scalars.manyImagesCreated += images[i] != NULL;
 		CP_Image_Draw(images[i], (float)(i % 8) * 20, (float)(i / 8) * 20, 10, 10, 255);
 	}
@@ -744,7 +744,7 @@ static void Scn_SharedAssets(void)
 
 	// Images made from data have no path, so an empty path can't find them
 	CP_Color pixels[4] = { RED, RED, RED, RED };
-	CP_Image fromData = CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+	CP_Image fromData = CP_Image_CreateFromData(2, 2, pixels);
 	tier2_scalars.emptyPathLoadIsNull = CP_Image_Load("") == NULL;
 	CP_Image_Free(&fromData);
 	CP_Image_Free(&second);
@@ -1749,7 +1749,7 @@ static void LeaveAssetsLoadedForTheExitReport(void)
 	CP_Image_Load("Assets/quadrants16.png");
 	CP_Image_Load("Assets/quadrants16.png");
 	CP_Color pixels[4] = { RED, RED, RED, RED };
-	CP_Image_CreateFromData(2, 2, (unsigned char*)pixels);
+	CP_Image_CreateFromData(2, 2, pixels);
 
 	fflush(stderr);
 	exitReportFile = fopen("tier2_exit_report.txt", "w+");

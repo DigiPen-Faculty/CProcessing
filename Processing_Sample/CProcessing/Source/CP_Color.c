@@ -74,7 +74,7 @@ CP_API CP_Color CP_Color_Create(int r, int g, int b, int a)
 	return c;
 }
 
-CP_API CP_Color CP_Color_CreateHex(int hexCode)
+CP_API CP_Color CP_Color_CreateHex(unsigned hexCode)
 {
 	CP_Color c = {
 		(unsigned char)clampRGBA((hexCode & 0xFF000000) >> 24),
@@ -85,14 +85,14 @@ CP_API CP_Color CP_Color_CreateHex(int hexCode)
 	return c;
 }
 
-CP_API CP_Color CP_Color_Lerp(CP_Color a, CP_Color b, float lerp_factor)
+CP_API CP_Color CP_Color_Lerp(CP_Color a, CP_Color b, float lerpFactor)
 {
-	lerp_factor = CP_Math_ClampFloat(lerp_factor, 0, 1.0f);
+	lerpFactor = CP_Math_ClampFloat(lerpFactor, 0, 1.0f);
 	CP_Color result = {
-		(unsigned char)((1.0f - lerp_factor) * a.r + lerp_factor * b.r),
-		(unsigned char)((1.0f - lerp_factor) * a.g + lerp_factor * b.g),
-		(unsigned char)((1.0f - lerp_factor) * a.b + lerp_factor * b.b),
-		(unsigned char)((1.0f - lerp_factor) * a.a + lerp_factor * b.a)
+		(unsigned char)((1.0f - lerpFactor) * a.r + lerpFactor * b.r),
+		(unsigned char)((1.0f - lerpFactor) * a.g + lerpFactor * b.g),
+		(unsigned char)((1.0f - lerpFactor) * a.b + lerpFactor * b.b),
+		(unsigned char)((1.0f - lerpFactor) * a.a + lerpFactor * b.a)
 	};
 	return result;
 }
@@ -125,14 +125,14 @@ CP_API CP_ColorHSL CP_ColorHSL_Create(int h, int s, int l, int a)
 	return c;
 }
 
-CP_API CP_ColorHSL CP_ColorHSL_Lerp(CP_ColorHSL a, CP_ColorHSL b, float lerp_factor)
+CP_API CP_ColorHSL CP_ColorHSL_Lerp(CP_ColorHSL a, CP_ColorHSL b, float lerpFactor)
 {
-	lerp_factor = CP_Math_ClampFloat(lerp_factor, 0, 1.0f);
+	lerpFactor = CP_Math_ClampFloat(lerpFactor, 0, 1.0f);
 	CP_ColorHSL result = {
-		(int)((1.0f - lerp_factor) * a.h + lerp_factor * b.h),
-		(int)((1.0f - lerp_factor) * a.s + lerp_factor * b.s),
-		(int)((1.0f - lerp_factor) * a.l + lerp_factor * b.l),
-		(int)((1.0f - lerp_factor) * a.a + lerp_factor * b.a)
+		(int)((1.0f - lerpFactor) * a.h + lerpFactor * b.h),
+		(int)((1.0f - lerpFactor) * a.s + lerpFactor * b.s),
+		(int)((1.0f - lerpFactor) * a.l + lerpFactor * b.l),
+		(int)((1.0f - lerpFactor) * a.a + lerpFactor * b.a)
 	};
 	return result;
 }

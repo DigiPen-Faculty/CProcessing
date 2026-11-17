@@ -74,6 +74,22 @@ Each change says what to do in an existing project.
   standard C and not a warning.
 - **`CP_MAX_GAMEPADS` is a macro, not a `static const int`**, so it can size
   an array in C: `int connected[CP_MAX_GAMEPADS];` (a compile error before).
+- **`CP_Image_CreateFromData` takes `const CP_Color*`, not `const unsigned char*`**,
+  like `CP_Image_GetPixelData` and `CP_Image_UpdatePixelData`: a color for
+  each pixel instead of four bytes. In an existing project that passes a byte
+  array, change it to `CP_Color pixels[] = { { 255, 0, 0, 255 }, ... };`, or
+  cast the pointer: `(const CP_Color*)bytes` (the bytes are r, g, b, a for each
+  pixel, so the data is the same).
+- **`CP_Color_CreateHex` takes an `unsigned`**, so `0xFF0000FF` is the number
+  it looks like and not an out-of-range `int`. Nothing to do in existing
+  programs.
+- **The editor's hint names things the same way everywhere:** the
+  interpolation factor of `CP_Color_Lerp` and `CP_ColorHSL_Lerp` is
+  `lerpFactor` (as in `CP_Math_LerpFloat` and `CP_Vector_Lerp`), and the
+  parameter names of `CP_Settings_ApplyMatrix`, `CP_Vector_MatrixMultiply`
+  and `CP_Matrix_Inverse` in the source now match the header. Nothing to do
+  in existing programs. CI checks the header against the source
+  (`tools/check-api-names.py`).
 
 ### Added
 

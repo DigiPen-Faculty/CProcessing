@@ -306,13 +306,13 @@ CP_API void CP_Settings_Translate(float x, float y)
 	CP_Input_SetWorldMouseDirty();
 }
 
-CP_API void CP_Settings_ApplyMatrix(CP_Matrix m)
+CP_API void CP_Settings_ApplyMatrix(CP_Matrix matrix)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
 	if (!vg)
 		return;
 
-	nvgTransform(vg, m.m00, m.m10, m.m01, m.m11, m.m02, m.m12);
+	nvgTransform(vg, matrix.m00, matrix.m10, matrix.m01, matrix.m11, matrix.m02, matrix.m12);
 
 	// World Mouse values are now invalid
 	CP_Input_SetWorldMouseDirty();
