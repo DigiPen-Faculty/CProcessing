@@ -23,7 +23,6 @@
 #define CP_NUM_KEYS          (GLFW_KEY_LAST + 1)
 #define CP_NUM_MOUSE_BUTTONS (GLFW_MOUSE_BUTTON_LAST + 1)
 #define CP_VALID_KEY_MAX     120 // this must match valid_keys array below
-#define CP_NUM_GAMEPADS      4   // matches CP_MAX_GAMEPADS in cprocessing_common.h
 
 //-------------------------------------
 // Keyboard
@@ -96,12 +95,13 @@ static bool _worldMouseIsDirty = TRUE;
 // covers XInput controllers on Windows as well as Linux and macOS devices.
 // CProcessing gamepad index N is the Nth connected GLFW joystick that has a
 // gamepad mapping, in GLFW joystick order.
-static unsigned gamepad_curr_buttons[CP_NUM_GAMEPADS] = { 0 };
-static unsigned gamepad_prev_buttons[CP_NUM_GAMEPADS] = { 0 };
-static CP_GAMEPAD_ANALOG_STATE gamepad_curr_analog_states[CP_NUM_GAMEPADS] = { 0 };
-static CP_GAMEPAD_ANALOG_STATE gamepad_prev_analog_states[CP_NUM_GAMEPADS] = { 0 };
-static bool gamepad_connected[CP_NUM_GAMEPADS] = { false };
-static int gamepad_slot_joystick[CP_NUM_GAMEPADS] = { -1, -1, -1, -1 }; // GLFW joystick id in each slot last frame
+static unsigned gamepad_curr_buttons[CP_MAX_GAMEPADS] = { 0 };
+static unsigned gamepad_prev_buttons[CP_MAX_GAMEPADS] = { 0 };
+static CP_GAMEPAD_ANALOG_STATE gamepad_curr_analog_states[CP_MAX_GAMEPADS] = { 0 };
+static CP_GAMEPAD_ANALOG_STATE gamepad_prev_analog_states[CP_MAX_GAMEPADS] = { 0 };
+static bool gamepad_connected[CP_MAX_GAMEPADS] = { false };
+_Static_assert(CP_MAX_GAMEPADS == 4, "the slot initializer below lists four gamepads");
+static int gamepad_slot_joystick[CP_MAX_GAMEPADS] = { -1, -1, -1, -1 }; // GLFW joystick id in each slot last frame
 static int _defaultGamepadId = -1;
 
 //------------------------------------------------------------------------------
@@ -316,7 +316,7 @@ void CP_Input_GamepadUpdate(void)
 
 	// assign connected GLFW gamepads to CProcessing gamepad slots in joystick order
 	unsigned slot = 0;
-	for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST && slot < CP_NUM_GAMEPADS; ++jid)
+	for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST && slot < CP_MAX_GAMEPADS; ++jid)
 	{
 		GLFWgamepadstate state;
 		if (!glfwJoystickIsGamepad(jid) || !glfwGetGamepadState(jid, &state))
@@ -355,7 +355,7 @@ void CP_Input_GamepadUpdate(void)
 	}
 
 	// slots without a controller this frame
-	for (unsigned emptySlot = slot; emptySlot < CP_NUM_GAMEPADS; ++emptySlot)
+	for (unsigned emptySlot = slot; emptySlot < CP_MAX_GAMEPADS; ++emptySlot)
 	{
 		gamepad_slot_joystick[emptySlot] = -1;
 	}
@@ -401,7 +401,7 @@ CP_BOOL CP_Input_IsValidGamepad(CP_GAMEPAD button)
 
 CP_BOOL CP_Input_IsValidGamepadIndex(unsigned index)
 {
-	return index < CP_NUM_GAMEPADS;
+	return index < CP_MAX_GAMEPADS;
 }
 
 // A game state running under another one (CP_STATE_PASSIVE) gets no input:

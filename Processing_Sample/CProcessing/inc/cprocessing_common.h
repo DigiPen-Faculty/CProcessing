@@ -24,16 +24,6 @@ extern "C"
 
 
 //---------------------------------------------------------
-// Cleanup Warnings
-
-#ifdef _MSC_VER
-#pragma warning(disable: 4201)  // nonstandard extension used : nameless struct/union
-#pragma warning(disable: 4204)  // nonstandard extension used : non-constant aggregate initializer
-#pragma warning(disable: 4090)  // different '__unaligned' qualifiers (this only shows up in x64)
-#endif
-
-
-//---------------------------------------------------------
 // Exports for shared library functions
 //
 // This header is the same on every platform and includes no OS headers.
@@ -54,20 +44,6 @@ extern "C"
 	#define CP_API __attribute__((visibility("default")))
 #else
 	#define CP_API
-#endif
-
-
-//---------------------------------------------------------
-// The color, vector and matrix unions below have a struct with no name, so
-// that both c.r and c.rgba[0] work. C11 allows that, but C++ and C99 don't,
-// and GCC and Clang warn about it with -Wpedantic in every file that
-// includes this header. __extension__ tells them it's on purpose. (Visual
-// Studio's warning about it, C4201, is turned off above.)
-
-#if defined(__GNUC__) || defined(__clang__)
-	#define CP_ANONYMOUS_STRUCT __extension__ struct
-#else
-	#define CP_ANONYMOUS_STRUCT struct
 #endif
 
 
@@ -112,17 +88,15 @@ typedef					void(*CP_FunctionPtr)(void);
 //---------------------------------------------------------
 // COLOR:
 //		Structures describing the four properties of color in both RGB and HSL color space
-//		Create and change colors as an array or by accessing parameters individually
-typedef union CP_Color
+//		Create and change colors by accessing parameters individually: color.r, color.g, color.b, color.a
+typedef struct CP_Color
 {
-	unsigned char rgba[4];
-	CP_ANONYMOUS_STRUCT { unsigned char r, g, b, a; };
+	unsigned char r, g, b, a;
 } CP_Color;
 
-typedef union CP_ColorHSL
+typedef struct CP_ColorHSL
 {
-	int hsla[4];
-	CP_ANONYMOUS_STRUCT { int h, s, l, a; };
+	int h, s, l, a;
 } CP_ColorHSL;
 
 
@@ -236,20 +210,16 @@ typedef enum CP_SOUND_GROUP
 //---------------------------------------------------------
 // MATH:
 //		2D vector (x, y) and 3x3 matrix useful for basic linear algebra
-typedef union CP_Vector
+typedef struct CP_Vector
 {
-	float v[2];
-	CP_ANONYMOUS_STRUCT { float x, y; };
+	float x, y;
 } CP_Vector;
 
-typedef union CP_Matrix
+typedef struct CP_Matrix
 {
-	float m[3][3];
-	CP_ANONYMOUS_STRUCT {
-		float m00, m01, m02;
-		float m10, m11, m12;
-		float m20, m21, m22;
-	};
+	float m00, m01, m02;
+	float m10, m11, m12;
+	float m20, m21, m22;
 } CP_Matrix;
 
 
@@ -398,7 +368,7 @@ typedef enum CP_MOUSE
 	CP_MOUSE_RIGHT = CP_MOUSE_2
 } CP_MOUSE;
 
-static const int CP_MAX_GAMEPADS = 4;
+#define CP_MAX_GAMEPADS 4
 
 typedef enum CP_GAMEPAD
 {
