@@ -70,3 +70,5 @@ IndentPPDirectives: BeforeHash
 SortIncludes: Never
 MaxEmptyLinesToKeep: 2
 KeepEmptyLinesAtTheStartOfBlocks: false
+# A file ends with a newline (clang and gcc -Wpedantic say so if it doesn't)
+InsertNewlineAtEOF: true
