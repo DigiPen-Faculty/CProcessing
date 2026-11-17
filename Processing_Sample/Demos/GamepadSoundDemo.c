@@ -25,12 +25,12 @@
 
 // The notes play in their own sound group, at half volume, so that the
 // left trigger's 2x volume reaches full volume
-#define NOTE_GROUP CP_SOUND_GROUP_2
+#define NOTE_GROUP        CP_SOUND_GROUP_2
 #define NOTE_GROUP_VOLUME 0.5f
 
 typedef struct Note
 {
-	const char* name;		// shown in the list of notes played
+	const char* name; // shown in the list of notes played
 	const char* file;
 	CP_GAMEPAD button;
 	CP_KEY key;
@@ -38,8 +38,7 @@ typedef struct Note
 } Note;
 
 // The C major scale, C to C
-static Note notes[] =
-{
+static Note notes[] = {
 	{ "C",         "Assets/Notes/c.wav", GAMEPAD_DPAD_UP,    KEY_Q, NULL },
 	{ "D",         "Assets/Notes/d.wav", GAMEPAD_DPAD_RIGHT, KEY_W, NULL },
 	{ "E",         "Assets/Notes/e.wav", GAMEPAD_DPAD_DOWN,  KEY_E, NULL },
@@ -83,7 +82,7 @@ static void DrawGamepadData(int posX, int posY, int i)
 	}
 
 	CP_Settings_Save();
-	CP_Settings_Translate((float)posX, (float)posY);	// move to the specified quadrant
+	CP_Settings_Translate((float)posX, (float)posY); // move to the specified quadrant
 
 	//-------------------------
 	// INDEX and DEFAULT
@@ -162,12 +161,12 @@ static void DrawGamepadData(int posX, int posY, int i)
 // triggers (1x with no gamepad)
 static float NoteVolume(void)
 {
-	return 1.0f + CP_Input_GamepadLeftTrigger();		// 1x to 2x
+	return 1.0f + CP_Input_GamepadLeftTrigger(); // 1x to 2x
 }
 
 static float NotePitch(void)
 {
-	return 1.0f + 2.0f * CP_Input_GamepadRightTrigger();	// 1x to 3x
+	return 1.0f + 2.0f * CP_Input_GamepadRightTrigger(); // 1x to 3x
 }
 
 // Play a note for each button or key pressed this frame
@@ -208,25 +207,34 @@ static void DrawInfo(void)
 	char line[96];
 
 	snprintf(line, sizeof(line), "SOUND (notes play at group volume %.1f)", NOTE_GROUP_VOLUME);
-	CP_Font_DrawText(line, x, y); y += lineHeight;
-	CP_Font_DrawText("D-pad up, right, down, left: C D E F", x, y); y += lineHeight;
-	CP_Font_DrawText("A, B, X, Y: G A B C (piano)", x, y); y += lineHeight;
-	CP_Font_DrawText("Keys Q W E R T Y U I: the same 8 notes", x, y); y += lineHeight;
+	CP_Font_DrawText(line, x, y);
+	y += lineHeight;
+	CP_Font_DrawText("D-pad up, right, down, left: C D E F", x, y);
+	y += lineHeight;
+	CP_Font_DrawText("A, B, X, Y: G A B C (piano)", x, y);
+	y += lineHeight;
+	CP_Font_DrawText("Keys Q W E R T Y U I: the same 8 notes", x, y);
+	y += lineHeight;
 	snprintf(line, sizeof(line), "Left trigger, volume: %.2fx (1x to 2x)", NoteVolume());
-	CP_Font_DrawText(line, x, y); y += lineHeight;
+	CP_Font_DrawText(line, x, y);
+	y += lineHeight;
 	snprintf(line, sizeof(line), "Right trigger, pitch: %.2fx (1x to 3x)", NotePitch());
-	CP_Font_DrawText(line, x, y); y += lineHeight;
+	CP_Font_DrawText(line, x, y);
+	y += lineHeight;
 	if (soundFilesMissing)
 	{
-		CP_Font_DrawText("Sound files not found: run from the folder with Assets", x, y); y += lineHeight;
+		CP_Font_DrawText("Sound files not found: run from the folder with Assets", x, y);
+		y += lineHeight;
 	}
 
 	snprintf(line, sizeof(line), "Notes played: %d", notesPlayedCount);
-	CP_Font_DrawText(line, x, y); y += lineHeight;
+	CP_Font_DrawText(line, x, y);
+	y += lineHeight;
 	for (int n = 0; n < NOTE_LOG_SIZE && n < notesPlayedCount; ++n)
 	{
 		snprintf(line, sizeof(line), "%s   volume %.2fx   pitch %.2fx", notesPlayed[n].name, notesPlayed[n].volume, notesPlayed[n].pitch);
-		CP_Font_DrawText(line, x, y); y += lineHeight;
+		CP_Font_DrawText(line, x, y);
+		y += lineHeight;
 	}
 
 	CP_Settings_Restore();
@@ -274,10 +282,10 @@ void GamepadSoundDemoUpdate(void)
 	int leftSideX = (halfWidth - gamepadVisualizationWidth) / 2;
 
 	// render all the gamepad data
-	DrawGamepadData(leftSideX, 0, 0);							// top left
-	DrawGamepadData(halfWidth + leftSideX, 0, 1);				// top right
-	DrawGamepadData(leftSideX, halfHeight, 2);					// bottom left
-	DrawGamepadData(halfWidth + leftSideX, halfHeight, 3);		// bottom right
+	DrawGamepadData(leftSideX, 0, 0);                      // top left
+	DrawGamepadData(halfWidth + leftSideX, 0, 1);          // top right
+	DrawGamepadData(leftSideX, halfHeight, 2);             // bottom left
+	DrawGamepadData(halfWidth + leftSideX, halfHeight, 3); // bottom right
 
 	PlayNotes();
 	DrawInfo();

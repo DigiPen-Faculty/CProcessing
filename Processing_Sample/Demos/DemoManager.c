@@ -40,14 +40,13 @@ typedef struct Demo
 	FunctionPtr exit;
 } Demo;
 
-static const Demo demos[] =
-{
-	{ "Grid wave",         GridWaveDemoInit,     GridWaveDemoUpdate,     GridWaveDemoExit },
+static const Demo demos[] = {
+	{ "Grid wave",         GridWaveDemoInit,     GridWaveDemoUpdate,     GridWaveDemoExit     },
 	{ "Dancing lines",     DancingLinesDemoInit, DancingLinesDemoUpdate, DancingLinesDemoExit },
 	{ "Gamepad and sound", GamepadSoundDemoInit, GamepadSoundDemoUpdate, GamepadSoundDemoExit },
-	{ "Noise",             NoiseDemoInit,        NoiseDemoUpdate,        NoiseDemoExit },
-	{ "Screenshots",       ScreenshotDemoInit,   ScreenshotDemoUpdate,   ScreenshotDemoExit },
-	{ "Color picker",      ColorPickerDemoInit,  ColorPickerDemoUpdate,  ColorPickerDemoExit },
+	{ "Noise",             NoiseDemoInit,        NoiseDemoUpdate,        NoiseDemoExit        },
+	{ "Screenshots",       ScreenshotDemoInit,   ScreenshotDemoUpdate,   ScreenshotDemoExit   },
+	{ "Color picker",      ColorPickerDemoInit,  ColorPickerDemoUpdate,  ColorPickerDemoExit  },
 };
 #define DEMO_COUNT (int)(sizeof(demos) / sizeof(demos[0]))
 

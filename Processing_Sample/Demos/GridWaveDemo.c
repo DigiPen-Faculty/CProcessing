@@ -1,6 +1,6 @@
 //---------------------------------------------------------
 // file:	GridWaveDemo.c
-// 
+//
 // CProcessing features in this demo:
 // CP_Vector				- Lots of math going on here
 // CP_Color_Lerp			- Smooth color changes based on line length

@@ -445,7 +445,7 @@ CP_API void CP_Image_BeginDrawing(CP_Image img)
 		{
 			glDeleteFramebuffers(1, &framebuffer);
 			glDeleteRenderbuffers(1, &depthStencil);
-			CP_Canvas_EndReading();		// back to where drawing was going
+			CP_Canvas_EndReading(); // back to where drawing was going
 			printf("CProcessing: could not draw into a %d x %d image.\n", img->w, img->h);
 			return;
 		}
@@ -560,57 +560,57 @@ CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 
 CP_API void CP_Image_GetPixelData(CP_Image img, CP_Color* pixelDataOutput)
 {
-    if (!img) return;
+	if (!img) return;
 
-    CP_CorePtr CORE = GetCPCore();
-    if (!CORE || !CORE->nvg)
-    {
-        return;
-    }
+	CP_CorePtr CORE = GetCPCore();
+	if (!CORE || !CORE->nvg)
+	{
+		return;
+	}
 
-    // nvglImageHandleGL3 doesn't check the handle, so make sure NanoVG
-    // knows the image first: nvgImageSize leaves the size alone if not.
-    int w = 0, h = 0;
-    nvgImageSize(CORE->nvg, img->handle, &w, &h);
-    if (w <= 0 || h <= 0)
-    {
-        return;
-    }
+	// nvglImageHandleGL3 doesn't check the handle, so make sure NanoVG
+	// knows the image first: nvgImageSize leaves the size alone if not.
+	int w = 0, h = 0;
+	nvgImageSize(CORE->nvg, img->handle, &w, &h);
+	if (w <= 0 || h <= 0)
+	{
+		return;
+	}
 
-    // Read the pixels back from the image's OpenGL texture, leaving the
-    // texture binding as NanoVG had it
-    GLint previousTexture = 0;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousTexture);
-    glBindTexture(GL_TEXTURE_2D, nvglImageHandleGL3(CORE->nvg, img->handle));
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelDataOutput);
-    glBindTexture(GL_TEXTURE_2D, (GLuint)previousTexture);
+	// Read the pixels back from the image's OpenGL texture, leaving the
+	// texture binding as NanoVG had it
+	GLint previousTexture = 0;
+	glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousTexture);
+	glBindTexture(GL_TEXTURE_2D, nvglImageHandleGL3(CORE->nvg, img->handle));
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelDataOutput);
+	glBindTexture(GL_TEXTURE_2D, (GLuint)previousTexture);
 
-    if (img->drawable)
-    {
-        // An image drawn into is kept bottom-up, with premultiplied alpha:
-        // give the pixels top row first, with plain alpha, like every image
-        for (int row = 0; row < h / 2; ++row)
-        {
-            CP_Color* top = pixelDataOutput + (size_t)row * w;
-            CP_Color* bottom = pixelDataOutput + (size_t)(h - 1 - row) * w;
-            for (int col = 0; col < w; ++col)
-            {
-                CP_Color swap = top[col];
-                top[col] = bottom[col];
-                bottom[col] = swap;
-            }
-        }
-        for (int i = 0; i < w * h; ++i)
-        {
-            CP_Color* c = &pixelDataOutput[i];
-            if (c->a > 0 && c->a < 255)
-            {
-                c->r = (unsigned char)CP_Math_ClampInt((c->r * 255 + c->a / 2) / c->a, 0, 255);
-                c->g = (unsigned char)CP_Math_ClampInt((c->g * 255 + c->a / 2) / c->a, 0, 255);
-                c->b = (unsigned char)CP_Math_ClampInt((c->b * 255 + c->a / 2) / c->a, 0, 255);
-            }
-        }
-    }
+	if (img->drawable)
+	{
+		// An image drawn into is kept bottom-up, with premultiplied alpha:
+		// give the pixels top row first, with plain alpha, like every image
+		for (int row = 0; row < h / 2; ++row)
+		{
+			CP_Color* top = pixelDataOutput + (size_t)row * w;
+			CP_Color* bottom = pixelDataOutput + (size_t)(h - 1 - row) * w;
+			for (int col = 0; col < w; ++col)
+			{
+				CP_Color swap = top[col];
+				top[col] = bottom[col];
+				bottom[col] = swap;
+			}
+		}
+		for (int i = 0; i < w * h; ++i)
+		{
+			CP_Color* c = &pixelDataOutput[i];
+			if (c->a > 0 && c->a < 255)
+			{
+				c->r = (unsigned char)CP_Math_ClampInt((c->r * 255 + c->a / 2) / c->a, 0, 255);
+				c->g = (unsigned char)CP_Math_ClampInt((c->g * 255 + c->a / 2) / c->a, 0, 255);
+				c->b = (unsigned char)CP_Math_ClampInt((c->b * 255 + c->a / 2) / c->a, 0, 255);
+			}
+		}
+	}
 }
 
 CP_API void CP_Image_UpdatePixelData(CP_Image img, const CP_Color* pixelDataInput)

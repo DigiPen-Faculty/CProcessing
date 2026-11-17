@@ -23,7 +23,7 @@
 #include "cprocessing.h"
 #include <stdio.h>
 
-const float roundLength = 20.0f;	// seconds
+const float roundLength = 20.0f; // seconds
 const float targetSize = 60.0f;
 
 int score = 0;
@@ -34,7 +34,7 @@ CP_Vector target;
 
 // The "+1" that floats up from a target when it's hit, and fades out
 CP_Vector popupPosition;
-float popupAge = 10.0f;		// seconds since the last hit; it shows for 0.6 seconds
+float popupAge = 10.0f; // seconds since the last hit; it shows for 0.6 seconds
 
 void MoveTarget(void)
 {
@@ -104,7 +104,7 @@ void game_update(void)
 		// "+1", rising 60 pixels and fading out over 0.6 seconds
 		if (popupAge < 0.6f)
 		{
-			float progress = popupAge / 0.6f;	// 0 to 1
+			float progress = popupAge / 0.6f; // 0 to 1
 			CP_Settings_TextSize(32.0f);
 			CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
 			CP_Settings_Fill(CP_Color_Create(255, 230, 80, (int)(255 * (1.0f - progress))));

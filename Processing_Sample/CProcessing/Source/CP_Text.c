@@ -22,12 +22,12 @@
 // Defines and Internal Variables:
 //------------------------------------------------------------------------------
 
-#define FONT_LOAD_ERROR -1
+#define FONT_LOAD_ERROR       -1
 #define CP_INITIAL_FONT_COUNT 16
 
 VECT_GENERATE_TYPE(CP_Font)
 
-static CP_Font  _default_font = NULL;
+static CP_Font _default_font = NULL;
 
 static vect_CP_Font* font_vector;
 

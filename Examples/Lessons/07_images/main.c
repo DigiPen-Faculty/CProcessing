@@ -34,12 +34,12 @@
 //---------------------------------------------------------
 #define FRAME_COUNT 8
 const float frameSize = 64.0f;
-const float drawSize = 128.0f;		// the slime is drawn at twice its size
+const float drawSize = 128.0f; // the slime is drawn at twice its size
 
 CP_Image slimeSheet;
 
 CP_Vector slimePosition;
-const float slimeSpeed = 220.0f;	// pixels per second
+const float slimeSpeed = 220.0f; // pixels per second
 CP_BOOL facingLeft = FALSE;
 
 // The animation: which frame shows now, and how long it has shown
@@ -65,17 +65,17 @@ float ApplyEasing(int which, float progress)
 	case 2:  return CP_Math_EaseOutCubic(progress);
 	case 3:  return CP_Math_EaseInOutCubic(progress);
 	case 4:  return CP_Math_EaseOutBounce(progress);
-	default: return progress;		// linear: no change
+	default: return progress; // linear: no change
 	}
 }
 
 const float tripTime = 1.4f;
 CP_BOOL orbFlying = FALSE;
-CP_BOOL orbLaunched = FALSE;		// has an orb been sent yet? (it stays where it landed)
+CP_BOOL orbLaunched = FALSE; // has an orb been sent yet? (it stays where it landed)
 CP_Vector orbStart;
 CP_Vector orbEnd;
 float orbTimer = 0.0f;
-int orbEasing = 3;					// the easing this trip started with
+int orbEasing = 3; // the easing this trip started with
 
 // Where the orb is, a given way through its trip
 CP_Vector OrbAt(float progress)
@@ -150,11 +150,26 @@ void game_update(void)
 
 	//-----------------------------------------------------
 	// Easing: choose with 1 to 5, launch with a click
-	if (CP_Input_KeyTriggered(KEY_1)) { easing = 0; }
-	if (CP_Input_KeyTriggered(KEY_2)) { easing = 1; }
-	if (CP_Input_KeyTriggered(KEY_3)) { easing = 2; }
-	if (CP_Input_KeyTriggered(KEY_4)) { easing = 3; }
-	if (CP_Input_KeyTriggered(KEY_5)) { easing = 4; }
+	if (CP_Input_KeyTriggered(KEY_1))
+	{
+		easing = 0;
+	}
+	if (CP_Input_KeyTriggered(KEY_2))
+	{
+		easing = 1;
+	}
+	if (CP_Input_KeyTriggered(KEY_3))
+	{
+		easing = 2;
+	}
+	if (CP_Input_KeyTriggered(KEY_4))
+	{
+		easing = 3;
+	}
+	if (CP_Input_KeyTriggered(KEY_5))
+	{
+		easing = 4;
+	}
 
 	if (CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT))
 	{

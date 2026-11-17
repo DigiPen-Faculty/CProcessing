@@ -109,7 +109,7 @@ CP_BOOL CircleTouchesBox(Circle circle, Box box)
 //-------------------------
 // THE SCENE
 
-#define BOX_COUNT 3
+#define BOX_COUNT    3
 #define CIRCLE_COUNT 3
 
 Box boxes[BOX_COUNT];
@@ -175,7 +175,7 @@ void game_update(void)
 	{
 		CP_BOOL touching = playerIsCircle ? CirclesTouch(playerCircle, circles[i]) : CircleTouchesBox(circles[i], playerBox);
 		CP_Settings_Fill(touching ? red : grey);
-		CP_Graphics_DrawCircle(circles[i].center.x, circles[i].center.y, circles[i].radius * 2.0f);	// DrawCircle takes the diameter
+		CP_Graphics_DrawCircle(circles[i].center.x, circles[i].center.y, circles[i].radius * 2.0f); // DrawCircle takes the diameter
 	}
 
 	// The player, see-through so the shapes under it show

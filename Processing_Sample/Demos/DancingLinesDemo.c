@@ -1,6 +1,6 @@
 //---------------------------------------------------------
 // file:	DancingLinesDemo.c
-// 
+//
 // CProcessing features in this demo:
 // CP_Settings_BlendMode	- switch between AlPHA and ADD for effects
 // CP_Settings_LineCapMode	- line end options, draw lines with rounded ends
@@ -30,9 +30,11 @@ CP_Color randomColors[] = {
 	{ 0,   127, 0,   255 },
 	{ 0,   127, 127, 255 },
 	{ 0,   0,   127, 255 },
-	{ 127, 0,   127, 255 } };
+	{ 127, 0,   127, 255 }
+};
 
-void ParticleCreate(Particle* part) {
+void ParticleCreate(Particle* part)
+{
 	part->pos.x = CP_Random_RangeFloat(0, (float)CP_System_GetWindowWidth());
 	part->pos.y = CP_Random_RangeFloat(0, (float)CP_System_GetWindowHeight());
 	part->vel.x = CP_Random_RangeFloat(-150, 150);
@@ -111,7 +113,7 @@ void ParticleUpdate(Particle* part)
 				part->vel.y *= -1;
 			}
 			else
-			{	// they must both be colliding for this condition to occur
+			{ // they must both be colliding for this condition to occur
 				if (timeX < timeY)
 				{
 					part->vel.x *= -1;
@@ -121,7 +123,7 @@ void ParticleUpdate(Particle* part)
 					part->vel.y *= -1;
 				}
 				else
-				{	// they must be colliding at the same time (ie. a corner)
+				{ // they must be colliding at the same time (ie. a corner)
 					part->vel.x *= -1;
 					part->vel.y *= -1;
 				}
@@ -151,7 +153,8 @@ void DancingLinesDemoInit(void)
 	CP_Settings_Save();
 	CP_Settings_LineCapMode(CP_LINE_CAP_ROUND);
 
-	for (int i = 0; i < numParticles; ++i) {
+	for (int i = 0; i < numParticles; ++i)
+	{
 		ParticleCreate(&particles[i]);
 	}
 }

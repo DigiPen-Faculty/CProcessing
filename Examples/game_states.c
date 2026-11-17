@@ -41,7 +41,7 @@ void game_over_exit(void);
 
 // Values every state can use. A state's own values are set again in its
 // init function each time the state starts.
-float lastTime = 0.0f;		// how long the last game lasted, in seconds
+float lastTime = 0.0f; // how long the last game lasted, in seconds
 float bestTime = 0.0f;
 
 CP_Color background;
@@ -88,7 +88,7 @@ void menu_exit(void)
 #define BLOCK_COUNT 8
 
 CP_Vector blocks[BLOCK_COUNT];
-float blockSpeeds[BLOCK_COUNT];		// pixels per second
+float blockSpeeds[BLOCK_COUNT]; // pixels per second
 const float blockSize = 40.0f;
 const float playerSize = 30.0f;
 float survivedTime;

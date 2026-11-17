@@ -189,12 +189,12 @@ CP_API void CP_Math_WorldToScreen(float xIn, float yIn, float* xOut, float* yOut
 //-------------------------------------
 // Vector
 
-CP_API CP_Vector CP_Vector_Zero(void) { return (CP_Vector) { 0, 0 }; }
-CP_API CP_Vector CP_Vector_Set(float x, float y) { return (CP_Vector) { x, y }; }
-CP_API CP_Vector CP_Vector_Negate(CP_Vector vec) { return (CP_Vector) { -vec.x, -vec.y }; }
-CP_API CP_Vector CP_Vector_Add(CP_Vector a, CP_Vector b) { return (CP_Vector) { a.x + b.x, a.y + b.y }; }
-CP_API CP_Vector CP_Vector_Subtract(CP_Vector a, CP_Vector b) { return (CP_Vector) { a.x - b.x, a.y - b.y }; }
-CP_API CP_Vector CP_Vector_Scale(CP_Vector vec, float scale) { return (CP_Vector) { vec.x* scale, vec.y* scale }; }
+CP_API CP_Vector CP_Vector_Zero(void) { return (CP_Vector){ 0, 0 }; }
+CP_API CP_Vector CP_Vector_Set(float x, float y) { return (CP_Vector){ x, y }; }
+CP_API CP_Vector CP_Vector_Negate(CP_Vector vec) { return (CP_Vector){ -vec.x, -vec.y }; }
+CP_API CP_Vector CP_Vector_Add(CP_Vector a, CP_Vector b) { return (CP_Vector){ a.x + b.x, a.y + b.y }; }
+CP_API CP_Vector CP_Vector_Subtract(CP_Vector a, CP_Vector b) { return (CP_Vector){ a.x - b.x, a.y - b.y }; }
+CP_API CP_Vector CP_Vector_Scale(CP_Vector vec, float scale) { return (CP_Vector){ vec.x * scale, vec.y * scale }; }
 
 CP_API CP_Vector CP_Vector_Normalize(CP_Vector vec)
 {
@@ -203,12 +203,12 @@ CP_API CP_Vector CP_Vector_Normalize(CP_Vector vec)
 		return CP_Vector_Zero();
 	}
 	float hyp = sqrtf((vec.x * vec.x) + (vec.y * vec.y));
-	return (CP_Vector) { vec.x / hyp, vec.y / hyp };
+	return (CP_Vector){ vec.x / hyp, vec.y / hyp };
 }
 
 CP_API CP_Vector CP_Vector_Lerp(CP_Vector a, CP_Vector b, float lerpFactor)
 {
-	return (CP_Vector) {
+	return (CP_Vector){
 		CP_Math_LerpFloat(a.x, b.x, lerpFactor),
 		CP_Math_LerpFloat(a.y, b.y, lerpFactor)
 	};
@@ -221,14 +221,14 @@ CP_API CP_Vector CP_Vector_Rotate(CP_Vector vec, float degrees)
 	float radians = CP_Math_Radians(degrees);
 	float c = cosf(radians);
 	float s = sinf(radians);
-	return (CP_Vector) { vec.x * c - vec.y * s, vec.x * s + vec.y * c };
+	return (CP_Vector){ vec.x * c - vec.y * s, vec.x * s + vec.y * c };
 }
 
 CP_API CP_Vector CP_Vector_FromAngle(float degrees)
 {
 	// 0 degrees points right, 90 points down the screen
 	float radians = CP_Math_Radians(degrees);
-	return (CP_Vector) { cosf(radians), sinf(radians) };
+	return (CP_Vector){ cosf(radians), sinf(radians) };
 }
 
 CP_API CP_Vector CP_Vector_Limit(CP_Vector vec, float maxLength)
@@ -294,7 +294,7 @@ CP_API CP_Matrix CP_Matrix_Set(
 	float m10, float m11, float m12,
 	float m20, float m21, float m22)
 {
-	return (CP_Matrix) {
+	return (CP_Matrix){
 		m00, m01, m02,
 		m10, m11, m12,
 		m20, m21, m22
@@ -303,7 +303,7 @@ CP_API CP_Matrix CP_Matrix_Set(
 
 CP_API CP_Matrix CP_Matrix_Identity(void)
 {
-	return (CP_Matrix) {
+	return (CP_Matrix){
 		1, 0, 0,
 		0, 1, 0,
 		0, 0, 1
@@ -312,16 +312,22 @@ CP_API CP_Matrix CP_Matrix_Identity(void)
 
 CP_API CP_Matrix CP_Matrix_FromVector(CP_Vector col1, CP_Vector col2, CP_Vector col3)
 {
-	return (CP_Matrix) {
-		col1.x, col2.x, col3.x,
-		col1.y, col2.y, col3.y,
-		0, 0, 1.0f,
+	return (CP_Matrix){
+		col1.x,
+		col2.x,
+		col3.x,
+		col1.y,
+		col2.y,
+		col3.y,
+		0,
+		0,
+		1.0f,
 	};
 }
 
 CP_API CP_Matrix CP_Matrix_Scale(CP_Vector scale)
 {
-	return (CP_Matrix) {
+	return (CP_Matrix){
 		scale.x, 0, 0,
 		0, scale.y, 0,
 		0, 0, 1.0f
@@ -330,7 +336,7 @@ CP_API CP_Matrix CP_Matrix_Scale(CP_Vector scale)
 
 CP_API CP_Matrix CP_Matrix_Translate(CP_Vector offset)
 {
-	return (CP_Matrix) {
+	return (CP_Matrix){
 		1.0f, 0, offset.x,
 		0, 1.0f, offset.y,
 		0, 0, 1.0f
@@ -346,7 +352,7 @@ CP_API CP_Matrix CP_Matrix_RotateRadians(float radians)
 {
 	float c = (float)cos((double)radians);
 	float s = (float)sin((double)radians);
-	return (CP_Matrix) {
+	return (CP_Matrix){
 		c, -s, 0,
 		s, c, 0,
 		0, 0, 1.0f
@@ -374,7 +380,7 @@ CP_API CP_Matrix CP_Matrix_Inverse(CP_Matrix m)
 	unsigned i, j;
 	float determinant = 0;
 
-	//finding determinant
+	// finding determinant
 	for (i = 0; i < 3; i++)
 	{
 		determinant += (m.m[0][i] * (m.m[1][(i + 1) % 3] * m.m[2][(i + 2) % 3] - m.m[1][(i + 2) % 3] * m.m[2][(i + 1) % 3]));

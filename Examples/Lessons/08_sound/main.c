@@ -39,13 +39,13 @@ CP_Sound music;
 CP_Sound coinSound;
 CP_Sound jumpSound;
 CP_Sound hitSound;
-CP_SoundInstance musicInstance = 0;		// this one play of the music
+CP_SoundInstance musicInstance = 0; // this one play of the music
 
 CP_BOOL musicOn = TRUE;
-float musicVolume = 0.6f;				// the volume of each group, from 0 to 1
+float musicVolume = 0.6f; // the volume of each group, from 0 to 1
 float effectsVolume = 0.8f;
-float musicDip = 0.0f;					// 1 right after a hit, easing back to 0
-const float dipTime = 0.8f;				// seconds for the music to recover
+float musicDip = 0.0f;      // 1 right after a hit, easing back to 0
+const float dipTime = 0.8f; // seconds for the music to recover
 
 // Play an effect in the effects group, at a pitch near 1 so repeats of the
 // same sound don't sound exactly alike
@@ -64,7 +64,7 @@ typedef struct Thing
 	CP_BOOL active;
 	CP_BOOL isRock;
 	CP_Vector position;
-	float speed;			// pixels per second, downward
+	float speed; // pixels per second, downward
 } Thing;
 
 Thing things[MAX_THINGS];
@@ -82,7 +82,7 @@ float playerVelocityY = 0.0f;
 CP_BOOL onGround = TRUE;
 
 int score = 0;
-int combo = 0;			// coins caught in a row
+int combo = 0; // coins caught in a row
 int bestCombo = 0;
 int hits = 0;
 
@@ -93,7 +93,7 @@ void Spawn(void)
 		if (!things[i].active)
 		{
 			things[i].active = TRUE;
-			things[i].isRock = CP_Random_RangeInt(0, 3) == 0;	// about one in four
+			things[i].isRock = CP_Random_RangeInt(0, 3) == 0; // about one in four
 			things[i].position = CP_Vector_Set(CP_Random_RangeFloat(40.0f, 760.0f), -20.0f);
 			things[i].speed = CP_Random_RangeFloat(170.0f, 260.0f);
 			return;
@@ -142,10 +142,22 @@ void game_update(void)
 			CP_Sound_Pause(musicInstance);
 		}
 	}
-	if (CP_Input_KeyTriggered(KEY_1)) { musicVolume -= 0.1f; }
-	if (CP_Input_KeyTriggered(KEY_2)) { musicVolume += 0.1f; }
-	if (CP_Input_KeyTriggered(KEY_3)) { effectsVolume -= 0.1f; }
-	if (CP_Input_KeyTriggered(KEY_4)) { effectsVolume += 0.1f; }
+	if (CP_Input_KeyTriggered(KEY_1))
+	{
+		musicVolume -= 0.1f;
+	}
+	if (CP_Input_KeyTriggered(KEY_2))
+	{
+		musicVolume += 0.1f;
+	}
+	if (CP_Input_KeyTriggered(KEY_3))
+	{
+		effectsVolume -= 0.1f;
+	}
+	if (CP_Input_KeyTriggered(KEY_4))
+	{
+		effectsVolume += 0.1f;
+	}
 	musicVolume = CP_Math_ClampFloat(musicVolume, 0.0f, 1.0f);
 	effectsVolume = CP_Math_ClampFloat(effectsVolume, 0.0f, 1.0f);
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, musicVolume);
@@ -176,7 +188,7 @@ void game_update(void)
 	{
 		playerVelocityY = -jumpSpeed;
 		onGround = FALSE;
-		PlayEffect(jumpSound);			// at the moment of the jump, once
+		PlayEffect(jumpSound); // at the moment of the jump, once
 	}
 	playerVelocityY += gravity * dt;
 	player.y += playerVelocityY * dt;

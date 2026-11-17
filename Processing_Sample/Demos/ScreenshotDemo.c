@@ -26,7 +26,7 @@
 typedef struct Ball
 {
 	CP_Vector position;
-	CP_Vector velocity;		// pixels per second
+	CP_Vector velocity; // pixels per second
 	float diameter;
 	CP_Color color;
 } Ball;
@@ -81,12 +81,12 @@ static void DrawBalls(void)
 //-------------------------
 // SCREENSHOTS
 
-#define THUMBNAIL_SCALE 8		// the window screenshot is drawn at 1/8 size
-#define LENS_SIZE 80			// the magnifier shows an 80 x 80 region...
-#define LENS_ZOOM 2				// ...at 2x
+#define THUMBNAIL_SCALE 8  // the window screenshot is drawn at 1/8 size
+#define LENS_SIZE       80 // the magnifier shows an 80 x 80 region...
+#define LENS_ZOOM       2  // ...at 2x
 
 static CP_BOOL tunnelMode = FALSE;
-static CP_Image tunnelScreenshot = NULL;	// in tunnel mode, the previous frame's screenshot
+static CP_Image tunnelScreenshot = NULL; // in tunnel mode, the previous frame's screenshot
 static unsigned screenshotsTaken = 0;
 
 static CP_Image TakeScreenshot(int x, int y, int width, int height)
@@ -198,10 +198,13 @@ static void DrawInfo(void)
 	float y = 10.0f;
 	char line[96];
 
-	CP_Font_DrawText("SCREENSHOTS: the window at 1/8 size follows the mouse", x, y); y += lineHeight;
-	CP_Font_DrawText("Hold the left mouse button: 2x magnifier", x, y); y += lineHeight;
+	CP_Font_DrawText("SCREENSHOTS: the window at 1/8 size follows the mouse", x, y);
+	y += lineHeight;
+	CP_Font_DrawText("Hold the left mouse button: 2x magnifier", x, y);
+	y += lineHeight;
 	snprintf(line, sizeof(line), "Space: tunnel mode (%s)", tunnelMode ? "ON" : "off");
-	CP_Font_DrawText(line, x, y); y += lineHeight;
+	CP_Font_DrawText(line, x, y);
+	y += lineHeight;
 	snprintf(line, sizeof(line), "%.0f FPS, %u screenshots taken", CP_System_GetFrameRate(), screenshotsTaken);
 	CP_Font_DrawText(line, x, y);
 

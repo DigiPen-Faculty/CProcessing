@@ -31,46 +31,46 @@
 extern "C" {
 #endif
 
-#define CP_MAX_GAME_STATES			16	// how deep the stack can go
-#define CP_MAX_GAME_STATE_REQUESTS	16	// requests waiting for the next frame
+#define CP_MAX_GAME_STATES         16 // how deep the stack can go
+#define CP_MAX_GAME_STATE_REQUESTS 16 // requests waiting for the next frame
 
 typedef struct CP_GSL_State
 {
 	FunctionPtr init;
 	FunctionPtr update;
 	FunctionPtr exit;
-	CP_STATE passThrough;	// what the states under this one can do
+	CP_STATE passThrough; // what the states under this one can do
 } CP_GSL_State;
 
 typedef enum CP_GSL_RequestKind
 {
 	CP_GSL_PUSH,
 	CP_GSL_POP,
-	CP_GSL_SET,			// CP_Engine_SetNextGameState: ignored if it is already the only state
-	CP_GSL_SET_FORCED	// CP_Engine_SetNextGameStateForced: always
+	CP_GSL_SET,       // CP_Engine_SetNextGameState: ignored if it is already the only state
+	CP_GSL_SET_FORCED // CP_Engine_SetNextGameStateForced: always
 } CP_GSL_RequestKind;
 
 typedef struct CP_GSL_Request
 {
 	CP_GSL_RequestKind kind;
-	CP_GSL_State state;		// unused for a pop
-	int from;				// a pop: the state that asked (it leaves with those above it); -1 for the top
+	CP_GSL_State state; // unused for a pop
+	int from;           // a pop: the state that asked (it leaves with those above it); -1 for the top
 } CP_GSL_Request;
 
 typedef enum CP_GSL_Result
 {
 	CP_GSL_DONE,
-	CP_GSL_SAME_STATE,		// a set for the state that is already the only one: nothing to do
-	CP_GSL_NO_UPDATE,		// a push or set without an update function: ignored
-	CP_GSL_POP_LAST,		// a pop that would leave no state: ignored (the game needs a state)
-	CP_GSL_GONE,			// a pop from a state that has already left: nothing to do
-	CP_GSL_STACK_FULL,		// a push past CP_MAX_GAME_STATES: ignored
-	CP_GSL_QUEUE_FULL		// more than CP_MAX_GAME_STATE_REQUESTS in one frame: ignored
+	CP_GSL_SAME_STATE, // a set for the state that is already the only one: nothing to do
+	CP_GSL_NO_UPDATE,  // a push or set without an update function: ignored
+	CP_GSL_POP_LAST,   // a pop that would leave no state: ignored (the game needs a state)
+	CP_GSL_GONE,       // a pop from a state that has already left: nothing to do
+	CP_GSL_STACK_FULL, // a push past CP_MAX_GAME_STATES: ignored
+	CP_GSL_QUEUE_FULL  // more than CP_MAX_GAME_STATE_REQUESTS in one frame: ignored
 } CP_GSL_Result;
 
 typedef struct CP_GSL_Stack
 {
-	CP_GSL_State states[CP_MAX_GAME_STATES];	// [0] is the bottom
+	CP_GSL_State states[CP_MAX_GAME_STATES]; // [0] is the bottom
 	int depth;
 	CP_GSL_Request queue[CP_MAX_GAME_STATE_REQUESTS];
 	int queued;

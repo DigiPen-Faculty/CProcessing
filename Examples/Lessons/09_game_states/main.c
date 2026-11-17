@@ -102,9 +102,9 @@ typedef struct Bubble
 
 Bubble bubbles[BUBBLE_COUNT];
 float spawnTimer;
-float spawnGap;			// seconds between new bubbles, shorter as you go
+float spawnGap; // seconds between new bubbles, shorter as you go
 const float burstRadius = 55.0f;
-const float growSpeed = 22.0f;		// pixels of radius per second
+const float growSpeed = 22.0f; // pixels of radius per second
 
 void SpawnBubble(void)
 {

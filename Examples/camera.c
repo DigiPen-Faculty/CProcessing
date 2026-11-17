@@ -30,7 +30,7 @@ const float worldSize = 2000.0f;
 // much it's zoomed in (2 = everything twice as big)
 CP_Vector cameraPosition;
 float cameraZoom = 1.0f;
-const float cameraSpeed = 500.0f;	// screen pixels per second
+const float cameraSpeed = 500.0f; // screen pixels per second
 
 // Markers dropped with the mouse, in world positions
 #define MAX_MARKERS 50
@@ -117,7 +117,7 @@ void DrawWorld(void)
 
 	CP_Settings_NoStroke();
 	CP_Settings_Fill(CP_Color_Create(240, 200, 80, 255));
-	CP_Graphics_DrawCircle(1000.0f, 1000.0f, 120.0f);	// the middle of the world
+	CP_Graphics_DrawCircle(1000.0f, 1000.0f, 120.0f); // the middle of the world
 	CP_Settings_Fill(CP_Color_Create(90, 160, 230, 255));
 	CP_Graphics_DrawCircle(300.0f, 300.0f, 200.0f);
 	CP_Graphics_DrawCircle(1700.0f, 400.0f, 150.0f);

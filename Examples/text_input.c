@@ -27,10 +27,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_NAME_BYTES 24		// room for 23 bytes of text and the ending 0
+#define MAX_NAME_BYTES 24 // room for 23 bytes of text and the ending 0
 
 char name[MAX_NAME_BYTES] = "";
-CP_BOOL entered = FALSE;		// TRUE once the player has pressed Enter
+CP_BOOL entered = FALSE; // TRUE once the player has pressed Enter
 
 // Remove the last character. The name is UTF-8, in which characters such as
 // "é" take more than one byte: bytes that start with the bits 10 are the

@@ -32,7 +32,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#define WINDOW_WIDTH 800
+#define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
 
 // Draws a line of text in a color, then puts the fill color back as it was
@@ -88,7 +88,7 @@ void game_update(void)
 	}
 	if (CP_Input_KeyTriggered(KEY_3))
 	{
-		CP_System_SetFrameRate(0.0f);		// 0: no limit
+		CP_System_SetFrameRate(0.0f); // 0: no limit
 	}
 
 	const float width = (float)CP_System_GetWindowWidth();

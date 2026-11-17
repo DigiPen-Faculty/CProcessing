@@ -39,35 +39,35 @@ typedef struct GLFWwindow GLFWwindow;
 typedef struct NVGcontext NVGcontext;
 typedef struct NVGcolor NVGcolor;
 
-#define CP_MAX_STATES 32	// this should match NVG_MAX_STATES
+#define CP_MAX_STATES 32 // this should match NVG_MAX_STATES
 
 
 //////////////////
 typedef struct CP_DrawInfo
 {
-    CP_POSITION_MODE rect_mode;
-    CP_POSITION_MODE ellipse_mode;
-    CP_POSITION_MODE image_mode;
-    int stroke;
-    int fill;
-    CP_Matrix camera;
-    // Copies of the settings NanoVG keeps privately. They let CP_Settings_
-    // functions work before CP_Engine_Run, when there's no NanoVG context
-    // yet (CP_Settings_ApplyAll gives them to NanoVG when the window opens),
-    // and CP_Graphics_DrawPoint uses the colors, weight and cap.
-    CP_Color fill_color;
-    CP_Color stroke_color;
-    float stroke_weight;
-    CP_LINE_CAP_MODE line_cap;
-    CP_LINE_JOINT_MODE line_joint;
-    CP_Color tint;
-    CP_BOOL anti_alias;
-    CP_BLEND_MODE blend_mode;
-    CP_IMAGE_FILTER_MODE filter_mode;
-    CP_IMAGE_WRAP_MODE wrap_mode;
-    float text_size;
-    int text_align;
-    CP_Font font;           // NULL until CP_Font_Set: the default font
+	CP_POSITION_MODE rect_mode;
+	CP_POSITION_MODE ellipse_mode;
+	CP_POSITION_MODE image_mode;
+	int stroke;
+	int fill;
+	CP_Matrix camera;
+	// Copies of the settings NanoVG keeps privately. They let CP_Settings_
+	// functions work before CP_Engine_Run, when there's no NanoVG context
+	// yet (CP_Settings_ApplyAll gives them to NanoVG when the window opens),
+	// and CP_Graphics_DrawPoint uses the colors, weight and cap.
+	CP_Color fill_color;
+	CP_Color stroke_color;
+	float stroke_weight;
+	CP_LINE_CAP_MODE line_cap;
+	CP_LINE_JOINT_MODE line_joint;
+	CP_Color tint;
+	CP_BOOL anti_alias;
+	CP_BLEND_MODE blend_mode;
+	CP_IMAGE_FILTER_MODE filter_mode;
+	CP_IMAGE_WRAP_MODE wrap_mode;
+	float text_size;
+	int text_align;
+	CP_Font font; // NULL until CP_Font_Set: the default font
 } CP_DrawInfo;
 typedef CP_DrawInfo* CP_DrawInfoPtr;
 
@@ -80,19 +80,19 @@ void CP_Settings_ApplyAll(void);
 //////////////////
 typedef struct CP_Core
 {
-    NVGcontext* nvg;
-    GLFWwindow* window;
+	NVGcontext* nvg;
+	GLFWwindow* window;
 	CP_WindowHandle hwnd;
 	int window_width;
 	int window_height;
-    int canvas_width;
-    int canvas_height;
+	int canvas_width;
+	int canvas_height;
 	int native_width;
 	int native_height;
 	bool isFullscreen;
-    float pixel_ratio;
-    int window_posX;
-    int window_posY;
+	float pixel_ratio;
+	int window_posX;
+	int window_posY;
 	CP_DrawInfo states[CP_MAX_STATES];
 	int nstates;
 } CP_Core;
@@ -122,7 +122,7 @@ typedef struct CP_Report
 	char text[4096];
 	size_t length;
 	int lines;
-	CP_BOOL truncated;	// more lines than fit
+	CP_BOOL truncated; // more lines than fit
 } CP_Report;
 
 void CP_Report_AddLine(CP_Report* report, const char* format, ...);

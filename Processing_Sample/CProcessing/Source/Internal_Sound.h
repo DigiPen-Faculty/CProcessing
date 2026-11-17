@@ -39,7 +39,7 @@ extern "C" {
 //		Audio source type manages streaming content
 typedef enum SL_AUDIOSOURCE_TYPE
 {
-	SL_AUDIOSOURCE_WAV = 0,		// Default
+	SL_AUDIOSOURCE_WAV = 0, // Default
 	SL_AUDIOSOURCE_STREAM = 1
 } SL_AUDIOSOURCE_TYPE;
 
@@ -50,9 +50,9 @@ typedef enum SL_AUDIOSOURCE_TYPE
 typedef struct CP_Sound_Struct
 {
 	char filepath[CP_PATH_MAX];
-    AudioSource* sound;
+	AudioSource* sound;
 	SL_AUDIOSOURCE_TYPE type;
-	int ref_count;		// loads of this file not yet freed (CP_Sound_Free frees at 0)
+	int ref_count; // loads of this file not yet freed (CP_Sound_Free frees at 0)
 } CP_Sound_Struct;
 
 typedef struct CP_VoiceGroup_Struct

@@ -22,85 +22,85 @@
 
 typedef enum
 {
-    // Must stay first: it draws with the settings made before CP_Engine_Run,
-    // so it runs before anything else changes them (and without the
-    // baseline reset every other scenario gets)
-    SCN_SETTINGS_BEFORE_RUN,
-    SCN_SYSTEM_GETTERS,
-    SCN_SETTINGS_GETTERS,
-    SCN_CLEAR_BACKGROUND,
-    SCN_DRAW_POINT,
-    SCN_DRAW_LINE,
-    SCN_DRAW_LINE_ADVANCED,
-    SCN_DRAW_RECT,
-    SCN_DRAW_RECT_ADVANCED,
-    SCN_DRAW_CIRCLE,
-    SCN_DRAW_ELLIPSE,
-    SCN_DRAW_ELLIPSE_ADVANCED,
-    SCN_DRAW_ARC,
-    SCN_DRAW_ARC_COUNTERCLOCKWISE,
-    SCN_DRAW_PIE,
-    SCN_DRAW_PIE_CORNER_MODE,
-    SCN_DRAW_BEZIER,
-    SCN_DRAW_TRIANGLE,
-    SCN_DRAW_TRIANGLE_ADVANCED,
-    SCN_DRAW_QUAD,
-    SCN_DRAW_QUAD_ADVANCED,
-    SCN_CUSTOM_SHAPE,
-    SCN_SETTINGS_NOFILL,
-    SCN_SETTINGS_STROKEWEIGHT,
-    SCN_SETTINGS_RECTMODE_CORNER,
-    SCN_SETTINGS_ELLIPSEMODE_CORNER,
-    SCN_SETTINGS_TRANSLATE,
-    SCN_SETTINGS_SCALE,
-    SCN_SETTINGS_ROTATE,
-    SCN_SETTINGS_RESETMATRIX,
-    SCN_SETTINGS_APPLYMATRIX,
-    SCN_SETTINGS_BLENDMODE_ADD,
-    SCN_SETTINGS_BLEND_MODES,
-    SCN_SETTINGS_TINT,
-    SCN_IMAGE_FILTER_MODES,
-    SCN_IMAGE_WRAP_MODES,
-    // These two must stay in this order: one frame, then the next
-    SCN_SETTINGS_LAST_FRAME_SETS_TEXT_SIZE,
-    SCN_SETTINGS_CARRY_TO_NEXT_FRAME,
-    SCN_SETTINGS_SAVE_RESTORE,
-    SCN_IMAGE_LOAD_AND_DRAW,
-    SCN_IMAGE_SUBIMAGE,
-    SCN_IMAGE_DRAW_ROTATED,
-    SCN_IMAGE_16_BIT,
-    SCN_IMAGE_MANY,
-    SCN_SHARED_ASSETS,
-    SCN_FONT_DRAWTEXT,
-    SCN_FONT_LOAD_FREE,
-    SCN_FONT_GET_CURRENT,
-    SCN_FONT_FREE_KEEPS_OTHERS,
-    SCN_FONT_OPENTYPE,
-    SCN_FONT_SIZE_SWEEP,
-    SCN_FONT_SCALE_SWEEP,
-    SCN_FONT_EM_SIZE,
-    SCN_FONT_LARGE,
-    SCN_FONT_MIRRORED,
-    SCN_SYSTEM_ENGINE_STATE,
-    // Not last: the frames after it show the frame limiter didn't hang
-    SCN_SYSTEM_FRAME_RATE_NO_LIMIT,
-    SCN_SOUND_ROUNDTRIP,
-    SCN_INPUT_QUIESCENT_DEFAULTS,
-    // Pushes game states on top of the harness for a few frames (the harness
-    // is frozen meanwhile), then they pop and the harness carries on
-    SCN_GAMESTATE_STACK,
-    // A screenshot of one state drawn in the next (see Scn_GameStateSnapshot)
-    SCN_GAMESTATE_SNAPSHOT,
-    SCN_IMAGE_DRAW_INTO,
-    // Cross-platform work: these two must stay consecutive -- the second
-    // one draws on top of the first one's frame without clearing.
-    SCN_PERSIST_FIRST_FRAME,
-    SCN_PERSIST_NEXT_FRAME,
-    SCN_SCREENSHOT_SUBREGION,
-    SCN_ERROR_PATHS,
-    SCN_SYSTEM_WINDOW_SETTINGS,
-    SCN_ASSETS_NEXT_TO_PROGRAM,
-    SCN_COUNT
+	// Must stay first: it draws with the settings made before CP_Engine_Run,
+	// so it runs before anything else changes them (and without the
+	// baseline reset every other scenario gets)
+	SCN_SETTINGS_BEFORE_RUN,
+	SCN_SYSTEM_GETTERS,
+	SCN_SETTINGS_GETTERS,
+	SCN_CLEAR_BACKGROUND,
+	SCN_DRAW_POINT,
+	SCN_DRAW_LINE,
+	SCN_DRAW_LINE_ADVANCED,
+	SCN_DRAW_RECT,
+	SCN_DRAW_RECT_ADVANCED,
+	SCN_DRAW_CIRCLE,
+	SCN_DRAW_ELLIPSE,
+	SCN_DRAW_ELLIPSE_ADVANCED,
+	SCN_DRAW_ARC,
+	SCN_DRAW_ARC_COUNTERCLOCKWISE,
+	SCN_DRAW_PIE,
+	SCN_DRAW_PIE_CORNER_MODE,
+	SCN_DRAW_BEZIER,
+	SCN_DRAW_TRIANGLE,
+	SCN_DRAW_TRIANGLE_ADVANCED,
+	SCN_DRAW_QUAD,
+	SCN_DRAW_QUAD_ADVANCED,
+	SCN_CUSTOM_SHAPE,
+	SCN_SETTINGS_NOFILL,
+	SCN_SETTINGS_STROKEWEIGHT,
+	SCN_SETTINGS_RECTMODE_CORNER,
+	SCN_SETTINGS_ELLIPSEMODE_CORNER,
+	SCN_SETTINGS_TRANSLATE,
+	SCN_SETTINGS_SCALE,
+	SCN_SETTINGS_ROTATE,
+	SCN_SETTINGS_RESETMATRIX,
+	SCN_SETTINGS_APPLYMATRIX,
+	SCN_SETTINGS_BLENDMODE_ADD,
+	SCN_SETTINGS_BLEND_MODES,
+	SCN_SETTINGS_TINT,
+	SCN_IMAGE_FILTER_MODES,
+	SCN_IMAGE_WRAP_MODES,
+	// These two must stay in this order: one frame, then the next
+	SCN_SETTINGS_LAST_FRAME_SETS_TEXT_SIZE,
+	SCN_SETTINGS_CARRY_TO_NEXT_FRAME,
+	SCN_SETTINGS_SAVE_RESTORE,
+	SCN_IMAGE_LOAD_AND_DRAW,
+	SCN_IMAGE_SUBIMAGE,
+	SCN_IMAGE_DRAW_ROTATED,
+	SCN_IMAGE_16_BIT,
+	SCN_IMAGE_MANY,
+	SCN_SHARED_ASSETS,
+	SCN_FONT_DRAWTEXT,
+	SCN_FONT_LOAD_FREE,
+	SCN_FONT_GET_CURRENT,
+	SCN_FONT_FREE_KEEPS_OTHERS,
+	SCN_FONT_OPENTYPE,
+	SCN_FONT_SIZE_SWEEP,
+	SCN_FONT_SCALE_SWEEP,
+	SCN_FONT_EM_SIZE,
+	SCN_FONT_LARGE,
+	SCN_FONT_MIRRORED,
+	SCN_SYSTEM_ENGINE_STATE,
+	// Not last: the frames after it show the frame limiter didn't hang
+	SCN_SYSTEM_FRAME_RATE_NO_LIMIT,
+	SCN_SOUND_ROUNDTRIP,
+	SCN_INPUT_QUIESCENT_DEFAULTS,
+	// Pushes game states on top of the harness for a few frames (the harness
+	// is frozen meanwhile), then they pop and the harness carries on
+	SCN_GAMESTATE_STACK,
+	// A screenshot of one state drawn in the next (see Scn_GameStateSnapshot)
+	SCN_GAMESTATE_SNAPSHOT,
+	SCN_IMAGE_DRAW_INTO,
+	// Cross-platform work: these two must stay consecutive -- the second
+	// one draws on top of the first one's frame without clearing.
+	SCN_PERSIST_FIRST_FRAME,
+	SCN_PERSIST_NEXT_FRAME,
+	SCN_SCREENSHOT_SUBREGION,
+	SCN_ERROR_PATHS,
+	SCN_SYSTEM_WINDOW_SETTINGS,
+	SCN_ASSETS_NEXT_TO_PROGRAM,
+	SCN_COUNT
 } Tier2Scenario;
 
 extern CP_Color tier2_snapshots[SCN_COUNT][TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
@@ -108,11 +108,11 @@ extern CP_Color tier2_snapshots[SCN_COUNT][TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE
 // Results of one animated-text sweep (see Scn_FontSizeSweep)
 typedef struct
 {
-    int frames;
-    int badFrames;          // the text didn't match an immediate redraw
-    int blankFrames;        // the redraw had no text on the canvas at all
-    int firstBadFrame;      // -1 when there were none
-    int worstPixels;        // most pixels that differed in any one frame
+	int frames;
+	int badFrames;     // the text didn't match an immediate redraw
+	int blankFrames;   // the redraw had no text on the canvas at all
+	int firstBadFrame; // -1 when there were none
+	int worstPixels;   // most pixels that differed in any one frame
 } Tier2TextSweep;
 
 // Non-pixel results: CP_Image round-trips, CP_System/CP_Engine state, and
@@ -123,200 +123,200 @@ typedef struct
 // be read *during* the run, not after.
 typedef struct
 {
-    // CP_Image
-    int quadImageWidth;
-    int quadImageHeight;
-    CP_Color createFromDataReadback[4];
-    CP_Color updatePixelDataReadback[4];
-    int manyImagesCreated;          // see Scn_ImageMany
-    int manyImagesFreed;            // handles set to NULL by CP_Image_Free
-    int manyImagesFileWidth;
-    int image16BitWidth;            // see Scn_Image16Bit
+	// CP_Image
+	int quadImageWidth;
+	int quadImageHeight;
+	CP_Color createFromDataReadback[4];
+	CP_Color updatePixelDataReadback[4];
+	int manyImagesCreated; // see Scn_ImageMany
+	int manyImagesFreed;   // handles set to NULL by CP_Image_Free
+	int manyImagesFileWidth;
+	int image16BitWidth; // see Scn_Image16Bit
 
-    // CP_System / CP_Engine
-    int windowWidthInFirstUpdate;   // the size chosen in init, already
-    int windowWidthAfterSet;
-    int windowHeightAfterSet;
-    unsigned frameCountEarly;
-    unsigned frameCountLater;
-    float dtSample;
-    float millisSample;
-    float secondsSample;
-    float frameRateSample;
-    // Loading one file twice shares it; freeing one load keeps it for the
-    // other (Scn_SharedAssets). "Reload" is a load after that first free.
-    bool sharedImageSame;
-    bool sharedImageFirstCleared;
-    bool sharedImageReloadSame;
-    bool emptyPathLoadIsNull;
-    bool sharedFontSame;
-    bool sharedFontReloadSame;
-    bool soundAvailable;
-    bool soundAndStreamDiffer;
-    bool sharedSoundReloadSame;
-    bool frameRateNoLimitSet;      // SetFrameRate(0) and (-30) ran
+	// CP_System / CP_Engine
+	int windowWidthInFirstUpdate; // the size chosen in init, already
+	int windowWidthAfterSet;
+	int windowHeightAfterSet;
+	unsigned frameCountEarly;
+	unsigned frameCountLater;
+	float dtSample;
+	float millisSample;
+	float secondsSample;
+	float frameRateSample;
+	// Loading one file twice shares it; freeing one load keeps it for the
+	// other (Scn_SharedAssets). "Reload" is a load after that first free.
+	bool sharedImageSame;
+	bool sharedImageFirstCleared;
+	bool sharedImageReloadSame;
+	bool emptyPathLoadIsNull;
+	bool sharedFontSame;
+	bool sharedFontReloadSame;
+	bool soundAvailable;
+	bool soundAndStreamDiffer;
+	bool sharedSoundReloadSame;
+	bool frameRateNoLimitSet; // SetFrameRate(0) and (-30) ran
 
-    // System getters (see Scn_SystemGetters)
-    CP_BOOL vsyncBeforeRun;         // set to TRUE before CP_Engine_Run
-    CP_BOOL resizableBeforeRun;
-    CP_BOOL fullscreenBeforeRun;
-    CP_BOOL vsyncInRun;             // still TRUE once the window is open
-    CP_BOOL resizableInRun;
-    CP_BOOL fullscreenInRun;
-    CP_BOOL vsyncSetOff;            // the getters follow the setters while running
-    CP_BOOL resizableSetOff;
-    float targetFrameRateDefault;   // the baseline's 60
-    float targetFrameRateSet30;
-    float targetFrameRateSet0;
-    float targetFrameRateSetNegative;
+	// System getters (see Scn_SystemGetters)
+	CP_BOOL vsyncBeforeRun; // set to TRUE before CP_Engine_Run
+	CP_BOOL resizableBeforeRun;
+	CP_BOOL fullscreenBeforeRun;
+	CP_BOOL vsyncInRun; // still TRUE once the window is open
+	CP_BOOL resizableInRun;
+	CP_BOOL fullscreenInRun;
+	CP_BOOL vsyncSetOff; // the getters follow the setters while running
+	CP_BOOL resizableSetOff;
+	float targetFrameRateDefault; // the baseline's 60
+	float targetFrameRateSet30;
+	float targetFrameRateSet0;
+	float targetFrameRateSetNegative;
 
-    // Settings getters (see Scn_SettingsGetters)
-    CP_Color fillBeforeRun;         // the fill set before CP_Engine_Run
-    CP_BOOL fillGetsWhatWasSet;
-    CP_BOOL fillKeptAfterNoFill;
-    CP_BOOL strokeGetsWhatWasSet;
-    CP_BOOL strokeKeptAfterNoStroke;
-    CP_BOOL strokeWeightGetsWhatWasSet;
-    CP_BOOL textSizeGetsWhatWasSet;
-    CP_BOOL settingsBackAfterRestore;
+	// Settings getters (see Scn_SettingsGetters)
+	CP_Color fillBeforeRun; // the fill set before CP_Engine_Run
+	CP_BOOL fillGetsWhatWasSet;
+	CP_BOOL fillKeptAfterNoFill;
+	CP_BOOL strokeGetsWhatWasSet;
+	CP_BOOL strokeKeptAfterNoStroke;
+	CP_BOOL strokeWeightGetsWhatWasSet;
+	CP_BOOL textSizeGetsWhatWasSet;
+	CP_BOOL settingsBackAfterRestore;
 
-    // CP_Font_GetCurrent (see Scn_FontGetCurrent)
-    CP_BOOL fontStartsAsDefault;
-    CP_BOOL fontSetIsCurrent;
-    CP_BOOL fontBackAfterRestore;
-    CP_BOOL freedFontFallsBackToDefault;
-    CP_BOOL windowFocusSample;
-    int displayWidth;
-    int displayHeight;
-    int displayRefreshRate;
-    int preUpdateHookCount;
-    int postUpdateHookCount;
+	// CP_Font_GetCurrent (see Scn_FontGetCurrent)
+	CP_BOOL fontStartsAsDefault;
+	CP_BOOL fontSetIsCurrent;
+	CP_BOOL fontBackAfterRestore;
+	CP_BOOL freedFontFallsBackToDefault;
+	CP_BOOL windowFocusSample;
+	int displayWidth;
+	int displayHeight;
+	int displayRefreshRate;
+	int preUpdateHookCount;
+	int postUpdateHookCount;
 
-    // CP_Sound
-    float volumeAfterSet;
-    float pitchAfterSet;
-    // One playing sound (see Scn_SoundRoundTrip)
-    CP_BOOL soundLoaded;            // false with no audio device
-    CP_BOOL instanceGiven;            // PlayAdvanced returned an instance
-    CP_BOOL playingAfterPlay;
-    CP_BOOL playingAfterPauseResume;
-    CP_BOOL playingAfterStop;
-    CP_BOOL otherPlayingAfterStop;  // stopping one sound leaves another playing
-    CP_BOOL noInstanceIsNotPlaying;   // instance 0, and calls with it don't crash
+	// CP_Sound
+	float volumeAfterSet;
+	float pitchAfterSet;
+	// One playing sound (see Scn_SoundRoundTrip)
+	CP_BOOL soundLoaded;   // false with no audio device
+	CP_BOOL instanceGiven; // PlayAdvanced returned an instance
+	CP_BOOL playingAfterPlay;
+	CP_BOOL playingAfterPauseResume;
+	CP_BOOL playingAfterStop;
+	CP_BOOL otherPlayingAfterStop;  // stopping one sound leaves another playing
+	CP_BOOL noInstanceIsNotPlaying; // instance 0, and calls with it don't crash
 
-    // CP_Input (quiescent-state defaults only -- see Scn_InputQuiescentDefaults)
-    CP_BOOL gamepadConnected;
-    CP_BOOL gamepad0ConnectedAdvanced;
-    float mouseWheel;
-    CP_BOOL mouseDoubleClicked;
-    CP_BOOL keyADown;
-    CP_BOOL mouseLeftDown;
-    CP_BOOL typedTextIsEmpty;       // non-NULL and "" when nothing was typed
+	// CP_Input (quiescent-state defaults only -- see Scn_InputQuiescentDefaults)
+	CP_BOOL gamepadConnected;
+	CP_BOOL gamepad0ConnectedAdvanced;
+	float mouseWheel;
+	CP_BOOL mouseDoubleClicked;
+	CP_BOOL keyADown;
+	CP_BOOL mouseLeftDown;
+	CP_BOOL typedTextIsEmpty; // non-NULL and "" when nothing was typed
 
-    // CP_System_GetWindowHandle
-    CP_BOOL windowHandleIsNull;
+	// CP_System_GetWindowHandle
+	CP_BOOL windowHandleIsNull;
 
-    // Freeing a font (see Scn_FontFreeKeepsOthers)
-    int fontFreeLoaded;             // fonts loaded, of 3
-    int fontFreeInkBefore;          // ink pixels before freeing the first
-    int fontFreeMismatched;         // pixels that changed after freeing it
-    CP_BOOL openTypeFontLoaded;     // see Scn_FontOpenType
+	// Freeing a font (see Scn_FontFreeKeepsOthers)
+	int fontFreeLoaded;         // fonts loaded, of 3
+	int fontFreeInkBefore;      // ink pixels before freeing the first
+	int fontFreeMismatched;     // pixels that changed after freeing it
+	CP_BOOL openTypeFontLoaded; // see Scn_FontOpenType
 
-    // Measuring text (see Scn_FontEmSize)
-    float textWidthH;               // "H" at size 100
-    float textWidthHH;              // "HH"
-    float textWidthHSpace;          // "H " (a space at the end)
-    float textWidthH200;            // "H" at size 200
-    CP_Vector textSizeH;            // CP_Font_GetTextSize("H") at size 100
-    CP_Vector textSizeLong;         // a longer string, same size
-    CP_Vector textBoxOneLine;       // a short text in a wide box
-    CP_Vector textBoxWrapped;       // a long text in a narrow box
-    float textWidthNull;            // NULL text
+	// Measuring text (see Scn_FontEmSize)
+	float textWidthH;         // "H" at size 100
+	float textWidthHH;        // "HH"
+	float textWidthHSpace;    // "H " (a space at the end)
+	float textWidthH200;      // "H" at size 200
+	CP_Vector textSizeH;      // CP_Font_GetTextSize("H") at size 100
+	CP_Vector textSizeLong;   // a longer string, same size
+	CP_Vector textBoxOneLine; // a short text in a wide box
+	CP_Vector textBoxWrapped; // a long text in a narrow box
+	float textWidthNull;      // NULL text
 
-    // Text animated by size and by scale (see Scn_FontSizeSweep)
-    Tier2TextSweep textSizeSweep;
-    Tier2TextSweep textScaleSweep;
+	// Text animated by size and by scale (see Scn_FontSizeSweep)
+	Tier2TextSweep textSizeSweep;
+	Tier2TextSweep textScaleSweep;
 
-    // CP_Image_Screenshot of sub-regions (see Scn_ScreenshotSubregion)
-    int subTopRightWidth;
-    int subTopRightHeight;
-    CP_Color subTopRightCenter;     // region (100,0) 100x100 -> green quadrant
-    CP_Color subBottomLeftCenter;   // region (0,100) 100x100 -> blue quadrant
-    CP_Color straddleCorners[4];    // region (75,75) 50x50: TL, TR, BL, BR samples
+	// CP_Image_Screenshot of sub-regions (see Scn_ScreenshotSubregion)
+	int subTopRightWidth;
+	int subTopRightHeight;
+	CP_Color subTopRightCenter;   // region (100,0) 100x100 -> green quadrant
+	CP_Color subBottomLeftCenter; // region (0,100) 100x100 -> blue quadrant
+	CP_Color straddleCorners[4];  // region (75,75) 50x50: TL, TR, BL, BR samples
 
-    // Error paths (see Scn_ErrorPaths)
-    CP_BOOL missingImageIsNull;
-    CP_BOOL missingFontIsNull;
-    CP_BOOL missingSoundIsNull;
-    CP_BOOL survivedNullCalls;
+	// Error paths (see Scn_ErrorPaths)
+	CP_BOOL missingImageIsNull;
+	CP_BOOL missingFontIsNull;
+	CP_BOOL missingSoundIsNull;
+	CP_BOOL survivedNullCalls;
 
-    // Window settings and queries before CP_Engine_Run, and the cursor and
-    // console during it (see tier2_RunCaptureOnce and Scn_SystemWindowSettings)
-    CP_BOOL cursorVisibleBeforeRun;
-    CP_BOOL cursorVisibleAtStart;
-    CP_BOOL cursorVisibleAfterShow;
-    CP_BOOL cursorVisibleAfterHide;
-    CP_CURSOR_MODE cursorModeBeforeRun;
-    CP_CURSOR_MODE cursorModeAfterDisable;
-    CP_BOOL cursorVisibleWhileDisabled;
-    CP_CURSOR_MODE cursorModeAfterCapture;
-    CP_BOOL cursorVisibleWhileCaptured;
-    CP_CURSOR_MODE cursorModeAfterInvalid;
-    CP_CURSOR_MODE cursorModeAfterShow;
-    CP_BOOL windowFocusBeforeRun;
-    int displayRefreshRateBeforeRun;
-    CP_BOOL consoleVisibleBeforeRun;
-    CP_BOOL consoleVisibleAfterHide;
-    CP_BOOL consoleVisibleAfterReshow;
-    int printfAfterShowConsole;     // printf's return value: negative on failure
-    int printfAfterHideConsole;
+	// Window settings and queries before CP_Engine_Run, and the cursor and
+	// console during it (see tier2_RunCaptureOnce and Scn_SystemWindowSettings)
+	CP_BOOL cursorVisibleBeforeRun;
+	CP_BOOL cursorVisibleAtStart;
+	CP_BOOL cursorVisibleAfterShow;
+	CP_BOOL cursorVisibleAfterHide;
+	CP_CURSOR_MODE cursorModeBeforeRun;
+	CP_CURSOR_MODE cursorModeAfterDisable;
+	CP_BOOL cursorVisibleWhileDisabled;
+	CP_CURSOR_MODE cursorModeAfterCapture;
+	CP_BOOL cursorVisibleWhileCaptured;
+	CP_CURSOR_MODE cursorModeAfterInvalid;
+	CP_CURSOR_MODE cursorModeAfterShow;
+	CP_BOOL windowFocusBeforeRun;
+	int displayRefreshRateBeforeRun;
+	CP_BOOL consoleVisibleBeforeRun;
+	CP_BOOL consoleVisibleAfterHide;
+	CP_BOOL consoleVisibleAfterReshow;
+	int printfAfterShowConsole; // printf's return value: negative on failure
+	int printfAfterHideConsole;
 
-    // Loading assets from another folder (see Scn_AssetsNextToProgram)
-    CP_BOOL assetFolderEntered;
-    CP_BOOL assetImageLoaded;
-    CP_BOOL assetFontLoaded;
-    CP_BOOL assetSoundAvailable;    // sound loads at all (not with no audio device)
-    CP_BOOL assetSoundLoaded;
+	// Loading assets from another folder (see Scn_AssetsNextToProgram)
+	CP_BOOL assetFolderEntered;
+	CP_BOOL assetImageLoaded;
+	CP_BOOL assetFontLoaded;
+	CP_BOOL assetSoundAvailable; // sound loads at all (not with no audio device)
+	CP_BOOL assetSoundLoaded;
 
-    // The game state stack (see Scn_GameStateStack)
-    char stackLog[256];                 // the states' inits and exits, in order
-    int stackDepthInPushedInit;         // 2: the harness and the pushed state
-    CP_BOOL stackPushedIsTop;
-    float stackPushedTime;              // CP_Engine_GetGameStateTime in its first update
-    CP_BOOL stackPushInheritsSettings;  // a pushed state starts with the settings in use
-    CP_BOOL stackRunningStateIsTop;
-    int stackUpdatesWhileRunningBelow;  // the state under one letting CP_STATE_PASSIVE through kept running
-    CP_BOOL stackRunningBelowIsNotTop;
-    CP_BOOL stackRunningBelowKeyMuted;  // keys and buttons read as up while it runs below
-    float stackRunningBelowMouseX;      // the mouse it sees: where it was when covered
-    float stackMouseXWhenCovered;
-    CP_BOOL stackSettingsBackAfterPop;  // its own fill, not the popped state's
-    CP_BOOL stackHarnessSettingsBack;   // the harness's fill, after the stack popped
-    int stackHarnessDepthAfter;         // 1
-    int stackUpdatesOfFirstPushed;      // 4: not while frozen under the hidden one
-    CP_BOOL stackShutdownExitRan;       // a state still pushed when the program ends exits
+	// The game state stack (see Scn_GameStateStack)
+	char stackLog[256];         // the states' inits and exits, in order
+	int stackDepthInPushedInit; // 2: the harness and the pushed state
+	CP_BOOL stackPushedIsTop;
+	float stackPushedTime;             // CP_Engine_GetGameStateTime in its first update
+	CP_BOOL stackPushInheritsSettings; // a pushed state starts with the settings in use
+	CP_BOOL stackRunningStateIsTop;
+	int stackUpdatesWhileRunningBelow; // the state under one letting CP_STATE_PASSIVE through kept running
+	CP_BOOL stackRunningBelowIsNotTop;
+	CP_BOOL stackRunningBelowKeyMuted; // keys and buttons read as up while it runs below
+	float stackRunningBelowMouseX;     // the mouse it sees: where it was when covered
+	float stackMouseXWhenCovered;
+	CP_BOOL stackSettingsBackAfterPop; // its own fill, not the popped state's
+	CP_BOOL stackHarnessSettingsBack;  // the harness's fill, after the stack popped
+	int stackHarnessDepthAfter;        // 1
+	int stackUpdatesOfFirstPushed;     // 4: not while frozen under the hidden one
+	CP_BOOL stackShutdownExitRan;      // a state still pushed when the program ends exits
 
-    // A screenshot drawn in the next state (see Scn_GameStateSnapshot)
-    CP_BOOL snapshotTaken;
-    CP_Color snapshotInPushedInitCenter; // a screenshot in E's init: the picture below, D's green
-    CP_Color snapshotInPushedInitCorner;
-    int snapshotHarnessDepthAfter;      // 1
+	// A screenshot drawn in the next state (see Scn_GameStateSnapshot)
+	CP_BOOL snapshotTaken;
+	CP_Color snapshotInPushedInitCenter; // a screenshot in E's init: the picture below, D's green
+	CP_Color snapshotInPushedInitCorner;
+	int snapshotHarnessDepthAfter; // 1
 
-    // Drawing into an image (see Scn_ImageDrawInto)
-    CP_BOOL drawIntoCreated;
-    CP_Color drawIntoTopLeft;           // GetPixelData of the image: red, top row first
-    CP_Color drawIntoBottomRight;       // blue at alpha 128, given with plain alpha
-    CP_BOOL drawIntoSettingsBack;       // the fill set inside is undone by EndDrawing
-    CP_BOOL drawIntoLoadedRefused;      // a loaded image can't be drawn into
-    CP_Color drawIntoAfterUpdate;       // UpdatePixelData then GetPixelData round trip
+	// Drawing into an image (see Scn_ImageDrawInto)
+	CP_BOOL drawIntoCreated;
+	CP_Color drawIntoTopLeft;      // GetPixelData of the image: red, top row first
+	CP_Color drawIntoBottomRight;  // blue at alpha 128, given with plain alpha
+	CP_BOOL drawIntoSettingsBack;  // the fill set inside is undone by EndDrawing
+	CP_BOOL drawIntoLoadedRefused; // a loaded image can't be drawn into
+	CP_Color drawIntoAfterUpdate;  // UpdatePixelData then GetPixelData round trip
 
-    // How many scenarios were captured: SCN_COUNT unless the engine couldn't
-    // start (no window or OpenGL context) or stopped early
-    int scenariosCaptured;
+	// How many scenarios were captured: SCN_COUNT unless the engine couldn't
+	// start (no window or OpenGL context) or stopped early
+	int scenariosCaptured;
 
-    // What CProcessing printed on stderr while shutting down: the assets
-    // still loaded (see LeaveAssetsLoadedForTheExitReport)
-    char exitReport[4096];
+	// What CProcessing printed on stderr while shutting down: the assets
+	// still loaded (see LeaveAssetsLoadedForTheExitReport)
+	char exitReport[4096];
 } Tier2Scalars;
 
 extern Tier2Scalars tier2_scalars;
@@ -331,5 +331,5 @@ void tier2_RunCaptureOnce(void);
 
 static inline CP_Color tier2_SamplePixel(Tier2Scenario scenario, int x, int y)
 {
-    return tier2_snapshots[scenario][(y * TIER2_CANVAS_SIZE) + x];
+	return tier2_snapshots[scenario][(y * TIER2_CANVAS_SIZE) + x];
 }

@@ -127,8 +127,8 @@ void DrawHue(float cellX, float cellY)
 //---------------------------------------------------------
 void DrawLerp(float cellX, float cellY)
 {
-	CP_Color colorA = CP_Color_Create(255, 80, 60, 255);	// red-orange
-	CP_Color colorB = CP_Color_Create(40, 60, 200, 255);	// blue
+	CP_Color colorA = CP_Color_Create(255, 80, 60, 255); // red-orange
+	CP_Color colorB = CP_Color_Create(40, 60, 200, 255); // blue
 
 	// Ten boxes from colorA to colorB. i / 9 goes from 0.0 to 1.0.
 	for (int i = 0; i < 10; i++)
