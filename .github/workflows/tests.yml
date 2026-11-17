@@ -2,6 +2,7 @@ name: Tests
 
 # Build and test CProcessing on every pull request and every push to main.
 #
+#   format            The code follows .clang-format (a pinned clang-format).
 #   windows-msbuild   The Visual Studio solution students and faculty use:
 #                     whole solution (library, demos, tests) for x64 and x86,
 #                     then Tier 1.
@@ -40,6 +41,29 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # The code follows .clang-format. The version is pinned because its output
+  # changes a little between versions; to fix a failure locally, install the
+  # same version (`pip install clang-format==23.1.5`) and run
+  # `clang-format -i` on the files it names. Vendored and generated files are
+  # skipped by .clang-format-ignore.
+  format:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      CLANG_FORMAT_VERSION: "23.1.5"
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install clang-format ${{ env.CLANG_FORMAT_VERSION }}
+        run: |
+          python3 -m venv "$RUNNER_TEMP/cf"
+          "$RUNNER_TEMP/cf/bin/pip" install --quiet "clang-format==$CLANG_FORMAT_VERSION"
+          "$RUNNER_TEMP/cf/bin/clang-format" --version
+
+      - name: Check formatting
+        run: |
+          git ls-files '*.c' '*.h' '*.cpp' | xargs "$RUNNER_TEMP/cf/bin/clang-format" --dry-run -Werror
+
   windows-msbuild:
     runs-on: windows-2025
     timeout-minutes: 30

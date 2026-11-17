@@ -179,6 +179,12 @@ changes to build with the new version.
   copies of "turn about a point" are one function, and dead code is out.
   CI builds the whole Visual Studio solution in Release as well as Debug,
   and a new test fails if a test is written but not run.
+- **One code style, checked in CI.** The library, examples, demos, templates
+  and tests are formatted with clang-format (`.clang-format`: tabs, Allman
+  braces), and a `format` job fails a pull request that isn't. The reformat
+  is one commit that only moved whitespace and braces, listed in
+  `.git-blame-ignore-revs` so `git blame` skips it. The test projects' 4-space
+  indent is now tabs, like everything else.
 
 ### Fixed
 

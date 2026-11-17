@@ -1,0 +1,7 @@
+# Commits that only reformatted code, so `git blame` skips them. GitHub's blame
+# view reads this file by itself; to use it from the command line:
+#
+#     git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Reformat the code with clang-format (formatting only, no logic changes)
+02f44b856383bd44604b8b7e11a6b76d1eb99fbf
