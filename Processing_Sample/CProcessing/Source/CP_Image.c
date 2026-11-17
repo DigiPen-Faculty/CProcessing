@@ -324,7 +324,7 @@ CP_API void CP_Image_DrawSubImageAdvanced(CP_Image img, float x, float y, float 
 	CP_Image_DrawInternal(img, x, y, w, h, u0, v0, u1, v1, alpha, degrees);
 }
 
-CP_API CP_Image CP_Image_CreateFromData(int w, int h, const unsigned char* pixelDataInput)
+CP_API CP_Image CP_Image_CreateFromData(int w, int h, const CP_Color* pixelDataInput)
 {
 	if (!pixelDataInput)
 	{
@@ -350,7 +350,7 @@ CP_API CP_Image CP_Image_CreateFromData(int w, int h, const unsigned char* pixel
 	img->filepath[0] = '\0';
 
 	// load the image
-	img->handle = nvgCreateImageRGBA(CORE->nvg, w, h, 0, pixelDataInput);
+	img->handle = nvgCreateImageRGBA(CORE->nvg, w, h, 0, (const unsigned char*)pixelDataInput);
 
 	if (img->handle == 0)
 	{
@@ -550,7 +550,7 @@ CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 	}
 
 	// createImage returns NULL if it fails, we want to pass that along as well
-	CP_Image newImg = CP_Image_CreateFromData(w, h, buffer);
+	CP_Image newImg = CP_Image_CreateFromData(w, h, (const CP_Color*)buffer);
 
 	free(readBuffer);
 	free(buffer);

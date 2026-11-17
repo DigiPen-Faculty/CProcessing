@@ -64,6 +64,9 @@ jobs:
         run: |
           git ls-files '*.c' '*.h' '*.cpp' | xargs "$RUNNER_TEMP/cf/bin/clang-format" --dry-run -Werror
 
+      - name: Check that the header and the sources use the same names
+        run: python3 tools/check-api-names.py
+
   windows-msbuild:
     runs-on: windows-2025
     timeout-minutes: 30

@@ -64,7 +64,7 @@ CP_API CP_BOOL CP_Random_GetBool(void)
 	return internalRand() & 0x01;
 }
 
-CP_API uint32_t CP_Random_GetInt(void)
+CP_API unsigned int CP_Random_GetInt(void)
 {
 	return internalRand();
 }

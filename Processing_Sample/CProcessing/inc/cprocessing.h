@@ -146,11 +146,11 @@ CP_API void				CP_Settings_Restore					(void);
 //		RGBA values are in the range of 0-255
 //		HSLA values are h (0-360), s (0-100), l (0-100), a (0-255)
 CP_API CP_Color			CP_Color_Create						(int r, int g, int b, int a);
-CP_API CP_Color			CP_Color_CreateHex					(int hexCode);
-CP_API CP_Color			CP_Color_Lerp						(CP_Color a, CP_Color b, float t);
+CP_API CP_Color			CP_Color_CreateHex					(unsigned hexCode);
+CP_API CP_Color			CP_Color_Lerp						(CP_Color a, CP_Color b, float lerpFactor);
 CP_API CP_Color			CP_Color_FromColorHSL				(CP_ColorHSL hsl);
 CP_API CP_ColorHSL		CP_ColorHSL_Create					(int h, int s, int l, int a);
-CP_API CP_ColorHSL		CP_ColorHSL_Lerp					(CP_ColorHSL a, CP_ColorHSL b, float t);
+CP_API CP_ColorHSL		CP_ColorHSL_Lerp					(CP_ColorHSL a, CP_ColorHSL b, float lerpFactor);
 CP_API CP_ColorHSL		CP_ColorHSL_FromColor				(CP_Color rgb);
 
 
@@ -189,7 +189,7 @@ CP_API void				CP_Image_Draw						(CP_Image img, float x, float y, float w, floa
 CP_API void				CP_Image_DrawAdvanced				(CP_Image img, float x, float y, float w, float h, int alpha, float degrees);
 CP_API void				CP_Image_DrawSubImage				(CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha);
 CP_API void				CP_Image_DrawSubImageAdvanced       (CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha, float degrees);
-CP_API CP_Image			CP_Image_CreateFromData				(int w, int h, const unsigned char* pixelDataInput);
+CP_API CP_Image			CP_Image_CreateFromData				(int w, int h, const CP_Color* pixelDataInput);
 CP_API CP_Image			CP_Image_Create						(int width, int height);
 CP_API void				CP_Image_BeginDrawing				(CP_Image img);
 CP_API void				CP_Image_EndDrawing					(void);
