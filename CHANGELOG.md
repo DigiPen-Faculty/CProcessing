@@ -52,6 +52,28 @@ Each change says what to do in an existing project.
   numbers a seed used to give (a layout made with `CP_Random_Seed(5)`, say).
   That layout is now different, but the same on every computer. Unseeded
   programs behave as before (a different start every run).
+- **`CP_Color`, `CP_ColorHSL`, `CP_Vector` and `CP_Matrix` are plain
+  structs, without the array views.** They were unions, so a color could be
+  read as `c.r` or as `c.rgba[0]`. The names are unchanged (`.r .g .b .a`,
+  `.h .s .l .a`, `.x .y`, `.m00` to `.m22`) and so are the sizes (4, 8 and 36
+  bytes, no padding), so almost no program is affected: the array views were
+  in no example, lesson, demo or wiki page. What to do: if a program uses
+  `.rgba[i]`, `.hsla[i]`, `.v[i]` or `.m[i][j]`, write the members out, or
+  copy them into your own array. The compiler says exactly where. The
+  `CP_ANONYMOUS_STRUCT` macro is gone with them.
+- **The Visual Studio projects and the CMake builds compile as C11
+  (`/std:c11`)** instead of Visual Studio's default C dialect, which is older
+  and has Microsoft extensions. Nothing to do for the template or the
+  examples. To move an existing Visual Studio project: Project Properties,
+  C/C++, Language, *C Language Standard*, ISO C11 (`/std:c11`).
+- **`cprocessing_common.h` no longer turns off warnings C4201, C4204 and
+  C4090 in your code.** It disabled them for the whole file that included it.
+  C4204 and C4090 never appeared in any CProcessing project, so only C4201
+  (a struct or union without a name, in your own code) can show up, and only
+  in Visual Studio's default C mode: with `/std:c11` a nameless struct is
+  standard C and not a warning.
+- **`CP_MAX_GAMEPADS` is a macro, not a `static const int`**, so it can size
+  an array in C: `int connected[CP_MAX_GAMEPADS];` (a compile error before).
 
 ### Added
 
@@ -247,11 +269,13 @@ Each change says what to do in an existing project.
   reseeding with the same seed:** it keeps the second number of each pair,
   and that used to survive a reseed and come out first.
 - **`cprocessing_common.h` no longer causes warnings in C++ with
-  `-Wpedantic`.** The color, vector and matrix unions have an unnamed struct
-  (for `c.r` as well as `c.rgba[0]`), which C11 allows but C++ and C99
-  don't, so GCC and Clang gave 8 warnings for every file that included it,
-  and a build with `-Wpedantic -Werror` failed. The header now marks them
-  with `__extension__`, through a `CP_ANONYMOUS_STRUCT` macro.
+  `-Wpedantic`, or in Visual Studio at warning level 4.** The color, vector
+  and matrix types were unions with an unnamed struct, which C++ doesn't
+  allow (and Visual Studio's default C mode warns about), so GCC and Clang
+  gave 8 warnings for every file that included it, and a build with
+  `-Wpedantic -Werror` failed. They are plain structs now (see Breaking
+  changes), so the header needs no warning pragmas, no `__extension__` and
+  no macro.
 - **The demos compile as C++:** casts after `malloc` and `calloc`, and when
   making a key from a number.
 - **C++ is checked in CI.** Every example, lesson, demo and template

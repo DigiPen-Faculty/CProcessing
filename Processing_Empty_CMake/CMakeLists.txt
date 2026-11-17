@@ -32,10 +32,15 @@ if(GAME_SOURCES MATCHES "[.]cpp")
 endif()
 add_executable(${PROJECT_NAME} ${GAME_SOURCES})
 
+# C code is compiled as C11 on every compiler
+set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED ON)
+
 if(MSVC)
     # Read source files as UTF-8, so text such as "©" or accented letters
     # in a string draws correctly with CP_Font_DrawText
     target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
+    # CMake 3.20 doesn't choose a C standard for Visual Studio, so say it here
+    target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:C>:/std:c11>)
 endif()
 
 set(CPROCESSING_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CProcessing")

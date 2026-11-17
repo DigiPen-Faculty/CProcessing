@@ -937,13 +937,9 @@ static void RunTextSweep(Tier2TextSweep* result, bool animateScale)
 		bool inked = false;
 		for (int i = 0; i < TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE; ++i)
 		{
-			for (int c = 0; c < 3; ++c)
+			if (abs(sweepDraw[i].r - sweepRedraw[i].r) > SWEEP_CHANNEL_TOLERANCE || abs(sweepDraw[i].g - sweepRedraw[i].g) > SWEEP_CHANNEL_TOLERANCE || abs(sweepDraw[i].b - sweepRedraw[i].b) > SWEEP_CHANNEL_TOLERANCE)
 			{
-				if (abs(sweepDraw[i].rgba[c] - sweepRedraw[i].rgba[c]) > SWEEP_CHANNEL_TOLERANCE)
-				{
-					++differing;
-					break;
-				}
+				++differing;
 			}
 			inked = inked || sweepRedraw[i].r < 128;
 		}

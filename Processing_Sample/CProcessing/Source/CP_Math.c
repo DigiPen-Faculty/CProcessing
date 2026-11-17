@@ -359,47 +359,79 @@ CP_API CP_Matrix CP_Matrix_RotateRadians(float radians)
 	};
 }
 
+// The functions below loop over rows and columns, so they work on a 3 x 3
+// array of the matrix's named members
+static void matrixToArray(CP_Matrix matrix, float out[3][3])
+{
+	out[0][0] = matrix.m00;
+	out[0][1] = matrix.m01;
+	out[0][2] = matrix.m02;
+	out[1][0] = matrix.m10;
+	out[1][1] = matrix.m11;
+	out[1][2] = matrix.m12;
+	out[2][0] = matrix.m20;
+	out[2][1] = matrix.m21;
+	out[2][2] = matrix.m22;
+}
+
+static CP_Matrix matrixFromArray(const float in[3][3])
+{
+	return (CP_Matrix){
+		in[0][0], in[0][1], in[0][2],
+		in[1][0], in[1][1], in[1][2],
+		in[2][0], in[2][1], in[2][2]
+	};
+}
+
 CP_API CP_Matrix CP_Matrix_Transpose(CP_Matrix original)
 {
-	CP_Matrix result = CP_Matrix_Identity();
+	float source[3][3];
+	float result[3][3];
 	unsigned i, j;
+	matrixToArray(original, source);
 	for (i = 0; i < 3; i++)
 	{
 		for (j = 0; j < 3; j++)
 		{
-			result.m[j][i] = original.m[i][j];
+			result[j][i] = source[i][j];
 		}
 	}
 
-	return result;
+	return matrixFromArray(result);
 }
 
-CP_API CP_Matrix CP_Matrix_Inverse(CP_Matrix m)
+CP_API CP_Matrix CP_Matrix_Inverse(CP_Matrix matrix)
 {
-	CP_Matrix result;
+	float m[3][3];
+	float result[3][3];
 	unsigned i, j;
 	float determinant = 0;
+	matrixToArray(matrix, m);
 
 	// finding determinant
 	for (i = 0; i < 3; i++)
 	{
-		determinant += (m.m[0][i] * (m.m[1][(i + 1) % 3] * m.m[2][(i + 2) % 3] - m.m[1][(i + 2) % 3] * m.m[2][(i + 1) % 3]));
+		determinant += (m[0][i] * (m[1][(i + 1) % 3] * m[2][(i + 2) % 3] - m[1][(i + 2) % 3] * m[2][(i + 1) % 3]));
 	}
 
 	for (i = 0; i < 3; i++)
 	{
 		for (j = 0; j < 3; j++)
 		{
-			result.m[i][j] = ((m.m[(j + 1) % 3][(i + 1) % 3] * m.m[(j + 2) % 3][(i + 2) % 3]) - (m.m[(j + 1) % 3][(i + 2) % 3] * m.m[(j + 2) % 3][(i + 1) % 3])) / determinant;
+			result[i][j] = ((m[(j + 1) % 3][(i + 1) % 3] * m[(j + 2) % 3][(i + 2) % 3]) - (m[(j + 1) % 3][(i + 2) % 3] * m[(j + 2) % 3][(i + 1) % 3])) / determinant;
 		}
 	}
-	return result;
+	return matrixFromArray(result);
 }
 
 CP_API CP_Matrix CP_Matrix_Multiply(CP_Matrix a, CP_Matrix b)
 {
-	CP_Matrix result = CP_Matrix_Identity();
+	float left[3][3];
+	float right[3][3];
+	float result[3][3];
 	unsigned i, j, k;
+	matrixToArray(a, left);
+	matrixToArray(b, right);
 	for (i = 0; i < 3; i++)
 	{
 		for (j = 0; j < 3; j++)
@@ -408,11 +440,11 @@ CP_API CP_Matrix CP_Matrix_Multiply(CP_Matrix a, CP_Matrix b)
 
 			for (k = 0; k < 3; k++)
 			{
-				current_value += a.m[i][k] * b.m[k][j];
+				current_value += left[i][k] * right[k][j];
 			}
 
-			result.m[i][j] = current_value;
+			result[i][j] = current_value;
 		}
 	}
-	return result;
+	return matrixFromArray(result);
 }

@@ -70,21 +70,22 @@ endfunction()
 function(cprocessing_set_warnings target)
     cprocessing_set_utf8(${target})
     if(MSVC)
-        target_compile_options(${target} PRIVATE /W4)
+        # C is built as C11 (as /std:c11, MSVC's default is an older dialect
+        # with Microsoft extensions); C++ files keep the C++ default
+        target_compile_options(${target} PRIVATE /W4 $<$<COMPILE_LANGUAGE:C>:/std:c11>)
         target_compile_definitions(${target} PRIVATE _CRT_SECURE_NO_WARNINGS)
         if(CPROCESSING_WARNINGS_AS_ERRORS)
             target_compile_options(${target} PRIVATE /WX)
         endif()
     else()
-        # -Wmissing-braces only flags the idiomatic { x, y } initializers
-        # for the CP_Vector/CP_Color unions, which are well defined.
-        target_compile_options(${target} PRIVATE -Wall -Wextra -Wno-missing-braces)
+        target_compile_options(${target} PRIVATE -Wall -Wextra)
         if(CPROCESSING_WARNINGS_AS_ERRORS)
             target_compile_options(${target} PRIVATE -Werror)
         endif()
     endif()
     if(NOT MSVC)
-        # Anonymous structs inside unions (CP_Color, CP_Vector, ...) are C11.
+        # C is C11 (gnu11 keeps the POSIX functions the library uses);
+        # Visual Studio gets /std:c11 above
         set_target_properties(${target} PROPERTIES C_STANDARD 11 C_EXTENSIONS ON)
     endif()
 endfunction()
@@ -101,8 +102,7 @@ function(cprocessing_set_cxx_warnings target)
             target_compile_options(${target} PRIVATE /WX)
         endif()
     else()
-        # -Wno-missing-braces as for C: { x, y } for the unions is fine
-        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Wno-missing-braces)
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
         if(CPROCESSING_WARNINGS_AS_ERRORS)
             target_compile_options(${target} PRIVATE -Werror)
         endif()

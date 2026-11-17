@@ -76,23 +76,22 @@ int main(int argc, char** argv)
 		CP_Image_CreateFromData(2, 2, &pixels[0].r);
 	}
 
-	// Colors: both ways of reading the union
+	// Colors
 	const CP_Color color = CP_Color_Create(10, 20, 30, 40);
 	Check(color.r == 10 && color.g == 20 && color.b == 30 && color.a == 40, "CP_Color_Create fills r, g, b, a");
-	Check(color.rgba[0] == 10 && color.rgba[3] == 40, "rgba[] is the same memory as r, g, b, a");
+	Check(sizeof(CP_Color) == 4 && sizeof(CP_Vector) == 8 && sizeof(CP_Matrix) == 36, "colors, vectors and matrices have no padding");
 	const CP_Color hex = CP_Color_CreateHex(0x204080FF);
 	Check(hex.r == 0x20 && hex.g == 0x40 && hex.b == 0x80 && hex.a == 0xFF, "CP_Color_CreateHex");
 	const CP_ColorHSL hsl = CP_ColorHSL_FromColor(CP_Color_Create(255, 0, 0, 255));
-	Check(hsl.h == 0 && hsl.s == 100 && hsl.l == 50 && hsl.hsla[3] == 255, "red in HSL");
+	Check(hsl.h == 0 && hsl.s == 100 && hsl.l == 50 && hsl.a == 255, "red in HSL");
 
 	// Vectors and matrices
 	const CP_Vector a = CP_Vector_Set(3.0f, 4.0f);
 	Check(Near(CP_Vector_Length(a), 5.0f), "CP_Vector_Length");
-	Check(Near(a.v[0], a.x) && Near(a.v[1], a.y), "v[] is the same memory as x, y");
 	const CP_Vector sum = CP_Vector_Add(a, CP_Vector_Scale(a, 2.0f));
 	Check(Near(sum.x, 9.0f) && Near(sum.y, 12.0f), "CP_Vector_Add and CP_Vector_Scale");
 	const CP_Matrix identity = CP_Matrix_Identity();
-	Check(Near(identity.m00, 1.0f) && Near(identity.m[1][1], 1.0f) && Near(identity.m01, 0.0f), "CP_Matrix_Identity");
+	Check(Near(identity.m00, 1.0f) && Near(identity.m11, 1.0f) && Near(identity.m01, 0.0f), "CP_Matrix_Identity");
 	const CP_Vector moved = CP_Vector_MatrixMultiply(CP_Matrix_Translate(CP_Vector_Set(1.0f, 2.0f)), a);
 	Check(Near(moved.x, 4.0f) && Near(moved.y, 6.0f), "CP_Matrix_Translate");
 
