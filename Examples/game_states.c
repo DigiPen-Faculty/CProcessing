@@ -70,7 +70,7 @@ void menu_update(void)
 	DrawCenteredText("Move the mouse to dodge the falling blocks", 300.0f, 24.0f);
 	DrawCenteredText("Click or press Enter to play", 380.0f, 24.0f);
 
-	if (CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT) || CP_Input_KeyTriggered(KEY_ENTER))
+	if (CP_Input_MouseTriggered(CP_MOUSE_LEFT) || CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		// The switch happens at the start of the next frame: menu_exit runs,
 		// then play_init, then play_update every frame
@@ -115,7 +115,7 @@ void play_update(void)
 	// P pauses: the pause state goes on top of this one. play_exit doesn't
 	// run, this state stops and stays visible behind the pause, and when the
 	// pause pops, it carries on where it was (play_init doesn't run again).
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		CP_Engine_PushGameState(NULL, pause_update, NULL);
 	}
@@ -123,7 +123,7 @@ void play_update(void)
 	// R starts over. The next state is the current one, so
 	// CP_Engine_SetNextGameState would do nothing; the Forced version runs
 	// play_exit and play_init anyway.
-	if (CP_Input_KeyTriggered(KEY_R))
+	if (CP_Input_KeyTriggered(CP_KEY_R))
 	{
 		CP_Engine_SetNextGameStateForced(play_init, play_update, play_exit);
 	}
@@ -181,11 +181,11 @@ void pause_update(void)
 	DrawCenteredText("PAUSED", 250.0f, 60.0f);
 	DrawCenteredText("P to keep playing, R to start over", 320.0f, 24.0f);
 
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		CP_Engine_PopGameState();
 	}
-	if (CP_Input_KeyTriggered(KEY_R))
+	if (CP_Input_KeyTriggered(CP_KEY_R))
 	{
 		// Ends the pause and the game under it, and starts a new game
 		CP_Engine_SetNextGameState(play_init, play_update, play_exit);
@@ -225,11 +225,11 @@ void game_over_update(void)
 	}
 	DrawCenteredText("Enter to play again, M for the menu", 420.0f, 24.0f);
 
-	if (CP_Input_KeyTriggered(KEY_ENTER))
+	if (CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		CP_Engine_SetNextGameState(play_init, play_update, play_exit);
 	}
-	if (CP_Input_KeyTriggered(KEY_M))
+	if (CP_Input_KeyTriggered(CP_KEY_M))
 	{
 		CP_Engine_SetNextGameState(menu_init, menu_update, menu_exit);
 	}

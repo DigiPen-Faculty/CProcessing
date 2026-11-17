@@ -46,14 +46,14 @@ A screen is four functions and a name:
 typedef struct Screen
 {
 	const char* name;
-	FunctionPtr init;
-	FunctionPtr update;
-	FunctionPtr draw;
-	FunctionPtr exit;
+	CP_FunctionPtr init;
+	CP_FunctionPtr update;
+	CP_FunctionPtr draw;
+	CP_FunctionPtr exit;
 } Screen;
 ```
 
-`FunctionPtr` is CProcessing's name for "a function with no parameters that returns nothing": the kind that `game_init` is. A variable of that type holds a function, and you call it with `()`, like any function: `screen->update();`.
+`CP_FunctionPtr` is CProcessing's name for "a function with no parameters that returns nothing": the kind that `game_init` is. A variable of that type holds a function, and you call it with `()`, like any function: `screen->update();`.
 
 Each screen is one variable, made once at the top, with its functions:
 

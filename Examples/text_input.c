@@ -72,18 +72,18 @@ void game_update(void)
 			snprintf(name + length, MAX_NAME_BYTES - length, "%s", typed);
 		}
 
-		if (CP_Input_KeyTriggered(KEY_BACKSPACE))
+		if (CP_Input_KeyTriggered(CP_KEY_BACKSPACE))
 		{
 			DeleteLastCharacter();
 		}
 
 		// Enter finishes, as long as there is a name
-		if (CP_Input_KeyTriggered(KEY_ENTER) && strlen(name) > 0)
+		if (CP_Input_KeyTriggered(CP_KEY_ENTER) && strlen(name) > 0)
 		{
 			entered = TRUE;
 		}
 	}
-	else if (CP_Input_KeyTriggered(KEY_ENTER))
+	else if (CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		// Enter again starts over
 		name[0] = '\0';

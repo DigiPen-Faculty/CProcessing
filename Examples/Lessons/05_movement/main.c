@@ -59,15 +59,15 @@ void MoveAndBounce(CP_Vector* ball, float* direction, float amount)
 void DoExperiment(void)
 {
 	// Keys 1, 2 and 3 limit how many frames a second the game runs at
-	if (CP_Input_KeyTriggered(KEY_1))
+	if (CP_Input_KeyTriggered(CP_KEY_1))
 	{
 		CP_System_SetFrameRate(15.0f);
 	}
-	if (CP_Input_KeyTriggered(KEY_2))
+	if (CP_Input_KeyTriggered(CP_KEY_2))
 	{
 		CP_System_SetFrameRate(30.0f);
 	}
-	if (CP_Input_KeyTriggered(KEY_3))
+	if (CP_Input_KeyTriggered(CP_KEY_3))
 	{
 		CP_System_SetFrameRate(60.0f);
 	}
@@ -110,19 +110,19 @@ CP_Vector ReadDirection(void)
 	// Each key adds to the direction: x is -1 for left and +1 for right, y is
 	// -1 for up and +1 for down (the window's y grows downward).
 	CP_Vector direction = CP_Vector_Zero();
-	if (CP_Input_KeyDown(KEY_A) || CP_Input_KeyDown(KEY_LEFT))
+	if (CP_Input_KeyDown(CP_KEY_A) || CP_Input_KeyDown(CP_KEY_LEFT))
 	{
 		direction.x -= 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_D) || CP_Input_KeyDown(KEY_RIGHT))
+	if (CP_Input_KeyDown(CP_KEY_D) || CP_Input_KeyDown(CP_KEY_RIGHT))
 	{
 		direction.x += 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_W) || CP_Input_KeyDown(KEY_UP))
+	if (CP_Input_KeyDown(CP_KEY_W) || CP_Input_KeyDown(CP_KEY_UP))
 	{
 		direction.y -= 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_S) || CP_Input_KeyDown(KEY_DOWN))
+	if (CP_Input_KeyDown(CP_KEY_S) || CP_Input_KeyDown(CP_KEY_DOWN))
 	{
 		direction.y += 1.0f;
 	}
@@ -149,7 +149,7 @@ CP_Vector ReadDirection(void)
 
 void DoPlayer(void)
 {
-	if (CP_Input_KeyTriggered(KEY_N))
+	if (CP_Input_KeyTriggered(CP_KEY_N))
 	{
 		normalizeDirection = !normalizeDirection;
 	}

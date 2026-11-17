@@ -50,10 +50,10 @@
 typedef struct Screen
 {
 	const char* name;
-	FunctionPtr init;
-	FunctionPtr update;
-	FunctionPtr draw;
-	FunctionPtr exit;
+	CP_FunctionPtr init;
+	CP_FunctionPtr update;
+	CP_FunctionPtr draw;
+	CP_FunctionPtr exit;
 } Screen;
 
 #define MAX_SCREENS 8
@@ -299,7 +299,7 @@ void SpawnStar(void)
 //---------------------------------------------------------
 void menu_update(void)
 {
-	if (CP_Input_KeyTriggered(KEY_ENTER))
+	if (CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		Screens_Set(&PLAY);
 	}
@@ -340,7 +340,7 @@ void play_update(void)
 {
 	const float dt = CP_System_GetDt();
 
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		Screens_Push(&PAUSE);
 	}
@@ -421,11 +421,11 @@ void play_draw(void)
 //---------------------------------------------------------
 void pause_update(void)
 {
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		Screens_Pop();
 	}
-	if (CP_Input_KeyTriggered(KEY_Q))
+	if (CP_Input_KeyTriggered(CP_KEY_Q))
 	{
 		Screens_Push(&CONFIRM);
 	}
@@ -444,11 +444,11 @@ void pause_draw(void)
 //---------------------------------------------------------
 void confirm_update(void)
 {
-	if (CP_Input_KeyTriggered(KEY_Y))
+	if (CP_Input_KeyTriggered(CP_KEY_Y))
 	{
 		Screens_Set(&MENU);
 	}
-	if (CP_Input_KeyTriggered(KEY_N))
+	if (CP_Input_KeyTriggered(CP_KEY_N))
 	{
 		Screens_Pop();
 	}
@@ -466,11 +466,11 @@ void confirm_draw(void)
 //---------------------------------------------------------
 void over_update(void)
 {
-	if (CP_Input_KeyTriggered(KEY_ENTER))
+	if (CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		Screens_Set(&PLAY);
 	}
-	if (CP_Input_KeyTriggered(KEY_M))
+	if (CP_Input_KeyTriggered(CP_KEY_M))
 	{
 		Screens_Set(&MENU);
 	}

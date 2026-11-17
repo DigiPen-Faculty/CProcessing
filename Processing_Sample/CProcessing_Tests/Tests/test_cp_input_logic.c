@@ -127,16 +127,16 @@ void test_inputlogic_double_click_too_slow(void)
 
 void test_inputlogic_gamepad_button_validity(void)
 {
-	TEST_ASSERT_TRUE(CP_InputLogic_GamepadButtonIsValid(GAMEPAD_DPAD_UP));
-	TEST_ASSERT_TRUE(CP_InputLogic_GamepadButtonIsValid(GAMEPAD_Y));
+	TEST_ASSERT_TRUE(CP_InputLogic_GamepadButtonIsValid(CP_GAMEPAD_DPAD_UP));
+	TEST_ASSERT_TRUE(CP_InputLogic_GamepadButtonIsValid(CP_GAMEPAD_Y));
 	TEST_ASSERT_FALSE(CP_InputLogic_GamepadButtonIsValid((CP_GAMEPAD)-1));
-	TEST_ASSERT_FALSE(CP_InputLogic_GamepadButtonIsValid((CP_GAMEPAD)(GAMEPAD_Y + 1)));
+	TEST_ASSERT_FALSE(CP_InputLogic_GamepadButtonIsValid((CP_GAMEPAD)(CP_GAMEPAD_Y + 1)));
 }
 
 void test_inputlogic_gamepad_button_mask_is_one_bit_per_button(void)
 {
 	unsigned seen = 0;
-	for (int b = GAMEPAD_DPAD_UP; b <= GAMEPAD_Y; ++b)
+	for (int b = CP_GAMEPAD_DPAD_UP; b <= CP_GAMEPAD_Y; ++b)
 	{
 		unsigned mask = CP_InputLogic_GamepadButtonMask((CP_GAMEPAD)b);
 		TEST_ASSERT_NOT_EQUAL(0u, mask);
@@ -154,31 +154,31 @@ void test_inputlogic_gamepad_button_mask_invalid_is_zero(void)
 
 void test_inputlogic_gamepad_button_down_reads_only_its_bit(void)
 {
-	unsigned buttons = CP_InputLogic_GamepadButtonMask(GAMEPAD_A) | CP_InputLogic_GamepadButtonMask(GAMEPAD_START);
-	TEST_ASSERT_TRUE(CP_InputLogic_GamepadButtonDown(buttons, GAMEPAD_A));
-	TEST_ASSERT_TRUE(CP_InputLogic_GamepadButtonDown(buttons, GAMEPAD_START));
-	TEST_ASSERT_FALSE(CP_InputLogic_GamepadButtonDown(buttons, GAMEPAD_B));
-	TEST_ASSERT_FALSE(CP_InputLogic_GamepadButtonDown(buttons, GAMEPAD_BACK));
+	unsigned buttons = CP_InputLogic_GamepadButtonMask(CP_GAMEPAD_A) | CP_InputLogic_GamepadButtonMask(CP_GAMEPAD_START);
+	TEST_ASSERT_TRUE(CP_InputLogic_GamepadButtonDown(buttons, CP_GAMEPAD_A));
+	TEST_ASSERT_TRUE(CP_InputLogic_GamepadButtonDown(buttons, CP_GAMEPAD_START));
+	TEST_ASSERT_FALSE(CP_InputLogic_GamepadButtonDown(buttons, CP_GAMEPAD_B));
+	TEST_ASSERT_FALSE(CP_InputLogic_GamepadButtonDown(buttons, CP_GAMEPAD_BACK));
 	TEST_ASSERT_FALSE(CP_InputLogic_GamepadButtonDown(buttons, (CP_GAMEPAD)-1));
 }
 
 void test_inputlogic_gamepad_to_glfw_button_mapping(void)
 {
 	// Xbox layout, matching the XINPUT_GAMEPAD_* bits the enum used to map to
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_DPAD_UP, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_DPAD_UP));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_DPAD_DOWN, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_DPAD_DOWN));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_DPAD_LEFT, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_DPAD_LEFT));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_DPAD_RIGHT, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_DPAD_RIGHT));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_START, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_START));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_BACK, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_BACK));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_LEFT_THUMB, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_LEFT_THUMB));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_RIGHT_THUMB, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_RIGHT_THUMB));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_LEFT_SHOULDER));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_RIGHT_SHOULDER));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_A, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_A));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_B, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_B));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_X, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_X));
-	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_Y, CP_InputLogic_GamepadToGLFWButton(GAMEPAD_Y));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_DPAD_UP, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_DPAD_UP));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_DPAD_DOWN, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_DPAD_DOWN));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_DPAD_LEFT, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_DPAD_LEFT));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_DPAD_RIGHT, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_DPAD_RIGHT));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_START, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_START));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_BACK, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_BACK));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_LEFT_THUMB, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_LEFT_THUMB));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_RIGHT_THUMB, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_RIGHT_THUMB));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_LEFT_SHOULDER));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_RIGHT_SHOULDER));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_A, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_A));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_B, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_B));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_X, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_X));
+	TEST_ASSERT_EQUAL_INT(GLFW_GAMEPAD_BUTTON_Y, CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD_Y));
 	TEST_ASSERT_EQUAL_INT(-1, CP_InputLogic_GamepadToGLFWButton((CP_GAMEPAD)42));
 }
 
@@ -220,7 +220,7 @@ void test_inputlogic_from_glfw_maps_pressed_buttons(void)
 	state.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT] = GLFW_PRESS;
 	state.buttons[GLFW_GAMEPAD_BUTTON_GUIDE] = GLFW_PRESS; // no CP_GAMEPAD equivalent: ignored
 	CP_GamepadRawState raw = CP_InputLogic_FromGLFWGamepad(&state);
-	TEST_ASSERT_EQUAL_UINT(CP_InputLogic_GamepadButtonMask(GAMEPAD_A) | CP_InputLogic_GamepadButtonMask(GAMEPAD_DPAD_LEFT), raw.buttons);
+	TEST_ASSERT_EQUAL_UINT(CP_InputLogic_GamepadButtonMask(CP_GAMEPAD_A) | CP_InputLogic_GamepadButtonMask(CP_GAMEPAD_DPAD_LEFT), raw.buttons);
 }
 
 void test_inputlogic_from_glfw_triggers_rescaled_to_0_1(void)

@@ -45,11 +45,11 @@ void game_init(void)
 void game_update(void)
 {
 	// Up and Down change the speed, from 1 to 30 frames per second
-	if (CP_Input_KeyTriggered(KEY_UP))
+	if (CP_Input_KeyTriggered(CP_KEY_UP))
 	{
 		framesPerSecond = CP_Math_ClampFloat(framesPerSecond + 1.0f, 1.0f, 30.0f);
 	}
-	if (CP_Input_KeyTriggered(KEY_DOWN))
+	if (CP_Input_KeyTriggered(CP_KEY_DOWN))
 	{
 		framesPerSecond = CP_Math_ClampFloat(framesPerSecond - 1.0f, 1.0f, 30.0f);
 	}

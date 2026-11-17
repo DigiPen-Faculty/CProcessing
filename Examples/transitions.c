@@ -77,14 +77,14 @@ typedef struct Transition
 	float seconds;
 	float time;
 	TransitionChange change;
-	FunctionPtr init, update, exit;
+	CP_FunctionPtr init, update, exit;
 	CP_Image before; // the old picture (not for a fade)
 } Transition;
 
 Transition transition;
 
 static void Transition_Start(TransitionChange change, TransitionKind kind, float seconds,
-	FunctionPtr init, FunctionPtr update, FunctionPtr exit)
+	CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit)
 {
 	if (transition.playing)
 	{
@@ -103,12 +103,12 @@ static void Transition_Start(TransitionChange change, TransitionKind kind, float
 
 // Like CP_Engine_SetNextGameState, CP_Engine_PushGameState and
 // CP_Engine_PopGameState, with a transition
-void Transition_SetNext(TransitionKind kind, float seconds, FunctionPtr init, FunctionPtr update, FunctionPtr exit)
+void Transition_SetNext(TransitionKind kind, float seconds, CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit)
 {
 	Transition_Start(CHANGE_SET, kind, seconds, init, update, exit);
 }
 
-void Transition_Push(TransitionKind kind, float seconds, FunctionPtr init, FunctionPtr update, FunctionPtr exit)
+void Transition_Push(TransitionKind kind, float seconds, CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit)
 {
 	Transition_Start(CHANGE_PUSH, kind, seconds, init, update, exit);
 }
@@ -276,12 +276,12 @@ void menu_update(void)
 {
 	for (int i = 0; i < KIND_COUNT; ++i)
 	{
-		if (CP_Input_KeyTriggered((CP_KEY)(KEY_1 + i)))
+		if (CP_Input_KeyTriggered((CP_KEY)(CP_KEY_1 + i)))
 		{
 			chosen = (TransitionKind)i;
 		}
 	}
-	if (CP_Input_KeyTriggered(KEY_ENTER))
+	if (CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		Transition_SetNext(chosen, transitionSeconds, game_init, game_update, game_exit);
 	}
@@ -323,12 +323,12 @@ void game_init(void)
 void game_update(void)
 {
 	const float dt = CP_System_GetDt();
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		// The pause is pushed on top: a crossfade makes its dark cover fade in
 		Transition_Push(TRANSITION_CROSSFADE, 0.25f, NULL, pause_update, NULL);
 	}
-	if (CP_Input_KeyTriggered(KEY_M))
+	if (CP_Input_KeyTriggered(CP_KEY_M))
 	{
 		Transition_SetNext(chosen, transitionSeconds, menu_init, menu_update, menu_exit);
 	}
@@ -363,7 +363,7 @@ void pause_update(void)
 	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 150));
 	DrawCenteredText("PAUSED", 260.0f, 64.0f);
 	DrawCenteredText("P to keep playing", 340.0f, 26.0f);
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		Transition_Pop(TRANSITION_CROSSFADE, 0.25f);
 	}

@@ -58,13 +58,13 @@ int main(int argc, char** argv)
 	Check(passThrough == CP_STATE_FROZEN, "taking UPDATING away from PASSIVE leaves FROZEN");
 
 	// A lambda with no captures can be a state's function
-	FunctionPtr update = [] {};
+	CP_FunctionPtr update = [] {};
 	Check(update != nullptr, "a lambda converts to CProcessing's function pointer");
 
 	// Each of these has to link, with the signature the header gives
-	void (*push)(FunctionPtr, FunctionPtr, FunctionPtr) = &CP_Engine_PushGameState;
+	void (*push)(CP_FunctionPtr, CP_FunctionPtr, CP_FunctionPtr) = &CP_Engine_PushGameState;
 	void (*setPassThrough)(CP_STATE) = &CP_Engine_SetGameStatePassThrough;
-	void (*setPostUpdate)(FunctionPtr) = &CP_Engine_SetPostUpdateFunction;
+	void (*setPostUpdate)(CP_FunctionPtr) = &CP_Engine_SetPostUpdateFunction;
 	Check(push != nullptr && setPassThrough != nullptr && setPostUpdate != nullptr, "engine functions link");
 
 	// The pixel functions take const data, so a const array can be passed.
@@ -102,8 +102,8 @@ int main(int argc, char** argv)
 	Check(Near(CP_Math_EaseOutCubic(1.0f), 1.0f), "CP_Math_EaseOutCubic");
 
 	// Named values from numbers need a cast in C++, as the templates' README says
-	const CP_KEY key = static_cast<CP_KEY>(KEY_A + 1);
-	Check(key == KEY_B, "a key from a number, with a cast");
+	const CP_KEY key = static_cast<CP_KEY>(CP_KEY_A + 1);
+	Check(key == CP_KEY_B, "a key from a number, with a cast");
 
 	// CP_BOOL takes a C++ bool
 	const CP_BOOL yes = (1 < 2);

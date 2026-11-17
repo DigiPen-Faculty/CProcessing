@@ -82,16 +82,16 @@ void DoKeyboard(float cellX, float cellY)
 {
 	const float now = CP_System_GetSeconds();
 
-	if (CP_Input_KeyTriggered(KEY_SPACE))
+	if (CP_Input_KeyTriggered(CP_KEY_SPACE))
 	{
 		triggeredCount++;
 		triggeredLampUntil = now + 0.25f;
 	}
-	if (CP_Input_KeyDown(KEY_SPACE))
+	if (CP_Input_KeyDown(CP_KEY_SPACE))
 	{
 		framesDown++;
 	}
-	if (CP_Input_KeyReleased(KEY_SPACE))
+	if (CP_Input_KeyReleased(CP_KEY_SPACE))
 	{
 		releasedCount++;
 		releasedLampUntil = now + 0.25f;
@@ -100,7 +100,7 @@ void DoKeyboard(float cellX, float cellY)
 	DrawPanel("Keyboard: hold and tap the space bar", cellX, cellY, CP_Color_Create(30, 40, 60, 255));
 
 	DrawLamp("Triggered", cellX + 80.0f, cellY + 100.0f, now < triggeredLampUntil, CP_Color_Create(90, 220, 120, 255));
-	DrawLamp("Down", cellX + 200.0f, cellY + 100.0f, CP_Input_KeyDown(KEY_SPACE), CP_Color_Create(250, 200, 60, 255));
+	DrawLamp("Down", cellX + 200.0f, cellY + 100.0f, CP_Input_KeyDown(CP_KEY_SPACE), CP_Color_Create(250, 200, 60, 255));
 	DrawLamp("Released", cellX + 320.0f, cellY + 100.0f, now < releasedLampUntil, CP_Color_Create(240, 90, 90, 255));
 
 	// Counting shows the difference: hold the key and "frames down" races
@@ -134,7 +134,7 @@ void DoMouse(float cellX, float cellY)
 		ballSize = CP_Math_ClampFloat(ballSize + CP_Input_MouseWheel() * 6.0f, 20.0f, 140.0f);
 
 		// A click starts a ring in the first unused place
-		if (CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT))
+		if (CP_Input_MouseTriggered(CP_MOUSE_LEFT))
 		{
 			for (int i = 0; i < RING_COUNT; i++)
 			{
@@ -176,7 +176,7 @@ void DoMouse(float cellX, float cellY)
 	{
 		CP_Settings_Stroke(CP_Color_Create(250, 200, 60, 255));
 		CP_Settings_StrokeWeight(4.0f);
-		if (CP_Input_MouseDown(MOUSE_BUTTON_LEFT))
+		if (CP_Input_MouseDown(CP_MOUSE_LEFT))
 		{
 			CP_Settings_Fill(CP_Color_Create(250, 200, 60, 255));
 		}
@@ -209,11 +209,11 @@ void DoTyping(float cellX, float cellY)
 	{
 		snprintf(typedText + length, sizeof(typedText) - length, "%s", typed);
 	}
-	if (CP_Input_KeyTriggered(KEY_BACKSPACE) && strlen(typedText) > 0)
+	if (CP_Input_KeyTriggered(CP_KEY_BACKSPACE) && strlen(typedText) > 0)
 	{
 		typedText[strlen(typedText) - 1] = '\0';
 	}
-	if (CP_Input_KeyTriggered(KEY_ENTER))
+	if (CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		typedText[0] = '\0';
 	}
@@ -278,10 +278,10 @@ void DoGamepad(float cellX, float cellY)
 	DrawStick("Right stick", CP_Input_GamepadRightStick(), cellX + 300.0f, cellY + 110.0f);
 
 	// The buttons are like keys: Triggered, Down and Released
-	DrawButton("A", CP_Input_GamepadDown(GAMEPAD_A), cellX + 70.0f, cellY + 250.0f);
-	DrawButton("B", CP_Input_GamepadDown(GAMEPAD_B), cellX + 130.0f, cellY + 250.0f);
-	DrawButton("X", CP_Input_GamepadDown(GAMEPAD_X), cellX + 190.0f, cellY + 250.0f);
-	DrawButton("Y", CP_Input_GamepadDown(GAMEPAD_Y), cellX + 250.0f, cellY + 250.0f);
+	DrawButton("A", CP_Input_GamepadDown(CP_GAMEPAD_A), cellX + 70.0f, cellY + 250.0f);
+	DrawButton("B", CP_Input_GamepadDown(CP_GAMEPAD_B), cellX + 130.0f, cellY + 250.0f);
+	DrawButton("X", CP_Input_GamepadDown(CP_GAMEPAD_X), cellX + 190.0f, cellY + 250.0f);
+	DrawButton("Y", CP_Input_GamepadDown(CP_GAMEPAD_Y), cellX + 250.0f, cellY + 250.0f);
 
 	// The triggers are not on or off: they give 0.0 to 1.0, how far they are pressed
 	CP_Settings_RectMode(CP_POSITION_CORNER);

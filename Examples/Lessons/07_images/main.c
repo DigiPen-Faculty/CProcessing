@@ -103,19 +103,19 @@ void game_update(void)
 	//-----------------------------------------------------
 	// Walk the slime (lesson 5)
 	CP_Vector direction = CP_Vector_Zero();
-	if (CP_Input_KeyDown(KEY_A) || CP_Input_KeyDown(KEY_LEFT))
+	if (CP_Input_KeyDown(CP_KEY_A) || CP_Input_KeyDown(CP_KEY_LEFT))
 	{
 		direction.x -= 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_D) || CP_Input_KeyDown(KEY_RIGHT))
+	if (CP_Input_KeyDown(CP_KEY_D) || CP_Input_KeyDown(CP_KEY_RIGHT))
 	{
 		direction.x += 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_W) || CP_Input_KeyDown(KEY_UP))
+	if (CP_Input_KeyDown(CP_KEY_W) || CP_Input_KeyDown(CP_KEY_UP))
 	{
 		direction.y -= 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_S) || CP_Input_KeyDown(KEY_DOWN))
+	if (CP_Input_KeyDown(CP_KEY_S) || CP_Input_KeyDown(CP_KEY_DOWN))
 	{
 		direction.y += 1.0f;
 	}
@@ -150,28 +150,28 @@ void game_update(void)
 
 	//-----------------------------------------------------
 	// Easing: choose with 1 to 5, launch with a click
-	if (CP_Input_KeyTriggered(KEY_1))
+	if (CP_Input_KeyTriggered(CP_KEY_1))
 	{
 		easing = 0;
 	}
-	if (CP_Input_KeyTriggered(KEY_2))
+	if (CP_Input_KeyTriggered(CP_KEY_2))
 	{
 		easing = 1;
 	}
-	if (CP_Input_KeyTriggered(KEY_3))
+	if (CP_Input_KeyTriggered(CP_KEY_3))
 	{
 		easing = 2;
 	}
-	if (CP_Input_KeyTriggered(KEY_4))
+	if (CP_Input_KeyTriggered(CP_KEY_4))
 	{
 		easing = 3;
 	}
-	if (CP_Input_KeyTriggered(KEY_5))
+	if (CP_Input_KeyTriggered(CP_KEY_5))
 	{
 		easing = 4;
 	}
 
-	if (CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT))
+	if (CP_Input_MouseTriggered(CP_MOUSE_LEFT))
 	{
 		orbStart = CP_Vector_Set(slimePosition.x, slimePosition.y - 20.0f);
 		orbEnd = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());

@@ -175,7 +175,7 @@ void menu_update(void)
 	}
 	DrawFadeIn();
 
-	if (CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT) || CP_Input_KeyTriggered(KEY_ENTER))
+	if (CP_Input_MouseTriggered(CP_MOUSE_LEFT) || CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		// The change happens at the start of the NEXT frame: menu_exit runs,
 		// then play_init, then play_update every frame
@@ -213,7 +213,7 @@ void play_update(void)
 
 	// P puts the pause on top of the game. play_exit doesn't run, and play
 	// stays underneath, frozen and visible, until the pause is taken off.
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		CP_Engine_PushGameState(pause_init, pause_update, pause_exit);
 	}
@@ -221,7 +221,7 @@ void play_update(void)
 	// R starts over. The state we want is the one we're already in, so the
 	// plain SetNextGameState would do nothing. The Forced version runs
 	// play_exit and play_init anyway.
-	if (CP_Input_KeyTriggered(KEY_R))
+	if (CP_Input_KeyTriggered(CP_KEY_R))
 	{
 		CP_Engine_SetNextGameStateForced(play_init, play_update, play_exit);
 		return;
@@ -246,7 +246,7 @@ void play_update(void)
 		bubbles[i].radius += growSpeed * dt;
 
 		// A click inside the bubble pops it. Bigger bubbles are worth more.
-		if (CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT) && CP_Vector_Distance(mouse, bubbles[i].position) <= bubbles[i].radius)
+		if (CP_Input_MouseTriggered(CP_MOUSE_LEFT) && CP_Vector_Distance(mouse, bubbles[i].position) <= bubbles[i].radius)
 		{
 			score += 1 + (int)(bubbles[i].radius / 10.0f);
 			bubbles[i].active = FALSE;
@@ -298,19 +298,19 @@ void pause_update(void)
 	DrawCenteredText("R to start over, M for the menu", 360.0f, 26.0f);
 
 	// Only the state on top gets input, so these keys don't reach play
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		// Take the pause off: pause_exit runs, and play carries on where it
 		// was, without play_init running again
 		CP_Engine_PopGameState();
 	}
-	if (CP_Input_KeyTriggered(KEY_R))
+	if (CP_Input_KeyTriggered(CP_KEY_R))
 	{
 		// SetNextGameState clears the table: pause_exit and play_exit run,
 		// then play_init starts a new game
 		CP_Engine_SetNextGameState(play_init, play_update, play_exit);
 	}
-	if (CP_Input_KeyTriggered(KEY_M))
+	if (CP_Input_KeyTriggered(CP_KEY_M))
 	{
 		CP_Engine_SetNextGameState(menu_init, menu_update, menu_exit);
 	}
@@ -356,11 +356,11 @@ void over_update(void)
 	DrawCenteredText("Enter to play again, M for the menu", 440.0f, 24.0f);
 	DrawFadeIn();
 
-	if (CP_Input_KeyTriggered(KEY_ENTER))
+	if (CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		CP_Engine_SetNextGameState(play_init, play_update, play_exit);
 	}
-	if (CP_Input_KeyTriggered(KEY_M))
+	if (CP_Input_KeyTriggered(CP_KEY_M))
 	{
 		CP_Engine_SetNextGameState(menu_init, menu_update, menu_exit);
 	}

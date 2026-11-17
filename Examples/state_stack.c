@@ -89,7 +89,7 @@ void menu_init(void)
 
 void menu_update(void)
 {
-	if (CP_Input_KeyTriggered(KEY_ENTER))
+	if (CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		CP_Engine_SetNextGameState(game_init, game_update, game_exit);
 	}
@@ -150,19 +150,19 @@ void game_update(void)
 
 	// Keys only reach the top state: under the hint, which lets the game
 	// keep running, these all read as not pressed
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		CP_Engine_PushGameState(NULL, pause_update, NULL);
 	}
-	if (CP_Input_KeyTriggered(KEY_H))
+	if (CP_Input_KeyTriggered(CP_KEY_H))
 	{
 		CP_Engine_PushGameState(hint_init, hint_update, NULL);
 	}
 	CP_Vector move = CP_Vector_Zero();
-	if (CP_Input_KeyDown(KEY_LEFT)) move.x -= 1.0f;
-	if (CP_Input_KeyDown(KEY_RIGHT)) move.x += 1.0f;
-	if (CP_Input_KeyDown(KEY_UP)) move.y -= 1.0f;
-	if (CP_Input_KeyDown(KEY_DOWN)) move.y += 1.0f;
+	if (CP_Input_KeyDown(CP_KEY_LEFT)) move.x -= 1.0f;
+	if (CP_Input_KeyDown(CP_KEY_RIGHT)) move.x += 1.0f;
+	if (CP_Input_KeyDown(CP_KEY_UP)) move.y -= 1.0f;
+	if (CP_Input_KeyDown(CP_KEY_DOWN)) move.y += 1.0f;
 	if (move.x != 0.0f || move.y != 0.0f)
 	{
 		player = CP_Vector_Add(player, CP_Vector_Scale(CP_Vector_Normalize(move), 250.0f * dt));
@@ -231,19 +231,19 @@ void pause_update(void)
 	DrawCenteredText("Q: quit", 375.0f, 24.0f);
 	DrawDepth();
 
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		CP_Engine_PopGameState(); // the game carries on where it was
 	}
-	if (CP_Input_KeyTriggered(KEY_O))
+	if (CP_Input_KeyTriggered(CP_KEY_O))
 	{
 		CP_Engine_PushGameState(options_init, options_update, NULL);
 	}
-	if (CP_Input_KeyTriggered(KEY_M))
+	if (CP_Input_KeyTriggered(CP_KEY_M))
 	{
 		CP_Engine_SetNextGameState(menu_init, menu_update, NULL); // ends the pause, then the game
 	}
-	if (CP_Input_KeyTriggered(KEY_Q))
+	if (CP_Input_KeyTriggered(CP_KEY_Q))
 	{
 		CP_Engine_PushGameState(NULL, confirm_update, NULL);
 	}
@@ -260,13 +260,13 @@ void options_init(void)
 
 void options_update(void)
 {
-	if (CP_Input_KeyTriggered(KEY_T))
+	if (CP_Input_KeyTriggered(CP_KEY_T))
 	{
 		// the game is frozen and hidden under this page, so the change shows
 		// when the pause and this page have popped
 		showTrail = !showTrail;
 	}
-	if (CP_Input_KeyTriggered(KEY_B))
+	if (CP_Input_KeyTriggered(CP_KEY_B))
 	{
 		CP_Engine_PopGameState(); // back to the pause
 	}
@@ -291,11 +291,11 @@ void confirm_update(void)
 	DrawCenteredText("Y: yes   N: no", 330.0f, 24.0f);
 	DrawDepth();
 
-	if (CP_Input_KeyTriggered(KEY_Y))
+	if (CP_Input_KeyTriggered(CP_KEY_Y))
 	{
 		CP_Engine_Terminate(); // every state on the stack exits, top first
 	}
-	if (CP_Input_KeyTriggered(KEY_N))
+	if (CP_Input_KeyTriggered(CP_KEY_N))
 	{
 		CP_Engine_PopGameState();
 	}
@@ -325,7 +325,7 @@ void hint_update(void)
 	CP_Font_DrawText("The game keeps running under this hint,", 400.0f, 65.0f);
 	CP_Font_DrawText("but your keys come to me: try the arrows", 400.0f, 92.0f);
 
-	if (shown >= 4.0f || CP_Input_KeyTriggered(KEY_H))
+	if (shown >= 4.0f || CP_Input_KeyTriggered(CP_KEY_H))
 	{
 		CP_Engine_PopGameState();
 	}

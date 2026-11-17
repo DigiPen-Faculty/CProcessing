@@ -193,15 +193,15 @@ void game_update(void)
 		DrawScene();
 		needsScene = FALSE;
 	}
-	if (CP_Input_KeyTriggered(KEY_C))
+	if (CP_Input_KeyTriggered(CP_KEY_C))
 	{
 		needsScene = TRUE;
 	}
 
-	// Keys 1 to 4 choose the brush color. KEY_1 + 1 is KEY_2, and so on.
+	// Keys 1 to 4 choose the brush color. CP_KEY_1 + 1 is CP_KEY_2, and so on.
 	for (int i = 0; i < 4; i++)
 	{
-		if (CP_Input_KeyTriggered((CP_KEY)(KEY_1 + i)))
+		if (CP_Input_KeyTriggered((CP_KEY)(CP_KEY_1 + i)))
 		{
 			brushColor = i;
 		}
@@ -213,7 +213,7 @@ void game_update(void)
 	// While the button is held, a thick line from where the mouse was last
 	// frame to where it is now, with round ends, makes a smooth stroke.
 	// (A circle each frame would leave gaps when the mouse moves fast.)
-	if (CP_Input_MouseDown(MOUSE_BUTTON_LEFT))
+	if (CP_Input_MouseDown(CP_MOUSE_LEFT))
 	{
 		CP_Settings_Stroke(brushColors[brushColor]);
 		CP_Settings_StrokeWeight(brushSize);

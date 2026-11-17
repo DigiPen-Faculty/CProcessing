@@ -49,7 +49,7 @@ CP_Engine_Run();
 To move to another state, ask for it. The menu does when Enter is pressed:
 
 ```C
-if (CP_Input_KeyTriggered(KEY_ENTER))
+if (CP_Input_KeyTriggered(CP_KEY_ENTER))
 {
 	CP_Engine_SetNextGameState(play_init, play_update, play_exit);
 }
@@ -108,7 +108,7 @@ A pause is different. The game isn't over, it's waiting, and when the pause ends
 
 ```C
 // in play_update
-if (CP_Input_KeyTriggered(KEY_P))
+if (CP_Input_KeyTriggered(CP_KEY_P))
 {
 	CP_Engine_PushGameState(pause_init, pause_update, pause_exit);
 }
@@ -124,7 +124,7 @@ void pause_update(void)
 	CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 150));
 	DrawCenteredText("PAUSED", 230.0f, 80.0f);
 	...
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		CP_Engine_PopGameState();
 	}

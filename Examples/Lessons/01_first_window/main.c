@@ -50,7 +50,7 @@ void game_update(void)
 
 	// Step 4: a click prints the mouse's position. Triggered means "pressed
 	// this frame", so a click prints once, not for every frame it's held.
-	if (CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT))
+	if (CP_Input_MouseTriggered(CP_MOUSE_LEFT))
 	{
 		printf("Clicked at (%.0f, %.0f)\n", CP_Input_GetMouseX(), CP_Input_GetMouseY());
 	}

@@ -36,9 +36,9 @@ extern "C" {
 
 typedef struct CP_GSL_State
 {
-	FunctionPtr init;
-	FunctionPtr update;
-	FunctionPtr exit;
+	CP_FunctionPtr init;
+	CP_FunctionPtr update;
+	CP_FunctionPtr exit;
 	CP_STATE passThrough; // what the states under this one can do
 } CP_GSL_State;
 

@@ -53,8 +53,8 @@ built by its extension, and C++ is turned on when there's a `.cpp` file.
 On Linux that needs a C++ compiler too (`build-essential` includes one).
 
 One difference to know: C++ won't turn a number into a named value, such as
-a key, by itself. `CP_Input_KeyDown(KEY_A + i)` needs a cast in C++:
-`CP_Input_KeyDown((CP_KEY)(KEY_A + i))`. The same goes for `malloc`, whose
+a key, by itself. `CP_Input_KeyDown(CP_KEY_A + i)` needs a cast in C++:
+`CP_Input_KeyDown((CP_KEY)(CP_KEY_A + i))`. The same goes for `malloc`, whose
 result needs a cast: `(CP_Color*)malloc(...)`.
 
 ## Seeing `printf` output

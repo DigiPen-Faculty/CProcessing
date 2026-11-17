@@ -123,7 +123,7 @@ static void DrawScreenshots(void)
 	const float thumbnailWidth = (float)width / THUMBNAIL_SCALE;
 	const float thumbnailHeight = (float)height / THUMBNAIL_SCALE;
 
-	if (CP_Input_KeyTriggered(KEY_SPACE))
+	if (CP_Input_KeyTriggered(CP_KEY_SPACE))
 	{
 		tunnelMode = !tunnelMode;
 		if (!tunnelMode)
@@ -137,7 +137,7 @@ static void DrawScreenshots(void)
 	CP_Image lens = NULL;
 	int lensX = ClampInt((int)mouseX - LENS_SIZE / 2, 0, width - LENS_SIZE);
 	int lensY = ClampInt((int)mouseY - LENS_SIZE / 2, 0, height - LENS_SIZE);
-	if (CP_Input_MouseDown(MOUSE_BUTTON_LEFT))
+	if (CP_Input_MouseDown(CP_MOUSE_LEFT))
 	{
 		lens = TakeScreenshot(lensX, lensY, LENS_SIZE, LENS_SIZE);
 	}

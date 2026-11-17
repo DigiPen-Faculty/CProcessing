@@ -20,18 +20,18 @@ Your game runs about 60 frames a second, and a key press lasts many frames. So "
 
 | Question | True when | For |
 |---|---|---|
-| `CP_Input_KeyTriggered(KEY_SPACE)` | the key **went down this frame**: **one frame** per press | doing something once: jump, shoot, choose a menu item |
-| `CP_Input_KeyDown(KEY_SPACE)` | the key **is held right now**: **every frame** while held | doing something continuously: walk, charge up, hold a shield |
-| `CP_Input_KeyReleased(KEY_SPACE)` | the key **came back up this frame**: **one frame** | letting go: fire a bow, stop charging |
+| `CP_Input_KeyTriggered(CP_KEY_SPACE)` | the key **went down this frame**: **one frame** per press | doing something once: jump, shoot, choose a menu item |
+| `CP_Input_KeyDown(CP_KEY_SPACE)` | the key **is held right now**: **every frame** while held | doing something continuously: walk, charge up, hold a shield |
+| `CP_Input_KeyReleased(CP_KEY_SPACE)` | the key **came back up this frame**: **one frame** | letting go: fire a bow, stop charging |
 
 The first panel shows all three. Hold the space bar, and then tap it, and watch the counts:
 
 ```C
-if (CP_Input_KeyTriggered(KEY_SPACE))
+if (CP_Input_KeyTriggered(CP_KEY_SPACE))
 {
 	triggeredCount++;
 }
-if (CP_Input_KeyDown(KEY_SPACE))
+if (CP_Input_KeyDown(CP_KEY_SPACE))
 {
 	framesDown++;
 }
@@ -61,7 +61,7 @@ float y = CP_Input_GetMouseY();
 The mouse buttons answer the same three questions. `MouseDown` is true while the button is held, so the second panel draws its ball solid while it is:
 
 ```C
-if (CP_Input_MouseDown(MOUSE_BUTTON_LEFT))
+if (CP_Input_MouseDown(CP_MOUSE_LEFT))
 {
 	CP_Settings_Fill(CP_Color_Create(250, 200, 60, 255));
 }
@@ -71,7 +71,7 @@ else
 }
 ```
 
-And `MouseTriggered` is the moment of the click, so that's where a ring starts. `MOUSE_BUTTON_RIGHT` and `MOUSE_BUTTON_MIDDLE` work the same way.
+And `MouseTriggered` is the moment of the click, so that's where a ring starts. `CP_MOUSE_RIGHT` and `CP_MOUSE_MIDDLE` work the same way.
 
 The wheel is different: `CP_Input_MouseWheel()` gives **how far it turned this frame**: positive for forward (up), negative for back, and 0 on most frames. The panel adds it to the ball's size:
 
@@ -81,7 +81,7 @@ ballSize = CP_Math_ClampFloat(ballSize + CP_Input_MouseWheel() * 6.0f, 20.0f, 14
 
 `ClampFloat` keeps the size between 20 and 140, so you can't scroll it to nothing.
 
-A few more questions you can ask: `CP_Input_MouseMoved()`, `CP_Input_MouseDoubleClicked()`, `CP_Input_MouseDragged(MOUSE_BUTTON_LEFT)`, and how far it moved since last frame with `CP_Input_GetMouseDeltaX()` and `GetMouseDeltaY()`. Lesson 2's painting program used the *previous* position, `CP_Input_GetMousePreviousX()`, to draw a line from where the mouse was to where it is.
+A few more questions you can ask: `CP_Input_MouseMoved()`, `CP_Input_MouseDoubleClicked()`, `CP_Input_MouseDragged(CP_MOUSE_LEFT)`, and how far it moved since last frame with `CP_Input_GetMouseDeltaX()` and `GetMouseDeltaY()`. Lesson 2's painting program used the *previous* position, `CP_Input_GetMousePreviousX()`, to draw a line from where the mouse was to where it is.
 
 The ring uses what you know about frames. Each ring remembers its age, grows and fades as the age goes up (`CP_System_GetDt()` is how long the last frame took, in seconds), and is thrown away at half a second. [Moving with delta time](Moving-with-delta-time) explains `dt`.
 
@@ -89,12 +89,12 @@ The ring uses what you know about frames. Each ring remembers its age, grows and
 
 ## Step 3: Many keys
 
-Keys have names: `KEY_A` to `KEY_Z`, `KEY_0` to `KEY_9`, `KEY_SPACE`, `KEY_ENTER`, `KEY_ESCAPE`, `KEY_UP`, `KEY_DOWN`, `KEY_LEFT`, `KEY_RIGHT`, `KEY_LEFT_SHIFT`, and more. [Types](Types/#CP_KEY) lists them all.
+Keys have names: `CP_KEY_A` to `CP_KEY_Z`, `CP_KEY_0` to `CP_KEY_9`, `CP_KEY_SPACE`, `CP_KEY_ENTER`, `CP_KEY_ESCAPE`, `CP_KEY_UP`, `CP_KEY_DOWN`, `CP_KEY_LEFT`, `CP_KEY_RIGHT`, `CP_KEY_LEFT_SHIFT`, and more. [Types](Types/#CP_KEY) lists them all.
 
 Each key is asked about on its own, so any number can be held at once. That's how a player moves diagonally: W and D are both Down. And you can offer a choice of keys with `||` ("or"):
 
 ```C
-if (CP_Input_KeyDown(KEY_LEFT) || CP_Input_KeyDown(KEY_A))
+if (CP_Input_KeyDown(CP_KEY_LEFT) || CP_Input_KeyDown(CP_KEY_A))
 {
 	// move left
 }
@@ -103,7 +103,7 @@ if (CP_Input_KeyDown(KEY_LEFT) || CP_Input_KeyDown(KEY_A))
 A modifier is just a key too. Holding shift makes something happen while held:
 
 ```C
-if (CP_Input_KeyDown(KEY_LEFT_SHIFT))
+if (CP_Input_KeyDown(CP_KEY_LEFT_SHIFT))
 {
 	// run
 }
@@ -113,7 +113,7 @@ if (CP_Input_KeyDown(KEY_LEFT_SHIFT))
 
 ## Step 4: Keys are not typing
 
-A key and a typed letter are different things. `KEY_A` is a button on the keyboard. What the player *typed* depends on shift, caps lock, and the keyboard language: the same key can type `a`, `A` or `ä`. For a character in a name or a chat message, ask for the **typed text**:
+A key and a typed letter are different things. `CP_KEY_A` is a button on the keyboard. What the player *typed* depends on shift, caps lock, and the keyboard language: the same key can type `a`, `A` or `ä`. For a character in a name or a chat message, ask for the **typed text**:
 
 ```C
 const char* typed = CP_Input_GetTypedText();
@@ -134,7 +134,7 @@ The `if` checks that the new letters still fit, because `typedText` is a fixed s
 Backspace and Enter aren't letters, so those are keys:
 
 ```C
-if (CP_Input_KeyTriggered(KEY_BACKSPACE) && strlen(typedText) > 0)
+if (CP_Input_KeyTriggered(CP_KEY_BACKSPACE) && strlen(typedText) > 0)
 {
 	typedText[strlen(typedText) - 1] = '\0';
 }
@@ -146,7 +146,7 @@ if (CP_Input_KeyTriggered(KEY_BACKSPACE) && strlen(typedText) > 0)
 
 ## Step 5: The gamepad
 
-A gamepad's buttons work like keys: `CP_Input_GamepadTriggered(GAMEPAD_A)`, `GamepadDown` and `GamepadReleased`, with `GAMEPAD_A`, `B`, `X`, `Y`, the shoulder buttons, `GAMEPAD_START` and the four `GAMEPAD_DPAD_` directions.
+A gamepad's buttons work like keys: `CP_Input_GamepadTriggered(CP_GAMEPAD_A)`, `GamepadDown` and `GamepadReleased`, with `CP_GAMEPAD_A`, `B`, `X`, `Y`, the shoulder buttons, `CP_GAMEPAD_START` and the four `CP_GAMEPAD_DPAD_` directions.
 
 Before you read a gamepad, ask whether there is one:
 
@@ -173,7 +173,7 @@ A stick that is let go of never rests at exactly the middle: it wobbles a little
 
 The triggers are numbers too: `CP_Input_GamepadLeftTrigger()` and `GamepadRightTrigger()` give 0.0 (not pressed) to 1.0 (all the way), and the panel draws them as bars.
 
-If more than one gamepad is plugged in, the functions that end in `Advanced` take a gamepad number, like `CP_Input_GamepadDownAdvanced(GAMEPAD_A, 1)`.
+If more than one gamepad is plugged in, the functions that end in `Advanced` take a gamepad number, like `CP_Input_GamepadDownAdvanced(CP_GAMEPAD_A, 1)`.
 
 > **Try it:** if you have a gamepad, draw a ball and add the left stick's x and y to its position each frame (try `* 5.0f` so it moves fast enough to see). Let go of the stick: the ball stops. That's the dead zone at work. (Remember the y sign from above.)
 
@@ -182,7 +182,7 @@ If more than one gamepad is plugged in, the functions that end in `Advanced` tak
 Players have different keyboards, mice and gamepads, and some can use only one of them. Good games take input in several ways. A common pattern is to turn every kind of input into one *meaning*, and then use the meaning:
 
 ```C
-CP_BOOL goLeft = CP_Input_KeyDown(KEY_LEFT) || CP_Input_KeyDown(KEY_A)
+CP_BOOL goLeft = CP_Input_KeyDown(CP_KEY_LEFT) || CP_Input_KeyDown(CP_KEY_A)
 	|| CP_Input_GamepadLeftStick().x < -0.5f;
 ```
 
@@ -209,7 +209,7 @@ Pick two or more.
 * Why do the Triggered and Released lamps stay lit for a quarter of a second?
 * Which way is "up" for a stick's y? Which way is up on the screen?
 * What is a dead zone, and what would happen without one?
-* Why use `CP_Input_GetTypedText` and not `CP_Input_KeyTriggered(KEY_A)` to read a name?
+* Why use `CP_Input_GetTypedText` and not `CP_Input_KeyTriggered(CP_KEY_A)` to read a name?
 * Why check `CP_Input_GamepadConnected()` first?
 
 ## Common mistakes

@@ -43,19 +43,18 @@ extern "C"
 // CPROCESSING_STATIC  - defined when building/using CProcessing as a static library
 
 #if defined(CPROCESSING_STATIC)
-	#define DLL_EXPORT
+	#define CP_API
 #elif defined(_WIN32)
 	#ifdef CPROCESSING_EXPORTS
-		#define DLL_EXPORT __declspec(dllexport)
+		#define CP_API __declspec(dllexport)
 	#else
-		#define DLL_EXPORT __declspec(dllimport)
+		#define CP_API __declspec(dllimport)
 	#endif
 #elif defined(__GNUC__) || defined(__clang__)
-	#define DLL_EXPORT __attribute__((visibility("default")))
+	#define CP_API __attribute__((visibility("default")))
 #else
-	#define DLL_EXPORT
+	#define CP_API
 #endif
-#define CP_API DLL_EXPORT
 
 
 //---------------------------------------------------------
@@ -107,7 +106,7 @@ typedef struct			CP_Font_Struct* CP_Font;
 
 //---------------------------------------------------------
 // Function Pointer
-typedef					void(*FunctionPtr)(void);
+typedef					void(*CP_FunctionPtr)(void);
 
 
 //---------------------------------------------------------
@@ -260,163 +259,163 @@ typedef union CP_Matrix
 //		Gamepad buttons follow the Xbox controller layout (via GLFW's gamepad mappings)
 typedef enum CP_KEY
 {
-	KEY_ANY = 0,			// Special value for checking any key
-	KEY_SPACE = 32,
-	KEY_APOSTROPHE = 39,	// '''
-	KEY_COMMA = 44,			// ','
-	KEY_MINUS = 45,			// '-'
-	KEY_PERIOD = 46,		// '.'
-	KEY_SLASH = 47,			// '/'
-	KEY_0 = 48,
-	KEY_1 = 49,
-	KEY_2 = 50,
-	KEY_3 = 51,
-	KEY_4 = 52,
-	KEY_5 = 53,
-	KEY_6 = 54,
-	KEY_7 = 55,
-	KEY_8 = 56,
-	KEY_9 = 57,
-	KEY_SEMICOLON = 59,		// ';'
-	KEY_EQUAL = 61,			// '='
-	KEY_A = 65,
-	KEY_B = 66,
-	KEY_C = 67,
-	KEY_D = 68,
-	KEY_E = 69,
-	KEY_F = 70,
-	KEY_G = 71,
-	KEY_H = 72,
-	KEY_I = 73,
-	KEY_J = 74,
-	KEY_K = 75,
-	KEY_L = 76,
-	KEY_M = 77,
-	KEY_N = 78,
-	KEY_O = 79,
-	KEY_P = 80,
-	KEY_Q = 81,
-	KEY_R = 82,
-	KEY_S = 83,
-	KEY_T = 84,
-	KEY_U = 85,
-	KEY_V = 86,
-	KEY_W = 87,
-	KEY_X = 88,
-	KEY_Y = 89,
-	KEY_Z = 90,
-	KEY_LEFT_BRACKET = 91,	// '['
-	KEY_BACKSLASH = 92,		// '\'
-	KEY_RIGHT_BRACKET = 93,	// ']'
-	KEY_GRAVE_ACCENT = 96,	// '`'
-	KEY_WORLD_1 = 161,		// non-US #1
-	KEY_WORLD_2 = 162,		// non-US #2
-	KEY_ESCAPE = 256,
-	KEY_ENTER = 257,
-	KEY_TAB = 258,
-	KEY_BACKSPACE = 259,
-	KEY_INSERT = 260,
-	KEY_DELETE = 261,
-	KEY_RIGHT = 262,
-	KEY_LEFT = 263,
-	KEY_DOWN = 264,
-	KEY_UP = 265,
-	KEY_PAGE_UP = 266,
-	KEY_PAGE_DOWN = 267,
-	KEY_HOME = 268,
-	KEY_END = 269,
-	KEY_CAPS_LOCK = 280,
-	KEY_SCROLL_LOCK = 281,
-	KEY_NUM_LOCK = 282,
-	KEY_PRINT_SCREEN = 283,
-	KEY_PAUSE = 284,
-	KEY_F1 = 290,
-	KEY_F2 = 291,
-	KEY_F3 = 292,
-	KEY_F4 = 293,
-	KEY_F5 = 294,
-	KEY_F6 = 295,
-	KEY_F7 = 296,
-	KEY_F8 = 297,
-	KEY_F9 = 298,
-	KEY_F10 = 299,
-	KEY_F11 = 300,
-	KEY_F12 = 301,
-	KEY_F13 = 302,
-	KEY_F14 = 303,
-	KEY_F15 = 304,
-	KEY_F16 = 305,
-	KEY_F17 = 306,
-	KEY_F18 = 307,
-	KEY_F19 = 308,
-	KEY_F20 = 309,
-	KEY_F21 = 310,
-	KEY_F22 = 311,
-	KEY_F23 = 312,
-	KEY_F24 = 313,
-	KEY_F25 = 314,
-	KEY_KP_0 = 320,
-	KEY_KP_1 = 321,
-	KEY_KP_2 = 322,
-	KEY_KP_3 = 323,
-	KEY_KP_4 = 324,
-	KEY_KP_5 = 325,
-	KEY_KP_6 = 326,
-	KEY_KP_7 = 327,
-	KEY_KP_8 = 328,
-	KEY_KP_9 = 329,
-	KEY_KP_DECIMAL = 330,
-	KEY_KP_DIVIDE = 331,
-	KEY_KP_MULTIPLY = 332,
-	KEY_KP_SUBTRACT = 333,
-	KEY_KP_ADD = 334,
-	KEY_KP_ENTER = 335,
-	KEY_KP_EQUAL = 336,
-	KEY_LEFT_SHIFT = 340,
-	KEY_LEFT_CONTROL = 341,
-	KEY_LEFT_ALT = 342,
-	KEY_LEFT_SUPER = 343,
-	KEY_RIGHT_SHIFT = 344,
-	KEY_RIGHT_CONTROL = 345,
-	KEY_RIGHT_ALT = 346,
-	KEY_RIGHT_SUPER = 347,
-	KEY_MENU = 348
+	CP_KEY_ANY = 0,			// Special value for checking any key
+	CP_KEY_SPACE = 32,
+	CP_KEY_APOSTROPHE = 39,	// '''
+	CP_KEY_COMMA = 44,			// ','
+	CP_KEY_MINUS = 45,			// '-'
+	CP_KEY_PERIOD = 46,		// '.'
+	CP_KEY_SLASH = 47,			// '/'
+	CP_KEY_0 = 48,
+	CP_KEY_1 = 49,
+	CP_KEY_2 = 50,
+	CP_KEY_3 = 51,
+	CP_KEY_4 = 52,
+	CP_KEY_5 = 53,
+	CP_KEY_6 = 54,
+	CP_KEY_7 = 55,
+	CP_KEY_8 = 56,
+	CP_KEY_9 = 57,
+	CP_KEY_SEMICOLON = 59,		// ';'
+	CP_KEY_EQUAL = 61,			// '='
+	CP_KEY_A = 65,
+	CP_KEY_B = 66,
+	CP_KEY_C = 67,
+	CP_KEY_D = 68,
+	CP_KEY_E = 69,
+	CP_KEY_F = 70,
+	CP_KEY_G = 71,
+	CP_KEY_H = 72,
+	CP_KEY_I = 73,
+	CP_KEY_J = 74,
+	CP_KEY_K = 75,
+	CP_KEY_L = 76,
+	CP_KEY_M = 77,
+	CP_KEY_N = 78,
+	CP_KEY_O = 79,
+	CP_KEY_P = 80,
+	CP_KEY_Q = 81,
+	CP_KEY_R = 82,
+	CP_KEY_S = 83,
+	CP_KEY_T = 84,
+	CP_KEY_U = 85,
+	CP_KEY_V = 86,
+	CP_KEY_W = 87,
+	CP_KEY_X = 88,
+	CP_KEY_Y = 89,
+	CP_KEY_Z = 90,
+	CP_KEY_LEFT_BRACKET = 91,	// '['
+	CP_KEY_BACKSLASH = 92,		// '\'
+	CP_KEY_RIGHT_BRACKET = 93,	// ']'
+	CP_KEY_GRAVE_ACCENT = 96,	// '`'
+	CP_KEY_WORLD_1 = 161,		// non-US #1
+	CP_KEY_WORLD_2 = 162,		// non-US #2
+	CP_KEY_ESCAPE = 256,
+	CP_KEY_ENTER = 257,
+	CP_KEY_TAB = 258,
+	CP_KEY_BACKSPACE = 259,
+	CP_KEY_INSERT = 260,
+	CP_KEY_DELETE = 261,
+	CP_KEY_RIGHT = 262,
+	CP_KEY_LEFT = 263,
+	CP_KEY_DOWN = 264,
+	CP_KEY_UP = 265,
+	CP_KEY_PAGE_UP = 266,
+	CP_KEY_PAGE_DOWN = 267,
+	CP_KEY_HOME = 268,
+	CP_KEY_END = 269,
+	CP_KEY_CAPS_LOCK = 280,
+	CP_KEY_SCROLL_LOCK = 281,
+	CP_KEY_NUM_LOCK = 282,
+	CP_KEY_PRINT_SCREEN = 283,
+	CP_KEY_PAUSE = 284,
+	CP_KEY_F1 = 290,
+	CP_KEY_F2 = 291,
+	CP_KEY_F3 = 292,
+	CP_KEY_F4 = 293,
+	CP_KEY_F5 = 294,
+	CP_KEY_F6 = 295,
+	CP_KEY_F7 = 296,
+	CP_KEY_F8 = 297,
+	CP_KEY_F9 = 298,
+	CP_KEY_F10 = 299,
+	CP_KEY_F11 = 300,
+	CP_KEY_F12 = 301,
+	CP_KEY_F13 = 302,
+	CP_KEY_F14 = 303,
+	CP_KEY_F15 = 304,
+	CP_KEY_F16 = 305,
+	CP_KEY_F17 = 306,
+	CP_KEY_F18 = 307,
+	CP_KEY_F19 = 308,
+	CP_KEY_F20 = 309,
+	CP_KEY_F21 = 310,
+	CP_KEY_F22 = 311,
+	CP_KEY_F23 = 312,
+	CP_KEY_F24 = 313,
+	CP_KEY_F25 = 314,
+	CP_KEY_KP_0 = 320,
+	CP_KEY_KP_1 = 321,
+	CP_KEY_KP_2 = 322,
+	CP_KEY_KP_3 = 323,
+	CP_KEY_KP_4 = 324,
+	CP_KEY_KP_5 = 325,
+	CP_KEY_KP_6 = 326,
+	CP_KEY_KP_7 = 327,
+	CP_KEY_KP_8 = 328,
+	CP_KEY_KP_9 = 329,
+	CP_KEY_KP_DECIMAL = 330,
+	CP_KEY_KP_DIVIDE = 331,
+	CP_KEY_KP_MULTIPLY = 332,
+	CP_KEY_KP_SUBTRACT = 333,
+	CP_KEY_KP_ADD = 334,
+	CP_KEY_KP_ENTER = 335,
+	CP_KEY_KP_EQUAL = 336,
+	CP_KEY_LEFT_SHIFT = 340,
+	CP_KEY_LEFT_CONTROL = 341,
+	CP_KEY_LEFT_ALT = 342,
+	CP_KEY_LEFT_SUPER = 343,
+	CP_KEY_RIGHT_SHIFT = 344,
+	CP_KEY_RIGHT_CONTROL = 345,
+	CP_KEY_RIGHT_ALT = 346,
+	CP_KEY_RIGHT_SUPER = 347,
+	CP_KEY_MENU = 348
 } CP_KEY;
 
 typedef enum CP_MOUSE
 {
-	MOUSE_BUTTON_1 = 0,
-	MOUSE_BUTTON_2 = 1,
-	MOUSE_BUTTON_3 = 2,
-	MOUSE_BUTTON_4 = 3,
-	MOUSE_BUTTON_5 = 4,
-	MOUSE_BUTTON_6 = 5,
-	MOUSE_BUTTON_7 = 6,
-	MOUSE_BUTTON_8 = 7,
-	MOUSE_BUTTON_LAST = MOUSE_BUTTON_8,
-	MOUSE_BUTTON_LEFT = MOUSE_BUTTON_1,
-	MOUSE_BUTTON_MIDDLE = MOUSE_BUTTON_3,
-	MOUSE_BUTTON_RIGHT = MOUSE_BUTTON_2
+	CP_MOUSE_1 = 0,
+	CP_MOUSE_2 = 1,
+	CP_MOUSE_3 = 2,
+	CP_MOUSE_4 = 3,
+	CP_MOUSE_5 = 4,
+	CP_MOUSE_6 = 5,
+	CP_MOUSE_7 = 6,
+	CP_MOUSE_8 = 7,
+	CP_MOUSE_LAST = CP_MOUSE_8,
+	CP_MOUSE_LEFT = CP_MOUSE_1,
+	CP_MOUSE_MIDDLE = CP_MOUSE_3,
+	CP_MOUSE_RIGHT = CP_MOUSE_2
 } CP_MOUSE;
 
 static const int CP_MAX_GAMEPADS = 4;
 
 typedef enum CP_GAMEPAD
 {
-	GAMEPAD_DPAD_UP,
-	GAMEPAD_DPAD_DOWN,
-	GAMEPAD_DPAD_LEFT,
-	GAMEPAD_DPAD_RIGHT,
-	GAMEPAD_START,
-	GAMEPAD_BACK,
-	GAMEPAD_LEFT_THUMB,
-	GAMEPAD_RIGHT_THUMB,
-	GAMEPAD_LEFT_SHOULDER,
-	GAMEPAD_RIGHT_SHOULDER,
-	GAMEPAD_A,
-	GAMEPAD_B,
-	GAMEPAD_X,
-	GAMEPAD_Y
+	CP_GAMEPAD_DPAD_UP,
+	CP_GAMEPAD_DPAD_DOWN,
+	CP_GAMEPAD_DPAD_LEFT,
+	CP_GAMEPAD_DPAD_RIGHT,
+	CP_GAMEPAD_START,
+	CP_GAMEPAD_BACK,
+	CP_GAMEPAD_LEFT_THUMB,
+	CP_GAMEPAD_RIGHT_THUMB,
+	CP_GAMEPAD_LEFT_SHOULDER,
+	CP_GAMEPAD_RIGHT_SHOULDER,
+	CP_GAMEPAD_A,
+	CP_GAMEPAD_B,
+	CP_GAMEPAD_X,
+	CP_GAMEPAD_Y
 } CP_GAMEPAD;
 
 typedef enum CP_CURSOR_MODE
