@@ -15,6 +15,7 @@
 //   (b) platform-independent property tests (bounds, swapped-bounds
 //       ordering, reseed reproducibility, rough distribution shape) that
 //       should hold on any platform.
+#include <limits.h>
 #include <math.h>
 #include "unity.h"
 #include "cprocessing.h"
@@ -50,9 +51,9 @@ void test_random_rangeint_respects_inclusive_bounds(void)
 	CP_Random_Seed(2);
 	for (int i = 0; i < SAMPLE_COUNT; ++i)
 	{
-		unsigned int v = CP_Random_RangeInt(10, 20);
-		TEST_ASSERT_GREATER_OR_EQUAL_UINT(10, v);
-		TEST_ASSERT_LESS_OR_EQUAL_UINT(20, v);
+		int v = CP_Random_RangeInt(10, 20);
+		TEST_ASSERT_GREATER_OR_EQUAL_INT(10, v);
+		TEST_ASSERT_LESS_OR_EQUAL_INT(20, v);
 	}
 }
 
@@ -65,7 +66,7 @@ void test_random_rangeint_can_reach_both_boundaries(void)
 	CP_Random_Seed(3);
 	for (int i = 0; i < SAMPLE_COUNT; ++i)
 	{
-		unsigned int v = CP_Random_RangeInt(0, 1);
+		int v = CP_Random_RangeInt(0, 1);
 		if (v == 0) sawLower = TRUE;
 		if (v == 1) sawUpper = TRUE;
 	}
@@ -81,9 +82,9 @@ void test_random_rangeint_swaps_reversed_bounds(void)
 	CP_Random_Seed(4);
 	for (int i = 0; i < SAMPLE_COUNT; ++i)
 	{
-		unsigned int v = CP_Random_RangeInt(100, 50);
-		TEST_ASSERT_GREATER_OR_EQUAL_UINT(50, v);
-		TEST_ASSERT_LESS_OR_EQUAL_UINT(100, v);
+		int v = CP_Random_RangeInt(100, 50);
+		TEST_ASSERT_GREATER_OR_EQUAL_INT(50, v);
+		TEST_ASSERT_LESS_OR_EQUAL_INT(100, v);
 	}
 }
 
@@ -92,7 +93,7 @@ void test_random_rangeint_equal_bounds_returns_that_value(void)
 	CP_Random_Seed(5);
 	for (int i = 0; i < 100; ++i)
 	{
-		TEST_ASSERT_EQUAL_UINT32(42, CP_Random_RangeInt(42, 42));
+		TEST_ASSERT_EQUAL_INT(42, CP_Random_RangeInt(42, 42));
 	}
 }
 
@@ -105,8 +106,8 @@ void test_random_rangeint_full_range_does_not_divide_by_zero(void)
 	CP_Random_Seed(7);
 	for (int i = 0; i < 100; ++i)
 	{
-		(void)CP_Random_RangeInt(0u, 0xFFFFFFFFu);
-		(void)CP_Random_RangeInt(0xFFFFFFFFu, 0u);
+		(void)CP_Random_RangeInt(INT_MIN, INT_MAX);
+		(void)CP_Random_RangeInt(INT_MAX, INT_MIN);
 	}
 	TEST_PASS();
 }
@@ -116,17 +117,82 @@ void test_random_rangeint_large_range_is_even(void)
 	// A range of 3 * 2^30 values doesn't divide 2^32. Taking the random
 	// number modulo the range made the first 2^30 values twice as likely:
 	// a 1/2 share instead of 1/3.
-	const unsigned int upper = 3u * (1u << 30) - 1u;
+	// (INT_MIN to 2^30 - 1 is exactly 3 * 2^30 values)
+	const int upper = (1 << 30) - 1;
 	int low = 0;
 	CP_Random_Seed(11);
 	for (int i = 0; i < 30000; ++i)
 	{
-		if (CP_Random_RangeInt(0u, upper) < (1u << 30))
+		if (CP_Random_RangeInt(INT_MIN, upper) < INT_MIN + (1 << 30))
 		{
 			++low;
 		}
 	}
 	TEST_ASSERT_FLOAT_WITHIN(0.03f, 1.0f / 3.0f, (float)low / 30000.0f);
+}
+
+void test_random_rangeint_negative_bounds_stay_inside(void)
+{
+	// Both bounds negative: before the bounds were signed, a negative bound
+	// became a number near 4 billion and every answer was wrong
+	CP_Random_Seed(12);
+	for (int i = 0; i < SAMPLE_COUNT; ++i)
+	{
+		int v = CP_Random_RangeInt(-100, -90);
+		TEST_ASSERT_GREATER_OR_EQUAL_INT(-100, v);
+		TEST_ASSERT_LESS_OR_EQUAL_INT(-90, v);
+	}
+}
+
+void test_random_rangeint_across_zero_reaches_both_ends_and_both_signs(void)
+{
+	int counts[11] = { 0 };
+	CP_Random_Seed(13);
+	for (int i = 0; i < 11000; ++i)
+	{
+		int v = CP_Random_RangeInt(-5, 5);
+		TEST_ASSERT_GREATER_OR_EQUAL_INT(-5, v);
+		TEST_ASSERT_LESS_OR_EQUAL_INT(5, v);
+		++counts[v + 5];
+	}
+	// every value from -5 to 5 turns up, about 1000 times each
+	for (int value = 0; value < 11; ++value)
+	{
+		TEST_ASSERT_INT_WITHIN(250, 1000, counts[value]);
+	}
+}
+
+void test_random_rangeint_swaps_reversed_negative_bounds(void)
+{
+	CP_Random_Seed(14);
+	for (int i = 0; i < SAMPLE_COUNT; ++i)
+	{
+		int v = CP_Random_RangeInt(10, -10);
+		TEST_ASSERT_GREATER_OR_EQUAL_INT(-10, v);
+		TEST_ASSERT_LESS_OR_EQUAL_INT(10, v);
+	}
+}
+
+void test_random_rangeint_the_extremes_return_the_value(void)
+{
+	CP_Random_Seed(15);
+	TEST_ASSERT_EQUAL_INT(INT_MIN, CP_Random_RangeInt(INT_MIN, INT_MIN));
+	TEST_ASSERT_EQUAL_INT(INT_MAX, CP_Random_RangeInt(INT_MAX, INT_MAX));
+	TEST_ASSERT_EQUAL_INT(-1, CP_Random_RangeInt(-1, -1));
+}
+
+void test_random_rangeint_full_signed_range_is_about_half_negative(void)
+{
+	int negative = 0;
+	CP_Random_Seed(16);
+	for (int i = 0; i < 20000; ++i)
+	{
+		if (CP_Random_RangeInt(INT_MIN, INT_MAX) < 0)
+		{
+			++negative;
+		}
+	}
+	TEST_ASSERT_FLOAT_WITHIN(0.03f, 0.5f, (float)negative / 20000.0f);
 }
 
 void test_random_getfloat_stays_within_0_and_1(void)

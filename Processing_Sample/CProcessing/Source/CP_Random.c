@@ -1,7 +1,7 @@
 //---------------------------------------------------------
 // file:	CP_Random.c
 // author:	Justin Chambers
-// brief:	Header used to manage the DLL export/import declarations
+// brief:	Random numbers (uniform and Gaussian) and the seed
 //
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2019-2026 DigiPen Institute of Technology
@@ -90,20 +90,23 @@ CP_API uint32_t CP_Random_GetInt(void)
 	return internalRand();
 }
 
-CP_API uint32_t CP_Random_RangeInt(unsigned int lowerBound, unsigned int upperBound)
+CP_API int CP_Random_RangeInt(int lowerBound, int upperBound)
 {
 	if (upperBound < lowerBound)
 	{
-		uint32_t temp = lowerBound;
+		int temp = lowerBound;
 		lowerBound = upperBound;
 		upperBound = temp;
 	}
 
-	// The full range of 2^32 values: (upper - lower) + 1 would wrap to 0
-	const uint32_t range = upperBound - lowerBound;
+	// The distance in unsigned arithmetic is exact, even from INT_MIN to
+	// INT_MAX (a signed upper - lower would overflow)
+	const uint32_t range = (uint32_t)upperBound - (uint32_t)lowerBound;
+
+	// The full range of 2^32 values: range + 1 would wrap to 0
 	if (range == UINT32_MAX)
 	{
-		return internalRand();
+		return (int)internalRand();
 	}
 
 	// internalRand() % count favors the low numbers when count doesn't divide
@@ -117,7 +120,9 @@ CP_API uint32_t CP_Random_RangeInt(unsigned int lowerBound, unsigned int upperBo
 	{
 		r = internalRand();
 	} while (r < threshold);
-	return lowerBound + r % count;
+	// Added in unsigned arithmetic, so a negative lowerBound wraps to the right
+	// answer instead of overflowing
+	return (int)((uint32_t)lowerBound + r % count);
 }
 
 CP_API float CP_Random_GetFloat(void)

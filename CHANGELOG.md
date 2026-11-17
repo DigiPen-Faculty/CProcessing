@@ -31,6 +31,15 @@ Each change says what to do in an existing project.
 
   `TRUE` and `FALSE` keep their names. `DLL_EXPORT` is gone (use `CP_API`,
   which is what it was for); a program never needed it.
+- **`CP_Random_RangeInt` takes and returns an `int`, not an `unsigned int`.**
+  A negative bound used to become a number near 4 billion, so
+  `CP_Random_RangeInt(-100, 100)` was wrong on every call, with no warning
+  (like `CP_Math_ClampInt` and `CP_Color_Create`, it is now an `int`
+  function). Calls with bounds from 0 up to 2,147,483,647 give the same
+  numbers as before for the same seed. What to do: nothing, unless a bound is
+  above 2,147,483,647 (it can't be any more) or the result is stored in an
+  `unsigned` and printed with `%u` (use `int` and `%d`). `CP_Random_GetInt`
+  still returns the 32 raw bits as an `unsigned int`.
 
 ### Added
 
@@ -257,10 +266,10 @@ Each change says what to do in an existing project.
   values far outside 0 to 1 and jumped at every negative whole number. It
   now gives the same smooth noise there as for positive coordinates.
   Values at positive coordinates are unchanged.
-- **`CP_Random_RangeInt(0, 4294967295)`, the whole range, crashed** with
-  a division by zero. Large ranges also favored the lower numbers; every
-  number in the range is now equally likely. Seeded sequences for
-  ordinary ranges are unchanged.
+- **`CP_Random_RangeInt` with the whole range crashed** with a division by
+  zero (it was `(0, 4294967295)`; it is now `(INT_MIN, INT_MAX)`). Large
+  ranges also favored the lower numbers; every number in the range is now
+  equally likely. Seeded sequences for ordinary ranges are unchanged.
 - **Loading the same image, font or sound twice and freeing one of them
   freed it for both.** Loading a file that's already loaded gives back the
   same handle, so two parts of a program that each loaded
