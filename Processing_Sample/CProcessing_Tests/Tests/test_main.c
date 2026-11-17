@@ -181,6 +181,11 @@ int main(void)
 	RUN_TEST(test_noise_octaves_add_detail_and_are_deterministic);
 	RUN_TEST(test_random_rangeint_full_range_does_not_divide_by_zero);
 	RUN_TEST(test_random_rangeint_large_range_is_even);
+	RUN_TEST(test_random_rangeint_negative_bounds_stay_inside);
+	RUN_TEST(test_random_rangeint_across_zero_reaches_both_ends_and_both_signs);
+	RUN_TEST(test_random_rangeint_swaps_reversed_negative_bounds);
+	RUN_TEST(test_random_rangeint_the_extremes_return_the_value);
+	RUN_TEST(test_random_rangeint_full_signed_range_is_about_half_negative);
 
 	// test_internal_platform.c
 	RUN_TEST(test_platform_stringcopy_copies_short_string);

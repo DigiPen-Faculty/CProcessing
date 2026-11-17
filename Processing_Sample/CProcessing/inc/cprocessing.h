@@ -349,7 +349,7 @@ CP_API CP_Matrix		CP_Matrix_Multiply					(CP_Matrix a, CP_Matrix b);
 //		Random number generation including Gaussian distribution and Perlin noise
 CP_API CP_BOOL			CP_Random_GetBool					(void);
 CP_API unsigned int		CP_Random_GetInt					(void);
-CP_API unsigned int		CP_Random_RangeInt					(unsigned int lowerBound, unsigned int upperBound);
+CP_API int				CP_Random_RangeInt					(int lowerBound, int upperBound);
 CP_API float			CP_Random_GetFloat					(void);
 CP_API float			CP_Random_RangeFloat				(float lowerBound, float upperBound);
 CP_API void				CP_Random_Seed						(int seed);
