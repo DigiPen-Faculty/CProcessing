@@ -174,6 +174,11 @@ changes to build with the new version.
   Before, the keys were only in the documentation. The gamepad demo's
   screenshots are now a demo of their own (5, Screenshots), and the
   gamepad demo is now Gamepad and sound.
+- **Less inside the library, with no change to how it works:** TinyCThread
+  (1,400 lines, used for one 1 millisecond sleep) is gone, the seven
+  copies of "turn about a point" are one function, and dead code is out.
+  CI builds the whole Visual Studio solution in Release as well as Debug,
+  and a new test fails if a test is written but not run.
 
 ### Fixed
 

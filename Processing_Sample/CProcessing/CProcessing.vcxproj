@@ -219,7 +219,6 @@
     <ClInclude Include="Source\Internal_Sound.h" />
     <ClInclude Include="Source\Internal_Text.h" />
     <ClInclude Include="Source\Internal_Resources.h" />
-    <ClInclude Include="Source\tinycthread.h" />
     <ClInclude Include="Source\vect.h" />
   </ItemGroup>
   <ItemGroup>
@@ -232,9 +231,6 @@
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="Source\nanovg_gl3.c">
-      <WarningLevel>TurnOffAllWarnings</WarningLevel>
-    </ClCompile>
-    <ClCompile Include="Source\tinycthread.c">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="Source\CP_Color.c" />

@@ -120,11 +120,6 @@ void CP_Sound_Init(void)
 	}
 }
 
-void CP_Sound_Update(void)
-{
-
-}
-
 void CP_Sound_ReportLoaded(CP_Report* report)
 {
 	if (!sound_vector) return;

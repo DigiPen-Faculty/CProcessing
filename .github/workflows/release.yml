@@ -48,6 +48,7 @@ permissions:
 jobs:
   version:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -80,6 +81,7 @@ jobs:
   windows:
     needs: version
     runs-on: windows-2025   # Visual Studio 2026 (platform toolset v145)
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
 
@@ -127,6 +129,7 @@ jobs:
     # Built on Ubuntu 22.04 so the library needs only glibc 2.34 and runs on
     # older distributions than the runner's own
     container: ubuntu:22.04
+    timeout-minutes: 30
     steps:
       - name: Install build tools
         run: |
@@ -158,6 +161,7 @@ jobs:
   linux-check:
     needs: linux
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/download-artifact@v8
         with:
@@ -185,6 +189,7 @@ jobs:
   macos:
     needs: version
     runs-on: macos-15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
 
@@ -219,6 +224,7 @@ jobs:
     needs: [version, windows, linux, linux-check, macos]
     if: github.ref_type == 'tag'
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       contents: write
     steps:

@@ -71,7 +71,6 @@ typedef struct CP_VoiceGroup_Struct
 //------------------------------------------------------------------------------
 
 void CP_Sound_Init(void);
-void CP_Sound_Update(void);
 void CP_Sound_Shutdown(void);
 
 #ifdef __cplusplus

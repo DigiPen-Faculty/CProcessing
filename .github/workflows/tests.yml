@@ -30,6 +30,15 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+# A new push to a pull request replaces the run still going for it. Runs on
+# main are never cancelled.
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   windows-msbuild:
     runs-on: windows-2025
@@ -39,8 +48,18 @@ jobs:
       matrix:
         include:
           - platform: x64
+            configuration: Debug
             outDir: x64
           - platform: x86
+            configuration: Debug
+            outDir: Win32
+          # Release is what the packages are built in (and what students
+          # build when they switch configurations)
+          - platform: x64
+            configuration: Release
+            outDir: x64
+          - platform: x86
+            configuration: Release
             outDir: Win32
     steps:
       - uses: actions/checkout@v7
@@ -48,15 +67,15 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v3
 
-      - name: Build solution (${{ matrix.platform }})
+      - name: Build solution (${{ matrix.configuration }} ${{ matrix.platform }})
         working-directory: Processing_Sample
         shell: cmd
-        run: msbuild Processing_Sample.sln /p:Configuration=Debug /p:Platform=${{ matrix.platform }} /m /v:minimal
+        run: msbuild Processing_Sample.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /m /v:minimal
 
-      - name: Run Tier 1 tests (${{ matrix.platform }})
+      - name: Run Tier 1 tests (${{ matrix.configuration }} ${{ matrix.platform }})
         working-directory: Processing_Sample
         shell: cmd
-        run: ${{ matrix.outDir }}\Debug\CProcessing_Tests.exe
+        run: ${{ matrix.outDir }}\${{ matrix.configuration }}\CProcessing_Tests.exe
 
   # Hosted Windows runners have no GPU, so the system opengl32.dll only offers
   # OpenGL 1.1. Mesa's llvmpipe (a drop-in opengl32.dll placed next to the

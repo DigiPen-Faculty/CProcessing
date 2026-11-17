@@ -7,15 +7,21 @@
 // Copyright (c) 2019-2026 DigiPen Institute of Technology
 //---------------------------------------------------------
 
+// nanosleep is POSIX, which a strict -std=c11 hides. (Only then: defining a
+// feature macro on its own would turn off the other defaults.)
+#if defined(__STRICT_ANSI__) && !defined(_WIN32) && !defined(_POSIX_C_SOURCE)
+	#define _POSIX_C_SOURCE 200809L
+#endif
+
 #include "cprocessing.h"
 #include "Internal_System.h"
 #include "Internal_Monitor.h"
 #include "Internal_GameStateLogic.h"
-#include "tinycthread.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #if !defined(_WIN32)
+	#include <time.h>		// nanosleep
 	#include <unistd.h>	// isatty
 #endif
 
@@ -1682,9 +1688,6 @@ void CP_Update(void)
 	// Reset camera transforms
 	nvgResetTransform(_CORE.nvg);
 
-	// Audio Update
-	CP_Sound_Update();
-
 	// Image Update
 	CP_Image_Update();
 }
@@ -1859,6 +1862,31 @@ void CP_FrameRate_FrameStart(void)
 	CP_IncFrameCount();
 }
 
+void CP_Draw_BeginRotation(float x, float y, float degrees)
+{
+	nvgSave(_CORE.nvg);
+	nvgTranslate(_CORE.nvg, x, y);
+	nvgRotate(_CORE.nvg, CP_Math_Radians(degrees));
+	nvgTranslate(_CORE.nvg, -x, -y);
+}
+
+void CP_Draw_EndRotation(void)
+{
+	nvgRestore(_CORE.nvg);
+}
+
+// Sleep for about one millisecond, giving the time back to other programs
+// instead of spinning
+static void CP_SleepOneMillisecond(void)
+{
+#if defined(_WIN32)
+	Sleep(1);
+#else
+	struct timespec duration = { 0, 1000000 };
+	nanosleep(&duration, NULL);
+#endif
+}
+
 static double averageSleepCycles = 0.002;
 static double additionalBuffer = 0.001;	// Sleep() isn't very accurate and we want to make sure we don't over sleep
 
@@ -1881,7 +1909,7 @@ void CP_FrameRate_FrameEnd(void)
 			prevSeconds = currSeconds;
 
 			// give back cycles to other processes if we don't need them
-			thrd_sleep(&(struct timespec) { .tv_nsec = 1000000 }, NULL);	// sleep 1 millisecond
+			CP_SleepOneMillisecond();
 
 			// update the time after sleeping
 			CP_UpdateFrameTime();

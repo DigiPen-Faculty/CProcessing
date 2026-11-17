@@ -26,7 +26,6 @@ extern "C" {
 #include "nanovg.h"
 #include "nanovg_gl.h"
 
-#include "Internal_Color.h"
 #include "Internal_File.h"
 #include "Internal_Image.h"
 #include "Internal_Input.h"
@@ -101,6 +100,11 @@ typedef CP_Core* CP_CorePtr;
 //////////////////
 
 CP_CorePtr GetCPCore(void);
+
+// Draw about a point: everything drawn between these is turned by `degrees`
+// about (x, y). The end puts the transform back.
+void CP_Draw_BeginRotation(float x, float y, float degrees);
+void CP_Draw_EndRotation(void);
 CP_DrawInfoPtr GetDrawInfo(void);
 
 void CP_SetWindowSizeInternal(int new_width, int new_height, bool isFullscreen);

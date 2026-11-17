@@ -53,10 +53,7 @@ static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, flo
 	// rotation
 	if (degrees != 0)
 	{
-		nvgSave(CORE->nvg);
-		nvgTranslate(CORE->nvg, pointOfRotationX, pointOfRotationY);
-		nvgRotate(CORE->nvg, CP_Math_Radians(degrees));
-		nvgTranslate(CORE->nvg, -pointOfRotationX, -pointOfRotationY);
+		CP_Draw_BeginRotation(pointOfRotationX, pointOfRotationY, degrees);
 	}
 
 	// Rectangle path
@@ -81,7 +78,7 @@ static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, flo
 
 	if (degrees != 0)
 	{
-		nvgRestore(CORE->nvg);
+		CP_Draw_EndRotation();
 	}
 }
 
@@ -173,10 +170,7 @@ CP_API void CP_Graphics_DrawLineAdvanced(float x1, float y1, float x2, float y2,
 		return;	// no window yet: CP_Engine_Run hasn't started
 
 	// rotation
-	nvgSave(CORE->nvg);
-	nvgTranslate(CORE->nvg, ((x1 + x2) / 2.0f), ((y1 + y2) / 2.0f));
-	nvgRotate(CORE->nvg, CP_Math_Radians(degrees));
-	nvgTranslate(CORE->nvg, -((x1 + x2) / 2.0f), -((y1 + y2) / 2.0f));
+	CP_Draw_BeginRotation(((x1 + x2) / 2.0f), ((y1 + y2) / 2.0f), degrees);
 
 	// Line stroke
 	if (DI->stroke)
@@ -187,7 +181,7 @@ CP_API void CP_Graphics_DrawLineAdvanced(float x1, float y1, float x2, float y2,
 		nvgStroke(CORE->nvg);
 	}
 
-	nvgRestore(CORE->nvg);
+	CP_Draw_EndRotation();
 }
 
 CP_API void CP_Graphics_DrawRect(float x, float y, float w, float h)
@@ -254,14 +248,11 @@ CP_API void CP_Graphics_DrawEllipseAdvanced(float x, float y, float w, float h, 
 	float pointOfRotationY = y;
 
 	// rotation
-	nvgSave(CORE->nvg);
-	nvgTranslate(CORE->nvg, pointOfRotationX, pointOfRotationY);
-	nvgRotate(CORE->nvg, CP_Math_Radians(degrees));
-	nvgTranslate(CORE->nvg, -pointOfRotationX, -pointOfRotationY);
+	CP_Draw_BeginRotation(pointOfRotationX, pointOfRotationY, degrees);
 
 	CP_Graphics_DrawEllipse(x, y, w, h);
 
-	nvgRestore(CORE->nvg);
+	CP_Draw_EndRotation();
 }
 
 // The circle that an arc or a pie is part of: centered on (x, y) with
@@ -376,14 +367,11 @@ CP_API void CP_Graphics_DrawTriangleAdvanced(float x1, float y1, float x2, float
 		return;	// no window yet: CP_Engine_Run hasn't started
 
 	// rotation
-	nvgSave(CORE->nvg);
-	nvgTranslate(CORE->nvg, ((x1 + x2 + x3) / 3.0f), ((y1 + y2 + y3) / 3.0f));
-	nvgRotate(CORE->nvg, CP_Math_Radians(degrees));
-	nvgTranslate(CORE->nvg, -((x1 + x2 + x3) / 3.0f), -((y1 + y2 + y3) / 3.0f));
+	CP_Draw_BeginRotation(((x1 + x2 + x3) / 3.0f), ((y1 + y2 + y3) / 3.0f), degrees);
 
 	CP_Graphics_DrawTriangle(x1, y1, x2, y2, x3, y3);
 
-	nvgRestore(CORE->nvg);
+	CP_Draw_EndRotation();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -428,14 +416,11 @@ CP_API void CP_Graphics_DrawQuadAdvanced(float x1, float y1, float x2, float y2,
 		return;	// no window yet: CP_Engine_Run hasn't started
 
 	// rotation
-	nvgSave(CORE->nvg);
-	nvgTranslate(CORE->nvg, ((x1 + x2 + x3 + x4) / 4.0f), ((y1 + y2 + y3 + y4) / 4.0f));
-	nvgRotate(CORE->nvg, CP_Math_Radians(degrees));
-	nvgTranslate(CORE->nvg, -((x1 + x2 + x3 + x4) / 4.0f), -((y1 + y2 + y3 + y4) / 4.0f));
+	CP_Draw_BeginRotation(((x1 + x2 + x3 + x4) / 4.0f), ((y1 + y2 + y3 + y4) / 4.0f), degrees);
 
 	CP_Graphics_DrawQuad(x1, y1, x2, y2, x3, y3, x4, y4);
 
-	nvgRestore(CORE->nvg);
+	CP_Draw_EndRotation();
 }
 
 CP_API void CP_Graphics_BeginShape(void)

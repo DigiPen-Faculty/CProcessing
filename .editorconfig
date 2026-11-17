@@ -1,0 +1,27 @@
+# The house style, for any editor (Visual Studio, VS Code, CLion all read this).
+# It only says how to indent and which line endings a file uses; it doesn't
+# change a file by itself, and it doesn't touch the vendored code (NanoVG,
+# GLAD, SoLoud, GLFW, Unity), which keeps its upstream style.
+root = true
+
+[*.{c,h,cpp,hpp}]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+[*.{cmake,txt}]
+indent_style = space
+indent_size = 4
+
+[*.{yml,yaml,json}]
+indent_style = space
+indent_size = 2
+
+[*.{vcxproj,filters,props,targets,sln}]
+end_of_line = crlf
+
+[*.bat]
+end_of_line = crlf
+
+[*.sh]
+end_of_line = lf
