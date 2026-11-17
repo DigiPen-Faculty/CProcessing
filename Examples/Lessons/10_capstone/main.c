@@ -122,7 +122,7 @@ void menu_update(void)
 		DrawCenteredText(text, 560.0f, 22.0f);
 	}
 
-	if (CP_Input_KeyTriggered(KEY_ENTER))
+	if (CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		CP_Engine_SetNextGameState(play_init, play_update, play_exit);
 	}
@@ -264,7 +264,7 @@ void play_update(void)
 
 	// P puts the pause on top of the game (lesson 9). play_update stops
 	// running until the pause is taken off, so nothing here moves.
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		CP_Engine_PushGameState(pause_init, pause_update, pause_exit);
 	}
@@ -272,19 +272,19 @@ void play_update(void)
 	//-------------------------------------------------
 	// The slime moves (lesson 5) and animates (lesson 7)
 	CP_Vector direction = CP_Vector_Zero();
-	if (CP_Input_KeyDown(KEY_A) || CP_Input_KeyDown(KEY_LEFT))
+	if (CP_Input_KeyDown(CP_KEY_A) || CP_Input_KeyDown(CP_KEY_LEFT))
 	{
 		direction.x -= 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_D) || CP_Input_KeyDown(KEY_RIGHT))
+	if (CP_Input_KeyDown(CP_KEY_D) || CP_Input_KeyDown(CP_KEY_RIGHT))
 	{
 		direction.x += 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_W) || CP_Input_KeyDown(KEY_UP))
+	if (CP_Input_KeyDown(CP_KEY_W) || CP_Input_KeyDown(CP_KEY_UP))
 	{
 		direction.y -= 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_S) || CP_Input_KeyDown(KEY_DOWN))
+	if (CP_Input_KeyDown(CP_KEY_S) || CP_Input_KeyDown(CP_KEY_DOWN))
 	{
 		direction.y += 1.0f;
 	}
@@ -449,7 +449,7 @@ void pause_update(void)
 	DrawCenteredText("PAUSED", 270.0f, 80.0f);
 	DrawCenteredText("P to keep playing", 350.0f, 26.0f);
 
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		// Take the pause off: pause_exit runs, and play carries on
 		CP_Engine_PopGameState();
@@ -501,11 +501,11 @@ void over_update(void)
 	}
 	DrawCenteredText("Enter to play again, M for the menu", 470.0f, 24.0f);
 
-	if (CP_Input_KeyTriggered(KEY_ENTER))
+	if (CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		CP_Engine_SetNextGameState(play_init, play_update, play_exit);
 	}
-	if (CP_Input_KeyTriggered(KEY_M))
+	if (CP_Input_KeyTriggered(CP_KEY_M))
 	{
 		CP_Engine_SetNextGameState(menu_init, menu_update, menu_exit);
 	}

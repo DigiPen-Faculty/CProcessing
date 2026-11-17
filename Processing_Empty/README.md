@@ -50,8 +50,8 @@ Each file is built by its extension: `.c` files as C, `.cpp` files as C++,
 so a project can have both.
 
 One difference to know: C++ won't turn a number into a named value, such as
-a key, by itself. `CP_Input_KeyDown(KEY_A + i)` needs a cast in C++:
-`CP_Input_KeyDown((CP_KEY)(KEY_A + i))`. The same goes for `malloc`, whose
+a key, by itself. `CP_Input_KeyDown(CP_KEY_A + i)` needs a cast in C++:
+`CP_Input_KeyDown((CP_KEY)(CP_KEY_A + i))`. The same goes for `malloc`, whose
 result needs a cast: `(CP_Color*)malloc(...)`.
 
 ## Renaming the game

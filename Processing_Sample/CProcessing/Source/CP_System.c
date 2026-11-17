@@ -57,8 +57,8 @@ static CP_BOOL _deferredFullscreen = FALSE;
 static CP_CURSOR_MODE _cursorMode = CP_CURSOR_NORMAL;
 static char _windowTitle[256] = "CProcessing Application";
 
-static FunctionPtr _preUpdateFunction = NULL;
-static FunctionPtr _postUpdateFunction = NULL;
+static CP_FunctionPtr _preUpdateFunction = NULL;
+static CP_FunctionPtr _postUpdateFunction = NULL;
 
 //------------------------------------------------------------------------------
 // Private Variables:
@@ -807,7 +807,7 @@ static void CP_GameStates_Enter(void* user, int index, CP_GSL_RequestKind why)
 	_settingsOwner = slot;
 
 	CP_GameStates_MakeCurrent(index);
-	const FunctionPtr init = _stack.states[index].init;
+	const CP_FunctionPtr init = _stack.states[index].init;
 	if (init)
 	{
 		init();
@@ -821,7 +821,7 @@ static void CP_GameStates_Leave(void* user, int index, CP_GSL_RequestKind why)
 	CP_StateSlot* slot = &_slots[index];
 	CP_GameStates_MakeCurrent(index);
 
-	const FunctionPtr exit = _stack.states[index].exit;
+	const CP_FunctionPtr exit = _stack.states[index].exit;
 	if (exit)
 	{
 		exit();
@@ -876,7 +876,7 @@ static void CP_GameStates_Warn(CP_GSL_Result result)
 	}
 }
 
-static void CP_GameStates_Request(CP_GSL_RequestKind kind, FunctionPtr init, FunctionPtr update, FunctionPtr exit)
+static void CP_GameStates_Request(CP_GSL_RequestKind kind, CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit)
 {
 	// a new state lets the ones under it be seen, frozen, until it says otherwise
 	CP_GSL_State state = { init, update, exit, CP_STATE_FROZEN };
@@ -1042,14 +1042,14 @@ CP_API void CP_Engine_Terminate(void)
 // Go to a state: at the start of the next frame, every state ends (the top
 // one first) and this one starts. Nothing happens if it is already the only
 // state. update must have a valid input function, init and exit may be NULL.
-CP_API void CP_Engine_SetNextGameState(FunctionPtr init, FunctionPtr update, FunctionPtr exit)
+CP_API void CP_Engine_SetNextGameState(CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit)
 {
 	CP_GameStates_Request(CP_GSL_SET, init, update, exit);
 }
 
 // The same, but it also restarts the state it's already in: its exit runs,
 // then its init.
-CP_API void CP_Engine_SetNextGameStateForced(FunctionPtr init, FunctionPtr update, FunctionPtr exit)
+CP_API void CP_Engine_SetNextGameStateForced(CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit)
 {
 	CP_GameStates_Request(CP_GSL_SET_FORCED, init, update, exit);
 }
@@ -1057,7 +1057,7 @@ CP_API void CP_Engine_SetNextGameStateForced(FunctionPtr init, FunctionPtr updat
 // Put a state on top of the others, like a pause menu: the ones under it stay,
 // stopped, and can still be seen behind it (CP_Engine_SetGameStatePassThrough
 // changes that). It always goes on top, whichever state asks.
-CP_API void CP_Engine_PushGameState(FunctionPtr init, FunctionPtr update, FunctionPtr exit)
+CP_API void CP_Engine_PushGameState(CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit)
 {
 	CP_GameStates_Request(CP_GSL_PUSH, init, update, exit);
 }
@@ -1103,12 +1103,12 @@ CP_API float CP_Engine_GetGameStateTime(void)
 	return 0.0f;
 }
 
-CP_API void CP_Engine_SetPreUpdateFunction(FunctionPtr preUpdateFunction)
+CP_API void CP_Engine_SetPreUpdateFunction(CP_FunctionPtr preUpdateFunction)
 {
 	_preUpdateFunction = preUpdateFunction;
 }
 
-CP_API void CP_Engine_SetPostUpdateFunction(FunctionPtr postUpdateFunction)
+CP_API void CP_Engine_SetPostUpdateFunction(CP_FunctionPtr postUpdateFunction)
 {
 	_postUpdateFunction = postUpdateFunction;
 }

@@ -59,7 +59,7 @@ void game_init(void)
 
 void game_update(void)
 {
-	if (CP_Input_KeyTriggered(KEY_F))
+	if (CP_Input_KeyTriggered(CP_KEY_F))
 	{
 		if (CP_System_IsFullscreen())
 		{
@@ -70,23 +70,23 @@ void game_update(void)
 			CP_System_Fullscreen();
 		}
 	}
-	if (CP_Input_KeyTriggered(KEY_R))
+	if (CP_Input_KeyTriggered(CP_KEY_R))
 	{
 		CP_System_SetWindowResizable(!CP_System_GetWindowResizable());
 	}
-	if (CP_Input_KeyTriggered(KEY_V))
+	if (CP_Input_KeyTriggered(CP_KEY_V))
 	{
 		CP_System_SetVSync(!CP_System_GetVSync());
 	}
-	if (CP_Input_KeyTriggered(KEY_1))
+	if (CP_Input_KeyTriggered(CP_KEY_1))
 	{
 		CP_System_SetFrameRate(30.0f);
 	}
-	if (CP_Input_KeyTriggered(KEY_2))
+	if (CP_Input_KeyTriggered(CP_KEY_2))
 	{
 		CP_System_SetFrameRate(60.0f);
 	}
-	if (CP_Input_KeyTriggered(KEY_3))
+	if (CP_Input_KeyTriggered(CP_KEY_3))
 	{
 		CP_System_SetFrameRate(0.0f); // 0: no limit
 	}

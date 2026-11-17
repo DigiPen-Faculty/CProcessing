@@ -203,26 +203,26 @@ void game_update(void)
 
 	// Point in a box: is the mouse over the button when it is clicked?
 	const CP_BOOL overButton = PointInBox(mouse, resetButton);
-	if ((overButton && CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT)) || CP_Input_KeyTriggered(KEY_R))
+	if ((overButton && CP_Input_MouseTriggered(CP_MOUSE_LEFT)) || CP_Input_KeyTriggered(CP_KEY_R))
 	{
 		ResetGame();
 	}
 
 	// Move the player (lesson 5), but through MoveCircle so walls stop it
 	CP_Vector direction = CP_Vector_Zero();
-	if (CP_Input_KeyDown(KEY_A) || CP_Input_KeyDown(KEY_LEFT))
+	if (CP_Input_KeyDown(CP_KEY_A) || CP_Input_KeyDown(CP_KEY_LEFT))
 	{
 		direction.x -= 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_D) || CP_Input_KeyDown(KEY_RIGHT))
+	if (CP_Input_KeyDown(CP_KEY_D) || CP_Input_KeyDown(CP_KEY_RIGHT))
 	{
 		direction.x += 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_W) || CP_Input_KeyDown(KEY_UP))
+	if (CP_Input_KeyDown(CP_KEY_W) || CP_Input_KeyDown(CP_KEY_UP))
 	{
 		direction.y -= 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_S) || CP_Input_KeyDown(KEY_DOWN))
+	if (CP_Input_KeyDown(CP_KEY_S) || CP_Input_KeyDown(CP_KEY_DOWN))
 	{
 		direction.y += 1.0f;
 	}

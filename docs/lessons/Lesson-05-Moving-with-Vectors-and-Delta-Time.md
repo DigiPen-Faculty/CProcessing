@@ -91,11 +91,11 @@ The player's direction comes from the keys. Each held key adds to a vector:
 
 ```C
 CP_Vector direction = CP_Vector_Zero();
-if (CP_Input_KeyDown(KEY_A) || CP_Input_KeyDown(KEY_LEFT))
+if (CP_Input_KeyDown(CP_KEY_A) || CP_Input_KeyDown(CP_KEY_LEFT))
 {
 	direction.x -= 1.0f;
 }
-if (CP_Input_KeyDown(KEY_D) || CP_Input_KeyDown(KEY_RIGHT))
+if (CP_Input_KeyDown(CP_KEY_D) || CP_Input_KeyDown(CP_KEY_RIGHT))
 {
 	direction.x += 1.0f;
 }

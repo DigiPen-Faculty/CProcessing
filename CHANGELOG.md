@@ -10,6 +10,28 @@ changes to build with the new version.
      nothing here is released, and `main` and the live wiki stay as they are.
      This section grows until one larger release with all the changes. -->
 
+### Breaking changes
+
+Each change says what to do in an existing project.
+
+- **Everything CProcessing defines now starts with `CP_`.** The key, mouse
+  button and gamepad button names, and the function pointer type, were the
+  only exceptions. `KEY_*` collided with Linux's own `KEY_*` macros (the
+  kernel's `input-event-codes.h`): included first it was a compile error, and
+  included after `cprocessing.h` it silently changed what `KEY_A` meant.
+  In an existing project, search and replace (whole words only):
+
+  | Old | New |
+  |---|---|
+  | `KEY_A`, `KEY_SPACE`, `KEY_ANY`, ... | `CP_KEY_A`, `CP_KEY_SPACE`, `CP_KEY_ANY`, ... |
+  | `MOUSE_BUTTON_LEFT`, `MOUSE_BUTTON_MIDDLE`, `MOUSE_BUTTON_RIGHT` | `CP_MOUSE_LEFT`, `CP_MOUSE_MIDDLE`, `CP_MOUSE_RIGHT` |
+  | `MOUSE_BUTTON_1` to `MOUSE_BUTTON_8`, `MOUSE_BUTTON_LAST` | `CP_MOUSE_1` to `CP_MOUSE_8`, `CP_MOUSE_LAST` |
+  | `GAMEPAD_A`, `GAMEPAD_DPAD_UP`, ... | `CP_GAMEPAD_A`, `CP_GAMEPAD_DPAD_UP`, ... |
+  | `FunctionPtr` | `CP_FunctionPtr` |
+
+  `TRUE` and `FALSE` keep their names. `DLL_EXPORT` is gone (use `CP_API`,
+  which is what it was for); a program never needed it.
+
 ### Added
 
 - **A stack of game states, for pause menus and more:** think of states as

@@ -47,7 +47,7 @@ extern "C" {
 #define CP_GAMEPAD_THUMB_DEADZONE    8689.0f
 #define CP_GAMEPAD_THUMB_RANGE       32767.0f
 
-#define CP_GAMEPAD_BUTTON_COUNT (GAMEPAD_Y + 1)
+#define CP_GAMEPAD_BUTTON_COUNT (CP_GAMEPAD_Y + 1)
 
 // Raw, per-frame snapshot of one gamepad, independent of the input backend.
 // Sticks use the XInput/CProcessing convention: +x is right, +y is UP.
@@ -207,21 +207,21 @@ static inline int CP_InputLogic_GamepadToGLFWButton(CP_GAMEPAD button)
 {
 	switch (button)
 	{
-	case GAMEPAD_DPAD_UP:        return GLFW_GAMEPAD_BUTTON_DPAD_UP;
-	case GAMEPAD_DPAD_DOWN:      return GLFW_GAMEPAD_BUTTON_DPAD_DOWN;
-	case GAMEPAD_DPAD_LEFT:      return GLFW_GAMEPAD_BUTTON_DPAD_LEFT;
-	case GAMEPAD_DPAD_RIGHT:     return GLFW_GAMEPAD_BUTTON_DPAD_RIGHT;
-	case GAMEPAD_START:          return GLFW_GAMEPAD_BUTTON_START;
-	case GAMEPAD_BACK:           return GLFW_GAMEPAD_BUTTON_BACK;
-	case GAMEPAD_LEFT_THUMB:     return GLFW_GAMEPAD_BUTTON_LEFT_THUMB;
-	case GAMEPAD_RIGHT_THUMB:    return GLFW_GAMEPAD_BUTTON_RIGHT_THUMB;
-	case GAMEPAD_LEFT_SHOULDER:  return GLFW_GAMEPAD_BUTTON_LEFT_BUMPER;
-	case GAMEPAD_RIGHT_SHOULDER: return GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER;
-	case GAMEPAD_A:              return GLFW_GAMEPAD_BUTTON_A;
-	case GAMEPAD_B:              return GLFW_GAMEPAD_BUTTON_B;
-	case GAMEPAD_X:              return GLFW_GAMEPAD_BUTTON_X;
-	case GAMEPAD_Y:              return GLFW_GAMEPAD_BUTTON_Y;
-	default:                     return -1;
+	case CP_GAMEPAD_DPAD_UP:        return GLFW_GAMEPAD_BUTTON_DPAD_UP;
+	case CP_GAMEPAD_DPAD_DOWN:      return GLFW_GAMEPAD_BUTTON_DPAD_DOWN;
+	case CP_GAMEPAD_DPAD_LEFT:      return GLFW_GAMEPAD_BUTTON_DPAD_LEFT;
+	case CP_GAMEPAD_DPAD_RIGHT:     return GLFW_GAMEPAD_BUTTON_DPAD_RIGHT;
+	case CP_GAMEPAD_START:          return GLFW_GAMEPAD_BUTTON_START;
+	case CP_GAMEPAD_BACK:           return GLFW_GAMEPAD_BUTTON_BACK;
+	case CP_GAMEPAD_LEFT_THUMB:     return GLFW_GAMEPAD_BUTTON_LEFT_THUMB;
+	case CP_GAMEPAD_RIGHT_THUMB:    return GLFW_GAMEPAD_BUTTON_RIGHT_THUMB;
+	case CP_GAMEPAD_LEFT_SHOULDER:  return GLFW_GAMEPAD_BUTTON_LEFT_BUMPER;
+	case CP_GAMEPAD_RIGHT_SHOULDER: return GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER;
+	case CP_GAMEPAD_A:              return GLFW_GAMEPAD_BUTTON_A;
+	case CP_GAMEPAD_B:              return GLFW_GAMEPAD_BUTTON_B;
+	case CP_GAMEPAD_X:              return GLFW_GAMEPAD_BUTTON_X;
+	case CP_GAMEPAD_Y:              return GLFW_GAMEPAD_BUTTON_Y;
+	default:                        return -1;
 	}
 }
 

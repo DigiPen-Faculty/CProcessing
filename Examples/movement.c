@@ -38,19 +38,19 @@ void game_update(void)
 	// 1. Which way does the player want to go? Each key adds to a direction:
 	//    x is -1 for left and +1 for right, y is -1 for up and +1 for down.
 	CP_Vector direction = CP_Vector_Zero();
-	if (CP_Input_KeyDown(KEY_A) || CP_Input_KeyDown(KEY_LEFT))
+	if (CP_Input_KeyDown(CP_KEY_A) || CP_Input_KeyDown(CP_KEY_LEFT))
 	{
 		direction.x -= 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_D) || CP_Input_KeyDown(KEY_RIGHT))
+	if (CP_Input_KeyDown(CP_KEY_D) || CP_Input_KeyDown(CP_KEY_RIGHT))
 	{
 		direction.x += 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_W) || CP_Input_KeyDown(KEY_UP))
+	if (CP_Input_KeyDown(CP_KEY_W) || CP_Input_KeyDown(CP_KEY_UP))
 	{
 		direction.y -= 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_S) || CP_Input_KeyDown(KEY_DOWN))
+	if (CP_Input_KeyDown(CP_KEY_S) || CP_Input_KeyDown(CP_KEY_DOWN))
 	{
 		direction.y += 1.0f;
 	}

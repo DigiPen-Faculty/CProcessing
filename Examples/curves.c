@@ -84,7 +84,7 @@ void UpdateHandles(void)
 	const float mouseX = CP_Input_GetMouseX();
 	const float mouseY = CP_Input_GetMouseY();
 
-	if (CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT))
+	if (CP_Input_MouseTriggered(CP_MOUSE_LEFT))
 	{
 		grabbed = -1;
 		for (int i = 0; i < HANDLE_COUNT; ++i)
@@ -95,7 +95,7 @@ void UpdateHandles(void)
 			}
 		}
 	}
-	if (!CP_Input_MouseDown(MOUSE_BUTTON_LEFT))
+	if (!CP_Input_MouseDown(CP_MOUSE_LEFT))
 	{
 		grabbed = -1;
 	}
@@ -171,7 +171,7 @@ void game_update(void)
 {
 	for (int i = 0; i < 6; ++i)
 	{
-		if (CP_Input_KeyTriggered((CP_KEY)(KEY_1 + i)))
+		if (CP_Input_KeyTriggered((CP_KEY)(CP_KEY_1 + i)))
 		{
 			octaves = i + 1;
 		}

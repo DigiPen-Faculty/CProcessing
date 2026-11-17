@@ -60,7 +60,7 @@ void game_init(void)
 void game_update(void)
 {
 	float dt = CP_System_GetDt();
-	CP_BOOL clicked = CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT);
+	CP_BOOL clicked = CP_Input_MouseTriggered(CP_MOUSE_LEFT);
 	CP_Vector mouse = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
 
 	if (playing)

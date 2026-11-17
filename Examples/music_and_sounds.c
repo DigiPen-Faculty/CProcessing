@@ -72,21 +72,21 @@ void game_init(void)
 
 void game_update(void)
 {
-	if (CP_Input_KeyTriggered(KEY_1))
+	if (CP_Input_KeyTriggered(CP_KEY_1))
 	{
 		PlayEffect(coinSound, "coin");
 	}
-	if (CP_Input_KeyTriggered(KEY_2))
+	if (CP_Input_KeyTriggered(CP_KEY_2))
 	{
 		PlayEffect(jumpSound, "jump");
 	}
-	if (CP_Input_KeyTriggered(KEY_3))
+	if (CP_Input_KeyTriggered(CP_KEY_3))
 	{
 		PlayEffect(hitSound, "hit");
 	}
 
 	// M pauses or resumes the music, only while it's playing
-	if (CP_Input_KeyTriggered(KEY_M) && CP_Sound_IsPlaying(musicInstance))
+	if (CP_Input_KeyTriggered(CP_KEY_M) && CP_Sound_IsPlaying(musicInstance))
 	{
 		if (musicPaused)
 		{
@@ -100,7 +100,7 @@ void game_update(void)
 	}
 
 	// S stops the music, or starts it again from the beginning
-	if (CP_Input_KeyTriggered(KEY_S))
+	if (CP_Input_KeyTriggered(CP_KEY_S))
 	{
 		if (CP_Sound_IsPlaying(musicInstance))
 		{
@@ -116,19 +116,19 @@ void game_update(void)
 	// Each group's volume, from 0 (silent) to 1 (full), in steps of 0.1
 	float musicVolume = CP_Sound_GetGroupVolume(CP_SOUND_GROUP_MUSIC);
 	float effectsVolume = CP_Sound_GetGroupVolume(CP_SOUND_GROUP_SFX);
-	if (CP_Input_KeyTriggered(KEY_UP))
+	if (CP_Input_KeyTriggered(CP_KEY_UP))
 	{
 		musicVolume += 0.1f;
 	}
-	if (CP_Input_KeyTriggered(KEY_DOWN))
+	if (CP_Input_KeyTriggered(CP_KEY_DOWN))
 	{
 		musicVolume -= 0.1f;
 	}
-	if (CP_Input_KeyTriggered(KEY_RIGHT))
+	if (CP_Input_KeyTriggered(CP_KEY_RIGHT))
 	{
 		effectsVolume += 0.1f;
 	}
-	if (CP_Input_KeyTriggered(KEY_LEFT))
+	if (CP_Input_KeyTriggered(CP_KEY_LEFT))
 	{
 		effectsVolume -= 0.1f;
 	}

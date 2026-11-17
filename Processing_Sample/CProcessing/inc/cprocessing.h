@@ -60,16 +60,16 @@ extern "C"
 //		Functions managing code flow
 CP_API void				CP_Engine_Run						(void);
 CP_API void				CP_Engine_Terminate					(void);
-CP_API void				CP_Engine_SetNextGameState			(FunctionPtr init, FunctionPtr update, FunctionPtr exit);
-CP_API void				CP_Engine_SetNextGameStateForced	(FunctionPtr init, FunctionPtr update, FunctionPtr exit);
-CP_API void				CP_Engine_PushGameState				(FunctionPtr init, FunctionPtr update, FunctionPtr exit);
+CP_API void				CP_Engine_SetNextGameState			(CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit);
+CP_API void				CP_Engine_SetNextGameStateForced	(CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit);
+CP_API void				CP_Engine_PushGameState				(CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit);
 CP_API void				CP_Engine_PopGameState				(void);
 CP_API void				CP_Engine_SetGameStatePassThrough	(CP_STATE passThrough);
 CP_API int				CP_Engine_GetGameStateDepth			(void);
 CP_API CP_BOOL			CP_Engine_IsTopGameState			(void);
 CP_API float			CP_Engine_GetGameStateTime			(void);
-CP_API void				CP_Engine_SetPreUpdateFunction		(FunctionPtr preUpdateFunction);
-CP_API void				CP_Engine_SetPostUpdateFunction		(FunctionPtr postUpdateFunction);
+CP_API void				CP_Engine_SetPreUpdateFunction		(CP_FunctionPtr preUpdateFunction);
+CP_API void				CP_Engine_SetPostUpdateFunction		(CP_FunctionPtr postUpdateFunction);
 
 
 //---------------------------------------------------------

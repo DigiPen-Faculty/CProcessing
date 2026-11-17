@@ -92,7 +92,7 @@ It moves because `game_update` runs again and again. Each frame it paints the sk
 Games need ways to look inside themselves. `printf` prints to the **console**:
 
 ```C
-if (CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT))
+if (CP_Input_MouseTriggered(CP_MOUSE_LEFT))
 {
 	printf("Clicked at (%.0f, %.0f)\n", CP_Input_GetMouseX(), CP_Input_GetMouseY());
 }

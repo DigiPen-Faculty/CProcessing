@@ -130,7 +130,7 @@ static void DoSliders(void)
 	float mouseY = CP_Input_GetMouseY();
 
 	// Pick up a slider with a click on it, drop it when the button is let go
-	if (CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT))
+	if (CP_Input_MouseTriggered(CP_MOUSE_LEFT))
 	{
 		for (int i = 0; i < SLIDER_COUNT; i++)
 		{
@@ -142,7 +142,7 @@ static void DoSliders(void)
 			}
 		}
 	}
-	if (!CP_Input_MouseDown(MOUSE_BUTTON_LEFT))
+	if (!CP_Input_MouseDown(CP_MOUSE_LEFT))
 	{
 		draggedSlider = -1;
 	}
@@ -201,11 +201,11 @@ static void DoSliders(void)
 
 static void DoSlots(void)
 {
-	if (CP_Input_KeyTriggered(KEY_A))
+	if (CP_Input_KeyTriggered(CP_KEY_A))
 	{
 		slotA = CurrentColor();
 	}
-	if (CP_Input_KeyTriggered(KEY_B))
+	if (CP_Input_KeyTriggered(CP_KEY_B))
 	{
 		slotB = CurrentColor();
 	}

@@ -130,7 +130,7 @@ void game_update(void)
 	//-----------------------------------------------------
 	// The sound controls. M pauses and resumes this play of the music, and
 	// each group has a volume of its own.
-	if (CP_Input_KeyTriggered(KEY_M))
+	if (CP_Input_KeyTriggered(CP_KEY_M))
 	{
 		musicOn = !musicOn;
 		if (musicOn)
@@ -142,19 +142,19 @@ void game_update(void)
 			CP_Sound_Pause(musicInstance);
 		}
 	}
-	if (CP_Input_KeyTriggered(KEY_1))
+	if (CP_Input_KeyTriggered(CP_KEY_1))
 	{
 		musicVolume -= 0.1f;
 	}
-	if (CP_Input_KeyTriggered(KEY_2))
+	if (CP_Input_KeyTriggered(CP_KEY_2))
 	{
 		musicVolume += 0.1f;
 	}
-	if (CP_Input_KeyTriggered(KEY_3))
+	if (CP_Input_KeyTriggered(CP_KEY_3))
 	{
 		effectsVolume -= 0.1f;
 	}
-	if (CP_Input_KeyTriggered(KEY_4))
+	if (CP_Input_KeyTriggered(CP_KEY_4))
 	{
 		effectsVolume += 0.1f;
 	}
@@ -174,17 +174,17 @@ void game_update(void)
 	//-----------------------------------------------------
 	// The player: across, and a jump with gravity
 	float across = 0.0f;
-	if (CP_Input_KeyDown(KEY_A) || CP_Input_KeyDown(KEY_LEFT))
+	if (CP_Input_KeyDown(CP_KEY_A) || CP_Input_KeyDown(CP_KEY_LEFT))
 	{
 		across -= 1.0f;
 	}
-	if (CP_Input_KeyDown(KEY_D) || CP_Input_KeyDown(KEY_RIGHT))
+	if (CP_Input_KeyDown(CP_KEY_D) || CP_Input_KeyDown(CP_KEY_RIGHT))
 	{
 		across += 1.0f;
 	}
 	player.x = CP_Math_ClampFloat(player.x + across * playerSpeed * dt, playerRadius, 800.0f - playerRadius);
 
-	if (onGround && CP_Input_KeyTriggered(KEY_SPACE))
+	if (onGround && CP_Input_KeyTriggered(CP_KEY_SPACE))
 	{
 		playerVelocityY = -jumpSpeed;
 		onGround = FALSE;

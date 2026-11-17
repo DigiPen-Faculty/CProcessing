@@ -151,7 +151,7 @@ void game_update(void)
 
 	// Point in a box: is the mouse over the button when it's clicked?
 	CP_BOOL mouseOverButton = PointInBox(mouse, button);
-	if ((mouseOverButton && CP_Input_MouseTriggered(MOUSE_BUTTON_LEFT)) || CP_Input_KeyTriggered(KEY_SPACE))
+	if ((mouseOverButton && CP_Input_MouseTriggered(CP_MOUSE_LEFT)) || CP_Input_KeyTriggered(CP_KEY_SPACE))
 	{
 		playerIsCircle = !playerIsCircle;
 	}

@@ -164,7 +164,7 @@ void game_update(void)
 That's what makes painting possible. While the left mouse button is held, each frame draws a thick line from where the mouse was last frame to where it is now:
 
 ```C
-if (CP_Input_MouseDown(MOUSE_BUTTON_LEFT))
+if (CP_Input_MouseDown(CP_MOUSE_LEFT))
 {
 	CP_Settings_Stroke(brushColors[brushColor]);
 	CP_Settings_StrokeWeight(brushSize);

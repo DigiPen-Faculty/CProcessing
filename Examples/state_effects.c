@@ -152,15 +152,15 @@ void game_update(void)
 
 	// (Under the level-up box, keys read as not pressed: only the top state
 	// gets input)
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		CP_Engine_PushGameState(pause_init, pause_update, pause_exit);
 	}
 	CP_Vector move = CP_Vector_Zero();
-	if (CP_Input_KeyDown(KEY_LEFT)) move.x -= 1.0f;
-	if (CP_Input_KeyDown(KEY_RIGHT)) move.x += 1.0f;
-	if (CP_Input_KeyDown(KEY_UP)) move.y -= 1.0f;
-	if (CP_Input_KeyDown(KEY_DOWN)) move.y += 1.0f;
+	if (CP_Input_KeyDown(CP_KEY_LEFT)) move.x -= 1.0f;
+	if (CP_Input_KeyDown(CP_KEY_RIGHT)) move.x += 1.0f;
+	if (CP_Input_KeyDown(CP_KEY_UP)) move.y -= 1.0f;
+	if (CP_Input_KeyDown(CP_KEY_DOWN)) move.y += 1.0f;
 	if (move.x != 0.0f || move.y != 0.0f)
 	{
 		player = CP_Vector_Add(player, CP_Vector_Scale(CP_Vector_Normalize(move), playerSpeed * dt));
@@ -252,7 +252,7 @@ void pause_update(void)
 	const float time = CP_Engine_GetGameStateTime();
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, EaseTo(1.0f, PAUSE_VOLUME, time, EASE_SECONDS));
 
-	if (CP_Input_KeyTriggered(KEY_B))
+	if (CP_Input_KeyTriggered(CP_KEY_B))
 	{
 		pixelated = !pixelated;
 	}
@@ -275,7 +275,7 @@ void pause_update(void)
 	DrawCenteredText("P: keep playing", 320.0f, 24.0f);
 	DrawCenteredText(pixelated ? "B: blurred" : "B: pixelated", 355.0f, 24.0f);
 
-	if (CP_Input_KeyTriggered(KEY_P))
+	if (CP_Input_KeyTriggered(CP_KEY_P))
 	{
 		CP_Engine_PopGameState();
 	}
@@ -314,12 +314,12 @@ void level_up_update(void)
 		// Ease into slow motion
 		SetTimeScale(EaseTo(1.0f, LEVEL_UP_SLOWEST, time, EASE_SECONDS));
 
-		if (CP_Input_KeyTriggered(KEY_1))
+		if (CP_Input_KeyTriggered(CP_KEY_1))
 		{
 			playerSpeed += 60.0f;
 			levelUpClosing = TRUE;
 		}
-		if (CP_Input_KeyTriggered(KEY_2))
+		if (CP_Input_KeyTriggered(CP_KEY_2))
 		{
 			reach += 12.0f;
 			levelUpClosing = TRUE;

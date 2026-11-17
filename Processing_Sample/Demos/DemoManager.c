@@ -35,9 +35,9 @@ CP_Color GetCommonBackgroundColor(void)
 typedef struct Demo
 {
 	const char* name;
-	FunctionPtr init;
-	FunctionPtr update;
-	FunctionPtr exit;
+	CP_FunctionPtr init;
+	CP_FunctionPtr update;
+	CP_FunctionPtr exit;
 } Demo;
 
 static const Demo demos[] = {
@@ -65,13 +65,13 @@ static void SwitchToDemo(int index)
 static void DemoManagerPreUpdate(void)
 {
 	// Escape closes the program
-	if (CP_Input_KeyTriggered(KEY_ESCAPE))
+	if (CP_Input_KeyTriggered(CP_KEY_ESCAPE))
 	{
 		CP_Engine_Terminate();
 	}
 
 	// F toggles fullscreen
-	if (CP_Input_KeyTriggered(KEY_F))
+	if (CP_Input_KeyTriggered(CP_KEY_F))
 	{
 		if (isFullscreen)
 		{
@@ -86,7 +86,7 @@ static void DemoManagerPreUpdate(void)
 	}
 
 	// M cycles the mouse cursor mode: normal, hidden, captured, disabled
-	if (CP_Input_KeyTriggered(KEY_M))
+	if (CP_Input_KeyTriggered(CP_KEY_M))
 	{
 		CP_CURSOR_MODE mode = (CP_CURSOR_MODE)((CP_System_GetCursorMode() + 1) % 4);
 		CP_System_SetCursorMode(mode);
@@ -94,13 +94,13 @@ static void DemoManagerPreUpdate(void)
 	}
 
 	// C shows or hides the console, where printf output appears
-	if (CP_Input_KeyTriggered(KEY_C))
+	if (CP_Input_KeyTriggered(CP_KEY_C))
 	{
 		CP_System_ShowConsole(!CP_System_GetConsoleVisible());
 	}
 
 	// H shows or hides the key bar
-	if (CP_Input_KeyTriggered(KEY_H))
+	if (CP_Input_KeyTriggered(CP_KEY_H))
 	{
 		showKeyBar = !showKeyBar;
 	}
@@ -108,7 +108,7 @@ static void DemoManagerPreUpdate(void)
 	// The number keys switch demos
 	for (int i = 0; i < DEMO_COUNT && i < 9; ++i)
 	{
-		if (CP_Input_KeyTriggered((CP_KEY)(KEY_1 + i)) && i != currentDemo)
+		if (CP_Input_KeyTriggered((CP_KEY)(CP_KEY_1 + i)) && i != currentDemo)
 		{
 			printf("Switching to demo %d: %s\n", i + 1, demos[i].name);
 			SwitchToDemo(i);

@@ -122,7 +122,7 @@ void GridWaveDemoUpdate(void)
 	CP_Graphics_ClearBackground(GetCommonBackgroundColor());
 
 	// User Input
-	if (CP_Input_MouseDown(MOUSE_BUTTON_1))
+	if (CP_Input_MouseDown(CP_MOUSE_1))
 	{
 		int mouse_grid_x = ((int)CP_Input_GetMouseX()) / grid_stride;
 		int mouse_grid_y = ((int)CP_Input_GetMouseY()) / grid_stride;

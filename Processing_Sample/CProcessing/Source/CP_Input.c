@@ -157,7 +157,7 @@ void CP_Input_MouseCallback(GLFWwindow* window, int button, int action, int mods
 		mouse_states_realtime[button] = FALSE;
 
 		// Update click times
-		if (button == MOUSE_BUTTON_1)
+		if (button == CP_MOUSE_1)
 		{
 			previous_click_time = current_click_time;
 			current_click_time = glfwGetTime();
@@ -391,7 +391,7 @@ CP_BOOL CP_Input_IsValidKey(CP_KEY key)
 
 CP_BOOL CP_Input_IsValidMouse(CP_MOUSE button)
 {
-	return (button >= 0 && button <= MOUSE_BUTTON_LAST);
+	return (button >= 0 && button <= CP_MOUSE_LAST);
 }
 
 CP_BOOL CP_Input_IsValidGamepad(CP_GAMEPAD button)
@@ -429,7 +429,7 @@ void CP_Input_SetMuted(CP_BOOL muted, CP_Vector mouse, CP_Vector worldMouse)
 CP_API CP_BOOL CP_Input_KeyTriggered(CP_KEY keyCode)
 {
 	if (_inputMuted) return FALSE;
-	if (keyCode == KEY_ANY)
+	if (keyCode == CP_KEY_ANY)
 	{
 		return key_any_triggered;
 	}
@@ -445,7 +445,7 @@ CP_API CP_BOOL CP_Input_KeyTriggered(CP_KEY keyCode)
 CP_API CP_BOOL CP_Input_KeyReleased(CP_KEY keyCode)
 {
 	if (_inputMuted) return FALSE;
-	if (keyCode == KEY_ANY)
+	if (keyCode == CP_KEY_ANY)
 	{
 		return key_any_released;
 	}
@@ -461,7 +461,7 @@ CP_API CP_BOOL CP_Input_KeyReleased(CP_KEY keyCode)
 CP_API CP_BOOL CP_Input_KeyDown(CP_KEY keyCode)
 {
 	if (_inputMuted) return FALSE;
-	if (keyCode == KEY_ANY)
+	if (keyCode == CP_KEY_ANY)
 	{
 		return key_any_down;
 	}
@@ -517,7 +517,7 @@ CP_API CP_BOOL CP_Input_MouseMoved(void)
 
 CP_API CP_BOOL CP_Input_MouseClicked(void)
 {
-	return CP_Input_MouseReleased(MOUSE_BUTTON_LEFT);
+	return CP_Input_MouseReleased(CP_MOUSE_LEFT);
 }
 
 CP_API CP_BOOL CP_Input_MouseDoubleClicked(void)

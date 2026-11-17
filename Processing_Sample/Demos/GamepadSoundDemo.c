@@ -39,14 +39,14 @@ typedef struct Note
 
 // The C major scale, C to C
 static Note notes[] = {
-	{ "C",         "Assets/Notes/c.wav", GAMEPAD_DPAD_UP,    KEY_Q, NULL },
-	{ "D",         "Assets/Notes/d.wav", GAMEPAD_DPAD_RIGHT, KEY_W, NULL },
-	{ "E",         "Assets/Notes/e.wav", GAMEPAD_DPAD_DOWN,  KEY_E, NULL },
-	{ "F",         "Assets/Notes/f.wav", GAMEPAD_DPAD_LEFT,  KEY_R, NULL },
-	{ "G",         "Assets/Notes/g.wav", GAMEPAD_A,          KEY_T, NULL },
-	{ "A",         "Assets/Notes/a.wav", GAMEPAD_B,          KEY_Y, NULL },
-	{ "B",         "Assets/Notes/b.wav", GAMEPAD_X,          KEY_U, NULL },
-	{ "C (piano)", "Assets/Piano/c.wav", GAMEPAD_Y,          KEY_I, NULL },
+	{ "C",         "Assets/Notes/c.wav", CP_GAMEPAD_DPAD_UP,    CP_KEY_Q, NULL },
+	{ "D",         "Assets/Notes/d.wav", CP_GAMEPAD_DPAD_RIGHT, CP_KEY_W, NULL },
+	{ "E",         "Assets/Notes/e.wav", CP_GAMEPAD_DPAD_DOWN,  CP_KEY_E, NULL },
+	{ "F",         "Assets/Notes/f.wav", CP_GAMEPAD_DPAD_LEFT,  CP_KEY_R, NULL },
+	{ "G",         "Assets/Notes/g.wav", CP_GAMEPAD_A,          CP_KEY_T, NULL },
+	{ "A",         "Assets/Notes/a.wav", CP_GAMEPAD_B,          CP_KEY_Y, NULL },
+	{ "B",         "Assets/Notes/b.wav", CP_GAMEPAD_X,          CP_KEY_U, NULL },
+	{ "C (piano)", "Assets/Piano/c.wav", CP_GAMEPAD_Y,          CP_KEY_I, NULL },
 };
 #define NOTE_COUNT (int)(sizeof(notes) / sizeof(notes[0]))
 
@@ -105,22 +105,22 @@ static void DrawGamepadData(int posX, int posY, int i)
 
 	// left stick
 	stick = CP_Input_GamepadLeftStickAdvanced(i);
-	lightness = CP_Input_GamepadDownAdvanced(GAMEPAD_LEFT_THUMB, i) ? 80 : 50;
-	CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_Create(stick.y < 0 ? (int)CP_Vector_Angle(stick, rightVec) : 360 - (int)CP_Vector_Angle(stick, rightVec), (int)(CP_Vector_Length(stick) * 100), lightness, (int)(CP_Vector_Length(stick) * 255) + (CP_Input_GamepadDownAdvanced(GAMEPAD_LEFT_THUMB, i) ? 255 : 0))));
+	lightness = CP_Input_GamepadDownAdvanced(CP_GAMEPAD_LEFT_THUMB, i) ? 80 : 50;
+	CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_Create(stick.y < 0 ? (int)CP_Vector_Angle(stick, rightVec) : 360 - (int)CP_Vector_Angle(stick, rightVec), (int)(CP_Vector_Length(stick) * 100), lightness, (int)(CP_Vector_Length(stick) * 255) + (CP_Input_GamepadDownAdvanced(CP_GAMEPAD_LEFT_THUMB, i) ? 255 : 0))));
 	CP_Graphics_DrawCircle(100.0f + (stick.x * movementOffset), 160.0f + (-stick.y * movementOffset), circleDiameter);
 	// right stick
 	stick = CP_Input_GamepadRightStickAdvanced(i);
-	lightness = CP_Input_GamepadDownAdvanced(GAMEPAD_RIGHT_THUMB, i) ? 80 : 50;
-	CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_Create(stick.y < 0 ? (int)CP_Vector_Angle(stick, rightVec) : 360 - (int)CP_Vector_Angle(stick, rightVec), (int)(CP_Vector_Length(stick) * 100), lightness, (int)(CP_Vector_Length(stick) * 255) + (CP_Input_GamepadDownAdvanced(GAMEPAD_RIGHT_THUMB, i) ? 255 : 0))));
+	lightness = CP_Input_GamepadDownAdvanced(CP_GAMEPAD_RIGHT_THUMB, i) ? 80 : 50;
+	CP_Settings_Fill(CP_Color_FromColorHSL(CP_ColorHSL_Create(stick.y < 0 ? (int)CP_Vector_Angle(stick, rightVec) : 360 - (int)CP_Vector_Angle(stick, rightVec), (int)(CP_Vector_Length(stick) * 100), lightness, (int)(CP_Vector_Length(stick) * 255) + (CP_Input_GamepadDownAdvanced(CP_GAMEPAD_RIGHT_THUMB, i) ? 255 : 0))));
 	CP_Graphics_DrawCircle(300.0f + (stick.x * movementOffset), 160.0f + (-stick.y * movementOffset), circleDiameter);
 
 	//-------------------------
 	// TRIGGERS
 	CP_Settings_RectMode(CP_POSITION_CORNER);
 	float rectWidth = 80.0f;
-	CP_Input_GamepadDownAdvanced(GAMEPAD_LEFT_SHOULDER, i) ? CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255)) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(CP_GAMEPAD_LEFT_SHOULDER, i) ? CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255)) : CP_Settings_NoFill();
 	CP_Graphics_DrawRect(60.0f, 80.0f, rectWidth, 20.0f);
-	CP_Input_GamepadDownAdvanced(GAMEPAD_RIGHT_SHOULDER, i) ? CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255)) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(CP_GAMEPAD_RIGHT_SHOULDER, i) ? CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255)) : CP_Settings_NoFill();
 	CP_Graphics_DrawRect(260.0f, 80.0f, rectWidth, 20.0f);
 	float trigger = CP_Input_GamepadLeftTriggerAdvanced(i);
 	CP_Settings_Fill(CP_Color_Create(255 - (int)(trigger * 255), 0, (int)(trigger * 255), 255));
@@ -134,24 +134,24 @@ static void DrawGamepadData(int posX, int posY, int i)
 	CP_Settings_RectMode(CP_POSITION_CENTER);
 	float buttonSize = 30.0f;
 	CP_Color fillcolor = CP_Color_FromColorHSL(CP_ColorHSL_Create((int)(CP_System_GetSeconds() * 60.0f) % 360, 100, 50, 255));
-	CP_Input_GamepadDownAdvanced(GAMEPAD_DPAD_UP, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(CP_GAMEPAD_DPAD_UP, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawRect(100.0f, 240.0f, buttonSize, buttonSize);
-	CP_Input_GamepadDownAdvanced(GAMEPAD_DPAD_LEFT, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(CP_GAMEPAD_DPAD_LEFT, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawRect(60.0f, 280.0f, buttonSize, buttonSize);
-	CP_Input_GamepadDownAdvanced(GAMEPAD_DPAD_RIGHT, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(CP_GAMEPAD_DPAD_RIGHT, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawRect(140.0f, 280.0f, buttonSize, buttonSize);
-	CP_Input_GamepadDownAdvanced(GAMEPAD_DPAD_DOWN, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(CP_GAMEPAD_DPAD_DOWN, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawRect(100.0f, 320.0f, buttonSize, buttonSize);
 
 	//-------------------------
 	// ABXY
-	CP_Input_GamepadDownAdvanced(GAMEPAD_Y, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(CP_GAMEPAD_Y, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawCircle(300.0f, 240.0f, buttonSize);
-	CP_Input_GamepadDownAdvanced(GAMEPAD_X, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(CP_GAMEPAD_X, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawCircle(260.0f, 280.0f, buttonSize);
-	CP_Input_GamepadDownAdvanced(GAMEPAD_B, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(CP_GAMEPAD_B, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawCircle(340.0f, 280.0f, buttonSize);
-	CP_Input_GamepadDownAdvanced(GAMEPAD_A, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
+	CP_Input_GamepadDownAdvanced(CP_GAMEPAD_A, i) ? CP_Settings_Fill(fillcolor) : CP_Settings_NoFill();
 	CP_Graphics_DrawCircle(300.0f, 320.0f, buttonSize);
 
 	CP_Settings_Restore();

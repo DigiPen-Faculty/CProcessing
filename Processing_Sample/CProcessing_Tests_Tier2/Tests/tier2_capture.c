@@ -1235,7 +1235,7 @@ static void StackA_Update(void)
 		// running under B
 		++tier2_scalars.stackUpdatesWhileRunningBelow;
 		tier2_scalars.stackRunningBelowIsNotTop = TRUE;
-		tier2_scalars.stackRunningBelowKeyMuted = !CP_Input_KeyDown(KEY_ANY) && !CP_Input_MouseDown(MOUSE_BUTTON_LEFT);
+		tier2_scalars.stackRunningBelowKeyMuted = !CP_Input_KeyDown(CP_KEY_ANY) && !CP_Input_MouseDown(CP_MOUSE_LEFT);
 		tier2_scalars.stackRunningBelowMouseX = CP_Input_GetMouseX();
 		if (stackAFrame == 3)
 		{
@@ -1399,8 +1399,8 @@ static void Scn_InputQuiescentDefaults(void)
 	tier2_scalars.gamepad0ConnectedAdvanced = CP_Input_GamepadConnectedAdvanced(0);
 	tier2_scalars.mouseWheel = CP_Input_MouseWheel();
 	tier2_scalars.mouseDoubleClicked = CP_Input_MouseDoubleClicked();
-	tier2_scalars.keyADown = CP_Input_KeyDown(KEY_A);
-	tier2_scalars.mouseLeftDown = CP_Input_MouseDown(MOUSE_BUTTON_LEFT);
+	tier2_scalars.keyADown = CP_Input_KeyDown(CP_KEY_A);
+	tier2_scalars.mouseLeftDown = CP_Input_MouseDown(CP_MOUSE_LEFT);
 	tier2_scalars.typedTextIsEmpty = CP_Input_GetTypedText() != NULL && CP_Input_GetTypedText()[0] == '\0';
 }
 
