@@ -1151,7 +1151,7 @@ static void Scn_SoundRoundTrip(void)
 // plugged in. The edge-detection/deadzone/mapping logic itself was split
 // out into src/Internal_InputLogic.h together with the XInput -> GLFW
 // gamepad migration, and is unit-tested directly in the Tier 1 project
-// (tests/tier1/Tests/test_cp_input_logic.c).
+// (tests/tier1/test_cp_input_logic.c).
 //-------------------------
 // The game state stack. The harness (the bottom state) draws red and pushes
 // state A, which runs for a few frames while the harness is frozen (the

@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// file:	DemoManager.h
+// file:	demo_manager.h
 //
 // Switches between the demos, and handles the keys that work in all of
 // them

@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// file:	GridWaveDemo.h
+// file:	grid_wave_demo.h
 //
 // CProcessing features in this demo:
 // CP_Vector				- Lots of math going on here

@@ -2,15 +2,15 @@
 # Assemble a Linux or macOS release package: the CMake starter project
 # (templates/cmake) with a prebuilt CProcessing library.
 #
-#   tools/make-starter-package.sh <built library> <output .zip>
+#   tools/make_starter_package.sh <built library> <output .zip>
 #
 # For example, after a Release build of the repository with CMake:
-#   tools/make-starter-package.sh build/bin/libCProcessing.so CProcessingTemplate-linux-x64.zip
+#   tools/make_starter_package.sh build/bin/libCProcessing.so CProcessingTemplate-linux-x64.zip
 #
 # The zip holds one folder, CProcessingTemplate/:
 #   CMakeLists.txt, main.c, README.md, .vscode/   the starter project
-#   Assets/                                       the template's sample assets
-#   Examples/                                     the example programs (source)
+#   assets/                                       the template's sample assets
+#   examples/                                     the example programs (source)
 #   CProcessing/inc/cprocessing*.h                the public headers
 #   CProcessing/lib/<library>                     the prebuilt library
 #   CProcessing/Exo2_license.txt                  license of the built-in font
@@ -32,11 +32,11 @@ pkg="$stage/CProcessingTemplate"
 mkdir -p "$pkg/CProcessing/inc" "$pkg/CProcessing/lib"
 cp -R "$repo/templates/cmake/." "$pkg/"
 rm -rf "$pkg/build"
-cp -R "$repo/templates/vs/Assets/." "$pkg/Assets/"
-cp -R "$repo/examples" "$pkg/Examples"
+cp -R "$repo/templates/vs/assets/." "$pkg/assets/"
+cp -R "$repo/examples" "$pkg/examples"
 cp "$repo"/CProcessing/inc/cprocessing*.h "$pkg/CProcessing/inc/"
 cp "$lib" "$pkg/CProcessing/lib/"
-cp "$repo/demos/Assets/Exo2_license.txt" "$pkg/CProcessing/"
+cp "$repo/demos/assets/Exo2_license.txt" "$pkg/CProcessing/"
 
 rm -f "$out"
 (cd "$stage" && cmake -E tar cf "$out" --format=zip CProcessingTemplate)

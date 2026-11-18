@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// file:	ColorPickerDemo.h
+// file:	color_picker_demo.h
 //
 // An interactive color picker, the companion to Lesson 3: Color.
 //

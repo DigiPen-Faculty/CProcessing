@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// file:	ColorPickerDemo.c
+// file:	color_picker_demo.c
 //
 // An interactive color picker, the companion to Lesson 3: Color.
 //
@@ -21,8 +21,8 @@
 
 #include <stdio.h>
 #include "cprocessing.h"
-#include "ColorPickerDemo.h"
-#include "DemoManager.h"
+#include "color_picker_demo.h"
+#include "demo_manager.h"
 
 // The sliders, in the order they're drawn
 enum

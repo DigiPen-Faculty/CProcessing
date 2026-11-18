@@ -3,7 +3,7 @@
 # This file is the single place their versions are pinned, for every
 # platform and both build systems: the prebuilt libraries the Visual Studio
 # solution links are generated from these same pins by
-# tools/update-windows-prebuilt.ps1.
+# tools/update_windows_prebuilt.ps1.
 #
 # Each is downloaded at configure time from a pinned URL and verified against
 # a SHA-256 hash, so every build uses exactly the same source. See
@@ -123,7 +123,7 @@ string(REPLACE
     "WavStreamInstance::seek(double aSeconds, float* mScratch, unsigned int mScratchSize)\n\t{\n\t\tif (mParent->mFiletype == WAVSTREAM_OGG && mCodec.mOgg)"
     CPROCESSING_WAVSTREAM_PATCHED "${CPROCESSING_WAVSTREAM_TEXT}")
 if(CPROCESSING_WAVSTREAM_PATCHED STREQUAL CPROCESSING_WAVSTREAM_TEXT)
-    message(FATAL_ERROR "SoLoud's WavStreamInstance::seek no longer matches the code the stream loop fix patches. Check cmake/CProcessingDependencies.cmake.")
+    message(FATAL_ERROR "SoLoud's WavStreamInstance::seek no longer matches the code the stream loop fix patches. Check cmake/cprocessing_dependencies.cmake.")
 endif()
 file(WRITE "${CPROCESSING_SOLOUD_WAVSTREAM}" "${CPROCESSING_WAVSTREAM_PATCHED}")
 

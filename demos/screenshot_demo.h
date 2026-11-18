@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// file:	ScreenshotDemo.h
+// file:	screenshot_demo.h
 //
 // CProcessing features in this demo:
 // - Take screenshots of the window and of a region, and draw them scaled

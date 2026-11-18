@@ -23,7 +23,7 @@
     <ProjectGuid>{14B654ED-D716-460A-8335-22E3EDB70027}</ProjectGuid>
     <RootNamespace>ProcessingSample</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Processing_Demos</ProjectName>
+    <ProjectName>CProcessing_Demos</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -112,7 +112,7 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)CProcessing\lib\x86\CProcessingd.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
+xcopy "$(ProjectDir)assets\*" "$(OutDir)assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -139,7 +139,7 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)CProcessing\lib\x86\CProcessing.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
+xcopy "$(ProjectDir)assets\*" "$(OutDir)assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -162,7 +162,7 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)CProcessing\lib\x64\CProcessingd.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
+xcopy "$(ProjectDir)assets\*" "$(OutDir)assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -189,27 +189,27 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)CProcessing\lib\x64\CProcessing.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
+xcopy "$(ProjectDir)assets\*" "$(OutDir)assets\" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DancingLinesDemo.c" />
-    <ClCompile Include="DemoManager.c" />
-    <ClCompile Include="GamepadSoundDemo.c" />
-    <ClCompile Include="GridWaveDemo.c" />
-    <ClCompile Include="NoiseDemo.c" />
-    <ClCompile Include="ScreenshotDemo.c" />
-    <ClCompile Include="ColorPickerDemo.c" />
+    <ClCompile Include="dancing_lines_demo.c" />
+    <ClCompile Include="demo_manager.c" />
+    <ClCompile Include="gamepad_sound_demo.c" />
+    <ClCompile Include="grid_wave_demo.c" />
+    <ClCompile Include="noise_demo.c" />
+    <ClCompile Include="screenshot_demo.c" />
+    <ClCompile Include="color_picker_demo.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DancingLinesDemo.h" />
-    <ClInclude Include="DemoManager.h" />
-    <ClInclude Include="GamepadSoundDemo.h" />
-    <ClInclude Include="GridWaveDemo.h" />
-    <ClInclude Include="NoiseDemo.h" />
-    <ClInclude Include="ScreenshotDemo.h" />
-    <ClInclude Include="ColorPickerDemo.h" />
+    <ClInclude Include="dancing_lines_demo.h" />
+    <ClInclude Include="demo_manager.h" />
+    <ClInclude Include="gamepad_sound_demo.h" />
+    <ClInclude Include="grid_wave_demo.h" />
+    <ClInclude Include="noise_demo.h" />
+    <ClInclude Include="screenshot_demo.h" />
+    <ClInclude Include="color_picker_demo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

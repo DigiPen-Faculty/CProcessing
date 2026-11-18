@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// file:	ScreenshotDemo.c
+// file:	screenshot_demo.c
 //
 // CProcessing features in this demo:
 // - Take screenshots every frame, of the whole window and of a small region
@@ -14,8 +14,8 @@
 //---------------------------------------------------------
 
 #include "cprocessing.h"
-#include "ScreenshotDemo.h"
-#include "DemoManager.h"
+#include "screenshot_demo.h"
+#include "demo_manager.h"
 #include <stdio.h>
 
 //-------------------------

@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// file:	GamepadSoundDemo.h
+// file:	gamepad_sound_demo.h
 //
 // CProcessing features in this demo:
 // - Check for connected gamepads

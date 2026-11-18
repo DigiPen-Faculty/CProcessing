@@ -74,28 +74,28 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x86\</OutDir>
-    <IncludePath>$(ProjectDir)third_party/soloud/inc;$(ProjectDir)third_party/nanovg/src;$(ProjectDir)third_party/GLAD;$(ProjectDir)third_party/GLFW/inc;$(ProjectDir)third_party/vect;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)third_party/soloud/lib/x86;$(ProjectDir)third_party/GLFW/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>$(ProjectDir)third_party/soloud/inc;$(ProjectDir)third_party/nanovg/src;$(ProjectDir)third_party/glad;$(ProjectDir)third_party/glfw/inc;$(ProjectDir)third_party/vect;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)third_party/soloud/lib/x86;$(ProjectDir)third_party/glfw/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <TargetName>$(ProjectName)d</TargetName>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x86\</OutDir>
-    <IncludePath>$(ProjectDir)third_party/soloud/inc;$(ProjectDir)third_party/nanovg/src;$(ProjectDir)third_party/GLAD;$(ProjectDir)third_party/GLFW/inc;$(ProjectDir)third_party/vect;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)third_party/soloud/lib/x86;$(ProjectDir)third_party/GLFW/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>$(ProjectDir)third_party/soloud/inc;$(ProjectDir)third_party/nanovg/src;$(ProjectDir)third_party/glad;$(ProjectDir)third_party/glfw/inc;$(ProjectDir)third_party/vect;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)third_party/soloud/lib/x86;$(ProjectDir)third_party/glfw/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)third_party/soloud/inc;$(ProjectDir)third_party/nanovg/src;$(ProjectDir)third_party/GLAD;$(ProjectDir)third_party/GLFW/inc;$(ProjectDir)third_party/vect;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)third_party/soloud/lib/x64;$(ProjectDir)third_party/GLFW/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>$(ProjectDir)third_party/soloud/inc;$(ProjectDir)third_party/nanovg/src;$(ProjectDir)third_party/glad;$(ProjectDir)third_party/glfw/inc;$(ProjectDir)third_party/vect;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)third_party/soloud/lib/x64;$(ProjectDir)third_party/glfw/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x64\</OutDir>
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)third_party/soloud/inc;$(ProjectDir)third_party/nanovg/src;$(ProjectDir)third_party/GLAD;$(ProjectDir)third_party/GLFW/inc;$(ProjectDir)third_party/vect;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)third_party/soloud/lib/x64;$(ProjectDir)third_party/GLFW/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>$(ProjectDir)third_party/soloud/inc;$(ProjectDir)third_party/nanovg/src;$(ProjectDir)third_party/glad;$(ProjectDir)third_party/glfw/inc;$(ProjectDir)third_party/vect;$(ProjectDir);$(ProjectDir)src;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)third_party/soloud/lib/x64;$(ProjectDir)third_party/glfw/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x64\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -200,7 +200,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="third_party\GLAD\glad.h" />
+    <ClInclude Include="third_party\glad\glad.h" />
     <ClInclude Include="inc\cprocessing.h" />
     <ClInclude Include="inc\cprocessing_common.h" />
     <ClInclude Include="third_party\nanovg\src\fontstash.h" />
@@ -229,7 +229,7 @@
   <ItemGroup>
     <!-- Vendored third-party sources are compiled as-is, without warnings
          (CMakeLists.txt does the same). See DEPENDENCIES.md. -->
-    <ClCompile Include="third_party\GLAD\glad.c">
+    <ClCompile Include="third_party\glad\glad.c">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="third_party\nanovg\src\nanovg.c">

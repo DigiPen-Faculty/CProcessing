@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// file:	DemoManager.c
+// file:	demo_manager.c
 //
 // Switches between the demos, and handles the keys that work in all of
 // them. The keys are listed in a bar at the bottom of the window.
@@ -7,15 +7,15 @@
 
 #include <stdio.h>
 #include "cprocessing.h"
-#include "DemoManager.h"
+#include "demo_manager.h"
 
 // demo headers
-#include "GridWaveDemo.h"
-#include "DancingLinesDemo.h"
-#include "GamepadSoundDemo.h"
-#include "NoiseDemo.h"
-#include "ScreenshotDemo.h"
-#include "ColorPickerDemo.h"
+#include "grid_wave_demo.h"
+#include "dancing_lines_demo.h"
+#include "gamepad_sound_demo.h"
+#include "noise_demo.h"
+#include "screenshot_demo.h"
+#include "color_picker_demo.h"
 
 // window size and fullscreen
 static const int windowWidth = 1280;

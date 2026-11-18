@@ -19,10 +19,10 @@ template project. This page is for building CProcessing itself.
 | `CProcessing/` | The library: `src/` (our code), the public headers in `inc/`, and `third_party/` (the bundled libraries: `GLAD/`, `GLFW/`, `nanovg/`, `soloud/`, `vect/`). |
 | `CProcessing.sln` | The Visual Studio solution. |
 | `examples/` | Small complete programs, and `lessons/`, one program per lesson. |
-| `demos/` | The demo program, `Processing_Demos`, with its `Assets/`. |
+| `demos/` | The demo program, `CProcessing_Demos`, with its `Assets/`. |
 | `templates/vs/`, `templates/cmake/` | The student templates for Visual Studio and for CMake (Linux, macOS, or Windows). |
 | `tests/` | `tier1/` and `tier2/` (the two test programs) and `unity/` (the test framework they share). |
-| `docs/`, `tools/`, `cmake/` | The lessons, helper scripts (including `BuildReleasePackage.bat`), and CMake modules. |
+| `docs/`, `tools/`, `cmake/` | The lessons, helper scripts (including `build_release_package.bat`), and CMake modules. |
 
 The release packages students download have their own layout (a `CProcessingTemplate/` folder with `CProcessing/`, `Assets/` and `Examples/`), which doesn't follow these folder names.
 
@@ -35,7 +35,7 @@ v145), as does the student template. The solution contains:
 | Project | Folder | What it is |
 |---|---|---|
 | `CProcessing` | `CProcessing/` | The library: `CProcessing.dll`, or `CProcessingd.dll` for Debug. |
-| `Processing_Demos` | `demos/` | The demo program. Press 1–6 to switch demos, F for fullscreen, M to change the mouse cursor mode, C to show or hide the console, H to hide the key bar at the bottom, Escape to quit. |
+| `CProcessing_Demos` | `demos/` | The demo program. Press 1–6 to switch demos, F for fullscreen, M to change the mouse cursor mode, C to show or hide the console, H to hide the key bar at the bottom, Escape to quit. |
 | `CProcessing_Tests` | `tests/tier1/` | Tier 1 tests: pure functions, no window needed. |
 | `CProcessing_Tests_Tier2` | `tests/tier2/` | Tier 2 tests: drives the real engine and checks the rendered pixels. |
 
@@ -49,7 +49,7 @@ configurations and package it, from a Visual Studio 2026 Developer Command
 Prompt at the repository root:
 
 ```bat
-tools\BuildReleasePackage.bat -r all -c -z
+tools\build_release_package.bat -r all -c -z
 ```
 
 `-c` copies the headers and DLLs into `templates/vs/CProcessing`, so
@@ -106,7 +106,7 @@ Visual Studio generators hold several configurations at once.
 
 Everything ends up in one folder: `build/bin`, or `build/bin/Release` with
 Visual Studio generators. That folder holds the CProcessing library, the
-`Processing_Demos` program, both test programs and an `Assets` folder.
+`CProcessing_Demos` program, both test programs and an `Assets` folder.
 
 ### Run the demos
 
@@ -116,7 +116,7 @@ they're started. From a terminal:
 
 ```sh
 cd build/bin
-./Processing_Demos          # Processing_Demos.exe on Windows
+./CProcessing_Demos          # CProcessing_Demos.exe on Windows
 ```
 
 ### Run the tests
@@ -151,7 +151,7 @@ Pass options to the configure step with `-D`, for example
 |---|---|---|
 | `CMAKE_BUILD_TYPE` | `Release` | `Debug` or `Release`, for single-configuration generators. |
 | `CPROCESSING_BUILD_SHARED` | `ON` | Build a shared library (`.dll`/`.so`/`.dylib`). Set `OFF` for a static library. |
-| `CPROCESSING_BUILD_DEMOS` | `ON`* | Build `Processing_Demos`. |
+| `CPROCESSING_BUILD_DEMOS` | `ON`* | Build `CProcessing_Demos`. |
 | `CPROCESSING_BUILD_EXAMPLES` | `ON`* | Build each program in `examples/`, as `Example_movement` and so on. |
 | `CPROCESSING_BUILD_TESTS` | `ON`* | Build the Tier 1 and Tier 2 tests. |
 | `CPROCESSING_WARNINGS_AS_ERRORS` | `OFF` | Treat warnings in CProcessing's own code as errors. CI turns this on. |
@@ -192,7 +192,7 @@ it does in the Visual Studio template.
 CProcessing can be used from C++ as well as C: the headers are wrapped in
 `extern "C"`, and CI compiles the examples and lessons as C++11 with
 `-Wpedantic` (or `/permissive-` with MSVC) and runs a small C++ program
-against the library (`tests/tier1/Cxx`).
+against the library (`tests/tier1/cxx`).
 
 To build against a local copy of CProcessing instead of the download, add
 `-DFETCHCONTENT_SOURCE_DIR_CPROCESSING=/path/to/CProcessing` when configuring.

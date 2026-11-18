@@ -40,7 +40,7 @@ trigger workflows in the main repository. To refresh the files on the latest
 release after an important wiki edit, run the workflow by hand (Actions >
 Build offline documentation > Run workflow) with that release's tag.
 
-The same workflow checks the wiki against the API with `tools/wiki-audit.py`,
+The same workflow checks the wiki against the API with `tools/wiki_audit.py`,
 which also compiles every example.
 
 ## Student use

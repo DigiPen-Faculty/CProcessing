@@ -1,6 +1,6 @@
 """Check the CProcessing wiki against the public headers.
 
-    python tools/wiki-audit.py <wiki clone> [<repo root>] [--cc <compiler>]
+    python tools/wiki_audit.py <wiki clone> [<repo root>] [--cc <compiler>]
 
 The wiki (https://github.com/DigiPen-Faculty/CProcessing/wiki) is a separate
 git repository, so nothing stops it drifting from the API. This reports, and

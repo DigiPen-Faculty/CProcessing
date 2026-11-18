@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// file:	NoiseDemo.h
+// file:	noise_demo.h
 //
 // CProcessing features in this demo:
 // CP_Image_CreateFromData	- create an image at runtime from raw pixel data

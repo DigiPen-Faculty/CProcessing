@@ -1,7 +1,7 @@
 """Check that every function in the public header is defined with the same
 return type and parameter names.
 
-    python tools/check-api-names.py [<repo root>]
+    python tools/check_api_names.py [<repo root>]
 
 The header (inc/cprocessing.h) is what an editor shows a student, so the
 names in it are the ones that count; a source file that calls a parameter

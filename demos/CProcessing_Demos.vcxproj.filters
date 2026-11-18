@@ -21,48 +21,48 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DancingLinesDemo.c">
+    <ClCompile Include="dancing_lines_demo.c">
       <Filter>Demos</Filter>
     </ClCompile>
-    <ClCompile Include="DemoManager.c">
+    <ClCompile Include="demo_manager.c">
       <Filter>Demos</Filter>
     </ClCompile>
-    <ClCompile Include="GamepadSoundDemo.c">
+    <ClCompile Include="gamepad_sound_demo.c">
       <Filter>Demos</Filter>
     </ClCompile>
-    <ClCompile Include="GridWaveDemo.c">
+    <ClCompile Include="grid_wave_demo.c">
       <Filter>Demos</Filter>
     </ClCompile>
-    <ClCompile Include="NoiseDemo.c">
+    <ClCompile Include="noise_demo.c">
       <Filter>Demos</Filter>
     </ClCompile>
-    <ClCompile Include="ScreenshotDemo.c">
+    <ClCompile Include="screenshot_demo.c">
       <Filter>Demos</Filter>
     </ClCompile>
-    <ClCompile Include="ColorPickerDemo.c">
+    <ClCompile Include="color_picker_demo.c">
       <Filter>Demos</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DancingLinesDemo.h">
+    <ClInclude Include="dancing_lines_demo.h">
       <Filter>Demos</Filter>
     </ClInclude>
-    <ClInclude Include="DemoManager.h">
+    <ClInclude Include="demo_manager.h">
       <Filter>Demos</Filter>
     </ClInclude>
-    <ClInclude Include="GamepadSoundDemo.h">
+    <ClInclude Include="gamepad_sound_demo.h">
       <Filter>Demos</Filter>
     </ClInclude>
-    <ClInclude Include="GridWaveDemo.h">
+    <ClInclude Include="grid_wave_demo.h">
       <Filter>Demos</Filter>
     </ClInclude>
-    <ClInclude Include="NoiseDemo.h">
+    <ClInclude Include="noise_demo.h">
       <Filter>Demos</Filter>
     </ClInclude>
-    <ClInclude Include="ScreenshotDemo.h">
+    <ClInclude Include="screenshot_demo.h">
       <Filter>Demos</Filter>
     </ClInclude>
-    <ClInclude Include="ColorPickerDemo.h">
+    <ClInclude Include="color_picker_demo.h">
       <Filter>Demos</Filter>
     </ClInclude>
   </ItemGroup>

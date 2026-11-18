@@ -90,4 +90,4 @@ jobs:
         run: git clone --depth 1 https://github.com/DigiPen-Faculty/CProcessing.wiki.git wiki
 
       - name: Check the wiki against the API and compile its examples
-        run: python3 tools/wiki-audit.py wiki --cc gcc
+        run: python3 tools/wiki_audit.py wiki --cc gcc

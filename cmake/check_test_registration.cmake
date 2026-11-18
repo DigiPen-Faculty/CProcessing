@@ -4,14 +4,14 @@
 # Every `void test_...(void)` defined in the suite's test_*.c files must be
 # declared in the runner header and run by a RUN_TEST in the main file.
 #
-#   cmake -DTESTS_DIR=<folder> -DMAIN_FILE=<file> -DHEADER=<file> -P CheckTestRegistration.cmake
+#   cmake -DTESTS_DIR=<folder> -DMAIN_FILE=<file> -DHEADER=<file> -P check_test_registration.cmake
 #
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2019-2026 DigiPen Institute of Technology
 
 foreach(required TESTS_DIR MAIN_FILE HEADER)
     if(NOT DEFINED ${required})
-        message(FATAL_ERROR "CheckTestRegistration: -D${required}=... is required")
+        message(FATAL_ERROR "check_test_registration: -D${required}=... is required")
     endif()
 endforeach()
 
@@ -39,7 +39,7 @@ foreach(source IN LISTS test_sources)
 endforeach()
 
 if(count EQUAL 0)
-    message(FATAL_ERROR "CheckTestRegistration: found no tests in ${TESTS_DIR}")
+    message(FATAL_ERROR "check_test_registration: found no tests in ${TESTS_DIR}")
 endif()
 if(problems)
     message(FATAL_ERROR "Tests that would not run:\n${problems}")

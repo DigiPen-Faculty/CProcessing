@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// file:	DancingLinesDemo.h
+// file:	dancing_lines_demo.h
 //
 // CProcessing features in this demo:
 // CP_Settings_BlendMode	- switch between AlPHA and ADD for effects

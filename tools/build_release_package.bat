@@ -135,7 +135,7 @@ GOTO :init
 		XCOPY .\CProcessing\inc\cprocessing*.h .\CProcessingOutput\inc\ /r /y /q
 		XCOPY .\CProcessing\lib\* .\CProcessingOutput\lib\ /s /r /y /q
 		REM the built-in default font's license must travel with the library
-		COPY .\demos\Assets\Exo2_license.txt .\CProcessingOutput\ /y
+		COPY .\demos\assets\Exo2_license.txt .\CProcessingOutput\ /y
 		REM keep only the .dll and .lib files
 		FOR %%a in (x64 x86) do (
 			FOR %%e in (exp iobj ipdb pdb ilk) do (
@@ -155,14 +155,14 @@ GOTO :init
 
 		IF EXIST .\Releases RMDIR .\Releases /s /q
 		MKDIR .\Releases\CProcessingTemplate\
-		FOR %%i in (Assets\ CProcessing\) do (
+		FOR %%i in (assets\ CProcessing\) do (
 			XCOPY ".\templates\vs\%%i" ".\Releases\CProcessingTemplate\%%i" /s /y /q
 		)
 		FOR %%i in (main.c MyGame.sln MyGame.vcxproj README.md) do (
 			XCOPY ".\templates\vs\%%i" ".\Releases\CProcessingTemplate\" /s /y /q
 		)
 		REM the example programs, as source to read and copy from
-		XCOPY ".\examples\*" ".\Releases\CProcessingTemplate\Examples\" /s /y /q
+		XCOPY ".\examples\*" ".\Releases\CProcessingTemplate\examples\" /s /y /q
 		REM the zip holds one folder, CProcessingTemplate, as the Linux and macOS packages do
 		powershell Compress-Archive .\Releases\CProcessingTemplate .\Releases\CProcessingTemplate.zip
 

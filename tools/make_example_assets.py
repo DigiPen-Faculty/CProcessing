@@ -1,8 +1,8 @@
 """Make the sprite sheet, music and sound effects the examples use.
 
-    python tools/make-example-assets.py
+    python tools/make_example_assets.py
 
-Writes them to templates/vs/Assets, the Assets folder every template
+Writes them to templates/vs/assets, the assets folder every template
 package ships with. Everything is drawn or synthesized here, from nothing
 but code, so the files are original and MIT licensed like the rest of
 CProcessing. Run it again only to change them; the output is committed.
@@ -21,7 +21,7 @@ import struct
 import wave
 from pathlib import Path
 
-ASSETS = Path(__file__).resolve().parent.parent / "templates" / "vs" / "Assets"
+ASSETS = Path(__file__).resolve().parent.parent / "templates" / "vs" / "assets"
 RATE = 22050
 
 

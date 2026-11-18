@@ -8,12 +8,12 @@
     prebuilt static libraries instead of building GLFW and SoLoud itself. This
     script produces them with the repository's own CMake project, so the
     versions (and SHA-256-verified downloads) come from
-    cmake/CProcessingDependencies.cmake - the single place dependency versions
+    cmake/cprocessing_dependencies.cmake - the single place dependency versions
     are pinned for every platform.
 
     Output (x64 and x86):
-      CProcessing/third_party/GLFW/lib/<arch>/glfw3.lib       (Release, /MD - C only, also used by Debug)
-      CProcessing/third_party/GLFW/inc/glfw3.h, glfw3native.h
+      CProcessing/third_party/glfw/lib/<arch>/glfw3.lib       (Release, /MD - C only, also used by Debug)
+      CProcessing/third_party/glfw/inc/glfw3.h, glfw3native.h
       CProcessing/third_party/soloud/lib/<arch>/soloud.lib    (Release, /MD)
       CProcessing/third_party/soloud/lib/<arch>/soloud_d.lib  (Debug, /MDd)
       CProcessing/third_party/soloud/inc/soloud_c.h
@@ -29,7 +29,7 @@
     found automatically) and an internet connection for the first configure.
 
 .EXAMPLE
-    powershell -ExecutionPolicy Bypass -File tools\update-windows-prebuilt.ps1
+    powershell -ExecutionPolicy Bypass -File tools\update_windows_prebuilt.ps1
 #>
 [CmdletBinding()]
 param(
@@ -71,7 +71,7 @@ foreach ($arch in @(@{ Name = "x64"; Cmake = "x64" }, @{ Name = "x86"; Cmake = "
         if ($LASTEXITCODE) { throw "build failed ($($arch.Name) $config)" }
     }
 
-    $glfwLibDir = Join-Path $cp "third_party\GLFW\lib\$($arch.Name)"
+    $glfwLibDir = Join-Path $cp "third_party\glfw\lib\$($arch.Name)"
     $soloudLibDir = Join-Path $cp "third_party\soloud\lib\$($arch.Name)"
     New-Item -ItemType Directory -Force $glfwLibDir, $soloudLibDir | Out-Null
 
@@ -82,24 +82,24 @@ foreach ($arch in @(@{ Name = "x64"; Cmake = "x64" }, @{ Name = "x86"; Cmake = "
 
 # Headers (identical for both architectures)
 $x64 = Join-Path $BuildRoot "x64"
-Copy-Item (Join-Path $x64 "_deps\glfw-src\include\GLFW\glfw3.h") (Join-Path $cp "third_party\GLFW\inc") -Force
-Copy-Item (Join-Path $x64 "_deps\glfw-src\include\GLFW\glfw3native.h") (Join-Path $cp "third_party\GLFW\inc") -Force
-Copy-Item (Join-Path $x64 "_deps\glfw-src\LICENSE.md") (Join-Path $cp "third_party\GLFW") -Force
+Copy-Item (Join-Path $x64 "_deps\glfw-src\include\GLFW\glfw3.h") (Join-Path $cp "third_party\glfw\inc") -Force
+Copy-Item (Join-Path $x64 "_deps\glfw-src\include\GLFW\glfw3native.h") (Join-Path $cp "third_party\glfw\inc") -Force
+Copy-Item (Join-Path $x64 "_deps\glfw-src\LICENSE.md") (Join-Path $cp "third_party\glfw") -Force
 Copy-Item (Join-Path $x64 "_deps\soloud-src\include\soloud_c.h") (Join-Path $cp "third_party\soloud\inc") -Force
 Copy-Item (Join-Path $x64 "_deps\soloud-src\LICENSE") (Join-Path $cp "third_party\soloud") -Force
 
 # Record what was built, read straight from the pins
-$deps = Get-Content (Join-Path $repo "cmake\CProcessingDependencies.cmake") -Raw
+$deps = Get-Content (Join-Path $repo "cmake\cprocessing_dependencies.cmake") -Raw
 function Get-Pin($name) { if ($deps -match "set\($name `"([^`"]+)`"\)") { $Matches[1] } else { "?" } }
 $date = Get-Date -Format "yyyy-MM-dd"
 @"
 GLFW $(Get-Pin 'CPROCESSING_GLFW_VERSION')
-Built $date by tools/update-windows-prebuilt.ps1 from the pins in cmake/CProcessingDependencies.cmake
+Built $date by tools/update_windows_prebuilt.ps1 from the pins in cmake/cprocessing_dependencies.cmake
 (static library, Release, /MD, platform toolset $Toolset; used by both Debug and Release builds of CProcessing)
-"@ | Set-Content (Join-Path $cp "third_party\GLFW\Version.txt") -Encoding ascii
+"@ | Set-Content (Join-Path $cp "third_party\glfw\Version.txt") -Encoding ascii
 @"
 SoLoud commit $(Get-Pin 'CPROCESSING_SOLOUD_COMMIT') with miniaudio $(Get-Pin 'CPROCESSING_MINIAUDIO_VERSION')
-Built $date by tools/update-windows-prebuilt.ps1 from the pins in cmake/CProcessingDependencies.cmake
+Built $date by tools/update_windows_prebuilt.ps1 from the pins in cmake/cprocessing_dependencies.cmake
 (static libraries: soloud.lib Release /MD, soloud_d.lib Debug /MDd, platform toolset $Toolset; backends: miniaudio + nosound)
 "@ | Set-Content (Join-Path $cp "third_party\soloud\Version.txt") -Encoding ascii
 

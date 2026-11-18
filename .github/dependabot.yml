@@ -1,6 +1,6 @@
 # Keeps the GitHub Actions the workflows use up to date: one pull request a
 # week with every update in it. (The library's own dependencies are pinned by
-# hash in cmake/CProcessingDependencies.cmake; see DEPENDENCIES.md.)
+# hash in cmake/cprocessing_dependencies.cmake; see DEPENDENCIES.md.)
 version: 2
 updates:
   - package-ecosystem: github-actions

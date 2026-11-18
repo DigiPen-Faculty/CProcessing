@@ -89,7 +89,7 @@ Each change says what to do in an existing project.
   parameter names of `CP_Settings_ApplyMatrix`, `CP_Vector_MatrixMultiply`
   and `CP_Matrix_Inverse` in the source now match the header. Nothing to do
   in existing programs. CI checks the header against the source
-  (`tools/check-api-names.py`).
+  (`tools/check_api_names.py`).
 - **A sound's volume and pitch combine with its group's, and stay combined.**
   A sound in a group is heard at its own volume times the group's (0.5 in a
   group at 0.5 is heard at 0.25), and plays at its own pitch times the group's.
@@ -108,7 +108,7 @@ Each change says what to do in an existing project.
   are `tests/tier1`, `tests/tier2` and `tests/unity`, `Examples/` is
   `examples/`, the templates are `templates/vs` and `templates/cmake` (were
   `Processing_Empty` and `Processing_Empty_CMake`), and
-  `BuildReleasePackage.bat` is in `tools/`. The bundled libraries (GLAD, GLFW,
+  `build_release_package.bat` is in `tools/`. The bundled libraries (GLAD, GLFW,
   NanoVG with the stb headers, SoLoud, and `vect`) are in
   `CProcessing/third_party/`, apart from CProcessing's own code in
   `CProcessing/src/` (it was `Source/`). The release packages students
@@ -223,7 +223,7 @@ Each change says what to do in an existing project.
   step-by-step teaching with a finished program in `Examples/lessons`, and
   challenges and check-yourself questions. The pages are in `docs/lessons`
   until they are published to the wiki.
-- **A Color picker demo** (6 in `Processing_Demos`): drag red, green, blue,
+- **A Color picker demo** (6 in `CProcessing_Demos`): drag red, green, blue,
   hue, saturation, lightness and alpha sliders and watch the color, its
   code and the colors between two kept colors.
 - **New assets in the templates' `Assets` folder**, made for the examples

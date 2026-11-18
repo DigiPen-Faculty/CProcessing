@@ -60,5 +60,5 @@ and so on, into `build/bin`. The examples are in the
 release packages, in an `Examples` folder next to `main.c`.
 
 The assets are made by
-[`tools/make-example-assets.py`](https://github.com/DigiPen-Faculty/CProcessing/blob/main/tools/make-example-assets.py),
+[`tools/make_example_assets.py`](https://github.com/DigiPen-Faculty/CProcessing/blob/main/tools/make_example_assets.py),
 drawn and synthesized from code.

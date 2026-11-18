@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// file:	NoiseDemo.c
+// file:	noise_demo.c
 //
 // CProcessing features in this demo:
 // CP_Image_CreateFromData	- create an image at runtime from raw pixel data
@@ -8,7 +8,7 @@
 //---------------------------------------------------------
 
 #include "cprocessing.h"
-#include "NoiseDemo.h"
+#include "noise_demo.h"
 #include <stdlib.h>
 
 const int imageWidth = 128;

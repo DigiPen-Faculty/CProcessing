@@ -6,7 +6,7 @@
 # with a "CProcessing:" comment. stb_image.h and stb_truetype.h come from
 # the stb repository and have no changes.
 #
-# Usage: tools/nanovg-diff.sh [--stat]
+# Usage: tools/nanovg_diff.sh [--stat]
 # Needs git and network access. Runs in Git Bash on Windows.
 set -euo pipefail
 
