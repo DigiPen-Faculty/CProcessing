@@ -1,6 +1,6 @@
 # CProcessing - cross-platform CMake build (Windows, Linux, macOS)
 #
-# This sits alongside the Visual Studio solution in Processing_Sample/, it
+# This sits alongside the Visual Studio solution (CProcessing.sln), it
 # does not replace it: the .sln/.vcxproj workflow students and faculty use
 # today is unchanged. See BUILDING.md for usage.
 #
@@ -16,7 +16,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # The version is defined once, in cprocessing_common.h
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Sample/CProcessing/inc/cprocessing_common.h"
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/CProcessing/inc/cprocessing_common.h"
     _cp_version_lines REGEX "^#define CP_VERSION_(MAJOR|MINOR|PATCH) +[0-9]+")
 foreach(_part MAJOR MINOR PATCH)
     string(REGEX MATCH "CP_VERSION_${_part} +([0-9]+)" _ "${_cp_version_lines}")
@@ -36,7 +36,7 @@ endif()
 
 option(CPROCESSING_BUILD_SHARED "Build CProcessing as a shared library (DLL/.so/.dylib)" ON)
 option(CPROCESSING_BUILD_DEMOS "Build the Processing_Demos sample program" ${CPROCESSING_IS_TOP_LEVEL})
-option(CPROCESSING_BUILD_EXAMPLES "Build the example programs in Examples/" ${CPROCESSING_IS_TOP_LEVEL})
+option(CPROCESSING_BUILD_EXAMPLES "Build the example programs in examples/" ${CPROCESSING_IS_TOP_LEVEL})
 option(CPROCESSING_BUILD_TESTS "Build the Tier 1 and Tier 2 test suites" ${CPROCESSING_IS_TOP_LEVEL})
 option(CPROCESSING_WARNINGS_AS_ERRORS "Treat compiler warnings in CProcessing code as errors" OFF)
 
@@ -131,7 +131,7 @@ endfunction()
 #------------------------------------------------------------------------------
 # The CProcessing library
 #------------------------------------------------------------------------------
-set(CP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Sample/CProcessing")
+set(CP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CProcessing")
 
 set(CPROCESSING_SOURCES
     "${CP_DIR}/GLAD/glad.c"
@@ -206,18 +206,18 @@ cprocessing_set_warnings(CProcessing)
 # Demos
 #------------------------------------------------------------------------------
 if(CPROCESSING_BUILD_DEMOS)
-    set(DEMO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Sample")
+    set(DEMO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/demos")
     add_executable(Processing_Demos
         "${DEMO_DIR}/main.c"
-        "${DEMO_DIR}/Demos/DancingLinesDemo.c"
-        "${DEMO_DIR}/Demos/DemoManager.c"
-        "${DEMO_DIR}/Demos/GamepadSoundDemo.c"
-        "${DEMO_DIR}/Demos/GridWaveDemo.c"
-        "${DEMO_DIR}/Demos/NoiseDemo.c"
-        "${DEMO_DIR}/Demos/ScreenshotDemo.c"
-        "${DEMO_DIR}/Demos/ColorPickerDemo.c"
+        "${DEMO_DIR}/DancingLinesDemo.c"
+        "${DEMO_DIR}/DemoManager.c"
+        "${DEMO_DIR}/GamepadSoundDemo.c"
+        "${DEMO_DIR}/GridWaveDemo.c"
+        "${DEMO_DIR}/NoiseDemo.c"
+        "${DEMO_DIR}/ScreenshotDemo.c"
+        "${DEMO_DIR}/ColorPickerDemo.c"
     )
-    target_include_directories(Processing_Demos PRIVATE "${DEMO_DIR}/Demos")
+    target_include_directories(Processing_Demos PRIVATE "${DEMO_DIR}")
     target_link_libraries(Processing_Demos PRIVATE CProcessing)
     if(UNIX AND NOT APPLE)
         target_link_libraries(Processing_Demos PRIVATE m)
@@ -232,9 +232,9 @@ endif()
 #------------------------------------------------------------------------------
 if(CPROCESSING_BUILD_TESTS)
     enable_testing()
-    set(TEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Sample/CProcessing_Tests")
-    set(TIER2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Sample/CProcessing_Tests_Tier2")
-    set(UNITY_DIR "${TEST_DIR}/ThirdParty/Unity")
+    set(TEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tests/tier1")
+    set(TIER2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tests/tier2")
+    set(UNITY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tests/unity")
 
     # Tier 1: pure functions, no window/GL/audio needed
     file(GLOB TIER1_SOURCES CONFIGURE_DEPENDS "${TEST_DIR}/Tests/*.c")
@@ -306,12 +306,12 @@ if(CPROCESSING_BUILD_TESTS)
 endif()
 
 #------------------------------------------------------------------------------
-# Examples: one program per file in Examples/, named Example_<file>, and one
-# per folder in Examples/Lessons/<folder>/main.c, named Lesson_<folder>
+# Examples: one program per file in examples/, named Example_<file>, and one
+# per folder in examples/Lessons/<folder>/main.c, named Lesson_<folder>
 #------------------------------------------------------------------------------
 if(CPROCESSING_BUILD_EXAMPLES)
-    file(GLOB EXAMPLE_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Examples/*.c")
-    file(GLOB LESSON_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Examples/Lessons/*/main.c")
+    file(GLOB EXAMPLE_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/examples/*.c")
+    file(GLOB LESSON_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/examples/Lessons/*/main.c")
 
     set(example_targets "")
     foreach(source ${EXAMPLE_SOURCES} ${LESSON_SOURCES})
@@ -339,7 +339,7 @@ if(CPROCESSING_BUILD_EXAMPLES)
     list(GET example_targets 0 first_example)
     add_custom_target(Example_Assets
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Empty/Assets"
+            "${CMAKE_CURRENT_SOURCE_DIR}/templates/vs/Assets"
             "$<TARGET_FILE_DIR:${first_example}>/Assets"
         COMMENT "Copying the template assets for the examples"
         VERBATIM)
@@ -359,11 +359,11 @@ if(CPROCESSING_BUILD_EXAMPLES)
     # includes the real one). A C-only habit in any of them, such as malloc
     # without a cast, fails the build here.
     set(cxx_check_sources ${EXAMPLE_SOURCES} ${LESSON_SOURCES}
-        "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Empty/main.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Empty_CMake/main.c")
+        "${CMAKE_CURRENT_SOURCE_DIR}/templates/vs/main.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/templates/cmake/main.c")
     if(CPROCESSING_BUILD_DEMOS)
-        file(GLOB DEMO_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Sample/Demos/*.c")
-        list(APPEND cxx_check_sources "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Sample/main.c" ${DEMO_SOURCES})
+        file(GLOB DEMO_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/demos/*.c")
+        list(APPEND cxx_check_sources ${DEMO_SOURCES}) # includes demos/main.c
     endif()
     set(cxx_wrappers "")
     foreach(source ${cxx_check_sources})
@@ -374,7 +374,7 @@ if(CPROCESSING_BUILD_EXAMPLES)
         list(APPEND cxx_wrappers "${wrapper}")
     endforeach()
     add_library(Example_CxxCheck OBJECT ${cxx_wrappers})
-    target_include_directories(Example_CxxCheck PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Processing_Sample/Demos")
+    target_include_directories(Example_CxxCheck PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/demos")
     target_link_libraries(Example_CxxCheck PRIVATE CProcessing)
     cprocessing_set_cxx_warnings(Example_CxxCheck)
     set_target_properties(Example_CxxCheck PROPERTIES FOLDER Examples)

@@ -10,7 +10,7 @@
 
 **You need:** [Lesson 9](Lesson-09-Game-States) and [Lesson 10](Lesson-10-Capstone). There's almost no new C: arrays, structs and `if`. The one new idea is keeping functions in a struct, and you have been giving function names to `CP_Engine_SetNextGameState` since lesson 9.
 
-The finished program is in the repository as [Examples/Lessons/11_state_manager/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/Lessons/11_state_manager/main.c). Run it first: P pauses, Q in the pause asks about quitting. Watch the line in the bottom left corner while you do.
+The finished program is in the repository as [examples/Lessons/11_state_manager/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/Lessons/11_state_manager/main.c). Run it first: P pauses, Q in the pause asks about quitting. Watch the line in the bottom left corner while you do.
 
 ---
 

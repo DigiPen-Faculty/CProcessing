@@ -102,6 +102,17 @@ Each change says what to do in an existing project.
   (the examples and lessons) sound the same. A program that set one sound's
   volume or pitch and then the group's relied on the group winning: set the
   sound's own value to what it should be inside the group.
+- **The repository's folders were reorganized**, so each name says what is in
+  it: the library is `CProcessing/` (it was `Processing_Sample/CProcessing/`),
+  the solution is `CProcessing.sln`, the demo program is `demos/`, the tests
+  are `tests/tier1`, `tests/tier2` and `tests/unity`, `Examples/` is
+  `examples/`, the templates are `templates/vs` and `templates/cmake` (were
+  `Processing_Empty` and `Processing_Empty_CMake`), and
+  `BuildReleasePackage.bat` is in `tools/`. The release packages students
+  download are laid out exactly as before. Nothing to do in a program. A fork
+  or script that uses the old paths needs them changed. `git blame` and
+  `git log --follow` follow files across the move. Old tags and releases
+  keep the old layout.
 
 ### Added
 

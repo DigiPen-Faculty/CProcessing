@@ -17,12 +17,12 @@
   `CProcessingTemplate.zip` for Visual Studio on Windows, or the CMake starter project for Linux (`CProcessingTemplate-linux-x64.zip`) or macOS (`CProcessingTemplate-macos.zip`).
   The macOS package is tested on Apple silicon Macs; Intel Macs haven't been tested yet. Please [report problems](https://github.com/DigiPen-Faculty/CProcessing/issues).
 * Read through the [Documentation](https://github.com/DigiPen-Faculty/CProcessing/wiki).
-* Read, run and copy from the [Examples](Examples/): small complete programs for movement, collision, sprite animation, a camera, game states, text and sound. They're also in every release package.
+* Read, run and copy from the [Examples](examples/): small complete programs for movement, collision, sprite animation, a camera, game states, text and sound. They're also in every release package.
 * See what changed in each release in the [Changelog](CHANGELOG.md).
 * Have fun building awesome stuff!
 
 ## Building from source
-* **Windows:** open `Processing_Sample/Processing_Sample.sln` in Visual Studio.
+* **Windows:** open `CProcessing.sln` in Visual Studio.
 * **Windows, Linux and macOS:** use CMake (`cmake -B build && cmake --build build`).
 * See [BUILDING.md](BUILDING.md) for details and platform notes, and
   [DEPENDENCIES.md](DEPENDENCIES.md) for the third-party libraries and how they're pinned.
@@ -31,7 +31,7 @@
 The library is offered under the [MIT License](https://github.com/DigiPen-Faculty/CProcessing/blob/main/LICENSE).
 
 Default font, built into the library:
-* Exo 2 by Natanael Gama - licensed under the [SIL Open Font License 1.1](Processing_Sample/Assets/Exo2_license.txt)
+* Exo 2 by Natanael Gama - licensed under the [SIL Open Font License 1.1](demos/Assets/Exo2_license.txt)
 
 ## Acknowledgment
 * [NanoVG](https://github.com/memononen/nanovg) by Mikko Mononen

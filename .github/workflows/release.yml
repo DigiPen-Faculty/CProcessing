@@ -14,8 +14,8 @@ name: Release
 # .../releases/latest/download/<name> keep working from release to release.
 #
 # To release:
-#   1. Set CP_VERSION_* in Processing_Sample/CProcessing/inc/cprocessing_common.h,
-#      the download tag in Processing_Empty_CMake/CMakeLists.txt, and the
+#   1. Set CP_VERSION_* in CProcessing/inc/cprocessing_common.h,
+#      the download tag in templates/cmake/CMakeLists.txt, and the
 #      version and date of the newest section in CHANGELOG.md.
 #   2. Push a tag such as v3.0.0 on that commit.
 #   3. Review the draft release this workflow creates, then publish it.
@@ -33,11 +33,10 @@ on:
   pull_request:
     paths:
       - .github/workflows/release.yml
-      - BuildReleasePackage.bat
+      - tools/BuildReleasePackage.bat
       - tools/make-starter-package.sh
-      - Processing_Empty/**
-      - Processing_Empty_CMake/**
-      - Examples/**
+      - templates/**
+      - examples/**
       - CMakeLists.txt
       - cmake/**
   workflow_dispatch:
@@ -57,16 +56,16 @@ jobs:
       - name: Check that the version is the same everywhere, and the templates match
         id: version
         run: |
-          header=Processing_Sample/CProcessing/inc/cprocessing_common.h
+          header=CProcessing/inc/cprocessing_common.h
           part() { sed -n "s/^#define CP_VERSION_$1 *\([0-9][0-9]*\).*/\1/p" "$header"; }
           version="$(part MAJOR).$(part MINOR).$(part PATCH)"
           echo "cprocessing_common.h: $version"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-          cmp Processing_Empty/main.c Processing_Empty_CMake/main.c ||
+          cmp templates/vs/main.c templates/cmake/main.c ||
             { echo "::error::the two templates' main.c files differ; they should be the same"; exit 1; }
-          grep -q "archive/refs/tags/v$version.tar.gz" Processing_Empty_CMake/CMakeLists.txt ||
-            { echo "::error::Processing_Empty_CMake/CMakeLists.txt doesn't download v$version"; exit 1; }
+          grep -q "archive/refs/tags/v$version.tar.gz" templates/cmake/CMakeLists.txt ||
+            { echo "::error::templates/cmake/CMakeLists.txt doesn't download v$version"; exit 1; }
           grep -Eq "^## ${version//./\\.}( |$)" CHANGELOG.md ||
             { echo "::error::CHANGELOG.md has no '## $version' section"; exit 1; }
           if [ "$GITHUB_REF_TYPE" = tag ]; then
@@ -89,16 +88,15 @@ jobs:
         uses: microsoft/setup-msbuild@v3
 
       - name: Build the library (Debug and Release, x64 and x86)
-        working-directory: Processing_Sample
         shell: cmd
         run: |
           for %%c in (Debug Release) do for %%p in (x64 x86) do (
-            msbuild Processing_Sample.sln /t:CProcessing /p:Configuration=%%c /p:Platform=%%p /m /v:minimal || exit /b 1
+            msbuild CProcessing.sln /t:CProcessing /p:Configuration=%%c /p:Platform=%%p /m /v:minimal || exit /b 1
           )
 
       - name: Package the template
         shell: cmd
-        run: call .\BuildReleasePackage.bat -c -z
+        run: call .\tools\BuildReleasePackage.bat -c -z
 
       # Build the template from the zip, as a student would, in every
       # configuration

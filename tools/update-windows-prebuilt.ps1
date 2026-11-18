@@ -4,7 +4,7 @@
     solution, from exactly the same pinned sources as the CMake build.
 
 .DESCRIPTION
-    The Visual Studio solution (Processing_Sample/Processing_Sample.sln) links
+    The Visual Studio solution (CProcessing.sln) links
     prebuilt static libraries instead of building GLFW and SoLoud itself. This
     script produces them with the repository's own CMake project, so the
     versions (and SHA-256-verified downloads) come from
@@ -12,11 +12,11 @@
     are pinned for every platform.
 
     Output (x64 and x86):
-      Processing_Sample/CProcessing/GLFW/lib/<arch>/glfw3.lib       (Release, /MD - C only, also used by Debug)
-      Processing_Sample/CProcessing/GLFW/inc/glfw3.h, glfw3native.h
-      Processing_Sample/CProcessing/soloud/lib/<arch>/soloud.lib    (Release, /MD)
-      Processing_Sample/CProcessing/soloud/lib/<arch>/soloud_d.lib  (Debug, /MDd)
-      Processing_Sample/CProcessing/soloud/inc/soloud_c.h
+      CProcessing/GLFW/lib/<arch>/glfw3.lib       (Release, /MD - C only, also used by Debug)
+      CProcessing/GLFW/inc/glfw3.h, glfw3native.h
+      CProcessing/soloud/lib/<arch>/soloud.lib    (Release, /MD)
+      CProcessing/soloud/lib/<arch>/soloud_d.lib  (Debug, /MDd)
+      CProcessing/soloud/inc/soloud_c.h
 
     SoLoud (with miniaudio) is linked statically into CProcessing.dll, so
     there is no separate soloud.dll to ship.
@@ -41,7 +41,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $repo = Split-Path -Parent $PSScriptRoot
-$cp = Join-Path $repo "Processing_Sample\CProcessing"
+$cp = Join-Path $repo "CProcessing"
 
 # Find CMake: the copy bundled with Visual Studio 2026 first (it knows the
 # Visual Studio 2026 generator), then PATH.
@@ -103,4 +103,4 @@ Built $date by tools/update-windows-prebuilt.ps1 from the pins in cmake/CProcess
 (static libraries: soloud.lib Release /MD, soloud_d.lib Debug /MDd, platform toolset $Toolset; backends: miniaudio + nosound)
 "@ | Set-Content (Join-Path $cp "soloud\Version.txt") -Encoding ascii
 
-Write-Host "`nDone. Rebuild Processing_Sample.sln (all four configurations) and run both test projects."
+Write-Host "`nDone. Rebuild CProcessing.sln (all four configurations) and run both test projects."

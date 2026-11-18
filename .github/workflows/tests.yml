@@ -16,12 +16,12 @@ name: Tests
 #   windows-cmake     CMake + MSVC: Tier 1 and Tier 2 (Mesa llvmpipe).
 #   macos             CMake + Apple Clang: build and Tier 1. (Tier 2 can't
 #                     run on hosted macOS runners; see that job.)
-#   starter           The CMake starter project (Processing_Empty_CMake),
+#   starter           The CMake starter project (templates/cmake),
 #                     building CProcessing from this checkout, then running
 #                     the game for a few seconds under Xvfb.
 #
 # Tier 1 needs no window or GL context. Tier 2 opens a real window and GL
-# context and screenshots what it draws (see CProcessing_Tests_Tier2).
+# context and screenshots what it draws (see tests/tier2).
 #
 # The Windows jobs use windows-2025, whose image has Visual Studio 2026: the
 # solution's projects use its platform toolset, v145.
@@ -95,12 +95,10 @@ jobs:
         uses: microsoft/setup-msbuild@v3
 
       - name: Build solution (${{ matrix.configuration }} ${{ matrix.platform }})
-        working-directory: Processing_Sample
         shell: cmd
-        run: msbuild Processing_Sample.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /m /v:minimal
+        run: msbuild CProcessing.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /m /v:minimal
 
       - name: Run Tier 1 tests (${{ matrix.configuration }} ${{ matrix.platform }})
-        working-directory: Processing_Sample
         shell: cmd
         run: ${{ matrix.outDir }}\${{ matrix.configuration }}\CProcessing_Tests.exe
 
@@ -119,17 +117,16 @@ jobs:
         uses: microsoft/setup-msbuild@v3
 
       - name: Build CProcessing_Tests_Tier2 (x64)
-        working-directory: Processing_Sample
         shell: cmd
-        run: msbuild Processing_Sample.sln /t:CProcessing_Tests_Tier2 /p:Configuration=Debug /p:Platform=x64 /m /v:minimal
+        run: msbuild CProcessing.sln /t:CProcessing_Tests_Tier2 /p:Configuration=Debug /p:Platform=x64 /m /v:minimal
 
       - name: Install Mesa (llvmpipe software OpenGL)
         uses: f3d-app/install-mesa-windows-action@v1
         with:
-          path: ${{ github.workspace }}/Processing_Sample/x64/Debug/Tier2
+          path: ${{ github.workspace }}/x64/Debug/Tier2
 
       - name: Run Tier 2 tests (x64)
-        working-directory: Processing_Sample/x64/Debug/Tier2
+        working-directory: x64/Debug/Tier2
         shell: cmd
         run: CProcessing_Tests_Tier2.exe
 
@@ -147,9 +144,8 @@ jobs:
         uses: microsoft/setup-msbuild@v3
 
       - name: Build CProcessing_Tests_Tier2 (x86)
-        working-directory: Processing_Sample
         shell: cmd
-        run: msbuild Processing_Sample.sln /t:CProcessing_Tests_Tier2 /p:Configuration=Debug /p:Platform=x86 /m /v:minimal
+        run: msbuild CProcessing.sln /t:CProcessing_Tests_Tier2 /p:Configuration=Debug /p:Platform=x86 /m /v:minimal
 
       - name: Install 32-bit Mesa (llvmpipe software OpenGL)
         shell: pwsh
@@ -163,11 +159,11 @@ jobs:
           if ($hash -ne $env:MESA_SHA256) { throw "Mesa archive SHA-256 is $hash, expected $env:MESA_SHA256" }
           7z x $archive "-o$env:RUNNER_TEMP\mesa" x86\opengl32.dll x86\libglapi.dll x86\libgallium_wgl.dll -y
           if ($LASTEXITCODE -ne 0) { throw "7z failed" }
-          Copy-Item "$env:RUNNER_TEMP\mesa\x86\*.dll" Processing_Sample\Win32\Debug\Tier2\
+          Copy-Item "$env:RUNNER_TEMP\mesa\x86\*.dll" Win32\Debug\Tier2\
           "GALLIUM_DRIVER=llvmpipe" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Run Tier 2 tests (x86)
-        working-directory: Processing_Sample/Win32/Debug/Tier2
+        working-directory: Win32/Debug/Tier2
         shell: cmd
         run: CProcessing_Tests_Tier2.exe
 
@@ -296,7 +292,7 @@ jobs:
         # FETCHCONTENT_SOURCE_DIR_CPROCESSING uses this checkout instead of
         # downloading the release named in its CMakeLists.txt
         run: |
-          cmake -S Processing_Empty_CMake -B starter-build -DCMAKE_BUILD_TYPE=Debug             -DCPROCESSING_WARNINGS_AS_ERRORS=ON             "-DFETCHCONTENT_SOURCE_DIR_CPROCESSING=${{ github.workspace }}"
+          cmake -S templates/cmake -B starter-build -DCMAKE_BUILD_TYPE=Debug             -DCPROCESSING_WARNINGS_AS_ERRORS=ON             "-DFETCHCONTENT_SOURCE_DIR_CPROCESSING=${{ github.workspace }}"
           cmake --build starter-build --parallel
           ls starter-build/bin
 

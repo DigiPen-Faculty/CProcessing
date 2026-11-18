@@ -487,7 +487,7 @@ static void Scn_SettingsBlendModeAdd(void)
 }
 
 // ---- Settings that CProcessing patches into NanoVG ----
-// See Processing_Sample/CProcessing/nanovg/CPROCESSING.md. Each of these
+// See CProcessing/nanovg/CPROCESSING.md. Each of these
 // guards a patch, so an update of NanoVG that loses one fails here.
 
 // The blend modes that need a blend equation, over a (200, 100, 50)
@@ -1151,7 +1151,7 @@ static void Scn_SoundRoundTrip(void)
 // plugged in. The edge-detection/deadzone/mapping logic itself was split
 // out into Source/Internal_InputLogic.h together with the XInput -> GLFW
 // gamepad migration, and is unit-tested directly in the Tier 1 project
-// (CProcessing_Tests/Tests/test_cp_input_logic.c).
+// (tests/tier1/Tests/test_cp_input_logic.c).
 //-------------------------
 // The game state stack. The harness (the bottom state) draws red and pushes
 // state A, which runs for a few frames while the harness is frozen (the
@@ -1277,7 +1277,7 @@ static void Scn_GameStateStack(void)
 }
 
 //-------------------------
-// A picture of one state drawn in the next, as Examples/transitions.c does
+// A picture of one state drawn in the next, as examples/transitions.c does
 // for its crossfades and slides. The harness draws red and pushes D, which
 // clears its own layer to green and takes a screenshot: the whole picture,
 // which is D's green. D pushes E, which clears to blue and draws the
@@ -1286,7 +1286,7 @@ static void Scn_GameStateStack(void)
 //
 // E's init also takes a screenshot. A pushed state's layer starts clear, so
 // that one is the picture below it (D's green), which is how a pause blurs
-// the game under it (Examples/state_effects.c).
+// the game under it (examples/state_effects.c).
 static bool snapshotAwaitingResume = false;
 static int snapshotDFrame = 0;
 static CP_Image snapshotImage = NULL;

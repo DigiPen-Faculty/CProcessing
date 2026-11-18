@@ -2,6 +2,8 @@
 REM CProcessing - automate build and prepare release files
 
 SETLOCAL
+REM every path below is relative to the repository root, whatever the current folder is
+CD /D "%~dp0.."
 GOTO :init
 
 :header
@@ -115,12 +117,12 @@ GOTO :init
 		FOR %%t in ("Debug|x86" "Release|x86" "Debug|x64" "Release|x64") do (
 			ECHO.
 			ECHO Calling devenv with the following parameters: /%CP_Script_BuildFlag% %%t
-			devenv .\Processing_Sample\Processing_Sample.sln /%CP_Script_BuildFlag% %%t
+			devenv .\CProcessing.sln /%CP_Script_BuildFlag% %%t
 		)
 	) ELSE IF DEFINED CP_Script_BuildTarget (
 		ECHO.
 		ECHO Building specific target platform, devenv parameters: /%CP_Script_BuildFlag% "%CP_Script_BuildTarget%"
-		devenv .\Processing_Sample\Processing_Sample.sln /%CP_Script_BuildFlag% "%CP_Script_BuildTarget%"
+		devenv .\CProcessing.sln /%CP_Script_BuildFlag% "%CP_Script_BuildTarget%"
 	)
 
 	IF DEFINED CP_Script_Copy (
@@ -130,10 +132,10 @@ GOTO :init
 
 		IF EXIST .\CProcessingOutput RMDIR .\CProcessingOutput /s /q
 		MKDIR .\CProcessingOutput
-		XCOPY .\Processing_Sample\CProcessing\inc\cprocessing*.h .\CProcessingOutput\inc\ /r /y /q
-		XCOPY .\Processing_Sample\CProcessing\lib\* .\CProcessingOutput\lib\ /s /r /y /q
+		XCOPY .\CProcessing\inc\cprocessing*.h .\CProcessingOutput\inc\ /r /y /q
+		XCOPY .\CProcessing\lib\* .\CProcessingOutput\lib\ /s /r /y /q
 		REM the built-in default font's license must travel with the library
-		COPY .\Processing_Sample\Assets\Exo2_license.txt .\CProcessingOutput\ /y
+		COPY .\demos\Assets\Exo2_license.txt .\CProcessingOutput\ /y
 		REM keep only the .dll and .lib files
 		FOR %%a in (x64 x86) do (
 			FOR %%e in (exp iobj ipdb pdb ilk) do (
@@ -142,9 +144,9 @@ GOTO :init
 		)
 
 		REM clear empty project and copy latest inc and lib to the Empty project
-		IF EXIST .\Processing_Empty\CProcessing\ RMDIR .\Processing_Empty\CProcessing\ /s /q
-		MKDIR .\Processing_Empty\CProcessing\
-		XCOPY .\CProcessingOutput\* .\Processing_Empty\CProcessing\ /s /r /y /q
+		IF EXIST .\templates\vs\CProcessing\ RMDIR .\templates\vs\CProcessing\ /s /q
+		MKDIR .\templates\vs\CProcessing\
+		XCOPY .\CProcessingOutput\* .\templates\vs\CProcessing\ /s /r /y /q
 	)
 
 	IF DEFINED CP_Script_Zip (
@@ -154,13 +156,13 @@ GOTO :init
 		IF EXIST .\Releases RMDIR .\Releases /s /q
 		MKDIR .\Releases\CProcessingTemplate\
 		FOR %%i in (Assets\ CProcessing\) do (
-			XCOPY ".\Processing_Empty\%%i" ".\Releases\CProcessingTemplate\%%i" /s /y /q
+			XCOPY ".\templates\vs\%%i" ".\Releases\CProcessingTemplate\%%i" /s /y /q
 		)
 		FOR %%i in (main.c MyGame.sln MyGame.vcxproj README.md) do (
-			XCOPY ".\Processing_Empty\%%i" ".\Releases\CProcessingTemplate\" /s /y /q
+			XCOPY ".\templates\vs\%%i" ".\Releases\CProcessingTemplate\" /s /y /q
 		)
 		REM the example programs, as source to read and copy from
-		XCOPY ".\Examples\*" ".\Releases\CProcessingTemplate\Examples\" /s /y /q
+		XCOPY ".\examples\*" ".\Releases\CProcessingTemplate\Examples\" /s /y /q
 		REM the zip holds one folder, CProcessingTemplate, as the Linux and macOS packages do
 		powershell Compress-Archive .\Releases\CProcessingTemplate .\Releases\CProcessingTemplate.zip
 

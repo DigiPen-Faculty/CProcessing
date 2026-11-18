@@ -44,7 +44,7 @@ parser.add_argument("--cc", help="the compiler for the examples (gcc or clang)")
 args = parser.parse_args()
 wiki = args.wiki
 repo = args.repo
-inc = repo / "Processing_Sample/CProcessing/inc"
+inc = repo / "CProcessing/inc"
 problems = []
 
 

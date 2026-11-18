@@ -20,10 +20,10 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{36F1964B-F1E3-4145-BD1A-9208B821532C}</ProjectGuid>
-    <RootNamespace>CProcessingTestsTier2</RootNamespace>
+    <ProjectGuid>{2D05D83D-CD1E-4427-9F34-2E979F487E54}</ProjectGuid>
+    <RootNamespace>CProcessingTests</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>CProcessing_Tests_Tier2</ProjectName>
+    <ProjectName>CProcessing_Tests</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -71,27 +71,27 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)..\CProcessing_Tests\ThirdParty\Unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\Source\;$(SolutionDir)CProcessing\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)CProcessing\lib\x86\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\Tier2\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>Intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)..\CProcessing_Tests\ThirdParty\Unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\Source\;$(SolutionDir)CProcessing\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)CProcessing\lib\x86\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\Tier2\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>Intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)..\CProcessing_Tests\ThirdParty\Unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\Source\;$(SolutionDir)CProcessing\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)CProcessing\lib\x64\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\Tier2\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>Intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)..\CProcessing_Tests\ThirdParty\Unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\Source\;$(SolutionDir)CProcessing\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)CProcessing\lib\x64\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\Tier2\</OutDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>Intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -111,8 +111,7 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)..\CProcessing\lib\x86\CProcessingd.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
+      <Command>xcopy "$(SolutionDir)CProcessing\lib\x86\CProcessingd.dll" "$(OutDir)" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -136,8 +135,7 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)..\CProcessing\lib\x86\CProcessing.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
+      <Command>xcopy "$(SolutionDir)CProcessing\lib\x86\CProcessing.dll" "$(OutDir)" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -157,8 +155,7 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)..\CProcessing\lib\x64\CProcessingd.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
+      <Command>xcopy "$(SolutionDir)CProcessing\lib\x64\CProcessingd.dll" "$(OutDir)" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -182,29 +179,28 @@ xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)..\CProcessing\lib\x64\CProcessing.dll" "$(OutDir)" /s /r /y /q
-xcopy "$(ProjectDir)Assets\*" "$(OutDir)Assets\" /s /r /y /q</Command>
+      <Command>xcopy "$(SolutionDir)CProcessing\lib\x64\CProcessing.dll" "$(OutDir)" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\CProcessing_Tests\ThirdParty\Unity\unity.c" />
-    <ClCompile Include="Tests\tier2_main.c" />
-    <ClCompile Include="Tests\tier2_capture.c" />
-    <ClCompile Include="Tests\test_tier2_graphics.c" />
-    <ClCompile Include="Tests\test_tier2_settings.c" />
-    <ClCompile Include="Tests\test_tier2_image.c" />
-    <ClCompile Include="Tests\test_tier2_font.c" />
-    <ClCompile Include="Tests\test_tier2_system_engine.c" />
-    <ClCompile Include="Tests\test_tier2_sound.c" />
-    <ClCompile Include="Tests\test_tier2_input.c" />
-    <ClCompile Include="Tests\test_tier2_crossplatform.c" />
-    <ClCompile Include="Tests\test_tier2_gamestates.c" />
+    <ClCompile Include="..\unity\unity.c" />
+    <ClCompile Include="Tests\test_main.c" />
+    <ClCompile Include="Tests\test_smoke.c" />
+    <ClCompile Include="Tests\test_cp_math.c" />
+    <ClCompile Include="Tests\test_cp_vector.c" />
+    <ClCompile Include="Tests\test_cp_matrix.c" />
+    <ClCompile Include="Tests\test_cp_color.c" />
+    <ClCompile Include="Tests\test_cp_random.c" />
+    <ClCompile Include="Tests\test_cp_input_logic.c" />
+    <ClCompile Include="Tests\test_internal_platform.c" />
+    <ClCompile Include="Tests\test_internal_monitor.c" />
+    <ClCompile Include="Tests\test_internal_game_state_logic.c" />
+    <ClCompile Include="Tests\test_internal_sound_logic.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\CProcessing_Tests\ThirdParty\Unity\unity.h" />
-    <ClInclude Include="..\CProcessing_Tests\ThirdParty\Unity\unity_internals.h" />
-    <ClInclude Include="Tests\test_runner_tier2.h" />
-    <ClInclude Include="Tests\tier2_capture.h" />
+    <ClInclude Include="..\unity\unity.h" />
+    <ClInclude Include="..\unity\unity_internals.h" />
+    <ClInclude Include="Tests\test_runner.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -10,7 +10,7 @@
 
 **You need:** [Lesson 4](Lesson-04-Input) and [Lesson 5](Lesson-05-Moving-with-Vectors-and-Delta-Time). The player moves the way it did in lesson 5.
 
-The finished program is in the repository as [Examples/Lessons/06_collision/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/Lessons/06_collision/main.c). The [collision example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/collision.c) shows the same checks, with shapes that turn red when touched. Run both.
+The finished program is in the repository as [examples/Lessons/06_collision/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/Lessons/06_collision/main.c). The [collision example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/collision.c) shows the same checks, with shapes that turn red when touched. Run both.
 
 ---
 
@@ -88,7 +88,7 @@ CP_BOOL CircleTouchesBox(CP_Vector center, float radius, Box box)
 
 If the circle's center is *inside* the box, the clamp changes nothing, the closest point is the center itself, the distance is 0, and they touch. If it's beside the box, the closest point is on a side. If it's near a corner, the closest point is the corner. One idea covers all three.
 
-A box and another box (the check [collision.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/collision.c) calls `BoxesTouch`) touch when they overlap in **both** x and y.
+A box and another box (the check [collision.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/collision.c) calls `BoxesTouch`) touch when they overlap in **both** x and y.
 
 > **Try it:** in the lesson program, draw the point `closest` as a small dot for one wall, and move the player around it. Where is it when the player is above the wall? At a corner?
 

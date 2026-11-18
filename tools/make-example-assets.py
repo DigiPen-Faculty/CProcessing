@@ -2,7 +2,7 @@
 
     python tools/make-example-assets.py
 
-Writes them to Processing_Empty/Assets, the Assets folder every template
+Writes them to templates/vs/Assets, the Assets folder every template
 package ships with. Everything is drawn or synthesized here, from nothing
 but code, so the files are original and MIT licensed like the rest of
 CProcessing. Run it again only to change them; the output is committed.
@@ -21,7 +21,7 @@ import struct
 import wave
 from pathlib import Path
 
-ASSETS = Path(__file__).resolve().parent.parent / "Processing_Empty" / "Assets"
+ASSETS = Path(__file__).resolve().parent.parent / "templates" / "vs" / "Assets"
 RATE = 22050
 
 
