@@ -17,7 +17,7 @@ set -euo pipefail
 NANOVG_URL=https://github.com/memononen/nanovg.git
 NANOVG_COMMIT=ce3bf745eb2d2dbc14a50bf2446783f691ac4353  # 2026-02-19
 STB_URL=https://github.com/nothings/stb.git
-STB_COMMIT=2c980bb59875b0d32144a71867fbdebb2f77cd20     # 2026-08-01
+STB_COMMIT=9600522de53973336fa033a289858a4354cbb04c     # 2026-11-12
 
 # Upstream repository, path there, path in the vendored folder
 FILES=(
