@@ -4,11 +4,15 @@ Notable changes in each CProcessing release. Version numbers are
 major.minor.patch. The major number goes up when existing projects may need
 changes to build with the new version.
 
-## 3.1.1 (unreleased)
+## 4.0.0 (unreleased)
 
 <!-- On hold (2026-11-10): students are using 3.1.0 to finish a course, so
      nothing here is released, and `main` and the live wiki stay as they are.
-     This section grows until one larger release with all the changes. -->
+     This section grows until one larger release with all the changes. It was
+     planned as 3.1.1; it is 4.0.0 (decided 2026-11-18) because of the
+     breaking changes below. The header's CP_VERSION_* and the CMake
+     starter's tag stay at 3.1.0 until the release-prep change, which moves
+     them to 4.0.0 together with the tag. -->
 
 ### Breaking changes
 
