@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Tier 1 coverage for src/Internal_GameStateLogic.h: the rules of the
 // game state stack. The hooks write what happened into a log, so each test
 // checks the order in which inits and exits run, and which states run and

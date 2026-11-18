@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Tier 2 checks added with the cross-platform work: behavior every platform
 // must share (drawing persisting through the offscreen canvas, screenshots of
 // sub-regions, the native window handle), plus error paths that used to

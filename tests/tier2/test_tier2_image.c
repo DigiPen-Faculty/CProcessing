@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Assertions against data tier2_capture.c already captured. See
 // Scn_ImageLoadAndDraw / Scn_ImageSubImage there for how assets/quadrants.png
 // (a 4x4 fixture: TL=red, TR=green, BL=blue, BR=yellow) was used.

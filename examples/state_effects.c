@@ -33,6 +33,9 @@
 //
 // To run it, copy this file over the template's main.c. It needs Music.wav,
 // Coin.wav and Jump.wav in the assets folder, which the template includes.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

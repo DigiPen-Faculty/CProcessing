@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Phase A: the smallest possible test(s) to prove the harness works end to
 // end -- Unity builds and runs under MSBuild, and the test executable links
 // against and can call into the real CProcessing DLL.

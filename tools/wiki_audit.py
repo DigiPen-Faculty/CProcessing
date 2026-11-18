@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 """Check the CProcessing wiki against the public headers.
 
     python tools/wiki_audit.py <wiki clone> [<repo root>] [--cc <compiler>]

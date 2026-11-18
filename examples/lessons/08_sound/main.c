@@ -27,6 +27,9 @@
 // - Play a soft sound when a coin lands on the ground and is missed.
 // - Make the music play faster as the combo grows (CP_Sound_SetGroupPitch).
 // - Pause the music, with its instance, while the game is paused.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

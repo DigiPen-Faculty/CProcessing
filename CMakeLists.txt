@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 # CProcessing - cross-platform CMake build (Windows, Linux, macOS)
 #
 # This sits alongside the Visual Studio solution (CProcessing.sln), it

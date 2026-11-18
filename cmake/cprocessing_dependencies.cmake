@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 # Third-party dependencies that are built from source: GLFW, SoLoud, miniaudio.
 #
 # This file is the single place their versions are pinned, for every

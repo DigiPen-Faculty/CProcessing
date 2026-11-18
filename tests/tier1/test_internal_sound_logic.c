@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Tier 1 coverage for src/Internal_SoundLogic.h: how a sound's own volume
 // and pitch combine with its group's. A small stand-in for SoLoud holds what
 // SoLoud was last given for each voice, and the tests do what CP_Sound.c

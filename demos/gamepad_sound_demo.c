@@ -13,6 +13,9 @@
 //   C D E F G A B C, and so do the keys Q W E R T Y U I
 // - The left trigger raises the volume of new notes (1x to 2x), the right
 //   trigger raises their pitch (1x to 3x)
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

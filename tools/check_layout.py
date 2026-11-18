@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 """Check that every tracked folder and file follows the naming rule.
 
     python tools/check_layout.py [--rev <git revision>]

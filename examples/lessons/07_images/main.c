@@ -24,6 +24,9 @@
 // - Draw a second slime that follows the first, a little behind it.
 // - Fade the orb out (the alpha of a color) as it arrives.
 // - Draw a background picture under everything, with CP_Image_Draw.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

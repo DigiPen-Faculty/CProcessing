@@ -4,7 +4,7 @@
 // brief:	Math functions for use in the processing environment
 //
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019-2026 DigiPen Institute of Technology
+// Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------

@@ -19,6 +19,9 @@
 // - Make the hue strip show only the greens and blues.
 // - Add a fourth circle to the light mixing, in yellow, and see what
 //   happens where it overlaps the others.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

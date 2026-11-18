@@ -31,6 +31,9 @@
 // - Add a "How to play" state, reached from the menu with H.
 // - Give each bubble its own growth speed, and score the fast ones more.
 // - Make the bubbles grow faster the longer the game lasts.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Assertions against the pixel buffers tier2_capture.c already captured.
 // These never touch the engine -- see tier2_capture.h for why.
 #include "unity.h"

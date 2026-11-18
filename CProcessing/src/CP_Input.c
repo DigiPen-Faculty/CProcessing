@@ -4,7 +4,7 @@
 // brief:	Handle all input and querying
 //
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019-2026 DigiPen Institute of Technology
+// Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------

@@ -50,6 +50,24 @@ One rule, checked in CI by `tools/check_layout.py`:
   * the image, sound and font files in an `assets/` folder, which programs
     refer to by name (`BassDrum.wav`, `SlimeSheet.png`).
 
+### License headers
+
+CProcessing is MIT licensed (`LICENSE`). Every source file we author says so in
+its own comment syntax, near the top, and `tools/check_license_headers.py`
+checks it in CI:
+
+    SPDX-License-Identifier: MIT
+    Copyright (c) <year, or first year-2026> DigiPen Institute of Technology and CProcessing contributors
+
+* The years start when the file was first committed (the demos and the
+  library say 2019, the year of the original code).
+* **Not covered:** the bundled libraries and Unity (their own licenses, see
+  `DEPENDENCIES.md`), the templates (the student's files), and the embedded
+  Exo 2 font data, which says `SPDX-License-Identifier: OFL-1.1`.
+* An example or lesson you copy over `main.c` keeps its two header lines: the
+  MIT license asks for the copyright notice to stay with copies of the code.
+  Your own changes are yours.
+
 ## Windows: Visual Studio solution
 
 Open `CProcessing.sln` in Visual Studio 2026 and

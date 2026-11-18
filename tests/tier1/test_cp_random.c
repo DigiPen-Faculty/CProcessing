@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Tier 1 coverage for CP_Random (9 functions) plus the two CP_Noise
 // functions the plan groups with it.
 //

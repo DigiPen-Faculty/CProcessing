@@ -35,6 +35,9 @@
 //   float over a game that carries on.
 // - Give every screen a time since it started, and fade the pause in.
 // - Write a Replace: take off the top screen and put another in its place.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

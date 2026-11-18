@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Tier 1 coverage for src/Internal_Monitor.h: which monitor a window is
 // on (fullscreen, the display size and centering use it) and centering a
 // window on a monitor. Pure rectangle math, so any monitor layout can be

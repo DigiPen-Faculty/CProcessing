@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Tier 1 coverage for the pure input logic behind CP_Input
 // (src/Internal_InputLogic.h): edge detection, double-click timing,
 // gamepad button mapping, and the trigger/stick conditioning.

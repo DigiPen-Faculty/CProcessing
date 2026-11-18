@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 """Print the combined MkDocs print page to PDF with Chromium."""
 
 from __future__ import annotations

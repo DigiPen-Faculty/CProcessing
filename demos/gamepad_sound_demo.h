@@ -6,6 +6,9 @@
 // - Find the default gamepad index (this changes as devices are added removed)
 // - Check and visualize all analog and digital inputs from each gamepad
 // - Play notes with a volume and pitch, in a sound group with its own volume
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #pragma once

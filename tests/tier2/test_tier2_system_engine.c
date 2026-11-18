@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Assertions against scalars tier2_capture.c already captured. See
 // Scn_SystemEngineState in tier2_capture.c for why these have to be read
 // during the engine run rather than after.

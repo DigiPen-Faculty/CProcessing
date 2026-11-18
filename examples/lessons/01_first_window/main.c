@@ -13,6 +13,9 @@
 // - Change the window size and the sky color.
 // - Add a second, smaller moon that sits at a fixed spot.
 // - Make the moon bigger while the left mouse button is held down.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

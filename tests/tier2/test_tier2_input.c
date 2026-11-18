@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Covers only the slice of CP_Input that's deterministically testable
 // without synthesizing OS input events or hardware -- see the comment on
 // Scn_InputQuiescentDefaults in tier2_capture.c for why the edge-detection

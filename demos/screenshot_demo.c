@@ -11,6 +11,9 @@
 // - Hold the left mouse button for a 2x magnifier
 // - Space switches tunnel mode on and off: each screenshot is taken after the
 //   previous one was drawn, so it contains it, and so on
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

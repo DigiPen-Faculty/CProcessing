@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 # Shows CProcessing's changes to its vendored NanoVG: the difference between
 # CProcessing/third_party/nanovg/ and the upstream commits it is based
 # on. Every difference should be one of the patches listed in

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 """Copy a GitHub wiki into MkDocs and normalize GitHub-specific links.
 
 With --config, also write an MkDocs config: the given one, with its nav taken

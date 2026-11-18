@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // CP_Sound: no reliable way to assert "it sounds correct" automatically
 // (06-test-suite-plan.md), so this covers load/free/play/pause/stop/resume
 // not crashing (if Scn_SoundRoundTrip had crashed, this whole test binary

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Prototypes for every Unity test function in the suite, grouped by the
 // source file that defines them. test_main.c includes this header and
 // RUN_TESTs each one; setUp/tearDown live in test_main.c since Unity
