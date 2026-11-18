@@ -12,11 +12,11 @@
     are pinned for every platform.
 
     Output (x64 and x86):
-      CProcessing/GLFW/lib/<arch>/glfw3.lib       (Release, /MD - C only, also used by Debug)
-      CProcessing/GLFW/inc/glfw3.h, glfw3native.h
-      CProcessing/soloud/lib/<arch>/soloud.lib    (Release, /MD)
-      CProcessing/soloud/lib/<arch>/soloud_d.lib  (Debug, /MDd)
-      CProcessing/soloud/inc/soloud_c.h
+      CProcessing/third_party/GLFW/lib/<arch>/glfw3.lib       (Release, /MD - C only, also used by Debug)
+      CProcessing/third_party/GLFW/inc/glfw3.h, glfw3native.h
+      CProcessing/third_party/soloud/lib/<arch>/soloud.lib    (Release, /MD)
+      CProcessing/third_party/soloud/lib/<arch>/soloud_d.lib  (Debug, /MDd)
+      CProcessing/third_party/soloud/inc/soloud_c.h
 
     SoLoud (with miniaudio) is linked statically into CProcessing.dll, so
     there is no separate soloud.dll to ship.
@@ -71,8 +71,8 @@ foreach ($arch in @(@{ Name = "x64"; Cmake = "x64" }, @{ Name = "x86"; Cmake = "
         if ($LASTEXITCODE) { throw "build failed ($($arch.Name) $config)" }
     }
 
-    $glfwLibDir = Join-Path $cp "GLFW\lib\$($arch.Name)"
-    $soloudLibDir = Join-Path $cp "soloud\lib\$($arch.Name)"
+    $glfwLibDir = Join-Path $cp "third_party\GLFW\lib\$($arch.Name)"
+    $soloudLibDir = Join-Path $cp "third_party\soloud\lib\$($arch.Name)"
     New-Item -ItemType Directory -Force $glfwLibDir, $soloudLibDir | Out-Null
 
     Copy-Item (Join-Path $build "lib\Release\glfw3.lib") $glfwLibDir -Force
@@ -82,11 +82,11 @@ foreach ($arch in @(@{ Name = "x64"; Cmake = "x64" }, @{ Name = "x86"; Cmake = "
 
 # Headers (identical for both architectures)
 $x64 = Join-Path $BuildRoot "x64"
-Copy-Item (Join-Path $x64 "_deps\glfw-src\include\GLFW\glfw3.h") (Join-Path $cp "GLFW\inc") -Force
-Copy-Item (Join-Path $x64 "_deps\glfw-src\include\GLFW\glfw3native.h") (Join-Path $cp "GLFW\inc") -Force
-Copy-Item (Join-Path $x64 "_deps\glfw-src\LICENSE.md") (Join-Path $cp "GLFW") -Force
-Copy-Item (Join-Path $x64 "_deps\soloud-src\include\soloud_c.h") (Join-Path $cp "soloud\inc") -Force
-Copy-Item (Join-Path $x64 "_deps\soloud-src\LICENSE") (Join-Path $cp "soloud") -Force
+Copy-Item (Join-Path $x64 "_deps\glfw-src\include\GLFW\glfw3.h") (Join-Path $cp "third_party\GLFW\inc") -Force
+Copy-Item (Join-Path $x64 "_deps\glfw-src\include\GLFW\glfw3native.h") (Join-Path $cp "third_party\GLFW\inc") -Force
+Copy-Item (Join-Path $x64 "_deps\glfw-src\LICENSE.md") (Join-Path $cp "third_party\GLFW") -Force
+Copy-Item (Join-Path $x64 "_deps\soloud-src\include\soloud_c.h") (Join-Path $cp "third_party\soloud\inc") -Force
+Copy-Item (Join-Path $x64 "_deps\soloud-src\LICENSE") (Join-Path $cp "third_party\soloud") -Force
 
 # Record what was built, read straight from the pins
 $deps = Get-Content (Join-Path $repo "cmake\CProcessingDependencies.cmake") -Raw
@@ -96,11 +96,11 @@ $date = Get-Date -Format "yyyy-MM-dd"
 GLFW $(Get-Pin 'CPROCESSING_GLFW_VERSION')
 Built $date by tools/update-windows-prebuilt.ps1 from the pins in cmake/CProcessingDependencies.cmake
 (static library, Release, /MD, platform toolset $Toolset; used by both Debug and Release builds of CProcessing)
-"@ | Set-Content (Join-Path $cp "GLFW\Version.txt") -Encoding ascii
+"@ | Set-Content (Join-Path $cp "third_party\GLFW\Version.txt") -Encoding ascii
 @"
 SoLoud commit $(Get-Pin 'CPROCESSING_SOLOUD_COMMIT') with miniaudio $(Get-Pin 'CPROCESSING_MINIAUDIO_VERSION')
 Built $date by tools/update-windows-prebuilt.ps1 from the pins in cmake/CProcessingDependencies.cmake
 (static libraries: soloud.lib Release /MD, soloud_d.lib Debug /MDd, platform toolset $Toolset; backends: miniaudio + nosound)
-"@ | Set-Content (Join-Path $cp "soloud\Version.txt") -Encoding ascii
+"@ | Set-Content (Join-Path $cp "third_party\soloud\Version.txt") -Encoding ascii
 
 Write-Host "`nDone. Rebuild CProcessing.sln (all four configurations) and run both test projects."

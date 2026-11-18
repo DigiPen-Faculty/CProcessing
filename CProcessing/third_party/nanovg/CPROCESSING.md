@@ -98,7 +98,8 @@ Things that used to be patches here and now live in CProcessing's own code:
   (see `CMakeLists.txt` and `CProcessing.vcxproj`).
 
 The OpenGL back end, `nanovg_gl.h`, is header-only. It is compiled once, in
-`Source/nanovg_gl3.c`; the rest of CProcessing includes it for the
+`nanovg_gl3.c`, in this folder. That file is CProcessing's own, but it only
+compiles vendored code. The rest of CProcessing includes `nanovg_gl.h` for the
 declarations only.
 
 ## Updating

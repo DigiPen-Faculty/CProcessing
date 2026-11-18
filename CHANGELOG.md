@@ -108,7 +108,10 @@ Each change says what to do in an existing project.
   are `tests/tier1`, `tests/tier2` and `tests/unity`, `Examples/` is
   `examples/`, the templates are `templates/vs` and `templates/cmake` (were
   `Processing_Empty` and `Processing_Empty_CMake`), and
-  `BuildReleasePackage.bat` is in `tools/`. The release packages students
+  `BuildReleasePackage.bat` is in `tools/`. The bundled libraries (GLAD, GLFW,
+  NanoVG with the stb headers, SoLoud, and `vect`) are in
+  `CProcessing/third_party/`, apart from CProcessing's own code in
+  `CProcessing/Source/`. The release packages students
   download are laid out exactly as before. Nothing to do in a program. A fork
   or script that uses the old paths needs them changed. `git blame` and
   `git log --follow` follow files across the move. Old tags and releases
@@ -529,7 +532,7 @@ Each change says what to do in an existing project.
   on every platform. See [DEPENDENCIES.md](DEPENDENCIES.md).
 - NanoVG, which CProcessing draws with, is updated from a 2018 copy to its
   latest version, keeping CProcessing's own changes to it. They are listed
-  in `Processing_Sample/CProcessing/nanovg/CPROCESSING.md`. The image and
+  in `CProcessing/third_party/nanovg/CPROCESSING.md`. The image and
   font loaders it uses, stb_image and stb_truetype, are updated from 2016
   versions to 2.30 and 1.26, with many fixes for crashes on unusual or
   damaged files.

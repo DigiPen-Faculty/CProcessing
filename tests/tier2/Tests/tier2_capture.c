@@ -487,7 +487,7 @@ static void Scn_SettingsBlendModeAdd(void)
 }
 
 // ---- Settings that CProcessing patches into NanoVG ----
-// See CProcessing/nanovg/CPROCESSING.md. Each of these
+// See CProcessing/third_party/nanovg/CPROCESSING.md. Each of these
 // guards a patch, so an update of NanoVG that loses one fails here.
 
 // The blend modes that need a blend equation, over a (200, 100, 50)

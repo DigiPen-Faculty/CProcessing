@@ -21,22 +21,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="nanovg\src\fontstash.h">
+    <ClInclude Include="third_party\nanovg\src\fontstash.h">
       <Filter>NanoVG</Filter>
     </ClInclude>
-    <ClInclude Include="nanovg\src\nanovg.h">
+    <ClInclude Include="third_party\nanovg\src\nanovg.h">
       <Filter>NanoVG</Filter>
     </ClInclude>
-    <ClInclude Include="nanovg\src\nanovg_gl.h">
+    <ClInclude Include="third_party\nanovg\src\nanovg_gl.h">
       <Filter>NanoVG</Filter>
     </ClInclude>
-    <ClInclude Include="nanovg\src\nanovg_gl_utils.h">
+    <ClInclude Include="third_party\nanovg\src\nanovg_gl_utils.h">
       <Filter>NanoVG</Filter>
     </ClInclude>
-    <ClInclude Include="nanovg\src\stb_image.h">
+    <ClInclude Include="third_party\nanovg\src\stb_image.h">
       <Filter>NanoVG</Filter>
     </ClInclude>
-    <ClInclude Include="nanovg\src\stb_truetype.h">
+    <ClInclude Include="third_party\nanovg\src\stb_truetype.h">
       <Filter>NanoVG</Filter>
     </ClInclude>
     <ClInclude Include="Source\Internal_Random.h">
@@ -81,7 +81,7 @@
     <ClInclude Include="inc\cprocessing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\vect.h">
+    <ClInclude Include="third_party\vect\vect.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
     <ClInclude Include="Source\Internal_System.h">
@@ -90,7 +90,7 @@
     <ClInclude Include="inc\cprocessing_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GLAD\glad.h">
+    <ClInclude Include="third_party\GLAD\glad.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
     <ClInclude Include="Source\Internal_Resources.h">
@@ -101,10 +101,10 @@
     <ClCompile Include="Source\CP_Random.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="nanovg\src\nanovg.c">
+    <ClCompile Include="third_party\nanovg\src\nanovg.c">
       <Filter>NanoVG</Filter>
     </ClCompile>
-    <ClCompile Include="Source\nanovg_gl3.c">
+    <ClCompile Include="third_party\nanovg\nanovg_gl3.c">
       <Filter>NanoVG</Filter>
     </ClCompile>
     <ClCompile Include="Source\CP_Graphics.c">
@@ -137,13 +137,13 @@
     <ClCompile Include="Source\CP_Sound.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\vect.c">
+    <ClCompile Include="third_party\vect\vect.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\CP_System.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GLAD\glad.c">
+    <ClCompile Include="third_party\GLAD\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
