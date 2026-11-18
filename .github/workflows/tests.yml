@@ -67,6 +67,9 @@ jobs:
       - name: Check that the header and the sources use the same names
         run: python3 tools/check_api_names.py
 
+      - name: Check that folder and file names follow the naming rule
+        run: python3 tools/check_layout.py
+
   windows-msbuild:
     runs-on: windows-2025
     timeout-minutes: 30

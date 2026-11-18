@@ -29,7 +29,7 @@ Use `-SkipPdf` when Chromium cannot be installed or only the website is needed.
 
 ## Automated builds
 
-The `offline-docs.yml` GitHub Actions workflow builds both files every week,
+The `offline_docs.yml` GitHub Actions workflow builds both files every week,
 when a release is published, and on demand. Publishing a release attaches them
 to it, so students download them from the
 [Releases page](https://github.com/DigiPen-Faculty/CProcessing/releases)

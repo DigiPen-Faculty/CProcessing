@@ -26,6 +26,30 @@ template project. This page is for building CProcessing itself.
 
 The release packages students download hold one `CProcessingTemplate/` folder with `CProcessing/` (the headers and the library), `assets/` and `examples/`, and the project files.
 
+### Naming and layout
+
+One rule, checked in CI by `tools/check_layout.py`:
+
+* Every folder and file we author is **lowercase, with words joined by
+  underscores**: `third_party`, `01_first_window`, `test_cp_color.c`,
+  `build_release_package.bat`. That includes `assets/` and `examples/` in the
+  release packages, which are copies of repository folders.
+* **Product and project names keep their case:** `CProcessing` (the folder, the
+  solution and project files, the library), `CProcessing_Demos` and the other
+  `CProcessing_*` projects, `MyGame`.
+* **A short list of fixed names is the exception** (each is a pattern in
+  `tools/check_layout.py`, so adding one is visible in review):
+  * documents with an ALL-CAPS name (`README.md`, `LICENSE`, `CHANGELOG.md`,
+    `CPROCESSING.md`), `CMakeLists.txt` and dot-files;
+  * the library's `CP_*.c` and `Internal_*.h` in `CProcessing/src/`, which
+    mirror the `CP_` names of the API;
+  * `docs/lessons/Lesson-NN-Title.md` and `docs/lessons/images/`, which become
+    wiki pages and pictures, and the teachers' `Open CProcessing Docs.html`;
+  * everything below `CProcessing/third_party/<library>/` and `tests/unity/`,
+    which keep their upstream names (the folders around them are ours);
+  * the image, sound and font files in an `assets/` folder, which programs
+    refer to by name (`BassDrum.wav`, `SlimeSheet.png`).
+
 ## Windows: Visual Studio solution
 
 Open `CProcessing.sln` in Visual Studio 2026 and
