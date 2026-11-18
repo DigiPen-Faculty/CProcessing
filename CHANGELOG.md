@@ -406,6 +406,13 @@ Each change says what to do in an existing project.
   project, add `/utf-8` under Project Properties > C/C++ > Command Line >
   Additional Options. Linux and macOS already worked.
   ([#15](https://github.com/DigiPen-Faculty/CProcessing/issues/15))
+- **stb_image and stb_truetype, which load images and fonts, are updated to
+  2.32 and 1.28** (from 2.30 and 1.26), unmodified. Since then upstream fixed
+  a font that has only a symbol character map showing nothing, a division by
+  zero and a few out-of-range reads on damaged fonts and images, a memory leak
+  when an image conversion ran out of memory, two undefined-behavior cases,
+  HDR images reconstructed with the wrong values, and a slow path in
+  progressive JPEGs. Nothing to do in a program.
 
 ## 3.1.0 (2026-11-07)
 

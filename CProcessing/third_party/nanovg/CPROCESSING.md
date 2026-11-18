@@ -29,8 +29,8 @@ stb repository, unmodified:
 | | |
 |---|---|
 | Upstream | https://github.com/nothings/stb |
-| Commit | **`2c980bb59875b0d32144a71867fbdebb2f77cd20`** (2026-08-01) |
-| Versions | `stb_image.h` **2.30**, `stb_truetype.h` **1.26** |
+| Commit | **`9600522de53973336fa033a289858a4354cbb04c`** (2026-11-12) |
+| Versions | `stb_image.h` **2.32**, `stb_truetype.h` **1.28** |
 
 Since 2.10 and 1.24 they gained 16-bit PNGs, OpenType fonts with CFF
 outlines (`.otf`; already in 1.24, missing from the 1.09 CProcessing had
