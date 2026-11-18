@@ -10,7 +10,7 @@
 
 **You need:** [Lesson 4](Lesson-04-Input) and [Lesson 6](Lesson-06-Collision) (a point inside a circle). Lesson 7's easing is used for a fade.
 
-The finished program is in the repository as [examples/Lessons/09_game_states/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/Lessons/09_game_states/main.c). The [game states example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/game_states.c) is a different game with the same structure. Play both.
+The finished program is in the repository as [examples/lessons/09_game_states/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/09_game_states/main.c). The [game states example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/game_states.c) is a different game with the same structure. Play both.
 
 ---
 

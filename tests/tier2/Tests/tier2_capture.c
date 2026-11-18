@@ -1149,7 +1149,7 @@ static void Scn_SoundRoundTrip(void)
 // testable without synthesizing OS input events or hardware: default
 // values in a quiescent frame where nothing was pressed, moved, or
 // plugged in. The edge-detection/deadzone/mapping logic itself was split
-// out into Source/Internal_InputLogic.h together with the XInput -> GLFW
+// out into src/Internal_InputLogic.h together with the XInput -> GLFW
 // gamepad migration, and is unit-tested directly in the Tier 1 project
 // (tests/tier1/Tests/test_cp_input_logic.c).
 //-------------------------

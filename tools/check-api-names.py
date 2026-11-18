@@ -33,7 +33,7 @@ for m in PATTERN.finditer((lib / "inc" / "cprocessing.h").read_text(encoding="ut
     declared[m.group(2)] = (" ".join(m.group(1).split()), param_names(m.group(3)))
 
 defined = {}
-for path in sorted((lib / "Source").glob("*.c")):
+for path in sorted((lib / "src").glob("*.c")):
     for m in PATTERN.finditer(path.read_text(encoding="utf-8", errors="replace")):
         if m.group(4) != ";":
             defined[m.group(2)] = (" ".join(m.group(1).split()), param_names(m.group(3)), path.name)
@@ -41,7 +41,7 @@ for path in sorted((lib / "Source").glob("*.c")):
 problems = 0
 for name, (ret, params) in declared.items():
     if name not in defined:
-        print(f"{name}: declared in cprocessing.h but not defined in Source")
+        print(f"{name}: declared in cprocessing.h but not defined in src")
         problems += 1
         continue
     ret2, params2, where = defined[name]

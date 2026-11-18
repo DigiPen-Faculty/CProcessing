@@ -111,8 +111,9 @@ Each change says what to do in an existing project.
   `BuildReleasePackage.bat` is in `tools/`. The bundled libraries (GLAD, GLFW,
   NanoVG with the stb headers, SoLoud, and `vect`) are in
   `CProcessing/third_party/`, apart from CProcessing's own code in
-  `CProcessing/Source/`. The release packages students
-  download are laid out exactly as before. Nothing to do in a program. A fork
+  `CProcessing/src/` (it was `Source/`). The release packages students
+  download are laid out as before, except that `Examples/Lessons` is now
+  `Examples/lessons`. Nothing to do in a program. A fork
   or script that uses the old paths needs them changed. `git blame` and
   `git log --follow` follow files across the move. Old tags and releases
   keep the old layout.
@@ -219,7 +220,7 @@ Each change says what to do in an existing project.
   ideas to try. They're in an `Examples` folder in every release package
   and in the repository; to run one, copy it over `main.c`.
 - **Lessons 1 to 11 (Your first window, Shapes and the coordinate system, Color, Input, Moving with vectors and delta time, Collision, Images and animation, Sound, Game states, a Capstone game, and an extra on writing your own state manager):** each is a page of
-  step-by-step teaching with a finished program in `Examples/Lessons`, and
+  step-by-step teaching with a finished program in `Examples/lessons`, and
   challenges and check-yourself questions. The pages are in `docs/lessons`
   until they are published to the wiki.
 - **A Color picker demo** (6 in `Processing_Demos`): drag red, green, blue,

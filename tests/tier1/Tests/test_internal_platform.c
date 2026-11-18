@@ -1,4 +1,4 @@
-// Tier 1 coverage for Source/Internal_Platform.h, the small portability
+// Tier 1 coverage for src/Internal_Platform.h, the small portability
 // layer that replaced MSVC-only APIs (strcpy_s, MAX_PATH, ...) so the
 // library builds on Linux and macOS. CP_StringCopy fills the image, sound
 // and font file path caches, so truncation and termination matter.

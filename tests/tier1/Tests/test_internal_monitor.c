@@ -1,4 +1,4 @@
-// Tier 1 coverage for Source/Internal_Monitor.h: which monitor a window is
+// Tier 1 coverage for src/Internal_Monitor.h: which monitor a window is
 // on (fullscreen, the display size and centering use it) and centering a
 // window on a monitor. Pure rectangle math, so any monitor layout can be
 // tested without the monitors.

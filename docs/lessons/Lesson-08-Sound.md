@@ -10,7 +10,7 @@
 
 **You need:** [Lesson 4](Lesson-04-Input) and [Lesson 6](Lesson-06-Collision). The game uses the distance check from lesson 6. You also need speakers or headphones.
 
-The finished program is in the repository as [examples/Lessons/08_sound/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/Lessons/08_sound/main.c). The [music and sounds example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/music_and_sounds.c) lets you try each sound and volume without a game around it. The sounds (`Music.wav`, `Coin.wav`, `Jump.wav`, `Hit.wav`) are in the `Assets` folder of the project template.
+The finished program is in the repository as [examples/lessons/08_sound/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/08_sound/main.c). The [music and sounds example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/music_and_sounds.c) lets you try each sound and volume without a game around it. The sounds (`Music.wav`, `Coin.wav`, `Jump.wav`, `Hit.wav`) are in the `Assets` folder of the project template.
 
 ---
 

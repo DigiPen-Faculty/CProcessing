@@ -10,7 +10,7 @@
 
 **You need:** [Lesson 4](Lesson-04-Input) and [Lesson 5](Lesson-05-Moving-with-Vectors-and-Delta-Time). The player moves the way it did in lesson 5.
 
-The finished program is in the repository as [examples/Lessons/06_collision/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/Lessons/06_collision/main.c). The [collision example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/collision.c) shows the same checks, with shapes that turn red when touched. Run both.
+The finished program is in the repository as [examples/lessons/06_collision/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/06_collision/main.c). The [collision example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/collision.c) shows the same checks, with shapes that turn red when touched. Run both.
 
 ---
 

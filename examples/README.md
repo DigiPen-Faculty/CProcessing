@@ -37,7 +37,7 @@ you want: [state_effects.c](state_effects.c),
 
 ## Lessons
 
-The `Lessons` folder has the finished program for each lesson, one folder
+The `lessons` folder has the finished program for each lesson, one folder
 each (`01_first_window` to `11_state_manager`), with a `main.c` to copy over your own.
 The lessons themselves are on the wiki.
 

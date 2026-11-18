@@ -39,43 +39,43 @@
     <ClInclude Include="third_party\nanovg\src\stb_truetype.h">
       <Filter>NanoVG</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_Random.h">
+    <ClInclude Include="src\Internal_Random.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_Image.h">
+    <ClInclude Include="src\Internal_Image.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_File.h">
+    <ClInclude Include="src\Internal_File.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_Input.h">
+    <ClInclude Include="src\Internal_Input.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_Math.h">
+    <ClInclude Include="src\Internal_Math.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_Text.h">
+    <ClInclude Include="src\Internal_Text.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_Sound.h">
+    <ClInclude Include="src\Internal_Sound.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_Noise.h">
+    <ClInclude Include="src\Internal_Noise.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_InputLogic.h">
+    <ClInclude Include="src\Internal_InputLogic.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_Platform.h">
+    <ClInclude Include="src\Internal_Platform.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_Monitor.h">
+    <ClInclude Include="src\Internal_Monitor.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_GameStateLogic.h">
+    <ClInclude Include="src\Internal_GameStateLogic.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_SoundLogic.h">
+    <ClInclude Include="src\Internal_SoundLogic.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
     <ClInclude Include="inc\cprocessing.h">
@@ -84,7 +84,7 @@
     <ClInclude Include="third_party\vect\vect.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_System.h">
+    <ClInclude Include="src\Internal_System.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
     <ClInclude Include="inc\cprocessing_common.h">
@@ -93,12 +93,12 @@
     <ClInclude Include="third_party\GLAD\glad.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Internal_Resources.h">
+    <ClInclude Include="src\Internal_Resources.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\CP_Random.c">
+    <ClCompile Include="src\CP_Random.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="third_party\nanovg\src\nanovg.c">
@@ -107,40 +107,40 @@
     <ClCompile Include="third_party\nanovg\nanovg_gl3.c">
       <Filter>NanoVG</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CP_Graphics.c">
+    <ClCompile Include="src\CP_Graphics.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CP_Setting.c">
+    <ClCompile Include="src\CP_Setting.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CP_Input.c">
+    <ClCompile Include="src\CP_Input.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CP_Color.c">
+    <ClCompile Include="src\CP_Color.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CP_Math.c">
+    <ClCompile Include="src\CP_Math.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CP_Noise.c">
+    <ClCompile Include="src\CP_Noise.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CP_Text.c">
+    <ClCompile Include="src\CP_Text.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CP_File.c">
+    <ClCompile Include="src\CP_File.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CP_Image.c">
+    <ClCompile Include="src\CP_Image.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CP_Sound.c">
+    <ClCompile Include="src\CP_Sound.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="third_party\vect\vect.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\CP_System.c">
+    <ClCompile Include="src\CP_System.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="third_party\GLAD\glad.c">

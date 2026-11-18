@@ -10,7 +10,7 @@
 
 **You need:** [Lesson 4](Lesson-04-Input) and [Lesson 5](Lesson-05-Moving-with-Vectors-and-Delta-Time). The slime walks the way the player did in lesson 5.
 
-The finished program is in the repository as [examples/Lessons/07_images/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/Lessons/07_images/main.c). The [sprite animation example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/sprite_animation.c) shows the animation part on its own. Run both. The slime and its sprite sheet, `SlimeSheet.png`, are in the `Assets` folder of the project template.
+The finished program is in the repository as [examples/lessons/07_images/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/07_images/main.c). The [sprite animation example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/sprite_animation.c) shows the animation part on its own. Run both. The slime and its sprite sheet, `SlimeSheet.png`, are in the `Assets` folder of the project template.
 
 ---
 
