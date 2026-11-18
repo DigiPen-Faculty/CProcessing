@@ -195,6 +195,7 @@
     <ClCompile Include="Tests\test_internal_platform.c" />
     <ClCompile Include="Tests\test_internal_monitor.c" />
     <ClCompile Include="Tests\test_internal_game_state_logic.c" />
+    <ClCompile Include="Tests\test_internal_sound_logic.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\Unity\unity.h" />

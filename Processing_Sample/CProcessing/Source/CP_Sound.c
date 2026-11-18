@@ -19,6 +19,7 @@
 #include "Internal_Sound.h"
 #include "Internal_File.h"
 #include "Internal_System.h"
+#include "Internal_SoundLogic.h"
 #include "vect.h"
 
 //------------------------------------------------------------------------------
@@ -36,6 +37,9 @@ static int result = 0;
 static vect_CP_Sound* sound_vector = NULL;
 
 static CP_VoiceGroup_Struct voice_groups[CP_SOUND_GROUP_MAX] = { 0 };
+
+// The own volume and pitch of each playing sound (see Internal_SoundLogic.h)
+static CP_SVL_Table voice_table;
 
 //------------------------------------------------------------------------------
 // SoLoud Helper Functions:
@@ -56,6 +60,26 @@ static void SL_Sound_Release(CP_Sound sound)
 //------------------------------------------------------------------------------
 // Internal Functions:
 //------------------------------------------------------------------------------
+
+static bool CP_VoiceIsAlive(void* user, unsigned int handle)
+{
+	(void)user;
+	return Soloud_isValidVoiceHandle(_soloud_system, handle) != 0;
+}
+
+// Give SoLoud a voice's own volume times its group's
+static void CP_ApplyVoiceVolume(void* user, const CP_SVL_Voice* voice)
+{
+	(void)user;
+	Soloud_setVolume(_soloud_system, voice->handle, CP_SVL_Combine(voice->volume, voice_groups[voice->group].volume));
+}
+
+// Give SoLoud a voice's own pitch times its group's
+static void CP_ApplyVoicePitch(void* user, const CP_SVL_Voice* voice)
+{
+	(void)user;
+	Soloud_setRelativePlaySpeed(_soloud_system, voice->handle, CP_SVL_Combine(voice->pitch, voice_groups[voice->group].pitch));
+}
 
 static CP_BOOL CP_IsValidSoundGroup(CP_SOUND_GROUP group)
 {
@@ -86,6 +110,7 @@ void CP_Sound_Init(void)
 {
 	// Allocate the initial vector size for loaded sounds
 	sound_vector = vect_init_CP_Sound(CP_INITIAL_SOUND_CAPACITY);
+	voice_table.count = 0;
 
 	// Default group settings (kept even if no audio device is available so the
 	// group getters still report sensible values)
@@ -296,7 +321,6 @@ CP_API CP_SoundInstance CP_Sound_Play(CP_Sound sound)
 
 CP_API CP_SoundInstance CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_BOOL looping, CP_SOUND_GROUP group)
 {
-	// TODO: handle voice group
 	if (!CP_IsValidSoundGroup(group) || sound == NULL || _soloud_system == NULL)
 	{
 		return 0;
@@ -312,8 +336,12 @@ CP_API CP_SoundInstance CP_Sound_PlayAdvanced(CP_Sound sound, float volume, floa
 		Wav_setLooping(sound->sound, looping);
 	}
 
+	// A negative volume would mean "SoLoud's default" to SoLoud
+	if (volume < 0.0f)
+		volume = 0.0f;
+
 	// Start the sound paused so we can set parameters on it
-	unsigned int voice = Soloud_playEx(_soloud_system, sound->sound, volume * voice_groups[group].volume, 0, TRUE, 0);
+	unsigned int voice = Soloud_playEx(_soloud_system, sound->sound, CP_SVL_Combine(volume, voice_groups[group].volume), 0, TRUE, 0);
 	Soloud_addVoiceToGroup(_soloud_system, voice_groups[group].handle, voice);
 
 	// The voice plays at its own pitch times its group's pitch
@@ -323,11 +351,15 @@ CP_API CP_SoundInstance CP_Sound_PlayAdvanced(CP_Sound sound, float volume, floa
 	// New voices start at 1.0, so only a different speed needs setting.
 	if (pitch < 0.0f)
 		pitch = 0.0f;
-	const float speed = pitch * voice_groups[group].pitch;
+	const float speed = CP_SVL_Combine(pitch, voice_groups[group].pitch);
 	if (speed != 1.0f)
 	{
 		result = Soloud_setRelativePlaySpeed(_soloud_system, voice, speed);
 	}
+
+	// Remember its own volume and pitch, to combine with its group's again
+	// whenever either changes
+	CP_SVL_Add(&voice_table, voice, (int)group, volume, pitch, CP_VoiceIsAlive, NULL);
 
 	// Resume playing the sound
 	Soloud_setPause(_soloud_system, voice, FALSE);
@@ -352,6 +384,7 @@ CP_API void CP_Sound_Stop(CP_SoundInstance instance)
 	if (_soloud_system && instance != 0)
 	{
 		Soloud_stop(_soloud_system, instance);
+		CP_SVL_Remove(&voice_table, instance);
 	}
 }
 
@@ -379,7 +412,13 @@ CP_API void CP_Sound_SetVolume(CP_SoundInstance instance, float volume)
 		{
 			volume = 0.0f;
 		}
-		Soloud_setVolume(_soloud_system, instance, volume);
+		// Its own volume: what is heard is this times its group's
+		CP_SVL_Voice* voice = CP_SVL_Find(&voice_table, instance);
+		if (voice)
+		{
+			voice->volume = volume;
+			CP_ApplyVoiceVolume(NULL, voice);
+		}
 	}
 }
 
@@ -391,7 +430,13 @@ CP_API void CP_Sound_SetPitch(CP_SoundInstance instance, float pitch)
 		{
 			pitch = 0.0f;
 		}
-		Soloud_setRelativePlaySpeed(_soloud_system, instance, pitch);
+		// Its own pitch: what is heard is this times its group's
+		CP_SVL_Voice* voice = CP_SVL_Find(&voice_table, instance);
+		if (voice)
+		{
+			voice->pitch = pitch;
+			CP_ApplyVoicePitch(NULL, voice);
+		}
 	}
 }
 
@@ -451,11 +496,12 @@ CP_API void CP_Sound_SetGroupVolume(CP_SOUND_GROUP group, float volume)
 	}
 	if (CP_IsValidSoundGroup(group))
 	{
+		voice_groups[group].volume = volume;
 		if (_soloud_system)
 		{
-			Soloud_setVolume(_soloud_system, voice_groups[group].handle, volume);
+			// Every sound in the group: its own volume times the new group volume
+			CP_SVL_ApplyToGroup(&voice_table, (int)group, CP_VoiceIsAlive, NULL, CP_ApplyVoiceVolume, NULL);
 		}
-		voice_groups[group].volume = volume;
 	}
 }
 
@@ -476,11 +522,12 @@ CP_API void CP_Sound_SetGroupPitch(CP_SOUND_GROUP group, float pitch)
 	}
 	if (CP_IsValidSoundGroup(group))
 	{
+		voice_groups[group].pitch = pitch;
 		if (_soloud_system)
 		{
-			Soloud_setRelativePlaySpeed(_soloud_system, voice_groups[group].handle, pitch);
+			// Every sound in the group: its own pitch times the new group pitch
+			CP_SVL_ApplyToGroup(&voice_table, (int)group, CP_VoiceIsAlive, NULL, CP_ApplyVoicePitch, NULL);
 		}
-		voice_groups[group].pitch = pitch;
 	}
 }
 
