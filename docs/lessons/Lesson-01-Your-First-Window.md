@@ -10,7 +10,7 @@
 
 **You need:** the CProcessing template, built and running once. [Your first program](Your-first-program) shows how to get it. When you see a circle follow your mouse, you're ready.
 
-The finished program is in the repository as [examples/Lessons/01_first_window/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/Lessons/01_first_window/main.c). Try writing it yourself first, in small steps, and use it to check your work.
+The finished program is in the repository as [examples/lessons/01_first_window/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/01_first_window/main.c). Try writing it yourself first, in small steps, and use it to check your work.
 
 ---
 

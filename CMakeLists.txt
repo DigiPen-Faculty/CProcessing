@@ -136,18 +136,18 @@ set(CP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CProcessing")
 set(CPROCESSING_SOURCES
     "${CP_DIR}/third_party/GLAD/glad.c"
     "${CP_DIR}/third_party/nanovg/src/nanovg.c"
-    "${CP_DIR}/Source/CP_Color.c"
-    "${CP_DIR}/Source/CP_File.c"
-    "${CP_DIR}/Source/CP_Graphics.c"
-    "${CP_DIR}/Source/CP_Image.c"
-    "${CP_DIR}/Source/CP_Input.c"
-    "${CP_DIR}/Source/CP_Math.c"
-    "${CP_DIR}/Source/CP_Noise.c"
-    "${CP_DIR}/Source/CP_Random.c"
-    "${CP_DIR}/Source/CP_Setting.c"
-    "${CP_DIR}/Source/CP_Sound.c"
-    "${CP_DIR}/Source/CP_System.c"
-    "${CP_DIR}/Source/CP_Text.c"
+    "${CP_DIR}/src/CP_Color.c"
+    "${CP_DIR}/src/CP_File.c"
+    "${CP_DIR}/src/CP_Graphics.c"
+    "${CP_DIR}/src/CP_Image.c"
+    "${CP_DIR}/src/CP_Input.c"
+    "${CP_DIR}/src/CP_Math.c"
+    "${CP_DIR}/src/CP_Noise.c"
+    "${CP_DIR}/src/CP_Random.c"
+    "${CP_DIR}/src/CP_Setting.c"
+    "${CP_DIR}/src/CP_Sound.c"
+    "${CP_DIR}/src/CP_System.c"
+    "${CP_DIR}/src/CP_Text.c"
     "${CP_DIR}/third_party/nanovg/nanovg_gl3.c"
     "${CP_DIR}/third_party/vect/vect.c"
 )
@@ -178,7 +178,7 @@ target_include_directories(CProcessing
     PUBLIC
         "$<BUILD_INTERFACE:${CP_DIR}/inc>"
     PRIVATE
-        "${CP_DIR}/Source"
+        "${CP_DIR}/src"
         "${CP_DIR}/third_party/GLAD"
         "${CP_DIR}/third_party/nanovg/src"
         "${CP_DIR}/third_party/vect"
@@ -243,7 +243,7 @@ if(CPROCESSING_BUILD_TESTS)
     target_include_directories(CProcessing_Tests PRIVATE
         "${UNITY_DIR}"
         "${TEST_DIR}/Tests"
-        "${CP_DIR}/Source"               # Internal_InputLogic.h (pure, header-only)
+        "${CP_DIR}/src"               # Internal_InputLogic.h (pure, header-only)
         "${CPROCESSING_GLFW_INCLUDE_DIR}" # GLFW constants used by that header
     )
     target_compile_definitions(CProcessing_Tests PRIVATE UNITY_INCLUDE_DOUBLE)
@@ -308,11 +308,11 @@ endif()
 
 #------------------------------------------------------------------------------
 # Examples: one program per file in examples/, named Example_<file>, and one
-# per folder in examples/Lessons/<folder>/main.c, named Lesson_<folder>
+# per folder in examples/lessons/<folder>/main.c, named Lesson_<folder>
 #------------------------------------------------------------------------------
 if(CPROCESSING_BUILD_EXAMPLES)
     file(GLOB EXAMPLE_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/examples/*.c")
-    file(GLOB LESSON_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/examples/Lessons/*/main.c")
+    file(GLOB LESSON_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/examples/lessons/*/main.c")
 
     set(example_targets "")
     foreach(source ${EXAMPLE_SOURCES} ${LESSON_SOURCES})

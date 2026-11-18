@@ -10,7 +10,7 @@
 
 **You need:** [Lesson 1](Lesson-01-Your-First-Window), or any program that draws a circle.
 
-The finished program is in the repository as [examples/Lessons/02_shapes/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/Lessons/02_shapes/main.c). It's longer than the lesson 1 program because a house has many parts, but every part is the same few ideas again. Try writing your own scene as you go, and use the finished program to check your work.
+The finished program is in the repository as [examples/lessons/02_shapes/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/02_shapes/main.c). It's longer than the lesson 1 program because a house has many parts, but every part is the same few ideas again. Try writing your own scene as you go, and use the finished program to check your work.
 
 ---
 

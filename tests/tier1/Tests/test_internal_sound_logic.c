@@ -1,4 +1,4 @@
-// Tier 1 coverage for Source/Internal_SoundLogic.h: how a sound's own volume
+// Tier 1 coverage for src/Internal_SoundLogic.h: how a sound's own volume
 // and pitch combine with its group's. A small stand-in for SoLoud holds what
 // SoLoud was last given for each voice, and the tests do what CP_Sound.c
 // does with the table: play, change a group, change one sound.

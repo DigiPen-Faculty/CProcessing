@@ -1,5 +1,5 @@
 // Tier 1 coverage for the pure input logic behind CP_Input
-// (Source/Internal_InputLogic.h): edge detection, double-click timing,
+// (src/Internal_InputLogic.h): edge detection, double-click timing,
 // gamepad button mapping, and the trigger/stick conditioning.
 //
 // This is the Phase F split from 06-test-suite-plan.md, done together with

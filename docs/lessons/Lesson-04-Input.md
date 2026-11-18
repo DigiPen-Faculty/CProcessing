@@ -10,7 +10,7 @@
 
 **You need:** [Lesson 1](Lesson-01-Your-First-Window). A gamepad is nice for step 5, but nothing else needs one.
 
-The finished program is in the repository as [examples/Lessons/04_input/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/Lessons/04_input/main.c). Run it first and play with every panel, then read how each one works.
+The finished program is in the repository as [examples/lessons/04_input/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/04_input/main.c). Run it first and play with every panel, then read how each one works.
 
 ---
 

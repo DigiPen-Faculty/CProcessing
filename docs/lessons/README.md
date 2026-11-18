@@ -4,24 +4,24 @@ A learn-by-building path for CProcessing, for self-study or alongside a class. E
 
 | Lesson | Page (a wiki page when released) | Program |
 |---|---|---|
-| 1. Your first window | [Lesson-01-Your-First-Window.md](Lesson-01-Your-First-Window.md) | [examples/Lessons/01_first_window](../../examples/Lessons/01_first_window/main.c) |
-| 2. Shapes and the coordinate system | [Lesson-02-Shapes-and-Coordinates.md](Lesson-02-Shapes-and-Coordinates.md) | [examples/Lessons/02_shapes](../../examples/Lessons/02_shapes/main.c) |
-| 3. Color | [Lesson-03-Color.md](Lesson-03-Color.md) | [examples/Lessons/03_color](../../examples/Lessons/03_color/main.c), and the Color picker demo (6) in `Processing_Demos` |
-| 4. Input | [Lesson-04-Input.md](Lesson-04-Input.md) | [examples/Lessons/04_input](../../examples/Lessons/04_input/main.c) |
-| 5. Moving with vectors and delta time | [Lesson-05-Moving-with-Vectors-and-Delta-Time.md](Lesson-05-Moving-with-Vectors-and-Delta-Time.md) | [examples/Lessons/05_movement](../../examples/Lessons/05_movement/main.c), and [examples/movement.c](../../examples/movement.c) |
-| 6. Collision | [Lesson-06-Collision.md](Lesson-06-Collision.md) | [examples/Lessons/06_collision](../../examples/Lessons/06_collision/main.c), and [examples/collision.c](../../examples/collision.c) |
-| 7. Images and animation | [Lesson-07-Images-and-Animation.md](Lesson-07-Images-and-Animation.md) | [examples/Lessons/07_images](../../examples/Lessons/07_images/main.c), and [examples/sprite_animation.c](../../examples/sprite_animation.c) |
-| 8. Sound | [Lesson-08-Sound.md](Lesson-08-Sound.md) | [examples/Lessons/08_sound](../../examples/Lessons/08_sound/main.c), and [examples/music_and_sounds.c](../../examples/music_and_sounds.c) |
-| 9. Game states | [Lesson-09-Game-States.md](Lesson-09-Game-States.md) | [examples/Lessons/09_game_states](../../examples/Lessons/09_game_states/main.c), and [examples/game_states.c](../../examples/game_states.c) |
-| 10. Capstone: Slime Snacks | [Lesson-10-Capstone.md](Lesson-10-Capstone.md) | [examples/Lessons/10_capstone](../../examples/Lessons/10_capstone/main.c) |
-| 11. Your own state manager (an extra) | [Lesson-11-Your-Own-State-Manager.md](Lesson-11-Your-Own-State-Manager.md) | [examples/Lessons/11_state_manager](../../examples/Lessons/11_state_manager/main.c) |
+| 1. Your first window | [Lesson-01-Your-First-Window.md](Lesson-01-Your-First-Window.md) | [examples/lessons/01_first_window](../../examples/lessons/01_first_window/main.c) |
+| 2. Shapes and the coordinate system | [Lesson-02-Shapes-and-Coordinates.md](Lesson-02-Shapes-and-Coordinates.md) | [examples/lessons/02_shapes](../../examples/lessons/02_shapes/main.c) |
+| 3. Color | [Lesson-03-Color.md](Lesson-03-Color.md) | [examples/lessons/03_color](../../examples/lessons/03_color/main.c), and the Color picker demo (6) in `Processing_Demos` |
+| 4. Input | [Lesson-04-Input.md](Lesson-04-Input.md) | [examples/lessons/04_input](../../examples/lessons/04_input/main.c) |
+| 5. Moving with vectors and delta time | [Lesson-05-Moving-with-Vectors-and-Delta-Time.md](Lesson-05-Moving-with-Vectors-and-Delta-Time.md) | [examples/lessons/05_movement](../../examples/lessons/05_movement/main.c), and [examples/movement.c](../../examples/movement.c) |
+| 6. Collision | [Lesson-06-Collision.md](Lesson-06-Collision.md) | [examples/lessons/06_collision](../../examples/lessons/06_collision/main.c), and [examples/collision.c](../../examples/collision.c) |
+| 7. Images and animation | [Lesson-07-Images-and-Animation.md](Lesson-07-Images-and-Animation.md) | [examples/lessons/07_images](../../examples/lessons/07_images/main.c), and [examples/sprite_animation.c](../../examples/sprite_animation.c) |
+| 8. Sound | [Lesson-08-Sound.md](Lesson-08-Sound.md) | [examples/lessons/08_sound](../../examples/lessons/08_sound/main.c), and [examples/music_and_sounds.c](../../examples/music_and_sounds.c) |
+| 9. Game states | [Lesson-09-Game-States.md](Lesson-09-Game-States.md) | [examples/lessons/09_game_states](../../examples/lessons/09_game_states/main.c), and [examples/game_states.c](../../examples/game_states.c) |
+| 10. Capstone: Slime Snacks | [Lesson-10-Capstone.md](Lesson-10-Capstone.md) | [examples/lessons/10_capstone](../../examples/lessons/10_capstone/main.c) |
+| 11. Your own state manager (an extra) | [Lesson-11-Your-Own-State-Manager.md](Lesson-11-Your-Own-State-Manager.md) | [examples/lessons/11_state_manager](../../examples/lessons/11_state_manager/main.c) |
 
 Lessons 2 and 4 to 11 were written before lessons 1 and 3 had been tried with students, and use the same format, so notes from the pilot may change all of them.
 
 ## Decisions
 
 * **Where the prose lives.** The wiki is what students read, and it must match the release students are using (see [Releases and the live wiki](#releases-and-the-live-wiki)). So the lessons are written here, reviewed in pull requests like code, and copied to the wiki with the release that has the features they use. The images are in `images/`.
-* **Where the code lives.** `examples/Lessons/NN_name/main.c`: one complete program per lesson, copied over the template's `main.c` to run, like the other examples. CMake builds each one as `Lesson_NN_name` with warnings as errors, so CI checks them on every platform. They ship in the `Examples` folder of every release package.
+* **Where the code lives.** `examples/lessons/NN_name/main.c`: one complete program per lesson, copied over the template's `main.c` to run, like the other examples. CMake builds each one as `Lesson_NN_name` with warnings as errors, so CI checks them on every platform. They ship in the `Examples` folder of every release package.
 * **Solutions.** The "make it yours" challenges have no single right answer (they're about choices), so there are no solution files. The finished lesson program is public. If a course wants graded exercises with solutions, those belong with the course.
 * **Numbering.** Lessons keep their final numbers (1 and 3 first), so links don't change when the others arrive. Lesson 3 doesn't need lesson 2: it uses circles and rectangles, which lesson 1 introduces.
 * **Pause in lesson 9 and the capstone.** Both push the pause on top of the game with `CP_Engine_PushGameState` and take it off with `CP_Engine_PopGameState`, as `game_states.c` does. The lesson teaches states as cards on a table: `SetNextGameState` clears the table for a new part of the game, and `PushGameState` puts a card on top when the game stays where it is. A plain push needs no extra calls (the game underneath is frozen and visible by default), so it's no harder than a flag, and it avoids the `resuming` flag that pausing with `SetNextGameState` needed. The flag version stays in the lesson as a short "another way", because students will see it in other code.
