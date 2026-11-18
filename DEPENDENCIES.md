@@ -84,6 +84,25 @@ patched line is marked with a `// CProcessing:` comment, and
 [tools/nanovg_diff.sh](tools/nanovg_diff.sh) prints the exact difference
 from the upstream commit.
 
+## Finding out what is new
+
+`tools/check_dependencies.py` compares every pin in this repository (GLFW,
+SoLoud, miniaudio, NanoVG, stb, Unity, GLAD, the pinned clang-format and the
+Mesa used by the Windows CI) with upstream and prints a table of what is
+newer, and for the commit-pinned ones how many commits behind and whether the
+files we vendor changed. It only reports; deciding to update is yours.
+
+* Run it any time: `python tools/check_dependencies.py` (set `GITHUB_TOKEN`
+  to avoid GitHub's low anonymous limit).
+* The `dependency check` workflow runs it every Monday and keeps one open
+  issue, "Upstream dependency updates", while anything pinned has a newer
+  version (it closes the issue when everything is current again). A
+  schedule only runs from the default branch, so this starts with the
+  release that brings `main` up to date.
+* GitHub Actions versions are updated by Dependabot, not by this.
+* GLAD is shown for information only: the 0.1 generator is frozen, and the
+  header changes only if we regenerate it for another OpenGL version.
+
 ## How to update a dependency
 
 ### GLFW, SoLoud or miniaudio
