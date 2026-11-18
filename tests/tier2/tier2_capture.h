@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Tier 2 engine harness (06-test-suite-plan.md Phase D/E).
 //
 // CP_Engine_Run() can only be called once per process (CP_System.c:97-101

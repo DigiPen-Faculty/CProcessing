@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // See tier2_capture.h for the overall approach. Each Scn_* function below
 // issues exactly one scenario's worth of draw calls (ClearBackground plus
 // whatever it wants to test); RunScenario() wraps it with a screenshot and

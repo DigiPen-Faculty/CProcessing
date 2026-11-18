@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Tier 1 coverage for CP_Math -- pure, stateless functions only.
 // CP_Math_ScreenToWorld/WorldToScreen are excluded: they read the current
 // nanovg transform from the live engine core and belong in the Tier 2

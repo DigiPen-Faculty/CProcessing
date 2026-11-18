@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 # Assemble a Linux or macOS release package: the CMake starter project
 # (templates/cmake) with a prebuilt CProcessing library.
 #

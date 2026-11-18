@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 <#
 .SYNOPSIS
     Rebuilds the prebuilt GLFW and SoLoud libraries used by the Visual Studio

@@ -18,6 +18,9 @@
 // - Count how many shapes the player touches and show the number.
 //
 // To run it, copy this file over the template's main.c.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

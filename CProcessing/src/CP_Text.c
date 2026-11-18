@@ -4,7 +4,7 @@
 // brief:	Text functions for loading fonts and drawing text
 //
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019-2026 DigiPen Institute of Technology
+// Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------

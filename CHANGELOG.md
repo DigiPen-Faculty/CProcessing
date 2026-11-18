@@ -272,10 +272,16 @@ Each change says what to do in an existing project.
   the width across, not the radius). Only the parameter name changed: nothing
   to do in existing programs.
 - **Every CProcessing source file now says it's MIT licensed**, matching
-  `LICENSE`: `SPDX-License-Identifier: MIT` and `Copyright (c) 2019-2026
-  DigiPen Institute of Technology`. Before, the files said "All rights
-  reserved" and the internal headers said "do not distribute", which
-  contradicted the license the project has always been published under.
+  `LICENSE`: `SPDX-License-Identifier: MIT` and `Copyright (c) <years>
+  DigiPen Institute of Technology and CProcessing contributors`. This covers
+  the library, the demos, the examples and lessons, the tests and the
+  scripts (CI checks it with `tools/check_license_headers.py`); the bundled
+  libraries keep their own licenses, and the built-in font data says
+  `OFL-1.1`. Before, the library's files said "All rights reserved" and the
+  internal headers said "do not distribute", which contradicted the license
+  the project has always been published under. An example you copy over
+  `main.c` keeps its two header lines (the MIT license asks for the notice to
+  stay with copies of the code); your own changes are yours.
 - **The template's `main.c` belongs to the student:** its header has
   places for your name and what the program does, and no longer claims
   DigiPen's copyright. A course that requires its own header can add it.

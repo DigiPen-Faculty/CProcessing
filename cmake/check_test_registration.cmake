@@ -7,7 +7,7 @@
 #   cmake -DTESTS_DIR=<folder> -DMAIN_FILE=<file> -DHEADER=<file> -P check_test_registration.cmake
 #
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2019-2026 DigiPen Institute of Technology
+# Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
 
 foreach(required TESTS_DIR MAIN_FILE HEADER)
     if(NOT DEFINED ${required})

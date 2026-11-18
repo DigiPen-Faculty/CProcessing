@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 """Check that every function in the public header is defined with the same
 return type and parameter names.
 

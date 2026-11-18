@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Tier 1 coverage for CP_Color -- all 7 functions are pure struct math
 // with no GL dependency (CP_Color.c), despite being "graphics-adjacent".
 #include "unity.h"

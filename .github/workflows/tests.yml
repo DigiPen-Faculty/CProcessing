@@ -70,6 +70,9 @@ jobs:
       - name: Check that folder and file names follow the naming rule
         run: python3 tools/check_layout.py
 
+      - name: Check that every source file has the license header
+        run: python3 tools/check_license_headers.py
+
   windows-msbuild:
     runs-on: windows-2025
     timeout-minutes: 30

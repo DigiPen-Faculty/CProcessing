@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Entry point for the CProcessing_Tests_Tier2 executable.
 //
 // tier2_RunCaptureOnce() drives the ONE AND ONLY CP_Engine_Run() call this

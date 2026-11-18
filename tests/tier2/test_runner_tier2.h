@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Prototypes for every Tier 2 Unity test function, grouped by the
 // source file that defines them. See tier2_capture.h for why these
 // never call into the engine themselves.

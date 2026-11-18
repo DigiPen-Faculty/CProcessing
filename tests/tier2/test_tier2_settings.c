@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Assertions against the pixel buffers tier2_capture.c already captured.
 // See tier2_capture.c for the worked coordinate geometry behind each
 // sample point used here.

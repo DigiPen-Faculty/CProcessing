@@ -20,6 +20,9 @@
 // - Add a second tree, a moon, or a car on the path.
 // - Make the fence longer, or turn it into a row of tall and short pickets.
 // - Draw the sun with CP_Graphics_DrawPie and rays around it.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

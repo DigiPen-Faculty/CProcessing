@@ -4,7 +4,7 @@
 // brief:	Helpful file IO functions
 //
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019-2026 DigiPen Institute of Technology
+// Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------

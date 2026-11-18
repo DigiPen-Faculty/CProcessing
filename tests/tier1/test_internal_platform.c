@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Tier 1 coverage for src/Internal_Platform.h, the small portability
 // layer that replaced MSVC-only APIs (strcpy_s, MAX_PATH, ...) so the
 // library builds on Linux and macOS. CP_StringCopy fills the image, sound

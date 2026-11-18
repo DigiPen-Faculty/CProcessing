@@ -22,6 +22,9 @@
 // - Make the player bigger while Shift is held, and faster too.
 // - Add a second player that moves with the other keys.
 // - Make the player slow down gradually instead of stopping at once.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

@@ -13,7 +13,7 @@
 // SPDX-License-Identifier: MIT
 // MIT License
 // 
-// Copyright (c) 2019-2026 DigiPen Institute of Technology
+// Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal

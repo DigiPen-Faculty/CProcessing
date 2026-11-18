@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Bounding-box/occupancy checks rather than pixel-perfect glyph
 // comparisons -- see Scn_FontDrawText / Scn_FontLoadFree in
 // tier2_capture.c and the Tier 2 notes in 06-test-suite-plan.md for why.

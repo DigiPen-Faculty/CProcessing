@@ -32,6 +32,9 @@
 // - Give coins different values by color.
 // - Add a second level: after 20 coins the arena gets a wall (lesson 6).
 // - Save the best score to a file, so it is still there next time.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

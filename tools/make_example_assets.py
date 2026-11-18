@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 """Make the sprite sheet, music and sound effects the examples use.
 
     python tools/make_example_assets.py

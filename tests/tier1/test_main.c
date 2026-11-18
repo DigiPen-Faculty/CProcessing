@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Single entry point for the CProcessing_Tests executable. Unity expects
 // exactly one setUp/tearDown pair linked into the binary, and one place
 // that lists every RUN_TEST -- this is that place. Test functions

@@ -3,6 +3,9 @@
 //
 // Switches between the demos, and handles the keys that work in all of
 // them. The keys are listed in a bar at the bottom of the window.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include <stdio.h>

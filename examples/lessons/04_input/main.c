@@ -17,6 +17,9 @@
 // - Add lamps for a second key.
 // - Make a click leave a ring in a different color for the right mouse button.
 // - Show the name of the gamepad button that was pressed last.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

@@ -21,6 +21,9 @@
 // - Keep a list of the last five names entered.
 //
 // To run it, copy this file over the template's main.c.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"

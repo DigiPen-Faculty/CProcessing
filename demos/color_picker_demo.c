@@ -17,6 +17,9 @@
 // CP_Color_FromColorHSL			- convert HSL to RGB
 // CP_ColorHSL_FromColor			- convert RGB to HSL
 // CP_Input_MouseDown				- drag the sliders
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include <stdio.h>

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Tier 1 coverage for CP_Vector -- all 15 functions are pure.
 //
 // CP_Vector_Angle/AngleCW/AngleCCW look similar from their signatures but

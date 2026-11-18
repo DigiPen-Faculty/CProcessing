@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
+
 // Assertions about the game state stack, from Scn_GameStateStack in
 // tier2_capture.c: states pushed on top of the harness, the picture they
 // make together, and the order their inits and exits ran in.

@@ -4,7 +4,7 @@
 // brief:	Primary implementation of the CProcessing interface
 //
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019-2026 DigiPen Institute of Technology
+// Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 // nanosleep is POSIX, which a strict -std=c11 hides. (Only then: defining a

@@ -22,6 +22,9 @@
 // - Give the player three lives, and end the game when they are gone.
 // - Add a wall that moves.
 // - Make each coin worth a different amount, by its size.
+//
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
 #include "cprocessing.h"
