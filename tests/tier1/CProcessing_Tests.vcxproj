@@ -71,25 +71,25 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)ThirdParty\Unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\Source\;$(SolutionDir)CProcessing\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\Source\;$(SolutionDir)CProcessing\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)CProcessing\lib\x86\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>Intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)ThirdParty\Unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\Source\;$(SolutionDir)CProcessing\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\Source\;$(SolutionDir)CProcessing\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)CProcessing\lib\x86\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>Intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)ThirdParty\Unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\Source\;$(SolutionDir)CProcessing\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\Source\;$(SolutionDir)CProcessing\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)CProcessing\lib\x64\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>Intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)ThirdParty\Unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\Source\;$(SolutionDir)CProcessing\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\Source\;$(SolutionDir)CProcessing\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)CProcessing\lib\x64\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>Intermediate\$(Platform)\$(Configuration)\</IntDir>
@@ -111,7 +111,7 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)..\CProcessing\lib\x86\CProcessingd.dll" "$(OutDir)" /s /r /y /q</Command>
+      <Command>xcopy "$(SolutionDir)CProcessing\lib\x86\CProcessingd.dll" "$(OutDir)" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -135,7 +135,7 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)..\CProcessing\lib\x86\CProcessing.dll" "$(OutDir)" /s /r /y /q</Command>
+      <Command>xcopy "$(SolutionDir)CProcessing\lib\x86\CProcessing.dll" "$(OutDir)" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -155,7 +155,7 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)..\CProcessing\lib\x64\CProcessingd.dll" "$(OutDir)" /s /r /y /q</Command>
+      <Command>xcopy "$(SolutionDir)CProcessing\lib\x64\CProcessingd.dll" "$(OutDir)" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -179,11 +179,11 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)..\CProcessing\lib\x64\CProcessing.dll" "$(OutDir)" /s /r /y /q</Command>
+      <Command>xcopy "$(SolutionDir)CProcessing\lib\x64\CProcessing.dll" "$(OutDir)" /s /r /y /q</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ThirdParty\Unity\unity.c" />
+    <ClCompile Include="..\unity\unity.c" />
     <ClCompile Include="Tests\test_main.c" />
     <ClCompile Include="Tests\test_smoke.c" />
     <ClCompile Include="Tests\test_cp_math.c" />
@@ -198,8 +198,8 @@
     <ClCompile Include="Tests\test_internal_sound_logic.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ThirdParty\Unity\unity.h" />
-    <ClInclude Include="ThirdParty\Unity\unity_internals.h" />
+    <ClInclude Include="..\unity\unity.h" />
+    <ClInclude Include="..\unity\unity_internals.h" />
     <ClInclude Include="Tests\test_runner.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

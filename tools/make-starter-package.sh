@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Assemble a Linux or macOS release package: the CMake starter project
-# (Processing_Empty_CMake) with a prebuilt CProcessing library.
+# (templates/cmake) with a prebuilt CProcessing library.
 #
 #   tools/make-starter-package.sh <built library> <output .zip>
 #
@@ -30,13 +30,13 @@ trap 'rm -rf "$stage"' EXIT
 pkg="$stage/CProcessingTemplate"
 
 mkdir -p "$pkg/CProcessing/inc" "$pkg/CProcessing/lib"
-cp -R "$repo/Processing_Empty_CMake/." "$pkg/"
+cp -R "$repo/templates/cmake/." "$pkg/"
 rm -rf "$pkg/build"
-cp -R "$repo/Processing_Empty/Assets/." "$pkg/Assets/"
-cp -R "$repo/Examples" "$pkg/Examples"
-cp "$repo"/Processing_Sample/CProcessing/inc/cprocessing*.h "$pkg/CProcessing/inc/"
+cp -R "$repo/templates/vs/Assets/." "$pkg/Assets/"
+cp -R "$repo/examples" "$pkg/Examples"
+cp "$repo"/CProcessing/inc/cprocessing*.h "$pkg/CProcessing/inc/"
 cp "$lib" "$pkg/CProcessing/lib/"
-cp "$repo/Processing_Sample/Assets/Exo2_license.txt" "$pkg/CProcessing/"
+cp "$repo/demos/Assets/Exo2_license.txt" "$pkg/CProcessing/"
 
 rm -f "$out"
 (cd "$stage" && cmake -E tar cf "$out" --format=zip CProcessingTemplate)

@@ -10,7 +10,7 @@
 
 **You need:** [Lesson 1](Lesson-01-Your-First-Window) and [Lesson 4](Lesson-04-Input) (you'll use `KeyDown`).
 
-The finished program is in the repository as [Examples/Lessons/05_movement/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/Lessons/05_movement/main.c). Run it first and press 1, 2 and 3.
+The finished program is in the repository as [examples/Lessons/05_movement/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/Lessons/05_movement/main.c). Run it first and press 1, 2 and 3.
 
 ---
 

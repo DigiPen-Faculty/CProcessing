@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 root = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).resolve().parent.parent)
-lib = root / "Processing_Sample" / "CProcessing"
+lib = root / "CProcessing"
 
 PATTERN = re.compile(r"CP_API\s+([\w\s\*]+?)\s*\b(CP_\w+)\s*\(([^)]*)\)\s*([;{]?)")
 

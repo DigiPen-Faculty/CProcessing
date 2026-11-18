@@ -12,22 +12,36 @@ Most students only need the
 [latest release](https://github.com/DigiPen-Faculty/CProcessing/releases)
 template project. This page is for building CProcessing itself.
 
+## Repository layout
+
+| Folder | What is in it |
+|---|---|
+| `CProcessing/` | The library: `Source/`, the public headers in `inc/`, and the bundled libraries (`GLAD/`, `GLFW/`, `nanovg/`, `soloud/`). |
+| `CProcessing.sln` | The Visual Studio solution. |
+| `examples/` | Small complete programs, and `Lessons/`, one program per lesson. |
+| `demos/` | The demo program, `Processing_Demos`, with its `Assets/`. |
+| `templates/vs/`, `templates/cmake/` | The student templates for Visual Studio and for CMake (Linux, macOS, or Windows). |
+| `tests/` | `tier1/` and `tier2/` (the two test programs) and `unity/` (the test framework they share). |
+| `docs/`, `tools/`, `cmake/` | The lessons, helper scripts (including `BuildReleasePackage.bat`), and CMake modules. |
+
+The release packages students download have their own layout (a `CProcessingTemplate/` folder with `CProcessing/`, `Assets/` and `Examples/`), which doesn't follow these folder names.
+
 ## Windows: Visual Studio solution
 
-Open `Processing_Sample/Processing_Sample.sln` in Visual Studio 2026 and
+Open `CProcessing.sln` in Visual Studio 2026 and
 build. The projects use Visual Studio 2026's compiler (platform toolset
 v145), as does the student template. The solution contains:
 
-| Project | What it is |
-|---|---|
-| `CProcessing` | The library: `CProcessing.dll`, or `CProcessingd.dll` for Debug. |
-| `Processing_Sample` | The demo program, `Processing_Demos`. Press 1–6 to switch demos, F for fullscreen, M to change the mouse cursor mode, C to show or hide the console, H to hide the key bar at the bottom, Escape to quit. |
-| `CProcessing_Tests` | Tier 1 tests: pure functions, no window needed. |
-| `CProcessing_Tests_Tier2` | Tier 2 tests: drives the real engine and checks the rendered pixels. |
+| Project | Folder | What it is |
+|---|---|---|
+| `CProcessing` | `CProcessing/` | The library: `CProcessing.dll`, or `CProcessingd.dll` for Debug. |
+| `Processing_Demos` | `demos/` | The demo program. Press 1–6 to switch demos, F for fullscreen, M to change the mouse cursor mode, C to show or hide the console, H to hide the key bar at the bottom, Escape to quit. |
+| `CProcessing_Tests` | `tests/tier1/` | Tier 1 tests: pure functions, no window needed. |
+| `CProcessing_Tests_Tier2` | `tests/tier2/` | Tier 2 tests: drives the real engine and checks the rendered pixels. |
 
 ### The Visual Studio template
 
-`Processing_Empty/` is the student template, `CProcessingTemplate.zip` on
+`templates/vs/` is the student template, `CProcessingTemplate.zip` on
 the Releases page. Its `CProcessing` folder (the headers and the built
 DLLs) isn't in the repository; the Release workflow builds it fresh for
 every package. To try the template locally, build the library in all four
@@ -35,11 +49,11 @@ configurations and package it, from a Visual Studio 2026 Developer Command
 Prompt at the repository root:
 
 ```bat
-BuildReleasePackage.bat -r all -c -z
+tools\BuildReleasePackage.bat -r all -c -z
 ```
 
-`-c` copies the headers and DLLs into `Processing_Empty/CProcessing`, so
-`Processing_Empty/MyGame.sln` builds. `-z` writes the zip students download
+`-c` copies the headers and DLLs into `templates/vs/CProcessing`, so
+`templates/vs/MyGame.sln` builds. `-z` writes the zip students download
 to `Releases/CProcessingTemplate.zip`.
 
 ## Any platform: CMake
@@ -138,7 +152,7 @@ Pass options to the configure step with `-D`, for example
 | `CMAKE_BUILD_TYPE` | `Release` | `Debug` or `Release`, for single-configuration generators. |
 | `CPROCESSING_BUILD_SHARED` | `ON` | Build a shared library (`.dll`/`.so`/`.dylib`). Set `OFF` for a static library. |
 | `CPROCESSING_BUILD_DEMOS` | `ON`* | Build `Processing_Demos`. |
-| `CPROCESSING_BUILD_EXAMPLES` | `ON`* | Build each program in `Examples/`, as `Example_movement` and so on. |
+| `CPROCESSING_BUILD_EXAMPLES` | `ON`* | Build each program in `examples/`, as `Example_movement` and so on. |
 | `CPROCESSING_BUILD_TESTS` | `ON`* | Build the Tier 1 and Tier 2 tests. |
 | `CPROCESSING_WARNINGS_AS_ERRORS` | `OFF` | Treat warnings in CProcessing's own code as errors. CI turns this on. |
 
@@ -149,7 +163,7 @@ default.
 ## Using CProcessing in your own CMake project
 
 The easiest start is the CMake starter project in
-[`Processing_Empty_CMake/`](Processing_Empty_CMake/). Copy the folder and
+[`templates/cmake/`](templates/cmake/). Copy the folder and
 follow its README. It's also on the
 [Releases page](https://github.com/DigiPen-Faculty/CProcessing/releases) for
 Linux and macOS, with the library already built:
@@ -178,7 +192,7 @@ it does in the Visual Studio template.
 CProcessing can be used from C++ as well as C: the headers are wrapped in
 `extern "C"`, and CI compiles the examples and lessons as C++11 with
 `-Wpedantic` (or `/permissive-` with MSVC) and runs a small C++ program
-against the library (`Processing_Sample/CProcessing_Tests/Cxx`).
+against the library (`tests/tier1/Cxx`).
 
 To build against a local copy of CProcessing instead of the download, add
 `-DFETCHCONTENT_SOURCE_DIR_CPROCESSING=/path/to/CProcessing` when configuring.
@@ -227,9 +241,9 @@ To build against a local copy of CProcessing instead of the download, add
 
 1. **Set the version** in three places:
    - `CP_VERSION_MAJOR/MINOR/PATCH` in
-     `Processing_Sample/CProcessing/inc/cprocessing_common.h`. CMake reads
+     `CProcessing/inc/cprocessing_common.h`. CMake reads
      its version from these.
-   - The download tag in `Processing_Empty_CMake/CMakeLists.txt`.
+   - The download tag in `templates/cmake/CMakeLists.txt`.
    - The newest section heading in `CHANGELOG.md`, with the release date
      replacing "(unreleased)".
 2. **Optionally, check the packages** by running the Release workflow by hand

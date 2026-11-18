@@ -10,7 +10,7 @@
 
 **You need:** [Lesson 1](Lesson-01-Your-First-Window). A gamepad is nice for step 5, but nothing else needs one.
 
-The finished program is in the repository as [Examples/Lessons/04_input/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/Lessons/04_input/main.c). Run it first and play with every panel, then read how each one works.
+The finished program is in the repository as [examples/Lessons/04_input/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/Lessons/04_input/main.c). Run it first and play with every panel, then read how each one works.
 
 ---
 
@@ -140,7 +140,7 @@ if (CP_Input_KeyTriggered(CP_KEY_BACKSPACE) && strlen(typedText) > 0)
 }
 ```
 
-(`'\0'` is the end of a string, so putting one on the last letter cuts it off.) This version only handles plain letters. [Examples/text_input.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/text_input.c) also deletes accented letters correctly, finishes with Enter and draws a blinking cursor.
+(`'\0'` is the end of a string, so putting one on the last letter cuts it off.) This version only handles plain letters. [examples/text_input.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/text_input.c) also deletes accented letters correctly, finishes with Enter and draws a blinking cursor.
 
 > **Try it:** make the text turn red when it gets longer than 10 letters.
 
@@ -186,7 +186,7 @@ CP_BOOL goLeft = CP_Input_KeyDown(CP_KEY_LEFT) || CP_Input_KeyDown(CP_KEY_A)
 	|| CP_Input_GamepadLeftStick().x < -0.5f;
 ```
 
-Everything after that line only asks "is the player going left?". [Lesson 5](Lesson-05-Moving-with-Vectors-and-Delta-Time) builds the whole thing for movement, and the [movement example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/movement.c) already does it.
+Everything after that line only asks "is the player going left?". [Lesson 5](Lesson-05-Moving-with-Vectors-and-Delta-Time) builds the whole thing for movement, and the [movement example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/movement.c) already does it.
 
 Never make a gamepad the *only* way to play, since a gamepad might not be plugged in.
 

@@ -10,7 +10,7 @@
 
 **You need:** [Lessons 1 to 9](README). This lesson doesn't teach anything new. It uses everything.
 
-The finished program is in the repository as [Examples/Lessons/10_capstone/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/Examples/Lessons/10_capstone/main.c). It is about 500 lines, and **you have seen every kind of line in it before**. Run it first, play it for a minute, and then read this page with the code open next to it.
+The finished program is in the repository as [examples/Lessons/10_capstone/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/Lessons/10_capstone/main.c). It is about 500 lines, and **you have seen every kind of line in it before**. Run it first, play it for a minute, and then read this page with the code open next to it.
 
 ---
 
