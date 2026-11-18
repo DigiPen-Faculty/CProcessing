@@ -126,7 +126,7 @@ typedef struct CP_Report
 } CP_Report;
 
 void CP_Report_AddLine(CP_Report* report, const char* format, ...);
-// "  image  Assets/logo.png: 3 loads not freed", with a hint when there are many
+// "  image  assets/logo.png: 3 loads not freed", with a hint when there are many
 void CP_Report_AddAsset(CP_Report* report, const char* kind, const char* filepath, int loads);
 
 // Each adds a line to the report for every asset still loaded

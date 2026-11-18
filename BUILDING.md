@@ -16,15 +16,15 @@ template project. This page is for building CProcessing itself.
 
 | Folder | What is in it |
 |---|---|
-| `CProcessing/` | The library: `src/` (our code), the public headers in `inc/`, and `third_party/` (the bundled libraries: `GLAD/`, `GLFW/`, `nanovg/`, `soloud/`, `vect/`). |
+| `CProcessing/` | The library: `src/` (our code), the public headers in `inc/`, and `third_party/` (the bundled libraries: `glad/`, `glfw/`, `nanovg/`, `soloud/`, `vect/`). |
 | `CProcessing.sln` | The Visual Studio solution. |
 | `examples/` | Small complete programs, and `lessons/`, one program per lesson. |
-| `demos/` | The demo program, `CProcessing_Demos`, with its `Assets/`. |
+| `demos/` | The demo program, `CProcessing_Demos`, with its `assets/`. |
 | `templates/vs/`, `templates/cmake/` | The student templates for Visual Studio and for CMake (Linux, macOS, or Windows). |
 | `tests/` | `tier1/` and `tier2/` (the two test programs) and `unity/` (the test framework they share). |
 | `docs/`, `tools/`, `cmake/` | The lessons, helper scripts (including `build_release_package.bat`), and CMake modules. |
 
-The release packages students download have their own layout (a `CProcessingTemplate/` folder with `CProcessing/`, `Assets/` and `Examples/`), which doesn't follow these folder names.
+The release packages students download hold one `CProcessingTemplate/` folder with `CProcessing/` (the headers and the library), `assets/` and `examples/`, and the project files.
 
 ## Windows: Visual Studio solution
 
@@ -106,12 +106,12 @@ Visual Studio generators hold several configurations at once.
 
 Everything ends up in one folder: `build/bin`, or `build/bin/Release` with
 Visual Studio generators. That folder holds the CProcessing library, the
-`CProcessing_Demos` program, both test programs and an `Assets` folder.
+`CProcessing_Demos` program, both test programs and an `assets` folder.
 
 ### Run the demos
 
 CProcessing looks for assets from the **current working directory**, and
-then next to the program, so the demos find their `Assets` folder however
+then next to the program, so the demos find their `assets` folder however
 they're started. From a terminal:
 
 ```sh
@@ -183,7 +183,7 @@ FetchContent_MakeAvailable(cprocessing)
 target_link_libraries(MyGame PRIVATE CProcessing::CProcessing)
 ```
 
-The game also needs the CProcessing library and its `Assets` folder next to
+The game also needs the CProcessing library and its `assets` folder next to
 it. The starter's `CMakeLists.txt` shows how to set that up, along with the
 output folder, the library search path on Linux and macOS, and a window
 without a console on Windows. `#include "cprocessing.h"` then works exactly as

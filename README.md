@@ -31,7 +31,7 @@
 The library is offered under the [MIT License](https://github.com/DigiPen-Faculty/CProcessing/blob/main/LICENSE).
 
 Default font, built into the library:
-* Exo 2 by Natanael Gama - licensed under the [SIL Open Font License 1.1](demos/Assets/Exo2_license.txt)
+* Exo 2 by Natanael Gama - licensed under the [SIL Open Font License 1.1](demos/assets/Exo2_license.txt)
 
 ## Acknowledgment
 * [NanoVG](https://github.com/memononen/nanovg) by Mikko Mononen

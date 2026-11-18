@@ -1,5 +1,5 @@
 // Assertions against data tier2_capture.c already captured. See
-// Scn_ImageLoadAndDraw / Scn_ImageSubImage there for how Assets/quadrants.png
+// Scn_ImageLoadAndDraw / Scn_ImageSubImage there for how assets/quadrants.png
 // (a 4x4 fixture: TL=red, TR=green, BL=blue, BR=yellow) was used.
 #include <string.h>
 #include "unity.h"
@@ -44,7 +44,7 @@ void test_tier2_assets_still_loaded_are_reported_at_exit(void)
 {
 	const char* report = tier2_scalars.exitReport;
 	TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "still loaded when the program ended"), report);
-	TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "Assets/quadrants16.png: 2 loads not freed"), report);
+	TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "assets/quadrants16.png: 2 loads not freed"), report);
 	TEST_ASSERT_NOT_NULL_MESSAGE(strstr(report, "1 made with CP_Image_Create, CP_Image_CreateFromData or CP_Image_Screenshot"), report);
 }
 

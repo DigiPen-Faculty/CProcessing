@@ -24,7 +24,7 @@
 //             top of play
 //
 // To run it, copy this file over the template's main.c. It needs
-// SlimeSheet.png, Music.wav, Coin.wav and Hit.wav in the Assets folder,
+// SlimeSheet.png, Music.wav, Coin.wav and Hit.wav in the assets folder,
 // which the template includes.
 //
 // Try this:
@@ -97,7 +97,7 @@ CP_Image menuSheet;
 void menu_init(void)
 {
 	stateTime = 0.0f;
-	menuSheet = CP_Image_Load("Assets/SlimeSheet.png");
+	menuSheet = CP_Image_Load("assets/SlimeSheet.png");
 }
 
 void menu_update(void)
@@ -208,10 +208,10 @@ void play_init(void)
 	stateTime = 0.0f;
 
 	// Load what the game needs. play_exit frees all of it.
-	slimeSheet = CP_Image_Load("Assets/SlimeSheet.png");
-	music = CP_Sound_LoadStream("Assets/Music.wav");
-	coinSound = CP_Sound_Load("Assets/Coin.wav");
-	hitSound = CP_Sound_Load("Assets/Hit.wav");
+	slimeSheet = CP_Image_Load("assets/SlimeSheet.png");
+	music = CP_Sound_LoadStream("assets/Music.wav");
+	coinSound = CP_Sound_Load("assets/Coin.wav");
+	hitSound = CP_Sound_Load("assets/Hit.wav");
 	musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, 0.5f);
 

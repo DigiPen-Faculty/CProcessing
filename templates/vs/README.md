@@ -7,7 +7,7 @@ A starting point for a CProcessing game on Windows, with Visual Studio.
 | File | What it is |
 |---|---|
 | `main.c` | Your game. It starts as a small complete program: a circle that follows the mouse. |
-| `Assets/` | Images, sounds and fonts. Each build copies it next to the game. |
+| `assets/` | Images, sounds and fonts. Each build copies it next to the game. |
 | `MyGame.sln` | The Visual Studio solution. Open this. |
 | `MyGame.vcxproj` | The project: how `main.c` is built and linked with CProcessing. |
 | `CProcessing/` | The CProcessing library, already built: headers in `inc`, libraries in `lib`. |
@@ -31,7 +31,7 @@ The toolbar picks the configuration:
 - **x64** or **x86.** x64 is the usual choice.
 
 The game is built into a folder such as `x64\Debug`, next to the CProcessing
-DLL and a copy of the `Assets` folder.
+DLL and a copy of the `assets` folder.
 
 When the game ends, CProcessing lists any images, sounds and fonts that
 were loaded and never freed. Run from Visual Studio, the list appears in the
@@ -66,4 +66,4 @@ Explorer (right-click it, **Rename**). The folder can have any name.
 - `CProcessing-Offline-Documentation.zip` on the
   [Releases page](https://github.com/DigiPen-Faculty/CProcessing/releases),
   to read it without an internet connection
-- The `Examples` folder: small complete programs to read, run and copy from
+- The `examples` folder: small complete programs to read, run and copy from

@@ -47,7 +47,7 @@ Each example is a whole program, with its own `main`. To run one, copy it
 over your project's `main.c` (keep a copy of your own first), then build
 and run.
 
-The examples load files from the `Assets` folder that comes with the
+The examples load files from the `assets` folder that comes with the
 templates: `SlimeSheet.png`, `Music.wav`, `Coin.wav`, `Jump.wav` and
 `Hit.wav`. They were made for these examples, and you're free to use them
 in your own games.
@@ -57,7 +57,7 @@ in your own games.
 The CMake build builds every example, as `Example_movement`,
 `Example_collision` and so on, and each lesson, as `Lesson_01_first_window`
 and so on, into `build/bin`. The examples are in the
-release packages, in an `Examples` folder next to `main.c`.
+release packages, in an `examples` folder next to `main.c`.
 
 The assets are made by
 [`tools/make_example_assets.py`](https://github.com/DigiPen-Faculty/CProcessing/blob/main/tools/make_example_assets.py),

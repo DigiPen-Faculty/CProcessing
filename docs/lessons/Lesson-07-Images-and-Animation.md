@@ -10,7 +10,7 @@
 
 **You need:** [Lesson 4](Lesson-04-Input) and [Lesson 5](Lesson-05-Moving-with-Vectors-and-Delta-Time). The slime walks the way the player did in lesson 5.
 
-The finished program is in the repository as [examples/lessons/07_images/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/07_images/main.c). The [sprite animation example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/sprite_animation.c) shows the animation part on its own. Run both. The slime and its sprite sheet, `SlimeSheet.png`, are in the `Assets` folder of the project template.
+The finished program is in the repository as [examples/lessons/07_images/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/07_images/main.c). The [sprite animation example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/sprite_animation.c) shows the animation part on its own. Run both. The slime and its sprite sheet, `SlimeSheet.png`, are in the `assets` folder of the project template.
 
 ---
 
@@ -23,11 +23,11 @@ CP_Image slimeSheet;
 
 void game_init(void)
 {
-	slimeSheet = CP_Image_Load("Assets/SlimeSheet.png");
+	slimeSheet = CP_Image_Load("assets/SlimeSheet.png");
 }
 ```
 
-The text in the quotes is a **path**: where the file is, starting from the folder your program runs in. The template puts pictures in `Assets`, so the path starts with `Assets/`. Loading never goes in `game_update`, because that would read the file again on every frame. When the game is done with the picture, you give it back in `game_exit`:
+The text in the quotes is a **path**: where the file is, starting from the folder your program runs in. The template puts pictures in `assets`, so the path starts with `assets/`. Loading never goes in `game_update`, because that would read the file again on every frame. When the game is done with the picture, you give it back in `game_exit`:
 
 ```C
 void game_exit(void)
@@ -38,7 +38,7 @@ void game_exit(void)
 
 The rule is the same for every file you load: **whoever loads it, frees it.**
 
-> **Try it:** change the path to `Assets/Nothing.png` and run. What happens? (Nothing is drawn, and that's the sign: the file wasn't found. Check the spelling and the folder before you check anything else.)
+> **Try it:** change the path to `assets/Nothing.png` and run. What happens? (Nothing is drawn, and that's the sign: the file wasn't found. Check the spelling and the folder before you check anything else.)
 
 ## Step 2: Drawing a picture
 
@@ -149,7 +149,7 @@ Pick two or more.
 
 1. **A follower.** Draw a second slime that follows the first, a little behind. (It needs its own frame timer, or it will walk in step.)
 2. **Fade out.** Make the orb fade out as it arrives, by easing its alpha. You need a color with an alpha, from lesson 3.
-3. **A scene.** Draw a picture of your own behind the slime. Put a `.png` in `Assets`, load it in init and free it in exit.
+3. **A scene.** Draw a picture of your own behind the slime. Put a `.png` in `assets`, load it in init and free it in exit.
 4. **Jump.** When Space is pressed, make the slime hop up and come down over half a second, using `EaseOutQuad` for going up and `EaseInQuad` for coming down.
 5. **Tint.** Make the slime flash when you press a key, by changing the alpha you draw it with for a tenth of a second.
 
@@ -164,7 +164,7 @@ Pick two or more.
 
 ## Common mistakes
 
-* **Nothing is drawn.** The path is wrong, or the working folder isn't the one with `Assets` in it. Test with the file the lesson uses.
+* **Nothing is drawn.** The path is wrong, or the working folder isn't the one with `assets` in it. Test with the file the lesson uses.
 * **The game runs slower and slower, or stutters.** `CP_Image_Load` is in `game_update`.
 * **The animation runs at a different speed on each computer.** It changes the frame every frame, instead of by time.
 * **The slime shows two frames at once.** The corners are in the wrong units. They are pixels of the **sheet**, not of the window.

@@ -39,14 +39,14 @@ typedef struct Note
 
 // The C major scale, C to C
 static Note notes[] = {
-	{ "C",         "Assets/Notes/c.wav", CP_GAMEPAD_DPAD_UP,    CP_KEY_Q, NULL },
-	{ "D",         "Assets/Notes/d.wav", CP_GAMEPAD_DPAD_RIGHT, CP_KEY_W, NULL },
-	{ "E",         "Assets/Notes/e.wav", CP_GAMEPAD_DPAD_DOWN,  CP_KEY_E, NULL },
-	{ "F",         "Assets/Notes/f.wav", CP_GAMEPAD_DPAD_LEFT,  CP_KEY_R, NULL },
-	{ "G",         "Assets/Notes/g.wav", CP_GAMEPAD_A,          CP_KEY_T, NULL },
-	{ "A",         "Assets/Notes/a.wav", CP_GAMEPAD_B,          CP_KEY_Y, NULL },
-	{ "B",         "Assets/Notes/b.wav", CP_GAMEPAD_X,          CP_KEY_U, NULL },
-	{ "C (piano)", "Assets/Piano/c.wav", CP_GAMEPAD_Y,          CP_KEY_I, NULL },
+	{ "C",         "assets/notes/c.wav", CP_GAMEPAD_DPAD_UP,    CP_KEY_Q, NULL },
+	{ "D",         "assets/notes/d.wav", CP_GAMEPAD_DPAD_RIGHT, CP_KEY_W, NULL },
+	{ "E",         "assets/notes/e.wav", CP_GAMEPAD_DPAD_DOWN,  CP_KEY_E, NULL },
+	{ "F",         "assets/notes/f.wav", CP_GAMEPAD_DPAD_LEFT,  CP_KEY_R, NULL },
+	{ "G",         "assets/notes/g.wav", CP_GAMEPAD_A,          CP_KEY_T, NULL },
+	{ "A",         "assets/notes/a.wav", CP_GAMEPAD_B,          CP_KEY_Y, NULL },
+	{ "B",         "assets/notes/b.wav", CP_GAMEPAD_X,          CP_KEY_U, NULL },
+	{ "C (piano)", "assets/piano/c.wav", CP_GAMEPAD_Y,          CP_KEY_I, NULL },
 };
 #define NOTE_COUNT (int)(sizeof(notes) / sizeof(notes[0]))
 
@@ -223,7 +223,7 @@ static void DrawInfo(void)
 	y += lineHeight;
 	if (soundFilesMissing)
 	{
-		CP_Font_DrawText("Sound files not found: run from the folder with Assets", x, y);
+		CP_Font_DrawText("Sound files not found: run from the folder with assets", x, y);
 		y += lineHeight;
 	}
 

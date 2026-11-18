@@ -32,7 +32,7 @@
 // - Make the glass more or less frosted (FROST_STEPS), or tint it.
 //
 // To run it, copy this file over the template's main.c. It needs Music.wav,
-// Coin.wav and Jump.wav in the Assets folder, which the template includes.
+// Coin.wav and Jump.wav in the assets folder, which the template includes.
 //---------------------------------------------------------
 
 #include "cprocessing.h"
@@ -126,9 +126,9 @@ void game_init(void)
 	reach = 30.0f;
 	SetTimeScale(1.0f);
 
-	music = CP_Sound_LoadStream("Assets/Music.wav");
-	coinSound = CP_Sound_Load("Assets/Coin.wav");
-	levelSound = CP_Sound_Load("Assets/Jump.wav");
+	music = CP_Sound_LoadStream("assets/Music.wav");
+	coinSound = CP_Sound_Load("assets/Coin.wav");
+	levelSound = CP_Sound_Load("assets/Jump.wav");
 	CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, 1.0f);
 }

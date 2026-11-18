@@ -20,7 +20,7 @@
 //   groups          music and effects each have their own volume
 //
 // To run it, copy this file over the template's main.c. It needs Music.wav,
-// Coin.wav, Jump.wav and Hit.wav in the Assets folder, which the template
+// Coin.wav, Jump.wav and Hit.wav in the assets folder, which the template
 // includes.
 //
 // Try this:
@@ -109,10 +109,10 @@ void game_init(void)
 
 	// Long music is STREAMED: read from the file a little at a time as it
 	// plays. Short effects are loaded whole, so they start at once.
-	music = CP_Sound_LoadStream("Assets/Music.wav");
-	coinSound = CP_Sound_Load("Assets/Coin.wav");
-	jumpSound = CP_Sound_Load("Assets/Jump.wav");
-	hitSound = CP_Sound_Load("Assets/Hit.wav");
+	music = CP_Sound_LoadStream("assets/Music.wav");
+	coinSound = CP_Sound_Load("assets/Coin.wav");
+	jumpSound = CP_Sound_Load("assets/Jump.wav");
+	hitSound = CP_Sound_Load("assets/Hit.wav");
 
 	// Start the music once, looping, in the music group. Keep the instance
 	// that comes back: it is this play of the music, to stop or pause later.

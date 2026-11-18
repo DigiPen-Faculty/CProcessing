@@ -178,7 +178,7 @@ static void Scn_FontGetCurrent(void)
 	const CP_Font defaultFont = CP_Font_GetDefault();
 	tier2_scalars.fontStartsAsDefault = CP_Font_GetCurrent() == defaultFont;
 
-	CP_Font custom = CP_Font_Load("Assets/Exo2-Regular.otf");
+	CP_Font custom = CP_Font_Load("assets/Exo2-Regular.otf");
 	CP_Font_Set(custom);
 	tier2_scalars.fontSetIsCurrent = custom != NULL && CP_Font_GetCurrent() == custom;
 
@@ -608,12 +608,12 @@ static void Scn_SettingsSaveRestore(void)
 }
 
 // ---- CP_Image (Phase E) ----
-// Test fixture: Assets/quadrants.png, a 4x4 image with four distinct,
+// Test fixture: assets/quadrants.png, a 4x4 image with four distinct,
 // solid-colored 2x2 quadrants (TL=red, TR=green, BL=blue, BR=yellow) --
 // see the Phase E commit message for how it was generated. A tiny
 // synthetic fixture with exact, known pixel values is more testable than
 // a photo, and keeps this project's test assets independent of the demo
-// app's Assets folder.
+// app's assets folder.
 
 // The quadrants image (top left red, top right green, bottom left blue,
 // bottom right yellow) turned 90 degrees clockwise about its center, which
@@ -624,7 +624,7 @@ static void Scn_ImageDrawRotated(void)
 	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
 	CP_Settings_ImageMode(CP_POSITION_CENTER);
 
-	CP_Image img = CP_Image_Load("Assets/quadrants.png");
+	CP_Image img = CP_Image_Load("assets/quadrants.png");
 	CP_Image_DrawAdvanced(img, 100, 100, 80, 80, 255, 90);
 	CP_Image_Free(&img);
 }
@@ -635,7 +635,7 @@ static void Scn_ImageLoadAndDraw(void)
 	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST); // crisp quadrant edges, no bilinear bleed
 	CP_Settings_ImageMode(CP_POSITION_CENTER);
 
-	CP_Image img = CP_Image_Load("Assets/quadrants.png");
+	CP_Image img = CP_Image_Load("assets/quadrants.png");
 	tier2_scalars.quadImageWidth = CP_Image_GetWidth(img);
 	tier2_scalars.quadImageHeight = CP_Image_GetHeight(img);
 
@@ -667,7 +667,7 @@ static void Scn_ImageSubImage(void)
 	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
 	CP_Settings_ImageMode(CP_POSITION_CENTER);
 
-	CP_Image img = CP_Image_Load("Assets/quadrants.png");
+	CP_Image img = CP_Image_Load("assets/quadrants.png");
 	// s0/t0/s1/t1 are *pixel* coordinates into the source image, not
 	// normalized [0,1] UVs (CP_Image.c:102-145, confirmed against the
 	// wiki's Image page). (2,0)-(4,2) selects just the top-right (green)
@@ -685,7 +685,7 @@ static void Scn_Image16Bit(void)
 	CP_Graphics_ClearBackground(WHITE);
 	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
 	CP_Settings_ImageMode(CP_POSITION_CENTER);
-	CP_Image img = CP_Image_Load("Assets/quadrants16.png");
+	CP_Image img = CP_Image_Load("assets/quadrants16.png");
 	tier2_scalars.image16BitWidth = CP_Image_GetWidth(img);
 	CP_Image_Draw(img, 100, 100, 80, 80, 255);
 	CP_Image_Free(&img);
@@ -712,7 +712,7 @@ static void Scn_ImageMany(void)
 		CP_Image_Draw(images[i], (float)(i % 8) * 20, (float)(i / 8) * 20, 10, 10, 255);
 	}
 
-	CP_Image fromFile = CP_Image_Load("Assets/quadrants.png");
+	CP_Image fromFile = CP_Image_Load("assets/quadrants.png");
 	tier2_scalars.manyImagesFileWidth = CP_Image_GetWidth(fromFile);
 	CP_Image_Free(&fromFile);
 
@@ -733,12 +733,12 @@ static void Scn_SharedAssets(void)
 	CP_Settings_ImageMode(CP_POSITION_CORNER);
 	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
 
-	CP_Image first = CP_Image_Load("Assets/quadrants.png");
-	CP_Image second = CP_Image_Load("Assets/quadrants.png");
+	CP_Image first = CP_Image_Load("assets/quadrants.png");
+	CP_Image second = CP_Image_Load("assets/quadrants.png");
 	tier2_scalars.sharedImageSame = first != NULL && first == second;
 	CP_Image_Free(&first);
 	tier2_scalars.sharedImageFirstCleared = first == NULL;
-	CP_Image third = CP_Image_Load("Assets/quadrants.png");
+	CP_Image third = CP_Image_Load("assets/quadrants.png");
 	tier2_scalars.sharedImageReloadSame = third != NULL && third == second;
 	CP_Image_Draw(second, 0, 0, 200, 200, 255);
 
@@ -750,23 +750,23 @@ static void Scn_SharedAssets(void)
 	CP_Image_Free(&second);
 	CP_Image_Free(&third);
 
-	CP_Font font1 = CP_Font_Load("Assets/Exo2-Regular.otf");
-	CP_Font font2 = CP_Font_Load("Assets/Exo2-Regular.otf");
+	CP_Font font1 = CP_Font_Load("assets/Exo2-Regular.otf");
+	CP_Font font2 = CP_Font_Load("assets/Exo2-Regular.otf");
 	tier2_scalars.sharedFontSame = font1 != NULL && font1 == font2;
 	CP_Font_Free(&font1);
-	CP_Font font3 = CP_Font_Load("Assets/Exo2-Regular.otf");
+	CP_Font font3 = CP_Font_Load("assets/Exo2-Regular.otf");
 	tier2_scalars.sharedFontReloadSame = font3 != NULL && font3 == font2;
 	CP_Font_Free(&font2);
 	CP_Font_Free(&font3);
 
 	// Without an audio device sounds don't load, and the test is skipped
-	CP_Sound sound1 = CP_Sound_Load("Assets/beep.wav");
+	CP_Sound sound1 = CP_Sound_Load("assets/beep.wav");
 	tier2_scalars.soundAvailable = sound1 != NULL;
-	CP_Sound stream = CP_Sound_LoadStream("Assets/beep.wav");
+	CP_Sound stream = CP_Sound_LoadStream("assets/beep.wav");
 	tier2_scalars.soundAndStreamDiffer = sound1 != NULL && stream != NULL && stream != sound1;
-	CP_Sound sound2 = CP_Sound_Load("Assets/beep.wav");
+	CP_Sound sound2 = CP_Sound_Load("assets/beep.wav");
 	CP_Sound_Free(&sound1);
-	CP_Sound sound3 = CP_Sound_Load("Assets/beep.wav");
+	CP_Sound sound3 = CP_Sound_Load("assets/beep.wav");
 	tier2_scalars.sharedSoundReloadSame = sound3 != NULL && sound3 == sound2;
 	CP_Sound_Free(&sound2);
 	CP_Sound_Free(&sound3);
@@ -792,7 +792,7 @@ static void Scn_FontLoadFree(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 	CP_Settings_Fill(BLACK);
-	CP_Font customFont = CP_Font_Load("Assets/Exo2-Regular.ttf");
+	CP_Font customFont = CP_Font_Load("assets/Exo2-Regular.ttf");
 	CP_Font_Set(customFont);
 	CP_Settings_TextSize(60.0f);
 	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
@@ -809,7 +809,7 @@ static void Scn_FontOpenType(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 	CP_Settings_Fill(BLACK);
-	CP_Font font = CP_Font_Load("Assets/Exo2-Regular.otf");
+	CP_Font font = CP_Font_Load("assets/Exo2-Regular.otf");
 	tier2_scalars.openTypeFontLoaded = font != NULL;
 	CP_Font_Set(font);
 	CP_Settings_TextSize(100.0f);
@@ -844,9 +844,9 @@ static void Scn_FontFreeKeepsOthers(void)
 	CP_Settings_Fill(BLACK);
 	CP_Settings_TextSize(40.0f);
 	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
-	CP_Font first = CP_Font_Load("Assets/Exo2-Regular.ttf");
-	CP_Font second = CP_Font_Load("Assets/./Exo2-Regular.ttf");
-	CP_Font third = CP_Font_Load("Assets/../Assets/Exo2-Regular.ttf");
+	CP_Font first = CP_Font_Load("assets/Exo2-Regular.ttf");
+	CP_Font second = CP_Font_Load("assets/./Exo2-Regular.ttf");
+	CP_Font third = CP_Font_Load("assets/../assets/Exo2-Regular.ttf");
 	tier2_scalars.fontFreeLoaded = (first != NULL) + (second != NULL) + (third != NULL);
 
 	DrawWithTwoFonts(second, third);
@@ -861,7 +861,7 @@ static void Scn_FontFreeKeepsOthers(void)
 		tier2_scalars.fontFreeMismatched += (fontFreeBefore[i].r < 128) != (fontFreeAfter[i].r < 128);
 	}
 
-	CP_Font later = CP_Font_Load("Assets/./../Assets/Exo2-Regular.ttf");
+	CP_Font later = CP_Font_Load("assets/./../assets/Exo2-Regular.ttf");
 	CP_Graphics_ClearBackground(WHITE);
 	CP_Font_Set(later);
 	CP_Font_DrawText("Hello", 100, 100);
@@ -1102,7 +1102,7 @@ static void Scn_SoundRoundTrip(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 
-	CP_Sound sound = CP_Sound_Load("Assets/beep.wav");
+	CP_Sound sound = CP_Sound_Load("assets/beep.wav");
 
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_SFX, 0.3f);
 	tier2_scalars.volumeAfterSet = CP_Sound_GetGroupVolume(CP_SOUND_GROUP_SFX);
@@ -1370,7 +1370,7 @@ static void Scn_ImageDrawInto(void)
 	tier2_scalars.drawIntoAfterUpdate = again[0];
 	CP_Image_Free(&image);
 
-	CP_Image loaded = CP_Image_Load("Assets/quadrants16.png");
+	CP_Image loaded = CP_Image_Load("assets/quadrants16.png");
 	CP_Image_BeginDrawing(loaded); // refused, with a message
 	tier2_scalars.drawIntoLoadedRefused = TRUE;
 	CP_Image_EndDrawing(); // nothing to end: harmless
@@ -1477,11 +1477,11 @@ static void Scn_ErrorPaths(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 
-	CP_Image missingImage = CP_Image_Load("Assets/this_file_does_not_exist.png");
+	CP_Image missingImage = CP_Image_Load("assets/this_file_does_not_exist.png");
 	tier2_scalars.missingImageIsNull = missingImage == NULL;
-	CP_Font missingFont = CP_Font_Load("Assets/this_file_does_not_exist.ttf");
+	CP_Font missingFont = CP_Font_Load("assets/this_file_does_not_exist.ttf");
 	tier2_scalars.missingFontIsNull = missingFont == NULL;
-	CP_Sound missingSound = CP_Sound_Load("Assets/this_file_does_not_exist.wav");
+	CP_Sound missingSound = CP_Sound_Load("assets/this_file_does_not_exist.wav");
 	tier2_scalars.missingSoundIsNull = missingSound == NULL;
 	// a NULL path is treated like a missing file
 	tier2_scalars.missingImageIsNull = tier2_scalars.missingImageIsNull && CP_Image_Load(NULL) == NULL;
@@ -1546,12 +1546,12 @@ static void Scn_SystemWindowSettings(void)
 	tier2_scalars.consoleVisibleAfterReshow = CP_System_GetConsoleVisible();
 }
 
-// ---- Assets next to the program (3.0.2) ----
+// ---- assets next to the program (3.0.2) ----
 // A program double-clicked in macOS Finder starts in the home folder, not in
 // its own folder, so relative asset paths are also looked for next to the
-// program. This moves to an empty folder, where "Assets/..." doesn't exist,
+// program. This moves to an empty folder, where "assets/..." doesn't exist,
 // loads one file of each kind, and moves back. The paths start with "./"
-// because the other scenarios loaded these files as "Assets/...", and loading
+// because the other scenarios loaded these files as "assets/...", and loading
 // a path that's already loaded returns that file without opening anything.
 #define TIER2_EMPTY_FOLDER "tier2_empty_folder"
 
@@ -1560,7 +1560,7 @@ static void Scn_AssetsNextToProgram(void)
 	CP_Graphics_ClearBackground(WHITE);
 
 	// CI runners may have no audio device, and then no sound loads at all
-	CP_Sound probe = CP_Sound_Load("Assets/beep.wav");
+	CP_Sound probe = CP_Sound_Load("assets/beep.wav");
 	tier2_scalars.assetSoundAvailable = probe != NULL;
 	CP_Sound_Free(&probe);
 
@@ -1572,9 +1572,9 @@ static void Scn_AssetsNextToProgram(void)
 	tier2_mkdir(TIER2_EMPTY_FOLDER); // it may be left over from an interrupted run
 	tier2_scalars.assetFolderEntered = tier2_chdir(TIER2_EMPTY_FOLDER) == 0;
 
-	CP_Image image = CP_Image_Load("./Assets/quadrants.png");
-	CP_Font font = CP_Font_Load("./Assets/Exo2-Regular.ttf");
-	CP_Sound sound = CP_Sound_Load("./Assets/beep.wav");
+	CP_Image image = CP_Image_Load("./assets/quadrants.png");
+	CP_Font font = CP_Font_Load("./assets/Exo2-Regular.ttf");
+	CP_Sound sound = CP_Sound_Load("./assets/beep.wav");
 	tier2_scalars.assetImageLoaded = image != NULL;
 	tier2_scalars.assetFontLoaded = font != NULL;
 	tier2_scalars.assetSoundLoaded = sound != NULL;
@@ -1746,8 +1746,8 @@ static int savedStderr = -1;
 
 static void LeaveAssetsLoadedForTheExitReport(void)
 {
-	CP_Image_Load("Assets/quadrants16.png");
-	CP_Image_Load("Assets/quadrants16.png");
+	CP_Image_Load("assets/quadrants16.png");
+	CP_Image_Load("assets/quadrants16.png");
 	CP_Color pixels[4] = { RED, RED, RED, RED };
 	CP_Image_CreateFromData(2, 2, pixels);
 

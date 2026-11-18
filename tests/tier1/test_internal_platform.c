@@ -10,8 +10,8 @@ void test_platform_stringcopy_copies_short_string(void)
 {
 	char dest[16];
 	memset(dest, 'x', sizeof(dest));
-	CP_StringCopy(dest, sizeof(dest), "Assets/a.png");
-	TEST_ASSERT_EQUAL_STRING("Assets/a.png", dest);
+	CP_StringCopy(dest, sizeof(dest), "assets/a.png");
+	TEST_ASSERT_EQUAL_STRING("assets/a.png", dest);
 }
 
 void test_platform_stringcopy_exact_fit(void)
