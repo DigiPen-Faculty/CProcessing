@@ -55,15 +55,15 @@ static void Apply(const CP_SVL_Voice* v)
 	soloud.speed[v->handle] = CP_SVL_Combine(v->pitch, groupPitch[v->group]);
 }
 
+static void ApplyOne(void* user, const CP_SVL_Voice* v)
+{
+	(void)user;
+	Apply(v);
+}
+
 static void ApplyGroup(int group)
 {
-	for (unsigned int i = 0; i < table.count; ++i)
-	{
-		if (table.voices[i].group == group)
-		{
-			Apply(&table.voices[i]);
-		}
-	}
+	CP_SVL_ApplyToGroup(&table, group, IsAlive, &soloud, ApplyOne, NULL);
 }
 
 // CP_Sound_SetGroupVolume and CP_Sound_SetGroupPitch
@@ -199,6 +199,37 @@ void test_soundlogic_a_sound_that_finished_is_not_found_after_pruning(void)
 	TEST_ASSERT_EQUAL_UINT(1, table.count);
 	TEST_ASSERT_NULL(CP_SVL_Find(&table, 1));
 	TEST_ASSERT_NOT_NULL(CP_SVL_Find(&table, 2));
+}
+
+void test_soundlogic_a_group_change_forgets_sounds_that_finished(void)
+{
+	Reset();
+	Play(1, 0, 0.5f, 1.0f);
+	Play(2, 1, 0.5f, 1.0f);
+	Play(3, 0, 0.5f, 1.0f);
+	soloud.alive[1] = false; // finished in the group that changes
+	soloud.alive[2] = false; // finished in another group
+	SetGroupVolume(0, 0.5f);
+	TEST_ASSERT_EQUAL_UINT(1, table.count);
+	TEST_ASSERT_NULL(CP_SVL_Find(&table, 1));
+	TEST_ASSERT_NULL(CP_SVL_Find(&table, 2));
+	TEST_ASSERT_EQUAL_FLOAT(0.25f, soloud.volume[3]);
+	TEST_ASSERT_EQUAL_FLOAT(0.5f, soloud.volume[1]); // not touched again
+}
+
+void test_soundlogic_a_stopped_sound_is_forgotten_and_the_rest_keep_their_order(void)
+{
+	Reset();
+	Play(1, 0, 0.1f, 1.0f);
+	Play(2, 0, 0.2f, 1.0f);
+	Play(3, 0, 0.3f, 1.0f);
+	CP_SVL_Remove(&table, 2);
+	TEST_ASSERT_EQUAL_UINT(2, table.count);
+	TEST_ASSERT_NULL(CP_SVL_Find(&table, 2));
+	TEST_ASSERT_EQUAL_UINT(1, table.voices[0].handle);
+	TEST_ASSERT_EQUAL_UINT(3, table.voices[1].handle);
+	CP_SVL_Remove(&table, 9); // not there: nothing happens
+	TEST_ASSERT_EQUAL_UINT(2, table.count);
 }
 
 void test_soundlogic_no_instance_is_never_found_or_added(void)

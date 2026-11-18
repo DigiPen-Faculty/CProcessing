@@ -255,6 +255,8 @@ int main(void)
 	RUN_TEST(test_soundlogic_a_group_change_leaves_other_groups_alone);
 	RUN_TEST(test_soundlogic_pitch_is_the_sounds_own_times_the_groups);
 	RUN_TEST(test_soundlogic_a_sound_that_finished_is_not_found_after_pruning);
+	RUN_TEST(test_soundlogic_a_group_change_forgets_sounds_that_finished);
+	RUN_TEST(test_soundlogic_a_stopped_sound_is_forgotten_and_the_rest_keep_their_order);
 	RUN_TEST(test_soundlogic_no_instance_is_never_found_or_added);
 	RUN_TEST(test_soundlogic_a_full_table_drops_finished_sounds_to_make_room);
 	RUN_TEST(test_soundlogic_a_table_full_of_playing_sounds_takes_no_more);

@@ -29,8 +29,9 @@
 extern "C" {
 #endif
 
-// SoLoud plays at most 1024 voices at once, and finished ones are dropped
-// from this table only when it is full
+// SoLoud plays at most 1024 voices at once. Finished ones are dropped from
+// this table when a group changes, when one is stopped by its instance, and
+// when it is full
 #define CP_MAX_SOUND_VOICES 1024
 
 typedef struct CP_SVL_Voice
@@ -82,6 +83,45 @@ static inline void CP_SVL_Prune(CP_SVL_Table* table, CP_SVL_IsAlive isAlive, voi
 		{
 			table->voices[kept++] = table->voices[i];
 		}
+	}
+	table->count = kept;
+}
+
+// Forget one voice (it was stopped)
+static inline void CP_SVL_Remove(CP_SVL_Table* table, unsigned int handle)
+{
+	for (unsigned int i = 0; i < table->count; ++i)
+	{
+		if (table->voices[i].handle == handle)
+		{
+			for (unsigned int j = i + 1; j < table->count; ++j)
+			{
+				table->voices[j - 1] = table->voices[j];
+			}
+			--table->count;
+			return;
+		}
+	}
+}
+
+// Run apply on every voice of a group that is still playing, and forget the
+// voices (of any group) that have finished on the way
+typedef void (*CP_SVL_Apply)(void* user, const CP_SVL_Voice* voice);
+static inline void CP_SVL_ApplyToGroup(CP_SVL_Table* table, int group, CP_SVL_IsAlive isAlive, void* aliveUser, CP_SVL_Apply apply, void* applyUser)
+{
+	unsigned int kept = 0;
+	for (unsigned int i = 0; i < table->count; ++i)
+	{
+		if (!isAlive(aliveUser, table->voices[i].handle))
+		{
+			continue;
+		}
+		table->voices[kept] = table->voices[i];
+		if (table->voices[kept].group == group)
+		{
+			apply(applyUser, &table->voices[kept]);
+		}
+		++kept;
 	}
 	table->count = kept;
 }

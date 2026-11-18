@@ -68,14 +68,16 @@ static bool CP_VoiceIsAlive(void* user, unsigned int handle)
 }
 
 // Give SoLoud a voice's own volume times its group's
-static void CP_ApplyVoiceVolume(const CP_SVL_Voice* voice)
+static void CP_ApplyVoiceVolume(void* user, const CP_SVL_Voice* voice)
 {
+	(void)user;
 	Soloud_setVolume(_soloud_system, voice->handle, CP_SVL_Combine(voice->volume, voice_groups[voice->group].volume));
 }
 
 // Give SoLoud a voice's own pitch times its group's
-static void CP_ApplyVoicePitch(const CP_SVL_Voice* voice)
+static void CP_ApplyVoicePitch(void* user, const CP_SVL_Voice* voice)
 {
+	(void)user;
 	Soloud_setRelativePlaySpeed(_soloud_system, voice->handle, CP_SVL_Combine(voice->pitch, voice_groups[voice->group].pitch));
 }
 
@@ -382,6 +384,7 @@ CP_API void CP_Sound_Stop(CP_SoundInstance instance)
 	if (_soloud_system && instance != 0)
 	{
 		Soloud_stop(_soloud_system, instance);
+		CP_SVL_Remove(&voice_table, instance);
 	}
 }
 
@@ -414,7 +417,7 @@ CP_API void CP_Sound_SetVolume(CP_SoundInstance instance, float volume)
 		if (voice)
 		{
 			voice->volume = volume;
-			CP_ApplyVoiceVolume(voice);
+			CP_ApplyVoiceVolume(NULL, voice);
 		}
 	}
 }
@@ -432,7 +435,7 @@ CP_API void CP_Sound_SetPitch(CP_SoundInstance instance, float pitch)
 		if (voice)
 		{
 			voice->pitch = pitch;
-			CP_ApplyVoicePitch(voice);
+			CP_ApplyVoicePitch(NULL, voice);
 		}
 	}
 }
@@ -497,13 +500,7 @@ CP_API void CP_Sound_SetGroupVolume(CP_SOUND_GROUP group, float volume)
 		if (_soloud_system)
 		{
 			// Every sound in the group: its own volume times the new group volume
-			for (unsigned int i = 0; i < voice_table.count; ++i)
-			{
-				if (voice_table.voices[i].group == (int)group)
-				{
-					CP_ApplyVoiceVolume(&voice_table.voices[i]);
-				}
-			}
+			CP_SVL_ApplyToGroup(&voice_table, (int)group, CP_VoiceIsAlive, NULL, CP_ApplyVoiceVolume, NULL);
 		}
 	}
 }
@@ -529,13 +526,7 @@ CP_API void CP_Sound_SetGroupPitch(CP_SOUND_GROUP group, float pitch)
 		if (_soloud_system)
 		{
 			// Every sound in the group: its own pitch times the new group pitch
-			for (unsigned int i = 0; i < voice_table.count; ++i)
-			{
-				if (voice_table.voices[i].group == (int)group)
-				{
-					CP_ApplyVoicePitch(&voice_table.voices[i]);
-				}
-			}
+			CP_SVL_ApplyToGroup(&voice_table, (int)group, CP_VoiceIsAlive, NULL, CP_ApplyVoicePitch, NULL);
 		}
 	}
 }
