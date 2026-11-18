@@ -134,8 +134,8 @@ endfunction()
 set(CP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CProcessing")
 
 set(CPROCESSING_SOURCES
-    "${CP_DIR}/GLAD/glad.c"
-    "${CP_DIR}/nanovg/src/nanovg.c"
+    "${CP_DIR}/third_party/GLAD/glad.c"
+    "${CP_DIR}/third_party/nanovg/src/nanovg.c"
     "${CP_DIR}/Source/CP_Color.c"
     "${CP_DIR}/Source/CP_File.c"
     "${CP_DIR}/Source/CP_Graphics.c"
@@ -148,16 +148,16 @@ set(CPROCESSING_SOURCES
     "${CP_DIR}/Source/CP_Sound.c"
     "${CP_DIR}/Source/CP_System.c"
     "${CP_DIR}/Source/CP_Text.c"
-    "${CP_DIR}/Source/nanovg_gl3.c"
-    "${CP_DIR}/Source/vect.c"
+    "${CP_DIR}/third_party/nanovg/nanovg_gl3.c"
+    "${CP_DIR}/third_party/vect/vect.c"
 )
 # Vendored third-party sources (NanoVG and its OpenGL 3 back end with the
 # bundled stb_image/stb_truetype, GLAD) are compiled as-is;
 # don't report their warnings. The Visual Studio project does the same.
 set(CPROCESSING_VENDORED_SOURCES
-    "${CP_DIR}/GLAD/glad.c"
-    "${CP_DIR}/nanovg/src/nanovg.c"
-    "${CP_DIR}/Source/nanovg_gl3.c"
+    "${CP_DIR}/third_party/GLAD/glad.c"
+    "${CP_DIR}/third_party/nanovg/src/nanovg.c"
+    "${CP_DIR}/third_party/nanovg/nanovg_gl3.c"
 )
 if(MSVC)
     set_source_files_properties(${CPROCESSING_VENDORED_SOURCES} PROPERTIES COMPILE_OPTIONS "/W0")
@@ -179,8 +179,9 @@ target_include_directories(CProcessing
         "$<BUILD_INTERFACE:${CP_DIR}/inc>"
     PRIVATE
         "${CP_DIR}/Source"
-        "${CP_DIR}/GLAD"
-        "${CP_DIR}/nanovg/src"
+        "${CP_DIR}/third_party/GLAD"
+        "${CP_DIR}/third_party/nanovg/src"
+        "${CP_DIR}/third_party/vect"
         "${CPROCESSING_GLFW_INCLUDE_DIR}"
 )
 

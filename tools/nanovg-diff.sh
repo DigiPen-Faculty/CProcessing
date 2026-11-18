@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Shows CProcessing's changes to its vendored NanoVG: the difference between
-# CProcessing/nanovg/ and the upstream commits it is based
+# CProcessing/third_party/nanovg/ and the upstream commits it is based
 # on. Every difference should be one of the patches listed in
-# CProcessing/nanovg/CPROCESSING.md, marked in the code
+# CProcessing/third_party/nanovg/CPROCESSING.md, marked in the code
 # with a "CProcessing:" comment. stb_image.h and stb_truetype.h come from
 # the stb repository and have no changes.
 #
@@ -30,7 +30,7 @@ FILES=(
 )
 
 repo=$(cd "$(dirname "$0")/.." && pwd)
-vendored="$repo/CProcessing/nanovg"
+vendored="$repo/CProcessing/third_party/nanovg"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 

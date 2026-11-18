@@ -16,7 +16,7 @@ template project. This page is for building CProcessing itself.
 
 | Folder | What is in it |
 |---|---|
-| `CProcessing/` | The library: `Source/`, the public headers in `inc/`, and the bundled libraries (`GLAD/`, `GLFW/`, `nanovg/`, `soloud/`). |
+| `CProcessing/` | The library: `Source/` (our code), the public headers in `inc/`, and `third_party/` (the bundled libraries: `GLAD/`, `GLFW/`, `nanovg/`, `soloud/`, `vect/`). |
 | `CProcessing.sln` | The Visual Studio solution. |
 | `examples/` | Small complete programs, and `Lessons/`, one program per lesson. |
 | `demos/` | The demo program, `Processing_Demos`, with its `Assets/`. |

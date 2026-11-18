@@ -74,28 +74,28 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x86\</OutDir>
-    <IncludePath>$(ProjectDir)soloud/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)soloud/lib/x86;$(ProjectDir)GLFW/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>$(ProjectDir)third_party/soloud/inc;$(ProjectDir)third_party/nanovg/src;$(ProjectDir)third_party/GLAD;$(ProjectDir)third_party/GLFW/inc;$(ProjectDir)third_party/vect;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)third_party/soloud/lib/x86;$(ProjectDir)third_party/GLFW/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <TargetName>$(ProjectName)d</TargetName>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x86\</OutDir>
-    <IncludePath>$(ProjectDir)soloud/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)soloud/lib/x86;$(ProjectDir)GLFW/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>$(ProjectDir)third_party/soloud/inc;$(ProjectDir)third_party/nanovg/src;$(ProjectDir)third_party/GLAD;$(ProjectDir)third_party/GLFW/inc;$(ProjectDir)third_party/vect;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)third_party/soloud/lib/x86;$(ProjectDir)third_party/GLFW/lib/x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)soloud/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)soloud/lib/x64;$(ProjectDir)GLFW/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>$(ProjectDir)third_party/soloud/inc;$(ProjectDir)third_party/nanovg/src;$(ProjectDir)third_party/GLAD;$(ProjectDir)third_party/GLFW/inc;$(ProjectDir)third_party/vect;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)third_party/soloud/lib/x64;$(ProjectDir)third_party/GLFW/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x64\</OutDir>
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)soloud/inc;$(ProjectDir)nanovg/src;$(ProjectDir)GLAD;$(ProjectDir)GLFW/inc;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)soloud/lib/x64;$(ProjectDir)GLFW/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>$(ProjectDir)third_party/soloud/inc;$(ProjectDir)third_party/nanovg/src;$(ProjectDir)third_party/GLAD;$(ProjectDir)third_party/GLFW/inc;$(ProjectDir)third_party/vect;$(ProjectDir);$(ProjectDir)Source;$(ProjectDir)inc;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)third_party/soloud/lib/x64;$(ProjectDir)third_party/GLFW/lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)lib\x64\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -200,15 +200,15 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="GLAD\glad.h" />
+    <ClInclude Include="third_party\GLAD\glad.h" />
     <ClInclude Include="inc\cprocessing.h" />
     <ClInclude Include="inc\cprocessing_common.h" />
-    <ClInclude Include="nanovg\src\fontstash.h" />
-    <ClInclude Include="nanovg\src\nanovg.h" />
-    <ClInclude Include="nanovg\src\nanovg_gl.h" />
-    <ClInclude Include="nanovg\src\nanovg_gl_utils.h" />
-    <ClInclude Include="nanovg\src\stb_image.h" />
-    <ClInclude Include="nanovg\src\stb_truetype.h" />
+    <ClInclude Include="third_party\nanovg\src\fontstash.h" />
+    <ClInclude Include="third_party\nanovg\src\nanovg.h" />
+    <ClInclude Include="third_party\nanovg\src\nanovg_gl.h" />
+    <ClInclude Include="third_party\nanovg\src\nanovg_gl_utils.h" />
+    <ClInclude Include="third_party\nanovg\src\stb_image.h" />
+    <ClInclude Include="third_party\nanovg\src\stb_truetype.h" />
     <ClInclude Include="Source\Internal_File.h" />
     <ClInclude Include="Source\Internal_Image.h" />
     <ClInclude Include="Source\Internal_System.h" />
@@ -224,18 +224,18 @@
     <ClInclude Include="Source\Internal_Sound.h" />
     <ClInclude Include="Source\Internal_Text.h" />
     <ClInclude Include="Source\Internal_Resources.h" />
-    <ClInclude Include="Source\vect.h" />
+    <ClInclude Include="third_party\vect\vect.h" />
   </ItemGroup>
   <ItemGroup>
     <!-- Vendored third-party sources are compiled as-is, without warnings
          (CMakeLists.txt does the same). See DEPENDENCIES.md. -->
-    <ClCompile Include="GLAD\glad.c">
+    <ClCompile Include="third_party\GLAD\glad.c">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
-    <ClCompile Include="nanovg\src\nanovg.c">
+    <ClCompile Include="third_party\nanovg\src\nanovg.c">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
-    <ClCompile Include="Source\nanovg_gl3.c">
+    <ClCompile Include="third_party\nanovg\nanovg_gl3.c">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="Source\CP_Color.c" />
@@ -250,7 +250,7 @@
     <ClCompile Include="Source\CP_Sound.c" />
     <ClCompile Include="Source\CP_Text.c" />
     <ClCompile Include="Source\CP_System.c" />
-    <ClCompile Include="Source\vect.c" />
+    <ClCompile Include="third_party\vect\vect.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
