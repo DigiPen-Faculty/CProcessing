@@ -23,7 +23,7 @@
 // - Slow the music down (CP_Sound_SetGroupPitch) while a key is held.
 //
 // To run it, copy this file over the template's main.c. It needs Music.wav,
-// Coin.wav, Jump.wav and Hit.wav in the Assets folder, which the template
+// Coin.wav, Jump.wav and Hit.wav in the assets folder, which the template
 // includes.
 //---------------------------------------------------------
 
@@ -60,10 +60,10 @@ void game_init(void)
 	// Streaming reads the file a little at a time while it plays, which
 	// suits long music. Short effects load all at once, so they start
 	// instantly.
-	music = CP_Sound_LoadStream("Assets/Music.wav");
-	coinSound = CP_Sound_Load("Assets/Coin.wav");
-	jumpSound = CP_Sound_Load("Assets/Jump.wav");
-	hitSound = CP_Sound_Load("Assets/Hit.wav");
+	music = CP_Sound_LoadStream("assets/Music.wav");
+	coinSound = CP_Sound_Load("assets/Coin.wav");
+	jumpSound = CP_Sound_Load("assets/Jump.wav");
+	hitSound = CP_Sound_Load("assets/Hit.wav");
 
 	// Start the music, looping, in the music group
 	musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);

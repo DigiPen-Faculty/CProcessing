@@ -19,7 +19,7 @@ name: Release
 #      version and date of the newest section in CHANGELOG.md.
 #   2. Push a tag such as v3.0.0 on that commit.
 #   3. Review the draft release this workflow creates, then publish it.
-#      Publishing it runs offline-docs.yml, which builds the wiki into the
+#      Publishing it runs offline_docs.yml, which builds the wiki into the
 #      offline documentation and attaches it to the release.
 #
 # Running the workflow by hand (Actions > Release > Run workflow) builds and
@@ -33,8 +33,8 @@ on:
   pull_request:
     paths:
       - .github/workflows/release.yml
-      - tools/BuildReleasePackage.bat
-      - tools/make-starter-package.sh
+      - tools/build_release_package.bat
+      - tools/make_starter_package.sh
       - templates/**
       - examples/**
       - CMakeLists.txt
@@ -96,7 +96,7 @@ jobs:
 
       - name: Package the template
         shell: cmd
-        run: call .\tools\BuildReleasePackage.bat -c -z
+        run: call .\tools\build_release_package.bat -c -z
 
       # Build the template from the zip, as a student would, in every
       # configuration
@@ -111,7 +111,7 @@ jobs:
               if ($LASTEXITCODE) { exit 1 }
             }
           }
-          foreach ($f in 'x64/Release/MyGame.exe', 'x64/Release/CProcessing.dll', 'x64/Debug/CProcessingd.dll', 'x64/Release/Assets') {
+          foreach ($f in 'x64/Release/MyGame.exe', 'x64/Release/CProcessing.dll', 'x64/Debug/CProcessingd.dll', 'x64/Release/assets') {
             if (-not (Test-Path $f)) { Write-Error "missing $f"; exit 1 }
           }
 
@@ -146,7 +146,7 @@ jobs:
           cmake --build build --parallel
 
       - name: Package the starter project
-        run: bash tools/make-starter-package.sh build/bin/libCProcessing.so CProcessingTemplate-linux-x64.zip
+        run: bash tools/make_starter_package.sh build/bin/libCProcessing.so CProcessingTemplate-linux-x64.zip
 
       - uses: actions/upload-artifact@v7
         with:
@@ -201,7 +201,7 @@ jobs:
           otool -L build/bin/libCProcessing.dylib
 
       - name: Package the starter project
-        run: bash tools/make-starter-package.sh build/bin/libCProcessing.dylib CProcessingTemplate-macos.zip
+        run: bash tools/make_starter_package.sh build/bin/libCProcessing.dylib CProcessingTemplate-macos.zip
 
       - name: Build the starter project from the package
         run: |

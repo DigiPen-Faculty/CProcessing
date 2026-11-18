@@ -95,7 +95,7 @@ static int file_exists(const char* filepath)
 //		a terminal or a debugger runs in whatever folder it's given, but one
 //		started by double-clicking may not run in its own folder: macOS Finder
 //		starts it in the home folder, and Linux file managers vary (Windows
-//		Explorer does use the program's folder). The build puts the Assets
+//		Explorer does use the program's folder). The build puts the assets
 //		folder next to the program, so looking there finds it either way.
 
 static bool file_isAbsolute(const char* path)

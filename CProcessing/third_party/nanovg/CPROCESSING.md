@@ -75,7 +75,7 @@ spacing in text boxes follows the font's ascender, descender and line gap
 ## CProcessing's patches
 
 Every change to upstream's files is marked with a `// CProcessing:` comment.
-`tools/nanovg-diff.sh` in the repository root prints the complete
+`tools/nanovg_diff.sh` in the repository root prints the complete
 difference from the upstream commit above, and nothing should appear there
 that isn't listed here.
 
@@ -113,8 +113,8 @@ declarations only.
    `stb_truetype.h` (see above).
 2. Resolve conflicts, keep every patch marked with `// CProcessing:`, and
    remove any patch that upstream now covers.
-3. Update the commit in this file, in `tools/nanovg-diff.sh` and in
-   `DEPENDENCIES.md`, then run `tools/nanovg-diff.sh` and check that
+3. Update the commit in this file, in `tools/nanovg_diff.sh` and in
+   `DEPENDENCIES.md`, then run `tools/nanovg_diff.sh` and check that
    everything it shows is listed above.
 4. Build with both build systems and run both test tiers. Tier 2 covers each
    patch: tint, image filter and wrap, blend modes, fonts, and settings that
@@ -125,6 +125,6 @@ declarations only.
 ### stb_image and stb_truetype
 
 Copy both files from a newer stb commit, unchanged, and update the commit
-and versions here, in `tools/nanovg-diff.sh` and in `DEPENDENCIES.md`.
+and versions here, in `tools/nanovg_diff.sh` and in `DEPENDENCIES.md`.
 Then build and test as above; Tier 2 loads a 16-bit PNG and an `.otf`
 font, and checks images and text throughout.

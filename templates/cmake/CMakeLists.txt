@@ -8,7 +8,7 @@
 #   ./MyGame                (MyGame.exe on Windows)
 #
 # The game is built into build/bin, next to the CProcessing library and a
-# copy of the Assets folder. CProcessing looks for assets from the current
+# copy of the assets folder. CProcessing looks for assets from the current
 # working directory, and then next to the game, so it finds them there.
 #
 # Where CProcessing comes from:
@@ -85,8 +85,8 @@ else()
     target_link_libraries(${PROJECT_NAME} PRIVATE m)
 endif()
 
-# Copy the CProcessing library and the Assets folder next to the game
+# Copy the CProcessing library and the assets folder next to the game
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:CProcessing>" "${GAME_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Assets" "${GAME_DIR}/Assets"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/assets" "${GAME_DIR}/assets"
     VERBATIM)

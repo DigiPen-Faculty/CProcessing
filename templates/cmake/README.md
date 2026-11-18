@@ -10,10 +10,10 @@ Studio template instead (`CProcessingTemplate.zip` on the
 | File | What it is |
 |---|---|
 | `main.c` | Your game. Every `.c` and `.cpp` file in this folder is built into it. |
-| `Assets/` | Images, sounds and fonts. Each build copies it next to the game. |
+| `assets/` | Images, sounds and fonts. Each build copies it next to the game. |
 | `CMakeLists.txt` | The build. Change `MyGame` in `project(MyGame C)` to rename the game. |
 | `CProcessing/` | The CProcessing library, already built. Only in the Linux and macOS release packages. |
-| `Examples/` | Small complete programs to read, run and copy from. Only in the release packages. |
+| `examples/` | Small complete programs to read, run and copy from. Only in the release packages. |
 
 ## What you need
 
@@ -42,7 +42,7 @@ cd build/bin
 
 After editing `main.c`, run `cmake --build build` again. CProcessing looks
 for assets from the current folder, and then next to the game, so the
-`Assets` folder in `build/bin` is found however the game is started, from a
+`assets` folder in `build/bin` is found however the game is started, from a
 terminal or by double-clicking it.
 
 ## Writing the game in C++

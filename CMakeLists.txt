@@ -10,8 +10,8 @@
 #
 # Everything is placed in build/bin (build/bin/<Config> for multi-config
 # generators such as Visual Studio): the CProcessing shared library, the
-# Processing_Demos executable, the Example_* executables, the test
-# executables and an Assets folder.
+# CProcessing_Demos executable, the Example_* executables, the test
+# executables and an assets folder.
 
 cmake_minimum_required(VERSION 3.20)
 
@@ -35,7 +35,7 @@ if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
 endif()
 
 option(CPROCESSING_BUILD_SHARED "Build CProcessing as a shared library (DLL/.so/.dylib)" ON)
-option(CPROCESSING_BUILD_DEMOS "Build the Processing_Demos sample program" ${CPROCESSING_IS_TOP_LEVEL})
+option(CPROCESSING_BUILD_DEMOS "Build the CProcessing_Demos sample program" ${CPROCESSING_IS_TOP_LEVEL})
 option(CPROCESSING_BUILD_EXAMPLES "Build the example programs in examples/" ${CPROCESSING_IS_TOP_LEVEL})
 option(CPROCESSING_BUILD_TESTS "Build the Tier 1 and Tier 2 test suites" ${CPROCESSING_IS_TOP_LEVEL})
 option(CPROCESSING_WARNINGS_AS_ERRORS "Treat compiler warnings in CProcessing code as errors" OFF)
@@ -45,7 +45,7 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Put every runtime artifact in one folder so executables find the library
-# (and their Assets) without any install step.
+# (and their assets) without any install step.
 if(CPROCESSING_IS_TOP_LEVEL)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
@@ -53,7 +53,7 @@ if(CPROCESSING_IS_TOP_LEVEL)
 endif()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-include(cmake/CProcessingDependencies.cmake)
+include(cmake/cprocessing_dependencies.cmake)
 
 #------------------------------------------------------------------------------
 # Shared compile settings for CProcessing's own code
@@ -120,10 +120,10 @@ function(cprocessing_set_rpath target)
     endif()
 endfunction()
 
-# Copy an Assets folder next to the built executables.
+# Copy an assets folder next to the built executables.
 function(cprocessing_copy_assets target assets_dir)
     add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${assets_dir}" "$<TARGET_FILE_DIR:${target}>/Assets"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${assets_dir}" "$<TARGET_FILE_DIR:${target}>/assets"
         COMMENT "Copying ${assets_dir} next to ${target}"
         VERBATIM)
 endfunction()
@@ -134,7 +134,7 @@ endfunction()
 set(CP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CProcessing")
 
 set(CPROCESSING_SOURCES
-    "${CP_DIR}/third_party/GLAD/glad.c"
+    "${CP_DIR}/third_party/glad/glad.c"
     "${CP_DIR}/third_party/nanovg/src/nanovg.c"
     "${CP_DIR}/src/CP_Color.c"
     "${CP_DIR}/src/CP_File.c"
@@ -155,7 +155,7 @@ set(CPROCESSING_SOURCES
 # bundled stb_image/stb_truetype, GLAD) are compiled as-is;
 # don't report their warnings. The Visual Studio project does the same.
 set(CPROCESSING_VENDORED_SOURCES
-    "${CP_DIR}/third_party/GLAD/glad.c"
+    "${CP_DIR}/third_party/glad/glad.c"
     "${CP_DIR}/third_party/nanovg/src/nanovg.c"
     "${CP_DIR}/third_party/nanovg/nanovg_gl3.c"
 )
@@ -179,7 +179,7 @@ target_include_directories(CProcessing
         "$<BUILD_INTERFACE:${CP_DIR}/inc>"
     PRIVATE
         "${CP_DIR}/src"
-        "${CP_DIR}/third_party/GLAD"
+        "${CP_DIR}/third_party/glad"
         "${CP_DIR}/third_party/nanovg/src"
         "${CP_DIR}/third_party/vect"
         "${CPROCESSING_GLFW_INCLUDE_DIR}"
@@ -208,24 +208,24 @@ cprocessing_set_warnings(CProcessing)
 #------------------------------------------------------------------------------
 if(CPROCESSING_BUILD_DEMOS)
     set(DEMO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/demos")
-    add_executable(Processing_Demos
+    add_executable(CProcessing_Demos
         "${DEMO_DIR}/main.c"
-        "${DEMO_DIR}/DancingLinesDemo.c"
-        "${DEMO_DIR}/DemoManager.c"
-        "${DEMO_DIR}/GamepadSoundDemo.c"
-        "${DEMO_DIR}/GridWaveDemo.c"
-        "${DEMO_DIR}/NoiseDemo.c"
-        "${DEMO_DIR}/ScreenshotDemo.c"
-        "${DEMO_DIR}/ColorPickerDemo.c"
+        "${DEMO_DIR}/dancing_lines_demo.c"
+        "${DEMO_DIR}/demo_manager.c"
+        "${DEMO_DIR}/gamepad_sound_demo.c"
+        "${DEMO_DIR}/grid_wave_demo.c"
+        "${DEMO_DIR}/noise_demo.c"
+        "${DEMO_DIR}/screenshot_demo.c"
+        "${DEMO_DIR}/color_picker_demo.c"
     )
-    target_include_directories(Processing_Demos PRIVATE "${DEMO_DIR}")
-    target_link_libraries(Processing_Demos PRIVATE CProcessing)
+    target_include_directories(CProcessing_Demos PRIVATE "${DEMO_DIR}")
+    target_link_libraries(CProcessing_Demos PRIVATE CProcessing)
     if(UNIX AND NOT APPLE)
-        target_link_libraries(Processing_Demos PRIVATE m)
+        target_link_libraries(CProcessing_Demos PRIVATE m)
     endif()
-    cprocessing_set_warnings(Processing_Demos)
-    cprocessing_set_rpath(Processing_Demos)
-    cprocessing_copy_assets(Processing_Demos "${DEMO_DIR}/Assets")
+    cprocessing_set_warnings(CProcessing_Demos)
+    cprocessing_set_rpath(CProcessing_Demos)
+    cprocessing_copy_assets(CProcessing_Demos "${DEMO_DIR}/assets")
 endif()
 
 #------------------------------------------------------------------------------
@@ -238,11 +238,11 @@ if(CPROCESSING_BUILD_TESTS)
     set(UNITY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tests/unity")
 
     # Tier 1: pure functions, no window/GL/audio needed
-    file(GLOB TIER1_SOURCES CONFIGURE_DEPENDS "${TEST_DIR}/Tests/*.c")
+    file(GLOB TIER1_SOURCES CONFIGURE_DEPENDS "${TEST_DIR}/*.c")
     add_executable(CProcessing_Tests ${TIER1_SOURCES} "${UNITY_DIR}/unity.c")
     target_include_directories(CProcessing_Tests PRIVATE
         "${UNITY_DIR}"
-        "${TEST_DIR}/Tests"
+        "${TEST_DIR}"
         "${CP_DIR}/src"               # Internal_InputLogic.h (pure, header-only)
         "${CPROCESSING_GLFW_INCLUDE_DIR}" # GLFW constants used by that header
     )
@@ -261,9 +261,9 @@ if(CPROCESSING_BUILD_TESTS)
 
     # Tier 2: drives the real engine (window + OpenGL + audio). Needs a
     # display; on a headless Linux machine run it under xvfb-run.
-    file(GLOB TIER2_SOURCES CONFIGURE_DEPENDS "${TIER2_DIR}/Tests/*.c")
+    file(GLOB TIER2_SOURCES CONFIGURE_DEPENDS "${TIER2_DIR}/*.c")
     add_executable(CProcessing_Tests_Tier2 ${TIER2_SOURCES} "${UNITY_DIR}/unity.c")
-    target_include_directories(CProcessing_Tests_Tier2 PRIVATE "${UNITY_DIR}" "${TIER2_DIR}/Tests")
+    target_include_directories(CProcessing_Tests_Tier2 PRIVATE "${UNITY_DIR}" "${TIER2_DIR}")
     target_compile_definitions(CProcessing_Tests_Tier2 PRIVATE UNITY_INCLUDE_DOUBLE)
     cprocessing_set_utf8(CProcessing_Tests_Tier2)
     target_link_libraries(CProcessing_Tests_Tier2 PRIVATE CProcessing)
@@ -274,11 +274,11 @@ if(CPROCESSING_BUILD_TESTS)
     if(NOT MSVC)
         set_target_properties(CProcessing_Tests_Tier2 PROPERTIES C_STANDARD 11 C_EXTENSIONS ON)
     endif()
-    cprocessing_copy_assets(CProcessing_Tests_Tier2 "${TIER2_DIR}/Assets")
-    if(TARGET Processing_Demos)
-        # Both copy an Assets folder into the same bin/Assets after linking;
+    cprocessing_copy_assets(CProcessing_Tests_Tier2 "${TIER2_DIR}/assets")
+    if(TARGET CProcessing_Demos)
+        # Both copy an assets folder into the same bin/assets after linking;
         # in a parallel build the two copies can collide and fail the build
-        add_dependencies(CProcessing_Tests_Tier2 Processing_Demos)
+        add_dependencies(CProcessing_Tests_Tier2 CProcessing_Demos)
     endif()
     add_test(NAME tier2 COMMAND CProcessing_Tests_Tier2
         WORKING_DIRECTORY "$<TARGET_FILE_DIR:CProcessing_Tests_Tier2>")
@@ -286,7 +286,7 @@ if(CPROCESSING_BUILD_TESTS)
 
     # C++: a program written in C++ that includes the headers, links with
     # CProcessing and calls it. No window, so it runs with Tier 1.
-    add_executable(CProcessing_Tests_Cxx "${TEST_DIR}/Cxx/test_cxx.cpp")
+    add_executable(CProcessing_Tests_Cxx "${TEST_DIR}/cxx/test_cxx.cpp")
     target_link_libraries(CProcessing_Tests_Cxx PRIVATE CProcessing)
     cprocessing_set_cxx_warnings(CProcessing_Tests_Cxx)
     cprocessing_set_rpath(CProcessing_Tests_Cxx)
@@ -296,13 +296,13 @@ if(CPROCESSING_BUILD_TESTS)
     # Every test function written is registered (a forgotten RUN_TEST would
     # silently drop the test). Needs no window, so it runs with Tier 1.
     add_test(NAME registration_tier1 COMMAND ${CMAKE_COMMAND}
-        -DTESTS_DIR=${TEST_DIR}/Tests -DMAIN_FILE=${TEST_DIR}/Tests/test_main.c
-        -DHEADER=${TEST_DIR}/Tests/test_runner.h
-        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckTestRegistration.cmake)
+        -DTESTS_DIR=${TEST_DIR} -DMAIN_FILE=${TEST_DIR}/test_main.c
+        -DHEADER=${TEST_DIR}/test_runner.h
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/check_test_registration.cmake)
     add_test(NAME registration_tier2 COMMAND ${CMAKE_COMMAND}
-        -DTESTS_DIR=${TIER2_DIR}/Tests -DMAIN_FILE=${TIER2_DIR}/Tests/tier2_main.c
-        -DHEADER=${TIER2_DIR}/Tests/test_runner_tier2.h
-        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckTestRegistration.cmake)
+        -DTESTS_DIR=${TIER2_DIR} -DMAIN_FILE=${TIER2_DIR}/tier2_main.c
+        -DHEADER=${TIER2_DIR}/test_runner_tier2.h
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/check_test_registration.cmake)
     set_tests_properties(registration_tier1 registration_tier2 PROPERTIES LABELS "tier1;registration")
 endif()
 
@@ -334,24 +334,24 @@ if(CPROCESSING_BUILD_EXAMPLES)
         list(APPEND example_targets ${target})
     endforeach()
 
-    # The examples load the templates' assets. One copy into bin/Assets
+    # The examples load the templates' assets. One copy into bin/assets
     # serves them all; it waits for the demos' and tests' copies into the
     # same folder, which would otherwise collide in a parallel build.
     list(GET example_targets 0 first_example)
-    add_custom_target(Example_Assets
+    add_custom_target(Example_assets
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_CURRENT_SOURCE_DIR}/templates/vs/Assets"
-            "$<TARGET_FILE_DIR:${first_example}>/Assets"
+            "${CMAKE_CURRENT_SOURCE_DIR}/templates/vs/assets"
+            "$<TARGET_FILE_DIR:${first_example}>/assets"
         COMMENT "Copying the template assets for the examples"
         VERBATIM)
-    set_target_properties(Example_Assets PROPERTIES FOLDER Examples)
-    foreach(other Processing_Demos CProcessing_Tests_Tier2)
+    set_target_properties(Example_assets PROPERTIES FOLDER Examples)
+    foreach(other CProcessing_Demos CProcessing_Tests_Tier2)
         if(TARGET ${other})
-            add_dependencies(Example_Assets ${other})
+            add_dependencies(Example_assets ${other})
         endif()
     endforeach()
     foreach(target ${example_targets})
-        add_dependencies(${target} Example_Assets)
+        add_dependencies(${target} Example_assets)
     endforeach()
 
     # Students often write their game in C++, starting from these files. So

@@ -10,7 +10,7 @@
 
 **You need:** [Lesson 4](Lesson-04-Input) and [Lesson 6](Lesson-06-Collision). The game uses the distance check from lesson 6. You also need speakers or headphones.
 
-The finished program is in the repository as [examples/lessons/08_sound/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/08_sound/main.c). The [music and sounds example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/music_and_sounds.c) lets you try each sound and volume without a game around it. The sounds (`Music.wav`, `Coin.wav`, `Jump.wav`, `Hit.wav`) are in the `Assets` folder of the project template.
+The finished program is in the repository as [examples/lessons/08_sound/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/08_sound/main.c). The [music and sounds example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/music_and_sounds.c) lets you try each sound and volume without a game around it. The sounds (`Music.wav`, `Coin.wav`, `Jump.wav`, `Hit.wav`) are in the `assets` folder of the project template.
 
 ---
 
@@ -27,8 +27,8 @@ CP_Sound coinSound;
 
 void game_init(void)
 {
-	music = CP_Sound_LoadStream("Assets/Music.wav");
-	coinSound = CP_Sound_Load("Assets/Coin.wav");
+	music = CP_Sound_LoadStream("assets/Music.wav");
+	coinSound = CP_Sound_Load("assets/Coin.wav");
 }
 ```
 
@@ -151,7 +151,7 @@ Pick two or more.
 1. **A miss.** Play a soft sound when a coin lands on the ground uncaught. Which of the three sounds would you use?
 2. **Pitch with the combo.** Make the music itself play faster as the combo gets longer, and go back to normal when the combo ends.
 3. **Pause.** Add a pause with P. Pause the music instance while paused, and stop the things from falling.
-4. **Your own sounds.** Record or make a sound (a free tool like Audacity works), put the file in `Assets` and use it for the jump.
+4. **Your own sounds.** Record or make a sound (a free tool like Audacity works), put the file in `assets` and use it for the jump.
 5. **A volume that is remembered.** Show the volume of the music as a percentage in the bar. Then make it so that M mutes by setting the volume to 0, and brings back the volume it had before.
 
 ## Check yourself

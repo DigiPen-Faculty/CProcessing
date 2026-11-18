@@ -18,7 +18,7 @@
 //               to the progress of the trip
 //
 // To run it, copy this file over the template's main.c. It needs
-// SlimeSheet.png in the Assets folder, which the template includes.
+// SlimeSheet.png in the assets folder, which the template includes.
 //
 // Try this:
 // - Draw a second slime that follows the first, a little behind it.
@@ -91,7 +91,7 @@ void game_init(void)
 
 	// Load an image ONCE, here. Loading in game_update would read the file
 	// from the disk on every frame.
-	slimeSheet = CP_Image_Load("Assets/SlimeSheet.png");
+	slimeSheet = CP_Image_Load("assets/SlimeSheet.png");
 
 	slimePosition = CP_Vector_Set(180.0f, 400.0f);
 }

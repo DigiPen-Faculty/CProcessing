@@ -61,7 +61,7 @@ CProcessing/lib/
 templates/vs/.vs/
 templates/vs/Win32/
 templates/vs/x64/
-# The template's copy of the library: tools/BuildReleasePackage.bat -c makes it
+# The template's copy of the library: tools/build_release_package.bat -c makes it
 # from a build of the library, and the release workflow does the same
 templates/vs/CProcessing/
 # Build folders left behind by the layout before Processing_Sample/ was split up

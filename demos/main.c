@@ -12,7 +12,7 @@
 //---------------------------------------------------------
 
 #include "cprocessing.h"
-#include "DemoManager.h"
+#include "demo_manager.h"
 
 int main(void)
 {

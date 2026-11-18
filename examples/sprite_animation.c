@@ -8,7 +8,7 @@
 // - draw one frame of a sprite sheet with CP_Image_DrawSubImage
 // - change frames at a steady speed with a timer and CP_System_GetDt
 //
-// Assets/SlimeSheet.png holds 8 frames in one row, each 64x64 pixels. The
+// assets/SlimeSheet.png holds 8 frames in one row, each 64x64 pixels. The
 // whole sheet is drawn at the top, with a box around the frame being shown.
 // The Up and Down keys change the animation speed.
 //
@@ -17,7 +17,7 @@
 // - Make the animation play once when a key is pressed, then stop.
 //
 // To run it, copy this file over the template's main.c. It needs
-// SlimeSheet.png in the Assets folder, which the template includes.
+// SlimeSheet.png in the assets folder, which the template includes.
 //---------------------------------------------------------
 
 #include "cprocessing.h"
@@ -39,7 +39,7 @@ void game_init(void)
 	CP_System_SetWindowTitle("Sprite animation");
 
 	// Load images once, here, not in game_update (which runs every frame)
-	slimeSheet = CP_Image_Load("Assets/SlimeSheet.png");
+	slimeSheet = CP_Image_Load("assets/SlimeSheet.png");
 }
 
 void game_update(void)

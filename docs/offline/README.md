@@ -29,7 +29,7 @@ Use `-SkipPdf` when Chromium cannot be installed or only the website is needed.
 
 ## Automated builds
 
-The `offline-docs.yml` GitHub Actions workflow builds both files every week,
+The `offline_docs.yml` GitHub Actions workflow builds both files every week,
 when a release is published, and on demand. Publishing a release attaches them
 to it, so students download them from the
 [Releases page](https://github.com/DigiPen-Faculty/CProcessing/releases)
@@ -40,7 +40,7 @@ trigger workflows in the main repository. To refresh the files on the latest
 release after an important wiki edit, run the workflow by hand (Actions >
 Build offline documentation > Run workflow) with that release's tag.
 
-The same workflow checks the wiki against the API with `tools/wiki-audit.py`,
+The same workflow checks the wiki against the API with `tools/wiki_audit.py`,
 which also compiles every example.
 
 ## Student use

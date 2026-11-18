@@ -90,7 +90,7 @@
     <ClInclude Include="inc\cprocessing_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="third_party\GLAD\glad.h">
+    <ClInclude Include="third_party\glad\glad.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
     <ClInclude Include="src\Internal_Resources.h">
@@ -143,7 +143,7 @@
     <ClCompile Include="src\CP_System.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="third_party\GLAD\glad.c">
+    <ClCompile Include="third_party\glad\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

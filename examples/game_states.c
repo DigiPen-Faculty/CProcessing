@@ -11,7 +11,7 @@
 //   the game freezes behind it, and CP_Engine_PopGameState lets it carry on
 // - keep values, such as the best score, across states
 //
-// Examples/state_stack.c goes further: menus on top of menus, a state that
+// examples/state_stack.c goes further: menus on top of menus, a state that
 // keeps running under another, transitions, and drawing into an image.
 //
 // The game: dodge the falling blocks with the mouse for as long as you can.

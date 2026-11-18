@@ -71,25 +71,25 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\src\;$(SolutionDir)CProcessing\third_party\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir);$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\src\;$(SolutionDir)CProcessing\third_party\glfw\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)CProcessing\lib\x86\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>Intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\src\;$(SolutionDir)CProcessing\third_party\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir);$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\src\;$(SolutionDir)CProcessing\third_party\glfw\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)CProcessing\lib\x86\;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>Intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\src\;$(SolutionDir)CProcessing\third_party\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir);$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\src\;$(SolutionDir)CProcessing\third_party\glfw\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)CProcessing\lib\x64\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>Intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir)Tests;$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\src\;$(SolutionDir)CProcessing\third_party\GLFW\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)tests\unity;$(ProjectDir);$(SolutionDir)CProcessing\inc\;$(SolutionDir)CProcessing\src\;$(SolutionDir)CProcessing\third_party\glfw\inc\;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)CProcessing\lib\x64\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>Intermediate\$(Platform)\$(Configuration)\</IntDir>
@@ -184,23 +184,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\unity\unity.c" />
-    <ClCompile Include="Tests\test_main.c" />
-    <ClCompile Include="Tests\test_smoke.c" />
-    <ClCompile Include="Tests\test_cp_math.c" />
-    <ClCompile Include="Tests\test_cp_vector.c" />
-    <ClCompile Include="Tests\test_cp_matrix.c" />
-    <ClCompile Include="Tests\test_cp_color.c" />
-    <ClCompile Include="Tests\test_cp_random.c" />
-    <ClCompile Include="Tests\test_cp_input_logic.c" />
-    <ClCompile Include="Tests\test_internal_platform.c" />
-    <ClCompile Include="Tests\test_internal_monitor.c" />
-    <ClCompile Include="Tests\test_internal_game_state_logic.c" />
-    <ClCompile Include="Tests\test_internal_sound_logic.c" />
+    <ClCompile Include="test_main.c" />
+    <ClCompile Include="test_smoke.c" />
+    <ClCompile Include="test_cp_math.c" />
+    <ClCompile Include="test_cp_vector.c" />
+    <ClCompile Include="test_cp_matrix.c" />
+    <ClCompile Include="test_cp_color.c" />
+    <ClCompile Include="test_cp_random.c" />
+    <ClCompile Include="test_cp_input_logic.c" />
+    <ClCompile Include="test_internal_platform.c" />
+    <ClCompile Include="test_internal_monitor.c" />
+    <ClCompile Include="test_internal_game_state_logic.c" />
+    <ClCompile Include="test_internal_sound_logic.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\unity\unity.h" />
     <ClInclude Include="..\unity\unity_internals.h" />
-    <ClInclude Include="Tests\test_runner.h" />
+    <ClInclude Include="test_runner.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

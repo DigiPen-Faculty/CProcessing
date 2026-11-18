@@ -89,7 +89,7 @@ Each change says what to do in an existing project.
   parameter names of `CP_Settings_ApplyMatrix`, `CP_Vector_MatrixMultiply`
   and `CP_Matrix_Inverse` in the source now match the header. Nothing to do
   in existing programs. CI checks the header against the source
-  (`tools/check-api-names.py`).
+  (`tools/check_api_names.py`).
 - **A sound's volume and pitch combine with its group's, and stay combined.**
   A sound in a group is heard at its own volume times the group's (0.5 in a
   group at 0.5 is heard at 0.25), and plays at its own pitch times the group's.
@@ -102,21 +102,35 @@ Each change says what to do in an existing project.
   (the examples and lessons) sound the same. A program that set one sound's
   volume or pitch and then the group's relied on the group winning: set the
   sound's own value to what it should be inside the group.
+- **The `Assets` folder is now `assets`.** One naming rule now covers the
+  repository and the release packages: every folder and file name is
+  lowercase, with underscores between words (`CProcessing` and a short list of
+  fixed names are the exceptions; see "Naming and layout" in BUILDING.md). The
+  template, the examples and the lessons use `assets/`, and the release
+  packages have `assets/` and `examples/` (the examples folder is new in this
+  release, so only `assets` affects an existing project). Linux and macOS
+  care about case, so a program that loads `"Assets/jump.wav"` has to load
+  `"assets/jump.wav"` to use the new template's folder; Windows finds either
+  spelling. In an existing project, rename the folder and search and replace
+  `Assets/` with `assets/` in the paths. The built-in font's path is now
+  `./assets/Exo2-Regular.ttf`: a program that loads the font by its old path,
+  `./Assets/Exo2-Regular.ttf`, now needs the file in its assets folder.
 - **The repository's folders were reorganized**, so each name says what is in
   it: the library is `CProcessing/` (it was `Processing_Sample/CProcessing/`),
-  the solution is `CProcessing.sln`, the demo program is `demos/`, the tests
-  are `tests/tier1`, `tests/tier2` and `tests/unity`, `Examples/` is
-  `examples/`, the templates are `templates/vs` and `templates/cmake` (were
-  `Processing_Empty` and `Processing_Empty_CMake`), and
-  `BuildReleasePackage.bat` is in `tools/`. The bundled libraries (GLAD, GLFW,
-  NanoVG with the stb headers, SoLoud, and `vect`) are in
-  `CProcessing/third_party/`, apart from CProcessing's own code in
-  `CProcessing/src/` (it was `Source/`). The release packages students
-  download are laid out as before, except that `Examples/Lessons` is now
-  `Examples/lessons`. Nothing to do in a program. A fork
-  or script that uses the old paths needs them changed. `git blame` and
-  `git log --follow` follow files across the move. Old tags and releases
-  keep the old layout.
+  the solution is `CProcessing.sln`, the demo program is `demos/` (and
+  `CProcessing_Demos`, it was `Processing_Demos`), the tests are
+  `tests/tier1`, `tests/tier2` and `tests/unity`, `examples/` (it was
+  `Examples/`), the templates are `templates/vs` and `templates/cmake` (were
+  `Processing_Empty` and `Processing_Empty_CMake`), and the scripts are in
+  `tools/`, named in snake_case (`build_release_package.bat` was
+  `BuildReleasePackage.bat`). The bundled libraries (GLAD, GLFW, NanoVG with
+  the stb headers, SoLoud, and `vect`) are in `CProcessing/third_party/`, apart
+  from CProcessing's own code in `CProcessing/src/` (it was `Source/`). The
+  release packages students download are laid out as before, except for the
+  folder names in the entry above. Nothing else to do in a program. A fork or
+  script that uses the old paths needs them changed. `git blame` and
+  `git log --follow` follow files across the move. Old tags and releases keep
+  the old layout.
 
 ### Added
 
@@ -162,18 +176,18 @@ Each change says what to do in an existing project.
   a minimap, a trail that fades, a picture to save as a screenshot.
   `CP_Image_GetPixelData` and `UpdatePixelData` work on these images as on
   any other.
-- **`Examples/state_stack.c`** shows the stack, pass-through, a HUD drawn by
-  a function and a trail drawn into an image. **`Examples/state_effects.c`**
+- **`examples/state_stack.c`** shows the stack, pass-through, a HUD drawn by
+  a function and a trail drawn into an image. **`examples/state_effects.c`**
   shows effects written with ordinary CProcessing functions: easing into
   slow motion under a level-up box (a time scale of your own, and the
   sound's pitch), and turning the music down under a pause, with the
   frozen game blurred or pixelated behind it (a screenshot in the pause's
   init is the picture below it, drawn small and stretched back up).
-  **`Examples/transitions.c`** animates changes of state (fade, crossfade,
+  **`examples/transitions.c`** animates changes of state (fade, crossfade,
   slides, and one the program draws) with a small helper to copy: it takes
   a screenshot of the old state and draws it over the new one from the
   post-update function. The old state's exit still runs before the new
-  state's init. `Examples/game_states.c` now pauses
+  state's init. `examples/game_states.c` now pauses
   by pushing a state, not with a flag.
 - **Window and frame rate options:** `CP_System_SetWindowResizable` lets the
   player resize the window (drawing follows the new size), `CP_System_SetVSync`
@@ -182,7 +196,7 @@ Each change says what to do in an existing project.
   `CP_System_SetFrameRate` (0 for none). Vsync and resizable can be chosen
   before `CP_Engine_Run`, and each has a getter
   (`CP_System_GetVSync`, `CP_System_GetWindowResizable`).
-  `Examples/window_options.c` shows them.
+  `examples/window_options.c` shows them.
 - **Reading settings back:** `CP_Settings_GetFill`, `CP_Settings_GetStroke`,
   `CP_Settings_GetStrokeWeight`, `CP_Settings_GetTextSize` and
   `CP_Font_GetCurrent` return what is in use now, so a function can change a
@@ -192,7 +206,7 @@ Each change says what to do in an existing project.
   as a curved line, `CP_Graphics_DrawPie` draws a filled slice of a circle (for
   pie charts and meters), and `CP_Graphics_DrawBezier` draws a smooth curve
   bent by two control points. Angles are in degrees, 0 points right and a
-  positive sweep goes clockwise. `Examples/curves.c` shows all three.
+  positive sweep goes clockwise. `examples/curves.c` shows all three.
 - **Layered noise:** `CP_Random_NoiseOctaves` adds several layers of
   `CP_Random_Noise`, each with twice the detail and less strength, for more
   natural hills and clouds.
@@ -217,16 +231,16 @@ Each change says what to do in an existing project.
   games need: `movement.c`, `collision.c`, `sprite_animation.c`,
   `camera.c`, `game_states.c`, `score_and_text.c`,
   `music_and_sounds.c` and `text_input.c`. Each is one file with step-by-step comments and
-  ideas to try. They're in an `Examples` folder in every release package
+  ideas to try. They're in an `examples` folder in every release package
   and in the repository; to run one, copy it over `main.c`.
 - **Lessons 1 to 11 (Your first window, Shapes and the coordinate system, Color, Input, Moving with vectors and delta time, Collision, Images and animation, Sound, Game states, a Capstone game, and an extra on writing your own state manager):** each is a page of
-  step-by-step teaching with a finished program in `Examples/lessons`, and
+  step-by-step teaching with a finished program in `examples/lessons`, and
   challenges and check-yourself questions. The pages are in `docs/lessons`
   until they are published to the wiki.
-- **A Color picker demo** (6 in `Processing_Demos`): drag red, green, blue,
+- **A Color picker demo** (6 in `CProcessing_Demos`): drag red, green, blue,
   hue, saturation, lightness and alpha sliders and watch the color, its
   code and the colors between two kept colors.
-- **New assets in the templates' `Assets` folder**, made for the examples
+- **New assets in the templates' `assets` folder**, made for the examples
   and free to use in your own games: a sprite sheet (`SlimeSheet.png`), a
   music loop (`Music.wav`) and three sound effects (`Coin.wav`,
   `Jump.wav`, `Hit.wav`).
@@ -367,7 +381,7 @@ Each change says what to do in an existing project.
 - **Loading the same image, font or sound twice and freeing one of them
   freed it for both.** Loading a file that's already loaded gives back the
   same handle, so two parts of a program that each loaded
-  `"Assets/player.png"` shared one image, and the first `CP_Image_Free`
+  `"assets/player.png"` shared one image, and the first `CP_Image_Free`
   broke the other. A file now stays loaded until every load of it has been
   freed. `CP_Sound_Load` and `CP_Sound_LoadStream` on the same file also
   gave back whichever was loaded first; they're now separate sounds.
