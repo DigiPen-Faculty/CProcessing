@@ -6,6 +6,7 @@
 * It is a DLL that can be incorporated into projects across many platforms and accessed from many different programming languages.
 * It runs on Windows, Linux and macOS.
 * It was patterned after Processing (Java) and P5.js (JavaScript)
+* It exists so students learning C have a colorful, playful place to practice it. [DESIGN.md](DESIGN.md) says what it values and the rules for changing it.
  
 ## What can you do with it?
 * It's currently used in GAM100 in Redmond, Malaysia and Singapore as a way for students to very quickly build prototype games and even do their first team game.

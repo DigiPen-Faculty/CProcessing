@@ -10,7 +10,9 @@ to build it:
 
 Most students only need the
 [latest release](https://github.com/DigiPen-Faculty/CProcessing/releases)
-template project. This page is for building CProcessing itself.
+template project. This page is for building CProcessing itself. Before
+changing the API, read [DESIGN.md](DESIGN.md): what CProcessing values, and the
+rules for what goes in the library and how it is named.
 
 ## Repository layout
 
