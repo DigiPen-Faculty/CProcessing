@@ -46,6 +46,14 @@ void test_tier2_system_timing_getters_are_sane(void)
 	TEST_ASSERT_GREATER_THAN_FLOAT(0.0f, tier2_scalars.frameRateSample);
 }
 
+void test_tier2_system_dt_is_capped_after_a_stall(void)
+{
+	// The frame after a 0.3 s stall: dt is at most 0.1 s, real time still passed
+	TEST_ASSERT_GREATER_THAN_FLOAT(0.0f, tier2_scalars.dtAfterStall);
+	TEST_ASSERT_LESS_OR_EQUAL_FLOAT(0.1f, tier2_scalars.dtAfterStall);
+	TEST_ASSERT_GREATER_OR_EQUAL_FLOAT(0.3f, tier2_scalars.secondsAfterStall - tier2_scalars.secondsBeforeStall);
+}
+
 void test_tier2_system_window_focus_is_a_valid_bool(void)
 {
 	TEST_ASSERT_TRUE(tier2_scalars.windowFocusSample == TRUE || tier2_scalars.windowFocusSample == FALSE);

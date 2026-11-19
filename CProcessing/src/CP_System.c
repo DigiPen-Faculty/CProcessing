@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #if !defined(_WIN32)
+	#include <sched.h>  // sched_yield
 	#include <time.h>   // nanosleep
 	#include <unistd.h> // isatty
 #endif
@@ -65,9 +66,38 @@ static CP_FunctionPtr _postUpdateFunction = NULL;
 //------------------------------------------------------------------------------
 
 // FrameRate Control
-static double StartingTime, EndingTime, ElapsedSeconds;
-static double _frametimeTarget = 1.0 / 60.0;
-static double _frametime = 1.0 / 60.0;
+static double _frametimeTarget = 1.0 / 60.0; // seconds per frame, 0 for no limit
+static double _frametime = 1.0 / 60.0;       // dt: the last frame's length, at most CP_MAX_DT
+static double _frameStartScheduled = 0.0;    // when this frame was due to start (glfwGetTime)
+static double _previousFrameEnd = 0.0;       // when the last frame ended, after its wait
+static double _frameRateShown = 0.0;         // CP_System_GetFrameRate: frames per second, averaged
+static double _frameRateSeconds = 0.0;       // the frames counted so far for the next average
+static int _frameRateFrames = 0;
+
+// The longest dt can be. A frame after a breakpoint, a window drag (Windows
+// stops the program while a window is dragged) or a long load would
+// otherwise be seconds long, and everything moved by speed * dt would jump
+// through walls. Below 10 frames per second the game slows down instead.
+#define CP_MAX_DT 0.1
+
+// How the frame rate shown is averaged: over at least this many seconds, so a
+// number drawn on the screen can be read
+#define CP_FRAME_RATE_AVERAGE_SECONDS 0.5
+
+// The limiter sleeps until this long before the frame is due, then waits out
+// the rest without sleeping: a sleep can wake up late by about this much
+#define CP_FRAME_SPIN_SECONDS 0.001
+
+#if defined(_WIN32)
+	#ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
+		#define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
+	#endif
+// A high-resolution waitable timer (Windows 10 version 1803 and later) wakes
+// within about half a millisecond. Sleep(1) usually sleeps a whole tick of
+// the system timer, about 15.6 ms, unless the program changes the timer for
+// everything with timeBeginPeriod. NULL if it couldn't be made.
+static HANDLE _frameTimer = NULL;
+#endif
 
 // Window and display options that can be chosen before CP_Engine_Run, and
 // are used when the window opens
@@ -1452,7 +1482,12 @@ CP_API unsigned CP_System_GetFrameCount(void)
 
 CP_API float CP_System_GetFrameRate(void)
 {
-	return (float)(1.0 / _frametime);
+	// Averaged over half a second; in the first half second, the last frame's
+	if (_frameRateShown > 0.0)
+	{
+		return (float)_frameRateShown;
+	}
+	return _frametime > 0.0 ? (float)(1.0 / _frametime) : 0.0f;
 }
 
 CP_API void CP_System_SetFrameRate(float fps)
@@ -1778,6 +1813,7 @@ void CP_Shutdown(void)
 	CP_Text_Shutdown();
 	CP_Sound_Shutdown();
 	CP_Image_Shutdown();
+	CP_FrameRate_Shutdown();
 
 	// Clean up GL resources while the GL context still exists, then glfw
 	// (which destroys the window and context)
@@ -1854,12 +1890,35 @@ void CP_FrameRate_Init(void)
 {
 	// start the app at frame zero
 	_frameCount = 0;
+
+	const double now = glfwGetTime();
+	_frameStartScheduled = now;
+	_previousFrameEnd = now;
+	_frameRateShown = 0.0;
+	_frameRateSeconds = 0.0;
+	_frameRateFrames = 0;
+
+#if defined(_WIN32)
+	if (!_frameTimer)
+	{
+		_frameTimer = CreateWaitableTimerExW(NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+	}
+#endif
+}
+
+void CP_FrameRate_Shutdown(void)
+{
+#if defined(_WIN32)
+	if (_frameTimer)
+	{
+		CloseHandle(_frameTimer);
+		_frameTimer = NULL;
+	}
+#endif
 }
 
 void CP_FrameRate_FrameStart(void)
 {
-	StartingTime = glfwGetTime();
-
 	// Update frame count
 	CP_IncFrameCount();
 }
@@ -1877,62 +1936,131 @@ void CP_Draw_EndRotation(void)
 	nvgRestore(_CORE.nvg);
 }
 
-// Sleep for about one millisecond, giving the time back to other programs
-// instead of spinning
-static void CP_SleepOneMillisecond(void)
+// Give the rest of this time slice to other programs, for a wait too short
+// to sleep
+static void CP_YieldThread(void)
 {
 #if defined(_WIN32)
-	Sleep(1);
+	SwitchToThread();
 #else
-	struct timespec duration = { 0, 1000000 };
+	sched_yield();
+#endif
+}
+
+// Sleep for about this many seconds, giving the time back to other programs
+static void CP_SleepSeconds(double seconds)
+{
+#if defined(_WIN32)
+	if (_frameTimer)
+	{
+		LARGE_INTEGER due;
+		due.QuadPart = -(LONGLONG)(seconds * 1e7); // negative: relative, in 100 ns units
+		if (SetWaitableTimerEx(_frameTimer, &due, 0, NULL, NULL, NULL, 0))
+		{
+			WaitForSingleObject(_frameTimer, INFINITE);
+			return;
+		}
+	}
+	// No high-resolution timer: Sleep can wake about 16 ms late, so only sleep
+	// when there is time for that, and yield otherwise
+	if (seconds > 0.020)
+	{
+		Sleep((DWORD)((seconds - 0.016) * 1000.0));
+	}
+	else
+	{
+		CP_YieldThread();
+	}
+#else
+	struct timespec duration;
+	duration.tv_sec = (time_t)seconds;
+	duration.tv_nsec = (long)((seconds - (double)duration.tv_sec) * 1e9);
 	nanosleep(&duration, NULL);
 #endif
 }
 
-static double averageSleepCycles = 0.002;
-static double additionalBuffer = 0.001; // Sleep() isn't very accurate and we want to make sure we don't over sleep
+// Wait until glfwGetTime() reaches the deadline: sleep for most of the wait,
+// then yield for the last moment so the frame starts on time
+static void CP_WaitUntil(double deadline)
+{
+	for (;;)
+	{
+		const double remaining = deadline - glfwGetTime();
+		if (remaining <= 0.0)
+		{
+			return;
+		}
+		if (remaining > CP_FRAME_SPIN_SECONDS)
+		{
+			CP_SleepSeconds(remaining - CP_FRAME_SPIN_SECONDS);
+		}
+		else
+		{
+			CP_YieldThread();
+		}
+	}
+}
+
+// Whether the frame limiter waits: not without a limit, and not when vsync is
+// on and the limit is at or above the display's refresh rate. Vsync already
+// waits for the display then, and waiting as well would only make frames land
+// on uneven refreshes.
+static bool CP_FrameRate_LimiterIsOn(void)
+{
+	if (_frametimeTarget <= 0.0)
+	{
+		return false;
+	}
+	if (_vsync)
+	{
+		const int refresh = CP_System_GetDisplayRefreshRate();
+		if (refresh > 0 && 1.0 / _frametimeTarget >= (double)refresh - 1.0)
+		{
+			return false;
+		}
+	}
+	return true;
+}
 
 void CP_FrameRate_FrameEnd(void)
 {
-	double prevSeconds = 0;
-	double currSeconds = 0;
-
-	do
+	if (CP_FrameRate_LimiterIsOn())
 	{
-		CP_UpdateFrameTime();
-
-		// compute remaining microseconds in the frame
-		currSeconds = _frametimeTarget - ElapsedSeconds;
-
-		// if our remaining microseconds this frame are greater than the Sleep function's
-		// average margin of error (plus an additional buffer value) then go ahead and Sleep
-		if (currSeconds > averageSleepCycles + additionalBuffer)
+		// Frames are due on a fixed schedule, one target apart, so the average
+		// rate is exactly the target: a frame that starts a little late doesn't
+		// push every frame after it later. More than a whole frame behind (a
+		// slow frame, a breakpoint, a window being dragged), the schedule starts
+		// again from now, rather than rushing frames to catch up.
+		double due = _frameStartScheduled + _frametimeTarget;
+		const double now = glfwGetTime();
+		if (now > due + _frametimeTarget)
 		{
-			prevSeconds = currSeconds;
-
-			// give back cycles to other processes if we don't need them
-			CP_SleepOneMillisecond();
-
-			// update the time after sleeping
-			CP_UpdateFrameTime();
-
-			// recompute remaining micros
-			currSeconds = _frametimeTarget - ElapsedSeconds;
-
-			// update the average sleep over 16 samples so we maintain awareness of the system's margin of error.
-			averageSleepCycles = ((averageSleepCycles * 15.0) + (prevSeconds - currSeconds)) / 16.0; // multiply by 15, add new sample, divide by 16
+			due = now;
 		}
+		CP_WaitUntil(due);
+		_frameStartScheduled = due;
+	}
+	else
+	{
+		_frameStartScheduled = glfwGetTime();
+	}
 
-	} while (ElapsedSeconds < _frametimeTarget);
+	// The frame's length: from the end of the last frame to the end of this
+	// one, so no time between frames is lost
+	const double end = glfwGetTime();
+	const double length = end - _previousFrameEnd;
+	_previousFrameEnd = end;
+	_frametime = length < CP_MAX_DT ? length : CP_MAX_DT;
 
-	// Update time of the last frame
-	_frametime = ElapsedSeconds;
-}
-
-void CP_UpdateFrameTime(void)
-{
-	EndingTime = glfwGetTime();
-	ElapsedSeconds = EndingTime - StartingTime;
+	// The frame rate shown is the frames per second over the last half second
+	_frameRateSeconds += length;
+	++_frameRateFrames;
+	if (_frameRateSeconds >= CP_FRAME_RATE_AVERAGE_SECONDS)
+	{
+		_frameRateShown = (double)_frameRateFrames / _frameRateSeconds;
+		_frameRateSeconds = 0.0;
+		_frameRateFrames = 0;
+	}
 }
 
 void CP_SetWindowSizeInternal(int new_width, int new_height, bool isFullscreen)

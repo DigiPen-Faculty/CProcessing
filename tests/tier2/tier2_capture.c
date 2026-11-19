@@ -1095,6 +1095,26 @@ static void Scn_SystemFrameRateNoLimit(void)
 	tier2_scalars.frameRateNoLimitSet = true;
 }
 
+// A frame that takes 0.3 s, like one after a breakpoint or a window drag.
+// The next frame's dt is capped at 0.1 s, so things moved by speed * dt don't
+// jump; CP_System_GetSeconds still tells the real time.
+static void Scn_SystemStall(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	tier2_scalars.secondsBeforeStall = CP_System_GetSeconds();
+	while (CP_System_GetSeconds() - tier2_scalars.secondsBeforeStall < 0.3f)
+	{
+		// wait without any operating system header
+	}
+}
+
+static void Scn_SystemDtAfterStall(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	tier2_scalars.dtAfterStall = CP_System_GetDt();
+	tier2_scalars.secondsAfterStall = CP_System_GetSeconds();
+}
+
 // ---- CP_Sound (Phase E) ----
 // Per 06-test-suite-plan.md: no reliable way to assert "it sounds
 // correct" automatically, so the realistic goal is load/free/play/pause/
@@ -1649,6 +1669,8 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
 	[SCN_FONT_MIRRORED] = Scn_FontMirrored,
 	[SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
 	[SCN_SYSTEM_FRAME_RATE_NO_LIMIT] = Scn_SystemFrameRateNoLimit,
+	[SCN_SYSTEM_STALL] = Scn_SystemStall,
+	[SCN_SYSTEM_DT_AFTER_STALL] = Scn_SystemDtAfterStall,
 	[SCN_SOUND_ROUNDTRIP] = Scn_SoundRoundTrip,
 	[SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,
 	[SCN_GAMESTATE_STACK] = Scn_GameStateStack,

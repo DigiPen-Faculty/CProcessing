@@ -87,6 +87,8 @@ typedef enum
 	SCN_SYSTEM_ENGINE_STATE,
 	// Not last: the frames after it show the frame limiter didn't hang
 	SCN_SYSTEM_FRAME_RATE_NO_LIMIT,
+	SCN_SYSTEM_STALL,
+	SCN_SYSTEM_DT_AFTER_STALL,
 	SCN_SOUND_ROUNDTRIP,
 	SCN_INPUT_QUIESCENT_DEFAULTS,
 	// Pushes game states on top of the harness for a few frames (the harness
@@ -158,6 +160,9 @@ typedef struct
 	bool soundAndStreamDiffer;
 	bool sharedSoundReloadSame;
 	bool frameRateNoLimitSet; // SetFrameRate(0) and (-30) ran
+	float secondsBeforeStall; // CP_System_GetSeconds as the 0.3 s stall began
+	float secondsAfterStall;  // and in the frame after it
+	float dtAfterStall;       // CP_System_GetDt in the frame after the stall
 
 	// System getters (see Scn_SystemGetters)
 	CP_BOOL vsyncBeforeRun; // set to TRUE before CP_Engine_Run
