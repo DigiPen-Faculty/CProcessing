@@ -259,6 +259,25 @@ Each change says what to do in an existing project.
 
 ### Changed
 
+- **Frames come on time, with much less work for the computer.** The frame
+  limiter slept 1 ms at a time and spun when it got close, but on Windows a
+  short sleep often lasts a whole system timer tick (about 15.6 ms). Drawing
+  one circle at 60 frames per second used 43% of a CPU core, ran at 58.8
+  frames per second, and 1 frame in 12 came more than 10% late. Now frames are
+  due on a fixed schedule (so the average is exactly the target), the program
+  sleeps with a high-resolution timer until just before the next frame is due,
+  and with vsync on and a limit at or above the monitor's refresh rate the
+  monitor sets the pace. The same circle runs at 60.00 frames per second, with
+  1 late frame in 600, on 17% of a core (11% with vsync).
+- **`CP_System_GetDt` is never more than 0.1 seconds.** The frame after a
+  breakpoint, a window drag (Windows stops the program while its window is
+  dragged) or a long load was seconds long, so anything moved by speed times
+  dt jumped, even through walls. Below 10 frames per second the game now slows
+  down instead. `CP_System_GetSeconds` and `GetMillis` still tell the real
+  time; `CP_Engine_GetGameStateTime` adds up dt, so it follows the game.
+- **`CP_System_GetFrameRate` is averaged over half a second,** so a frame rate
+  drawn on the screen can be read instead of flickering every frame.
+
 - **The templates build C++ as well as C.** A game can be written in C++ by
   renaming `main.c` to `main.cpp`.
   - The Visual Studio template no longer forces every file to compile as C:

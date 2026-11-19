@@ -158,6 +158,7 @@ int main(void)
 	RUN_TEST(test_tier2_font_getcurrent_is_the_font_that_was_set_and_follows_save_restore);
 	RUN_TEST(test_tier2_font_getcurrent_falls_back_to_the_default_when_the_font_is_freed);
 	RUN_TEST(test_tier2_system_timing_getters_are_sane);
+	RUN_TEST(test_tier2_system_dt_is_capped_after_a_stall);
 	RUN_TEST(test_tier2_system_window_focus_is_a_valid_bool);
 	RUN_TEST(test_tier2_system_display_info_is_positive);
 	RUN_TEST(test_tier2_engine_pre_and_post_update_hooks_fire);

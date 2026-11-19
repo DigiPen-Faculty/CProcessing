@@ -161,7 +161,7 @@ void CP_FrameEnd(void);
 void CP_FrameRate_Init(void);
 void CP_FrameRate_FrameStart(void);
 void CP_FrameRate_FrameEnd(void);
-void CP_UpdateFrameTime(void);
+void CP_FrameRate_Shutdown(void);
 void CP_IncFrameCount(void);
 
 #ifdef __cplusplus
