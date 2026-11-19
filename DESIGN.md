@@ -57,7 +57,8 @@ Processing's everyday math words (map, lerp, clamp, distance, radians and
 degrees, square) stay, because every example uses them. Anything else that
 a student can write in a few lines, and learns something by writing, is an
 **example** to copy from, not a library function. Easing curves are the
-typical case: each is a line or two of math on a lerp factor.
+typical case: each is a line or two of math on a lerp factor, so
+`examples/easing.c` shows them with their code instead.
 
 A released function is removed only when it misleads students or clutters
 the library in a way that costs them, never just to be tidy.
@@ -72,9 +73,9 @@ the library in a way that costs them, never just to be tidy.
 * **`Advanced`** means *the same function with every option*: a gamepad
   number, a volume, pitch, loop and group, a window size. The plain function
   is the common case, with sensible defaults.
-* A name says what it means where it's used: a value that describes the
-  states below a game state is named after what passes through to them, not
-  after a state.
+* A name says what it means where it's used: `CP_PASSTHROUGH_VISIBLE`
+  describes what passes through to the states below a game state, so it's
+  named after the pass-through, not after a state.
 
 ### Units
 

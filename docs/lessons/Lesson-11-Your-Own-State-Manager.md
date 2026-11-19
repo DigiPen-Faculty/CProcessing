@@ -181,7 +181,7 @@ The manager you wrote has the same ideas as the engine's, but not everything. Wh
 |---|---|---|
 | A paused game stays visible | Every screen's draw is called every frame | Each state's picture is kept on a layer of its own, so a state can draw in its update |
 | Drawing settings | Save and Restore around each draw | Each state has its own |
-| What's under a box | Frozen, or you add a flag | `CP_Engine_SetGameStatePassThrough` chooses frozen or running, visible or hidden |
+| What's under a box | Frozen, or you add a flag | `CP_Engine_SetGameStatePassThrough` chooses stopped or running, visible or hidden |
 | Starting and ending | `Screens_ExitAll` when the program ends | The engine ends every state on the stack |
 
 The first row is the big one. **The engine's layers are what let lesson 9 draw in `update` at all.** Without them, you need a separate draw function, which is how most game engines are written, and is why the screens here have one.
@@ -195,7 +195,7 @@ So when would you use your own? When you want a design that isn't the engine's (
 Pick two or more.
 
 1. **How to play.** Add a screen reached from the menu with H, and a way back. It needs its functions, a declaration at the top and a `Screen` variable. Should it be a `Set` or a `Push`?
-2. **A box over a running game.** Add a field `CP_BOOL coverRuns` to the struct. When the screen on top has it set, `Screens_Update` updates the screen under it too. Make a "level up" box that the game keeps running under, as lesson 9 and the examples do with `CP_STATE_PASSIVE`. (What about input? The screen under it must not see keys.)
+2. **A box over a running game.** Add a field `CP_BOOL coverRuns` to the struct. When the screen on top has it set, `Screens_Update` updates the screen under it too. Make a "level up" box that the game keeps running under, as lesson 9 and the examples do with `CP_PASSTHROUGH_ALL`. (What about input? The screen under it must not see keys.)
 3. **A fade.** Give each screen the seconds since it began (an array next to the stack, set to 0 in `Screens_Enter`), and use it to fade the pause's cover in.
 4. **Replace.** Write `Screens_Replace(screen)`: take off the top screen and put another in its place, in one request. When is that different from a Pop and a Push?
 5. **Skip what you can't see.** A screen that covers everything (the menu) makes the draws under it a waste. Add a field `opaque`, and make the draw loop start at the top-most opaque screen.

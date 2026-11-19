@@ -39,7 +39,7 @@ typedef struct CP_GSL_State
 	CP_FunctionPtr init;
 	CP_FunctionPtr update;
 	CP_FunctionPtr exit;
-	CP_STATE passThrough; // what the states under this one can do
+	CP_PASSTHROUGH passThrough; // what the states under this one can do
 } CP_GSL_State;
 
 typedef enum CP_GSL_RequestKind
@@ -119,7 +119,7 @@ static inline CP_GSL_Result CP_GSL_Ask(CP_GSL_Stack* stack, CP_GSL_RequestKind k
 	if (kind == CP_GSL_POP)
 	{
 		request->state.init = request->state.update = request->state.exit = NULL;
-		request->state.passThrough = CP_STATE_FROZEN;
+		request->state.passThrough = CP_PASSTHROUGH_VISIBLE;
 	}
 	return CP_GSL_DONE;
 }
@@ -128,7 +128,7 @@ static inline CP_GSL_Result CP_GSL_Ask(CP_GSL_Stack* stack, CP_GSL_RequestKind k
 // every state above it leave
 static inline CP_GSL_Result CP_GSL_AskPop(CP_GSL_Stack* stack, int from)
 {
-	const CP_GSL_State none = { NULL, NULL, NULL, CP_STATE_FROZEN };
+	const CP_GSL_State none = { NULL, NULL, NULL, CP_PASSTHROUGH_VISIBLE };
 	const CP_GSL_Result result = CP_GSL_Ask(stack, CP_GSL_POP, none);
 	if (result == CP_GSL_DONE)
 	{
@@ -229,7 +229,7 @@ static inline CP_GSL_Result CP_GSL_Apply(CP_GSL_Stack* stack, const CP_GSL_Reque
 		}
 		CP_GSL_LeaveAll(stack, hooks, request->kind);
 		stack->states[0] = request->state;
-		stack->states[0].passThrough = CP_STATE_FROZEN;
+		stack->states[0].passThrough = CP_PASSTHROUGH_VISIBLE;
 		stack->depth = 1;
 		if (hooks && hooks->enter)
 		{
@@ -243,12 +243,12 @@ static inline CP_GSL_Result CP_GSL_Apply(CP_GSL_Stack* stack, const CP_GSL_Reque
 // Which states run and which are seen
 //
 // Each state's pass-through says what the states under it can do: be
-// updated (CP_STATE_UPDATING) and be seen (CP_STATE_VISIBLE). A state under
+// updated (CP_PASSTHROUGH_UPDATE) and be seen (CP_PASSTHROUGH_VISIBLE). A state under
 // several can do only what all of them let through. The top state does
 // everything, and is the only one with input.
 
 // Is the state at index updated this frame? The top always is; one below it
-// only if every state above it lets CP_STATE_UPDATING through.
+// only if every state above it lets CP_PASSTHROUGH_UPDATE through.
 static inline bool CP_GSL_IsRunning(const CP_GSL_Stack* stack, int index)
 {
 	if (index < 0 || index >= stack->depth)
@@ -257,7 +257,7 @@ static inline bool CP_GSL_IsRunning(const CP_GSL_Stack* stack, int index)
 	}
 	for (int above = index + 1; above < stack->depth; ++above)
 	{
-		if ((stack->states[above].passThrough & CP_STATE_UPDATING) == 0)
+		if ((stack->states[above].passThrough & CP_PASSTHROUGH_UPDATE) == 0)
 		{
 			return false;
 		}
@@ -266,13 +266,13 @@ static inline bool CP_GSL_IsRunning(const CP_GSL_Stack* stack, int index)
 }
 
 // The lowest state that can be seen: everything from here to the top is
-// drawn. A state that doesn't let CP_STATE_VISIBLE through hides everything
+// drawn. A state that doesn't let CP_PASSTHROUGH_VISIBLE through hides everything
 // under it.
 static inline int CP_GSL_LowestVisible(const CP_GSL_State* states, int depth)
 {
 	for (int i = depth - 1; i > 0; --i)
 	{
-		if ((states[i].passThrough & CP_STATE_VISIBLE) == 0)
+		if ((states[i].passThrough & CP_PASSTHROUGH_VISIBLE) == 0)
 		{
 			return i;
 		}

@@ -56,6 +56,57 @@ const float framesPerSecond = 12.0f;
 // An easing function turns that into how far along the PATH we are, also
 // from 0 to 1, but not at the same pace.
 //---------------------------------------------------------
+// Each easing function is a line or two of math that you write yourself.
+// Cubic means the progress is multiplied by itself three times.
+
+// Starts slow, ends fast
+float EaseInCubic(float t)
+{
+	return t * t * t;
+}
+
+// Starts fast, ends slow: turn the progress round, ease in, turn it back
+float EaseOutCubic(float t)
+{
+	const float u = 1.0f - t;
+	return 1.0f - u * u * u;
+}
+
+// Slow, fast, slow: ease in for the first half, out for the second
+float EaseInOutCubic(float t)
+{
+	if (t < 0.5f)
+	{
+		return 4.0f * t * t * t;
+	}
+	const float u = -2.0f * t + 2.0f;
+	return 1.0f - u * u * u / 2.0f;
+}
+
+// Arrives and bounces to a stop: four curves, each smaller than the one
+// before it
+float EaseOutBounce(float t)
+{
+	const float n = 7.5625f;
+	const float d = 2.75f;
+	if (t < 1.0f / d)
+	{
+		return n * t * t;
+	}
+	if (t < 2.0f / d)
+	{
+		t -= 1.5f / d;
+		return n * t * t + 0.75f;
+	}
+	if (t < 2.5f / d)
+	{
+		t -= 2.25f / d;
+		return n * t * t + 0.9375f;
+	}
+	t -= 2.625f / d;
+	return n * t * t + 0.984375f;
+}
+
 #define EASING_COUNT 5
 const char* easingNames[EASING_COUNT] = { "linear", "ease in", "ease out", "ease in and out", "bounce" };
 int easing = 3;
@@ -64,10 +115,10 @@ float ApplyEasing(int which, float progress)
 {
 	switch (which)
 	{
-	case 1:  return CP_Math_EaseInCubic(progress);
-	case 2:  return CP_Math_EaseOutCubic(progress);
-	case 3:  return CP_Math_EaseInOutCubic(progress);
-	case 4:  return CP_Math_EaseOutBounce(progress);
+	case 1:  return EaseInCubic(progress);
+	case 2:  return EaseOutCubic(progress);
+	case 3:  return EaseInOutCubic(progress);
+	case 4:  return EaseOutBounce(progress);
 	default: return progress; // linear: no change
 	}
 }

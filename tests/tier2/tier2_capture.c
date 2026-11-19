@@ -245,14 +245,19 @@ static void Scn_DrawLine(void)
 	CP_Graphics_DrawLine(20, 100, 180, 100);
 }
 
-static void Scn_DrawLineAdvanced(void)
+static void Scn_DrawLineRotated(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 	CP_Settings_Stroke(RED);
 	CP_Settings_StrokeWeight(10.0f);
-	// Rotated 90 degrees about its own midpoint (100,100): a horizontal
+	// Turned 90 degrees about its own midpoint (100,100), the way the docs
+	// teach it: move (0, 0) there, rotate, draw around (0, 0). A horizontal
 	// line becomes vertical, so the original endpoint is no longer covered.
-	CP_Graphics_DrawLineAdvanced(20, 100, 180, 100, 90);
+	CP_Settings_Save();
+	CP_Settings_Translate(100, 100);
+	CP_Settings_Rotate(90);
+	CP_Graphics_DrawLine(-80, 0, 80, 0);
+	CP_Settings_Restore();
 }
 
 static void Scn_DrawRect(void)
@@ -263,13 +268,27 @@ static void Scn_DrawRect(void)
 	CP_Graphics_DrawRect(100, 100, 80, 80);
 }
 
-static void Scn_DrawRectAdvanced(void)
+static void Scn_DrawRectRotated(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 	CP_Settings_NoStroke();
 	CP_Settings_Fill(RED);
-	// An 80x20 rect rotated 45 degrees about its center (100,100).
-	CP_Graphics_DrawRectAdvanced(100, 100, 80, 20, 45, 0);
+	// An 80x20 rect turned 45 degrees about its center (100,100).
+	CP_Settings_Save();
+	CP_Settings_Translate(100, 100);
+	CP_Settings_Rotate(45);
+	CP_Graphics_DrawRect(0, 0, 80, 20);
+	CP_Settings_Restore();
+}
+
+// An 80x80 square around (100, 100) with corners of radius 20: the very
+// corner is cut away, the middle of each edge is still there
+static void Scn_DrawRoundedRect(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_DrawRoundedRect(100, 100, 80, 80, 20);
 }
 
 static void Scn_DrawCircle(void)
@@ -288,13 +307,17 @@ static void Scn_DrawEllipse(void)
 	CP_Graphics_DrawEllipse(100, 100, 120, 40); // half-w 60, half-h 20
 }
 
-static void Scn_DrawEllipseAdvanced(void)
+static void Scn_DrawEllipseRotated(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 	CP_Settings_NoStroke();
 	CP_Settings_Fill(RED);
-	// Same 120x40 ellipse, rotated 90 degrees: the wide axis becomes vertical.
-	CP_Graphics_DrawEllipseAdvanced(100, 100, 120, 40, 90);
+	// Same 120x40 ellipse, turned 90 degrees: the wide axis becomes vertical.
+	CP_Settings_Save();
+	CP_Settings_Translate(100, 100);
+	CP_Settings_Rotate(90);
+	CP_Graphics_DrawEllipse(0, 0, 120, 40);
+	CP_Settings_Restore();
 }
 
 // A quarter of a circle of diameter 160 around (100, 100), from the angle 0
@@ -351,14 +374,19 @@ static void Scn_DrawTriangle(void)
 	CP_Graphics_DrawTriangle(100, 50, 143, 125, 57, 125);
 }
 
-static void Scn_DrawTriangleAdvanced(void)
+static void Scn_DrawTriangleRotated(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 	CP_Settings_NoStroke();
 	CP_Settings_Fill(RED);
-	// Same triangle, rotated 180 degrees about its centroid (100,100):
-	// the apex that was at the top (100,50) is now at the bottom (100,150).
-	CP_Graphics_DrawTriangleAdvanced(100, 50, 143, 125, 57, 125, 180);
+	// Same triangle, turned 180 degrees about its centroid (100,100): the
+	// corners are given around (0, 0), and the apex that was at the top
+	// (100,50) is now at the bottom (100,150).
+	CP_Settings_Save();
+	CP_Settings_Translate(100, 100);
+	CP_Settings_Rotate(180);
+	CP_Graphics_DrawTriangle(0, -50, 43, 25, -43, 25);
+	CP_Settings_Restore();
 }
 
 static void Scn_DrawQuad(void)
@@ -370,15 +398,19 @@ static void Scn_DrawQuad(void)
 	CP_Graphics_DrawQuad(70, 70, 130, 70, 130, 130, 70, 130);
 }
 
-static void Scn_DrawQuadAdvanced(void)
+static void Scn_DrawQuadRotated(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 	CP_Settings_NoStroke();
 	CP_Settings_Fill(RED);
-	// Same square, rotated 45 degrees about its center: a diamond whose
+	// Same square, turned 45 degrees about its center: a diamond whose
 	// reach along the pure-vertical/horizontal axes grows from 30 to
 	// 30*sqrt(2) =~ 42.4, covering points the unrotated square did not.
-	CP_Graphics_DrawQuadAdvanced(70, 70, 130, 70, 130, 130, 70, 130, 45);
+	CP_Settings_Save();
+	CP_Settings_Translate(100, 100);
+	CP_Settings_Rotate(45);
+	CP_Graphics_DrawQuad(-30, -30, 30, -30, 30, 30, -30, 30);
+	CP_Settings_Restore();
 }
 
 static void Scn_CustomShape(void)
@@ -392,6 +424,37 @@ static void Scn_CustomShape(void)
 	CP_Graphics_AddVertex(130, 130);
 	CP_Graphics_AddVertex(70, 130);
 	CP_Graphics_EndShape();
+}
+
+// A U of three edges, outline only: EndShape closes it, so the fourth edge
+// (across the top, from (130, 70) back to (70, 70)) is drawn
+static void Scn_ShapeOutlineClosed(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoFill();
+	CP_Settings_Stroke(RED);
+	CP_Settings_StrokeWeight(6.0f);
+	CP_Graphics_BeginShape();
+	CP_Graphics_AddVertex(70, 70);
+	CP_Graphics_AddVertex(70, 130);
+	CP_Graphics_AddVertex(130, 130);
+	CP_Graphics_AddVertex(130, 70);
+	CP_Graphics_EndShape();
+}
+
+// The same vertices with EndShapeOpen: the top edge is missing
+static void Scn_ShapeOutlineOpen(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoFill();
+	CP_Settings_Stroke(RED);
+	CP_Settings_StrokeWeight(6.0f);
+	CP_Graphics_BeginShape();
+	CP_Graphics_AddVertex(70, 70);
+	CP_Graphics_AddVertex(70, 130);
+	CP_Graphics_AddVertex(130, 130);
+	CP_Graphics_AddVertex(130, 70);
+	CP_Graphics_EndShapeOpen();
 }
 
 static void Scn_SettingsNoFill(void)
@@ -628,7 +691,11 @@ static void Scn_ImageDrawRotated(void)
 	CP_Settings_ImageMode(CP_POSITION_CENTER);
 
 	CP_Image img = CP_Image_Load("assets/quadrants.png");
-	CP_Image_DrawAdvanced(img, 100, 100, 80, 80, 255, 90);
+	CP_Settings_Save();
+	CP_Settings_Translate(100, 100);
+	CP_Settings_Rotate(90);
+	CP_Image_Draw(img, 0, 0, 80, 80, 255);
+	CP_Settings_Restore();
 	CP_Image_Free(&img);
 }
 
@@ -1181,12 +1248,12 @@ static void Scn_SoundRoundTrip(void)
 // default pass-through):
 //   frame 0  A draws a half-black veil and a green square over the frozen
 //            red harness (captured as this scenario), and pushes B, which
-//            lets CP_STATE_PASSIVE through
+//            lets CP_PASSTHROUGH_ALL through
 //   frame 1  A runs under B, without input; B pops
 //   frame 2  A has its own settings back, and pushes C, which lets
-//            CP_STATE_NONE through
+//            CP_PASSTHROUGH_NONE through
 //   frame 3  C draws nothing: everything under it is hidden (captured), pops
-//   frame 4  A pushes F, which lets CP_STATE_PASSIVE through
+//   frame 4  A pushes F, which lets CP_PASSTHROUGH_ALL through
 //   frame 5  A, running under F, pops: F and A both leave, and the harness
 //            carries on in the next frame
 static bool stackAwaitingResume = false;
@@ -1209,7 +1276,7 @@ static void StackLog(const char* what)
 static void StackB_Init(void)
 {
 	StackLog("B.init");
-	CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE);
+	CP_Engine_SetGameStatePassThrough(CP_PASSTHROUGH_ALL);
 	tier2_scalars.stackPushInheritsSettings = SameColor(CP_Settings_GetFill(), kStackAFill);
 }
 static void StackB_Update(void)
@@ -1223,7 +1290,7 @@ static void StackB_Exit(void) { StackLog("B.exit"); }
 static void StackC_Init(void)
 {
 	StackLog("C.init");
-	CP_Engine_SetGameStatePassThrough(CP_STATE_NONE);
+	CP_Engine_SetGameStatePassThrough(CP_PASSTHROUGH_NONE);
 }
 static void StackC_Update(void)
 {
@@ -1235,7 +1302,7 @@ static void StackC_Exit(void) { StackLog("C.exit"); }
 static void StackF_Init(void)
 {
 	StackLog("F.init");
-	CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE);
+	CP_Engine_SetGameStatePassThrough(CP_PASSTHROUGH_ALL);
 }
 static void StackF_Update(void) {}
 static void StackF_Exit(void) { StackLog("F.exit"); }
@@ -1404,7 +1471,7 @@ static void Scn_ImageDrawInto(void)
 // still on the stack when the program ends, its exit must run
 // pushed with no init, so it says what it lets through in its update: the
 // harness under it misses one frame, then keeps running
-static void ShutdownProbe_Update(void) { CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE); }
+static void ShutdownProbe_Update(void) { CP_Engine_SetGameStatePassThrough(CP_PASSTHROUGH_ALL); }
 static void ShutdownProbe_Exit(void) { tier2_scalars.stackShutdownExitRan = TRUE; }
 
 static void Scn_InputQuiescentDefaults(void)
@@ -1618,22 +1685,25 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
 	[SCN_CLEAR_BACKGROUND] = Scn_ClearBackground,
 	[SCN_DRAW_POINT] = Scn_DrawPoint,
 	[SCN_DRAW_LINE] = Scn_DrawLine,
-	[SCN_DRAW_LINE_ADVANCED] = Scn_DrawLineAdvanced,
+	[SCN_DRAW_LINE_ROTATED] = Scn_DrawLineRotated,
 	[SCN_DRAW_RECT] = Scn_DrawRect,
-	[SCN_DRAW_RECT_ADVANCED] = Scn_DrawRectAdvanced,
+	[SCN_DRAW_RECT_ROTATED] = Scn_DrawRectRotated,
+	[SCN_DRAW_ROUNDED_RECT] = Scn_DrawRoundedRect,
 	[SCN_DRAW_CIRCLE] = Scn_DrawCircle,
 	[SCN_DRAW_ELLIPSE] = Scn_DrawEllipse,
-	[SCN_DRAW_ELLIPSE_ADVANCED] = Scn_DrawEllipseAdvanced,
+	[SCN_DRAW_ELLIPSE_ROTATED] = Scn_DrawEllipseRotated,
 	[SCN_DRAW_ARC] = Scn_DrawArc,
 	[SCN_DRAW_ARC_COUNTERCLOCKWISE] = Scn_DrawArcCounterclockwise,
 	[SCN_DRAW_PIE] = Scn_DrawPie,
 	[SCN_DRAW_PIE_CORNER_MODE] = Scn_DrawPieCornerMode,
 	[SCN_DRAW_BEZIER] = Scn_DrawBezier,
 	[SCN_DRAW_TRIANGLE] = Scn_DrawTriangle,
-	[SCN_DRAW_TRIANGLE_ADVANCED] = Scn_DrawTriangleAdvanced,
+	[SCN_DRAW_TRIANGLE_ROTATED] = Scn_DrawTriangleRotated,
 	[SCN_DRAW_QUAD] = Scn_DrawQuad,
-	[SCN_DRAW_QUAD_ADVANCED] = Scn_DrawQuadAdvanced,
+	[SCN_DRAW_QUAD_ROTATED] = Scn_DrawQuadRotated,
 	[SCN_CUSTOM_SHAPE] = Scn_CustomShape,
+	[SCN_SHAPE_OUTLINE_CLOSED] = Scn_ShapeOutlineClosed,
+	[SCN_SHAPE_OUTLINE_OPEN] = Scn_ShapeOutlineOpen,
 	[SCN_SETTINGS_NOFILL] = Scn_SettingsNoFill,
 	[SCN_SETTINGS_STROKEWEIGHT] = Scn_SettingsStrokeWeight,
 	[SCN_SETTINGS_RECTMODE_CORNER] = Scn_SettingsRectModeCorner,

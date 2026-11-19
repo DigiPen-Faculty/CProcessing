@@ -45,7 +45,7 @@ void test_tier2_gamestate_queries_in_a_pushed_state(void)
 	TEST_ASSERT_TRUE(tier2_scalars.stackRunningStateIsTop);
 }
 
-void test_tier2_gamestate_passing_passive_through_keeps_the_state_below_running_without_input(void)
+void test_tier2_gamestate_passing_all_through_keeps_the_state_below_running_without_input(void)
 {
 	TEST_ASSERT_EQUAL_INT(2, tier2_scalars.stackUpdatesWhileRunningBelow); // under B, then under F
 	TEST_ASSERT_TRUE(tier2_scalars.stackRunningBelowIsNotTop);

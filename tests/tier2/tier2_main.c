@@ -64,22 +64,25 @@ int main(void)
 	RUN_TEST(test_tier2_graphics_clearbackground_fills_whole_canvas);
 	RUN_TEST(test_tier2_graphics_drawpoint_follows_stroke_settings);
 	RUN_TEST(test_tier2_graphics_drawline);
-	RUN_TEST(test_tier2_graphics_drawlineadvanced_rotates_90_degrees);
+	RUN_TEST(test_tier2_graphics_drawline_turned_90_degrees_with_translate_and_rotate);
 	RUN_TEST(test_tier2_graphics_drawrect);
-	RUN_TEST(test_tier2_graphics_drawrectadvanced_rotates_45_degrees);
+	RUN_TEST(test_tier2_graphics_drawroundedrect_cuts_the_corners);
+	RUN_TEST(test_tier2_graphics_drawrect_turned_45_degrees_with_translate_and_rotate);
 	RUN_TEST(test_tier2_graphics_drawcircle);
 	RUN_TEST(test_tier2_graphics_drawellipse_is_not_circular);
-	RUN_TEST(test_tier2_graphics_drawellipseadvanced_rotates_90_degrees);
+	RUN_TEST(test_tier2_graphics_drawellipse_turned_90_degrees_with_translate_and_rotate);
 	RUN_TEST(test_tier2_graphics_drawarc_goes_clockwise_from_the_right_and_has_no_fill);
 	RUN_TEST(test_tier2_graphics_drawarc_with_a_negative_sweep_goes_counterclockwise);
 	RUN_TEST(test_tier2_graphics_drawpie_fills_only_its_slice);
 	RUN_TEST(test_tier2_graphics_drawpie_in_corner_mode_uses_the_top_left);
 	RUN_TEST(test_tier2_graphics_drawbezier_bends_toward_its_control_points);
 	RUN_TEST(test_tier2_graphics_drawtriangle);
-	RUN_TEST(test_tier2_graphics_drawtriangleadvanced_rotates_180_degrees);
+	RUN_TEST(test_tier2_graphics_drawtriangle_turned_180_degrees_with_translate_and_rotate);
 	RUN_TEST(test_tier2_graphics_drawquad);
-	RUN_TEST(test_tier2_graphics_drawquadadvanced_rotates_45_degrees);
+	RUN_TEST(test_tier2_graphics_drawquad_turned_45_degrees_with_translate_and_rotate);
 	RUN_TEST(test_tier2_graphics_customshape_beginend);
+	RUN_TEST(test_tier2_graphics_endshape_closes_an_outline_without_fill);
+	RUN_TEST(test_tier2_graphics_endshapeopen_leaves_the_outline_open);
 
 	// test_tier2_settings.c
 	RUN_TEST(test_tier2_settings_nofill_leaves_interior_untouched);
@@ -101,7 +104,7 @@ int main(void)
 	// test_tier2_image.c
 	RUN_TEST(test_tier2_image_load_reports_correct_dimensions);
 	RUN_TEST(test_tier2_image_draw_places_quadrants_correctly);
-	RUN_TEST(test_tier2_image_drawadvanced_turns_the_image_about_its_center);
+	RUN_TEST(test_tier2_image_draw_rotated_with_translate_and_rotate);
 	RUN_TEST(test_tier2_image_createfromdata_roundtrips_exactly);
 	RUN_TEST(test_tier2_image_updatepixeldata_roundtrips_exactly);
 	RUN_TEST(test_tier2_image_drawsubimage_selects_correct_region);
@@ -132,7 +135,7 @@ int main(void)
 	RUN_TEST(test_tier2_gamestate_a_pushed_state_draws_over_the_frozen_one_below);
 	RUN_TEST(test_tier2_gamestate_passing_none_through_hides_the_states_below);
 	RUN_TEST(test_tier2_gamestate_queries_in_a_pushed_state);
-	RUN_TEST(test_tier2_gamestate_passing_passive_through_keeps_the_state_below_running_without_input);
+	RUN_TEST(test_tier2_gamestate_passing_all_through_keeps_the_state_below_running_without_input);
 	RUN_TEST(test_tier2_gamestate_a_frozen_state_is_not_updated);
 	RUN_TEST(test_tier2_gamestate_each_state_keeps_its_own_settings);
 	RUN_TEST(test_tier2_gamestate_states_still_pushed_exit_when_the_program_ends);

@@ -12,7 +12,7 @@
 // - ease into slow motion and back out of it when a level-up box opens and
 //   closes (CP_Math_LerpFloat with an easing function)
 // - let the game keep running under the level-up box, in slow motion, with
-//   CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE)
+//   CP_Engine_SetGameStatePassThrough(CP_PASSTHROUGH_ALL)
 // - slow the sound down with the time (CP_Sound_SetGroupPitch)
 // - turn the music down under the pause menu, instead of stopping it
 //   (CP_Sound_SetGroupVolume), and put it back when the pause ends
@@ -66,10 +66,17 @@ float timeScale = 1.0f;
 
 // Go from `from` to `to` over `seconds`, easing out: quick at first, then
 // slowing as it arrives. `time` is how long it has been going.
+// (examples/easing.c draws this curve and many others.)
+float EaseOutCubic(float t)
+{
+	const float u = 1.0f - t;
+	return 1.0f - u * u * u;
+}
+
 float EaseTo(float from, float to, float time, float seconds)
 {
 	const float progress = CP_Math_ClampFloat(time / seconds, 0.0f, 1.0f);
-	return CP_Math_LerpFloat(from, to, CP_Math_EaseOutCubic(progress));
+	return CP_Math_LerpFloat(from, to, EaseOutCubic(progress));
 }
 
 // The time scale changes the sound too: slower time, lower sounds. (A pitch
@@ -301,7 +308,7 @@ float levelUpClosedAt; // the box's time when the upgrade was picked
 void level_up_init(void)
 {
 	// The game under this box keeps running and drawing (without input)
-	CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE);
+	CP_Engine_SetGameStatePassThrough(CP_PASSTHROUGH_ALL);
 	levelUpClosing = FALSE;
 	levelUpClosedAt = 0.0f;
 	++level;

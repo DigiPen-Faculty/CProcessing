@@ -32,7 +32,7 @@
 //
 // Try this:
 // - Write another drawn transition: shrink the old picture into the middle,
-//   or slide it away with a bounce (CP_Math_EaseOutBounce).
+//   or slide it away with a bounce (EaseOutBounce, in examples/easing.c).
 // - Give the pause a slide of its own, and the menu a fade.
 // - Change EaseInOutCubic in Transition_Progress for another easing.
 //
@@ -144,10 +144,21 @@ static void Transition_AskForChange(void)
 	transition.asked = TRUE;
 }
 
+// Slow, fast, slow (examples/easing.c draws this curve and many others)
+static float EaseInOutCubic(float t)
+{
+	if (t < 0.5f)
+	{
+		return 4.0f * t * t * t;
+	}
+	const float u = -2.0f * t + 2.0f;
+	return 1.0f - u * u * u / 2.0f;
+}
+
 // From 0 to 1, eased so it starts and ends gently
 static float Transition_Progress(void)
 {
-	return CP_Math_EaseInOutCubic(CP_Math_ClampFloat(transition.time / transition.seconds, 0.0f, 1.0f));
+	return EaseInOutCubic(CP_Math_ClampFloat(transition.time / transition.seconds, 0.0f, 1.0f));
 }
 
 // Call this from the post-update function, every frame

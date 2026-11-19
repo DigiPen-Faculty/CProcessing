@@ -69,6 +69,12 @@ CP_Color white;
 // in their init, and the fade-in uses it.
 float stateTime = 0.0f;
 
+// Easing (lesson 7): starts fast and ends slow. t goes from 0 to 1.
+float EaseOutQuad(float t)
+{
+	return 1.0f - (1.0f - t) * (1.0f - t);
+}
+
 void DrawCenteredText(const char* text, float y, float size)
 {
 	CP_Settings_TextSize(size);
@@ -85,7 +91,7 @@ void DrawFadeIn(void)
 	if (progress < 1.0f)
 	{
 		CP_Settings_NoStroke();
-		CP_Settings_Fill(CP_Color_Create(0, 0, 0, (int)(255.0f * (1.0f - CP_Math_EaseOutQuad(progress)))));
+		CP_Settings_Fill(CP_Color_Create(0, 0, 0, (int)(255.0f * (1.0f - EaseOutQuad(progress)))));
 		CP_Graphics_DrawRect(CP_System_GetWindowWidth() / 2.0f, CP_System_GetWindowHeight() / 2.0f,
 			(float)CP_System_GetWindowWidth(), (float)CP_System_GetWindowHeight());
 	}

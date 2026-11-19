@@ -121,10 +121,26 @@ float progress = CP_Math_ClampFloat(orbTimer / tripTime, 0.0f, 1.0f);		// 0 at t
 CP_Vector orb = CP_Vector_Lerp(orbStart, orbEnd, progress);
 ```
 
-That moves at a steady pace, **linear** movement, and it looks mechanical: nothing in the real world starts at full speed or stops at once. **Easing** fixes this by bending the progress before it is used. An easing function takes the progress (0 to 1) and gives back a number (also 0 to 1) that is **how far along the path to be**:
+That moves at a steady pace, **linear** movement, and it looks mechanical: nothing in the real world starts at full speed or stops at once. **Easing** fixes this by bending the progress before it is used. An easing function takes the progress (0 to 1) and gives back a number (also 0 to 1) that is **how far along the path to be**.
+
+It's a function you write yourself, and it's only a line of math. Multiply the progress by itself: small numbers get smaller (0.5 times 0.5 is 0.25), so the orb starts slow and catches up at the end. Turn the progress round first (`1.0f - t`), do the same, and turn it back, and you get the opposite, fast at first and gentle at the end:
 
 ```C
-orb = CP_Vector_Lerp(orbStart, orbEnd, CP_Math_EaseInOutCubic(progress));
+float EaseInQuad(float t)
+{
+	return t * t;							// a quarter of the way at half the time
+}
+
+float EaseOutQuad(float t)
+{
+	return 1.0f - (1.0f - t) * (1.0f - t);	// three quarters of the way at half the time
+}
+```
+
+Then put one between the time and the lerp:
+
+```C
+orb = CP_Vector_Lerp(orbStart, orbEnd, EaseOutQuad(progress));
 ```
 
 The orb is in the same place at the start and at the end, and the trip takes the same time. It's only the **pace** in between that's different. Press 1 to 5 in the program, click, and look at the **ghosts**: each is where the orb is at a regular beat in time. Wide gaps are fast and close gaps are slow.
@@ -137,7 +153,7 @@ The orb is in the same place at the start and at the end, and the trip takes the
 | `EaseInOutQuad`, `EaseInOutCubic` | slow, fast, slow | moving between two resting places |
 | `EaseOutBounce` | arrives, and bounces to a stop | something dropped, or popping in |
 
-Cubic is a stronger version of quad: the same shape, more extreme. Easing isn't only for position. Ease a size to make something pop in (the capstone does this to a coin), ease an alpha to fade, ease a color with `CP_Color_Lerp`.
+Cubic is a stronger version of quad: the same shape, more extreme (`t * t * t`). The program writes out the cubic ones and the bounce; `examples/easing.c` draws twelve easings side by side, with the code of each to copy. Easing isn't only for position. Ease a size to make something pop in (the capstone does this to a coin), ease an alpha to fade, ease a color with `CP_Color_Lerp`.
 
 > **Try it:** in the program, make the trip 4 seconds long and compare all five easings by their ghosts.
 

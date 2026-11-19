@@ -137,10 +137,10 @@ A rock hit also makes the **music** dip: it drops lower and slower, and then eas
 
 ```C
 musicDip = CP_Math_ClampFloat(musicDip - dt / 0.8f, 0.0f, 1.0f);
-CP_Sound_SetGroupPitch(CP_SOUND_GROUP_MUSIC, 1.0f - 0.35f * CP_Math_EaseOutQuad(musicDip));
+CP_Sound_SetGroupPitch(CP_SOUND_GROUP_MUSIC, 1.0f - 0.35f * EaseOutQuad(musicDip));
 ```
 
-`musicDip` is set to 1 on a hit, and counts down to 0 over 0.8 seconds, and the easing from lesson 7 makes it recover smoothly. The pitch goes from 0.65 to 1. It's a small effect, but it makes a hit feel like a **hit**.
+`musicDip` is set to 1 on a hit, and counts down to 0 over 0.8 seconds, and `EaseOutQuad`, the easing function you wrote in lesson 7, makes it recover smoothly. The pitch goes from 0.65 to 1. It's a small effect, but it makes a hit feel like a **hit**.
 
 ---
 

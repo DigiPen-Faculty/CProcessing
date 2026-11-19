@@ -68,6 +68,35 @@ CP_Color white;
 
 float stateTime = 0.0f; // seconds since this state began
 
+// Easing (lesson 7): starts fast and ends slow. t goes from 0 to 1.
+float EaseOutQuad(float t)
+{
+	return 1.0f - (1.0f - t) * (1.0f - t);
+}
+
+// Easing (lesson 7): arrives and bounces to a stop. t goes from 0 to 1.
+float EaseOutBounce(float t)
+{
+	const float n = 7.5625f;
+	const float d = 2.75f;
+	if (t < 1.0f / d)
+	{
+		return n * t * t;
+	}
+	if (t < 2.0f / d)
+	{
+		t -= 1.5f / d;
+		return n * t * t + 0.75f;
+	}
+	if (t < 2.5f / d)
+	{
+		t -= 2.25f / d;
+		return n * t * t + 0.9375f;
+	}
+	t -= 2.625f / d;
+	return n * t * t + 0.984375f;
+}
+
 void DrawCenteredText(const char* text, float y, float size)
 {
 	CP_Settings_TextSize(size);
@@ -332,7 +361,7 @@ void play_update(void)
 	}
 	scorePop = CP_Math_ClampFloat(scorePop - dt / 0.35f, 0.0f, 1.0f);
 	musicDip = CP_Math_ClampFloat(musicDip - dt / 0.9f, 0.0f, 1.0f);
-	CP_Sound_SetGroupPitch(CP_SOUND_GROUP_MUSIC, 1.0f - 0.35f * CP_Math_EaseOutQuad(musicDip));
+	CP_Sound_SetGroupPitch(CP_SOUND_GROUP_MUSIC, 1.0f - 0.35f * EaseOutQuad(musicDip));
 
 	//-------------------------------------------------
 	// Collision (lesson 6): the coin, then the balls
@@ -380,7 +409,7 @@ void play_update(void)
 		(float)CP_System_GetWindowWidth(), CP_System_GetWindowHeight() - hudHeight);
 
 	// The coin pops in: it grows to full size with a bounce
-	const float coinScale = CP_Math_EaseOutBounce(coinAge / 0.5f);
+	const float coinScale = EaseOutBounce(CP_Math_ClampFloat(coinAge / 0.5f, 0.0f, 1.0f));
 	CP_Settings_Fill(CP_Color_Create(250, 210, 60, 255));
 	CP_Graphics_DrawCircle(coinPosition.x, coinPosition.y, coinRadius * 2.0f * coinScale);
 	CP_Settings_Fill(CP_Color_Create(255, 245, 190, 255));
@@ -402,7 +431,7 @@ void play_update(void)
 	char text[60];
 	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_MIDDLE);
 	CP_Settings_Fill(white);
-	CP_Settings_TextSize(26.0f + 12.0f * CP_Math_EaseOutQuad(scorePop));
+	CP_Settings_TextSize(26.0f + 12.0f * EaseOutQuad(scorePop));
 	snprintf(text, sizeof(text), "Score: %d", score);
 	CP_Font_DrawText(text, 20.0f, hudHeight / 2.0f);
 	CP_Settings_TextSize(24.0f);
@@ -487,7 +516,7 @@ void over_update(void)
 	CP_Graphics_ClearBackground(background);
 
 	// The title drops in from above and bounces to a stop
-	const float drop = CP_Math_EaseOutBounce(stateTime / 0.9f);
+	const float drop = EaseOutBounce(CP_Math_ClampFloat(stateTime / 0.9f, 0.0f, 1.0f));
 	DrawCenteredText("GAME OVER", -60.0f + 250.0f * drop, 90.0f);
 
 	char text[60];

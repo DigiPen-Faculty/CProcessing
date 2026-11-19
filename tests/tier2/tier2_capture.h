@@ -34,22 +34,25 @@ typedef enum
 	SCN_CLEAR_BACKGROUND,
 	SCN_DRAW_POINT,
 	SCN_DRAW_LINE,
-	SCN_DRAW_LINE_ADVANCED,
+	SCN_DRAW_LINE_ROTATED,
 	SCN_DRAW_RECT,
-	SCN_DRAW_RECT_ADVANCED,
+	SCN_DRAW_RECT_ROTATED,
+	SCN_DRAW_ROUNDED_RECT,
 	SCN_DRAW_CIRCLE,
 	SCN_DRAW_ELLIPSE,
-	SCN_DRAW_ELLIPSE_ADVANCED,
+	SCN_DRAW_ELLIPSE_ROTATED,
 	SCN_DRAW_ARC,
 	SCN_DRAW_ARC_COUNTERCLOCKWISE,
 	SCN_DRAW_PIE,
 	SCN_DRAW_PIE_CORNER_MODE,
 	SCN_DRAW_BEZIER,
 	SCN_DRAW_TRIANGLE,
-	SCN_DRAW_TRIANGLE_ADVANCED,
+	SCN_DRAW_TRIANGLE_ROTATED,
 	SCN_DRAW_QUAD,
-	SCN_DRAW_QUAD_ADVANCED,
+	SCN_DRAW_QUAD_ROTATED,
 	SCN_CUSTOM_SHAPE,
+	SCN_SHAPE_OUTLINE_CLOSED,
+	SCN_SHAPE_OUTLINE_OPEN,
 	SCN_SETTINGS_NOFILL,
 	SCN_SETTINGS_STROKEWEIGHT,
 	SCN_SETTINGS_RECTMODE_CORNER,
@@ -293,7 +296,7 @@ typedef struct
 	float stackPushedTime;             // CP_Engine_GetGameStateTime in its first update
 	CP_BOOL stackPushInheritsSettings; // a pushed state starts with the settings in use
 	CP_BOOL stackRunningStateIsTop;
-	int stackUpdatesWhileRunningBelow; // the state under one letting CP_STATE_PASSIVE through kept running
+	int stackUpdatesWhileRunningBelow; // the state under one letting CP_PASSTHROUGH_ALL through kept running
 	CP_BOOL stackRunningBelowIsNotTop;
 	CP_BOOL stackRunningBelowKeyMuted; // keys and buttons read as up while it runs below
 	float stackRunningBelowMouseX;     // the mouse it sees: where it was when covered
@@ -329,7 +332,7 @@ typedef struct
 
 extern Tier2Scalars tier2_scalars;
 
-// What a state letting CP_STATE_NONE through shows (see Scn_GameStateStack)
+// What a state letting CP_PASSTHROUGH_NONE through shows (see Scn_GameStateStack)
 extern CP_Color tier2_stackHiddenPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 
 // Runs the one and only CP_Engine_Run() call for this process, scripting
