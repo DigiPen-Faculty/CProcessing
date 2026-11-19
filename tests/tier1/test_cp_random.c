@@ -303,8 +303,8 @@ void test_random_gaussian_pinned_values_for_seed_42(void)
 void test_random_noise_pinned_values_for_noiseseed_42(void)
 {
 	CP_Random_NoiseSeed(42);
-	TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.375000f, CP_Random_Noise(1.5f, 2.5f, 0.5f));
-	TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.349121f, CP_Random_Noise(10.25f, 0.0f, 0.0f));
+	TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.354557f, CP_Random_Noise(1.5f, 2.5f, 0.5f));
+	TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.293741f, CP_Random_Noise(10.25f, 0.0f, 0.0f));
 }
 
 // ---- Seeding ----
@@ -593,4 +593,57 @@ void test_noise_octaves_add_detail_and_are_deterministic(void)
 	}
 	// Four layers are not the same as one on nearly every sample
 	TEST_ASSERT_GREATER_THAN_INT(90, different);
+}
+
+// ---- Noise: the traps students fall into ----
+
+void test_noise_at_whole_numbers_is_not_always_the_same(void)
+{
+	// Perlin noise is 0 at every whole-number point, so this was 0.5 every
+	// time: CP_Random_Noise(frameCount, 0, 0) drew a flat line
+	CP_Random_NoiseSeed(21);
+	float smallest = 1.0f;
+	float largest = 0.0f;
+	for (int i = 0; i < 20; ++i)
+	{
+		const float v = CP_Random_Noise((float)i, 0.0f, 0.0f);
+		smallest = v < smallest ? v : smallest;
+		largest = v > largest ? v : largest;
+	}
+	TEST_ASSERT_GREATER_THAN_FLOAT(0.2f, largest - smallest);
+}
+
+void test_noise_along_one_axis_uses_most_of_0_to_1(void)
+{
+	// With y and z at 0 it only spanned 0.25 to 0.75
+	CP_Random_NoiseSeed(22);
+	float smallest = 1.0f;
+	float largest = 0.0f;
+	for (int i = 0; i < 4000; ++i)
+	{
+		const float v = CP_Random_Noise((float)i * 0.05f, 0.0f, 0.0f);
+		smallest = v < smallest ? v : smallest;
+		largest = v > largest ? v : largest;
+	}
+	TEST_ASSERT_LESS_THAN_FLOAT(0.15f, smallest);
+	TEST_ASSERT_GREATER_THAN_FLOAT(0.85f, largest);
+}
+
+void test_noise_octaves_keep_the_spread_of_one_layer(void)
+{
+	// Dividing by the sum of the strengths pulled four layers into about
+	// 0.23 to 0.77
+	CP_Random_NoiseSeed(23);
+	float smallest = 1.0f;
+	float largest = 0.0f;
+	for (int i = 0; i < 4000; ++i)
+	{
+		const float v = CP_Random_NoiseOctaves((float)(i % 63) * 0.37f, (float)(i / 63) * 0.41f, 0.0f, 4, 0.5f);
+		TEST_ASSERT_GREATER_OR_EQUAL_FLOAT(0.0f, v);
+		TEST_ASSERT_LESS_OR_EQUAL_FLOAT(1.0f, v);
+		smallest = v < smallest ? v : smallest;
+		largest = v > largest ? v : largest;
+	}
+	TEST_ASSERT_LESS_THAN_FLOAT(0.15f, smallest);
+	TEST_ASSERT_GREATER_THAN_FLOAT(0.85f, largest);
 }

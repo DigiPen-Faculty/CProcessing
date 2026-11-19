@@ -126,18 +126,13 @@ void test_matrix_inverse_times_original_is_identity(void)
 	assertMatrixWithin(0.001f, CP_Matrix_Identity(), roundTrip);
 }
 
-void test_matrix_inverse_of_singular_matrix_is_not_a_number(void)
+void test_matrix_inverse_of_singular_matrix_is_identity(void)
 {
-	// Current, undocumented behavior: CP_Matrix_Inverse divides by the
-	// determinant with no singularity check (CP_Math.c:248-268), so a
-	// matrix with determinant 0 produces 0/0 (NaN) rather than an error.
-	// Asserted explicitly so a future change to this behavior is caught
-	// rather than silently tolerated (06-test-suite-plan.md Tier 1 notes).
+	// A matrix with determinant 0 has no inverse. CP_Matrix_Inverse used to
+	// divide by 0 and return NaN; it returns the identity instead.
 	CP_Matrix singular = CP_Matrix_Set(1, 1, 1, 1, 1, 1, 1, 1, 1);
-	CP_Matrix result = CP_Matrix_Inverse(singular);
-	TEST_ASSERT_TRUE(isnan(result.m00));
-	TEST_ASSERT_TRUE(isnan(result.m11));
-	TEST_ASSERT_TRUE(isnan(result.m22));
+	assertMatrixEqual(CP_Matrix_Identity(), CP_Matrix_Inverse(singular));
+	assertMatrixEqual(CP_Matrix_Identity(), CP_Matrix_Inverse(CP_Matrix_Scale(CP_Vector_Set(0.0f, 3.0f))));
 }
 
 // ---- Multiply ----

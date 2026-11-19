@@ -59,6 +59,14 @@ static int clampSL(int value)
 	return CP_Math_ClampInt(value, 0, 100);
 }
 
+// a + t * (b - a), rounded to the nearest whole number. It gives a exactly
+// when a and b are the same; (1 - t) * a + t * b, cut off by a cast, could
+// come out one less (and was half a step too low on average).
+static int lerpRounded(int a, int b, float t)
+{
+	return (int)lroundf((float)a + t * (float)(b - a));
+}
+
 //------------------------------------------------------------------------------
 // Public Functions:
 //------------------------------------------------------------------------------
@@ -89,10 +97,10 @@ CP_API CP_Color CP_Color_Lerp(CP_Color a, CP_Color b, float lerpFactor)
 {
 	lerpFactor = CP_Math_ClampFloat(lerpFactor, 0, 1.0f);
 	CP_Color result = {
-		(unsigned char)((1.0f - lerpFactor) * a.r + lerpFactor * b.r),
-		(unsigned char)((1.0f - lerpFactor) * a.g + lerpFactor * b.g),
-		(unsigned char)((1.0f - lerpFactor) * a.b + lerpFactor * b.b),
-		(unsigned char)((1.0f - lerpFactor) * a.a + lerpFactor * b.a)
+		(unsigned char)lerpRounded(a.r, b.r, lerpFactor),
+		(unsigned char)lerpRounded(a.g, b.g, lerpFactor),
+		(unsigned char)lerpRounded(a.b, b.b, lerpFactor),
+		(unsigned char)lerpRounded(a.a, b.a, lerpFactor)
 	};
 	return result;
 }
@@ -105,10 +113,12 @@ CP_API CP_Color CP_Color_FromColorHSL(CP_ColorHSL hsl)
 	hsl.a = clampRGBA(hsl.a);
 
 	NVGcolor c1 = nvgHSLA(hsl.h / 360.0f, hsl.s / 100.0f, hsl.l / 100.0f, (unsigned char)hsl.a);
+	// Rounded to the nearest value, so a color survives RGB to HSL and back
+	// as closely as whole-number HSL allows
 	CP_Color c = {
-		(unsigned char)(c1.r * 255.0f),
-		(unsigned char)(c1.g * 255.0f),
-		(unsigned char)(c1.b * 255.0f),
+		(unsigned char)lroundf(c1.r * 255.0f),
+		(unsigned char)lroundf(c1.g * 255.0f),
+		(unsigned char)lroundf(c1.b * 255.0f),
 		(unsigned char)hsl.a
 	};
 	return c;
@@ -128,11 +138,25 @@ CP_API CP_ColorHSL CP_ColorHSL_Create(int h, int s, int l, int a)
 CP_API CP_ColorHSL CP_ColorHSL_Lerp(CP_ColorHSL a, CP_ColorHSL b, float lerpFactor)
 {
 	lerpFactor = CP_Math_ClampFloat(lerpFactor, 0, 1.0f);
+
+	// Hue goes round a circle: take the shorter way, so 350 to 10 passes
+	// through red (0), not through cyan (180)
+	const int fromHue = clampH(a.h);
+	int hueStep = clampH(b.h) - fromHue;
+	if (hueStep > 180)
+	{
+		hueStep -= 360;
+	}
+	else if (hueStep < -180)
+	{
+		hueStep += 360;
+	}
+
 	CP_ColorHSL result = {
-		(int)((1.0f - lerpFactor) * a.h + lerpFactor * b.h),
-		(int)((1.0f - lerpFactor) * a.s + lerpFactor * b.s),
-		(int)((1.0f - lerpFactor) * a.l + lerpFactor * b.l),
-		(int)((1.0f - lerpFactor) * a.a + lerpFactor * b.a)
+		clampH(lerpRounded(fromHue, fromHue + hueStep, lerpFactor)),
+		lerpRounded(a.s, b.s, lerpFactor),
+		lerpRounded(a.l, b.l, lerpFactor),
+		lerpRounded(a.a, b.a, lerpFactor)
 	};
 	return result;
 }
@@ -181,10 +205,11 @@ CP_API CP_ColorHSL CP_ColorHSL_FromColor(CP_Color rgb)
 		else if (h > 6.0f) h -= 6.0f;
 	}
 
+	// Rounded to the nearest value (a hue that rounds up to 360 is 0)
 	CP_ColorHSL c = {
-		(int)(h * 60.0f),
-		(int)(s * 100.0f),
-		(int)(l * 100.0f),
+		clampH((int)lroundf(h * 60.0f)),
+		clampSL((int)lroundf(s * 100.0f)),
+		clampSL((int)lroundf(l * 100.0f)),
 		(int)rgb.a
 	};
 	return c;

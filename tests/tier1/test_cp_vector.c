@@ -9,6 +9,7 @@
 //   - Angle    always returns the unsigned angle between the vectors, [0, 180].
 //   - AngleCW  returns the clockwise angle from `from` to `to`,        [0, 360).
 //   - AngleCCW returns AngleCW - 360 (0 stays 0),                    (-360, 0].
+#include <math.h>
 #include "unity.h"
 #include "cprocessing.h"
 
@@ -203,6 +204,45 @@ void test_vector_angleccw_equals_anglecw_minus_360(void)
 	float cw = CP_Vector_AngleCW(from, to);
 	float ccw = CP_Vector_AngleCCW(from, to);
 	TEST_ASSERT_FLOAT_WITHIN(0.01f, cw - 360.0f, ccw);
+}
+
+// Vectors that point the same way, or opposite ways, at many lengths and
+// directions. The arc cosine of the dot product over the lengths could be
+// just over 1 for these and returned NaN (about one pair in five).
+void test_vector_angle_of_parallel_vectors_is_never_nan(void)
+{
+	for (int i = 0; i < 2000; ++i)
+	{
+		const CP_Vector v = CP_Vector_Set((float)(i % 97) * 1.37f - 60.0f, (float)(i % 89) * 1.13f - 50.0f);
+		if (v.x == 0.0f && v.y == 0.0f)
+		{
+			continue;
+		}
+		const float k = 0.1f + (float)(i % 50) * 0.21f;
+		const CP_Vector same = CP_Vector_Scale(v, k);
+		const CP_Vector opposite = CP_Vector_Scale(v, -k);
+
+		TEST_ASSERT_FLOAT_WITHIN(0.01f, 0.0f, CP_Vector_Angle(v, same));
+		TEST_ASSERT_FLOAT_WITHIN(0.01f, 180.0f, CP_Vector_Angle(v, opposite));
+		const float cw = CP_Vector_AngleCW(v, same);
+		TEST_ASSERT_TRUE(cw < 0.01f || cw > 359.99f);
+		TEST_ASSERT_FLOAT_WITHIN(0.01f, 180.0f, CP_Vector_AngleCW(v, opposite));
+		TEST_ASSERT_FALSE(isnan(CP_Vector_AngleCCW(v, same)));
+	}
+}
+
+void test_vector_angle_with_a_zero_vector_is_zero(void)
+{
+	TEST_ASSERT_EQUAL_FLOAT(0.0f, CP_Vector_Angle(CP_Vector_Zero(), CP_Vector_Set(3.0f, 4.0f)));
+	TEST_ASSERT_EQUAL_FLOAT(0.0f, CP_Vector_AngleCW(CP_Vector_Set(3.0f, 4.0f), CP_Vector_Zero()));
+	TEST_ASSERT_EQUAL_FLOAT(0.0f, CP_Vector_AngleCCW(CP_Vector_Zero(), CP_Vector_Zero()));
+}
+
+void test_vector_anglecw_tiny_counterclockwise_turn_stays_below_360(void)
+{
+	// A turn just counterclockwise of 0 is just under 360, never 360 itself
+	const float cw = CP_Vector_AngleCW(CP_Vector_Set(1.0f, 0.0f), CP_Vector_Set(1.0f, -1e-7f));
+	TEST_ASSERT_TRUE(cw >= 0.0f && cw < 360.0f);
 }
 
 // ---- Lerp, Rotate, FromAngle and Limit ----

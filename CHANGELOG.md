@@ -259,6 +259,19 @@ Each change says what to do in an existing project.
 
 ### Changed
 
+- **`CP_Random_Noise` and `CP_Random_NoiseOctaves` use the whole range from 0
+  to 1, and are no longer stuck at 0.5 on whole numbers.** Perlin noise is 0
+  at every whole-number point, so `CP_Random_Noise(x, 0.0f, 0.0f)` was exactly
+  0.5 whenever x was a whole number (a flat line for
+  `CP_Random_Noise(frameCount, 0, 0)`), and with y and z left at 0 it only went
+  from 0.25 to 0.75. More octaves narrowed it further (four spanned about 0.23
+  to 0.77). Now every point is moved off that grid by a fixed amount, the
+  result is stretched so most of 0 to 1 is used (the rare values beyond are
+  clamped), and the octaves keep the spread of one layer. The values for a
+  seed are different, so hills, clouds and maps made with noise look a little
+  bolder. What to do: nothing; if something drawn from noise now reaches too
+  far, multiply by less.
+
 - **The templates build C++ as well as C.** A game can be written in C++ by
   renaming `main.c` to `main.cpp`.
   - The Visual Studio template no longer forces every file to compile as C:
@@ -320,6 +333,22 @@ Each change says what to do in an existing project.
 
 ### Fixed
 
+- **`CP_Vector_Angle`, `CP_Vector_AngleCW` and `CP_Vector_AngleCCW` returned
+  NaN for vectors pointing the same way** (about one pair in five, depending on
+  the numbers) and for a zero vector, so something turned to face its target
+  could vanish. They now use the arc tangent of the cross and dot products,
+  which is exact for those vectors; a zero vector gives 0.
+- **Colors lost a step when mixed or converted:** `CP_Color_Lerp` cut the
+  fraction off instead of rounding, so its results were half a step too dark
+  on average, and mixing a color with itself could change it (3 became 2).
+  `CP_ColorHSL_FromColor` and `CP_Color_FromColorHSL` cut off too, so no color
+  came back exactly from RGB to HSL and back, and some came back 9 steps off;
+  now most come back within 1 or 2 (whole-number HSL can't hold every RGB
+  color). `CP_Math_LerpInt` rounds as well, the same way for negative numbers.
+- **`CP_ColorHSL_Lerp` went the long way round the color wheel:** from hue
+  350 to hue 10 it passed through cyan (180); it now passes through red (0).
+- **`CP_Matrix_Inverse` of a matrix with no inverse** (a scale of 0, say)
+  divided by 0 and returned NaN; it returns the identity matrix.
 - **`CP_Random_GetFloat` and `CP_Random_RangeFloat` no longer return their
   upper bound.** `GetFloat` returned exactly 1.0 for 1 draw in 33 million, so
   `RangeFloat(0, 5)` could return 5.0 and `(int)CP_Random_RangeFloat(0, 5)`
