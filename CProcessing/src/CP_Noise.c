@@ -8,7 +8,6 @@
 //---------------------------------------------------------
 
 #include <stdint.h>
-#include <string.h>
 #include <time.h>
 #include <math.h>
 #include "cprocessing.h"
@@ -16,9 +15,21 @@
 #include "Internal_Random.h"
 
 #define permutationArraySize 256
-static int repeatNoise = -1;
 
 static int p[permutationArraySize * 2]; // Doubled permutation to avoid overflow
+
+// Perlin noise is 0 at every whole-number point, so CP_Random_Noise(x, 0, 0)
+// at whole numbers was always 0.5, and with y and z left at 0 it only spanned
+// 0.25 to 0.75. Moving every point by a fixed amount that isn't a whole number
+// (or a half) keeps the points students pick off that grid.
+#define NOISE_OFFSET_X 0.3711
+#define NOISE_OFFSET_Y 0.6173
+#define NOISE_OFFSET_Z 0.1237
+
+// The raw noise is in -1 to 1 but rarely goes beyond +-0.7 (measured: about
+// 0.3% of values in 1D, 2D or 3D). Dividing by this before moving it to 0..1
+// uses most of 0 to 1; the rare values beyond it are clamped.
+#define NOISE_SPREAD 0.7
 
 // Sets the seed value for noise().
 // By default, noise() produces different results each time the program is run.
@@ -53,7 +64,6 @@ CP_API void CP_Random_NoiseSeed(int seed)
 		permutation[pick] = temp;
 	}
 
-	memset(p, -1, sizeof(p));
 	for (int x = 0; x < permutationArraySize * 2; x++)
 	{
 		p[x] = permutation[x % 256]; // Doubled permutation to avoid overflow
@@ -63,14 +73,6 @@ CP_API void CP_Random_NoiseSeed(int seed)
 void CP_NoiseInit(void)
 {
 	CP_Random_NoiseSeed((int)time(NULL));
-}
-
-static int inc(int num)
-{
-	num++;
-	if (repeatNoise > 0) num %= repeatNoise;
-
-	return num;
 }
 
 static double grad(int hash, double x, double y, double z)
@@ -110,19 +112,12 @@ static double lerp(double a, double b, double x)
 	return a + x * (b - a);
 }
 
-//		Noise returns a value in the range [0, 1.0] based on three dimensional input values
-CP_API float CP_Random_Noise(float x, float y, float z)
+// Ken Perlin's improved noise at a point, from -1 to 1
+static double rawNoise(double xD, double yD, double zD)
 {
-	double xD = (double)x;
-	double yD = (double)y;
-	double zD = (double)z;
-
-	if (repeatNoise > 0)
-	{ // If we have any repeatNoise on, change the coordinates to their "local" repetitions
-		xD = fmod(xD, repeatNoise);
-		yD = fmod(yD, repeatNoise);
-		zD = fmod(zD, repeatNoise);
-	}
+	xD += NOISE_OFFSET_X;
+	yD += NOISE_OFFSET_Y;
+	zD += NOISE_OFFSET_Z;
 
 	// Round down, not toward zero: (int)-0.5 is 0, which put negative
 	// coordinates in the wrong unit cube and made the noise jump at -1, -2, ...
@@ -142,13 +137,13 @@ CP_API float CP_Random_Noise(float x, float y, float z)
 
 	int aaa, aba, aab, abb, baa, bba, bab, bbb;
 	aaa = p[p[p[xi] + yi] + zi];
-	aba = p[p[p[xi] + inc(yi)] + zi];
-	aab = p[p[p[xi] + yi] + inc(zi)];
-	abb = p[p[p[xi] + inc(yi)] + inc(zi)];
-	baa = p[p[p[inc(xi)] + yi] + zi];
-	bba = p[p[p[inc(xi)] + inc(yi)] + zi];
-	bab = p[p[p[inc(xi)] + yi] + inc(zi)];
-	bbb = p[p[p[inc(xi)] + inc(yi)] + inc(zi)];
+	aba = p[p[p[xi] + (yi + 1)] + zi];
+	aab = p[p[p[xi] + yi] + (zi + 1)];
+	abb = p[p[p[xi] + (yi + 1)] + (zi + 1)];
+	baa = p[p[p[(xi + 1)] + yi] + zi];
+	bba = p[p[p[(xi + 1)] + (yi + 1)] + zi];
+	bab = p[p[p[(xi + 1)] + yi] + (zi + 1)];
+	bbb = p[p[p[(xi + 1)] + (yi + 1)] + (zi + 1)];
 
 	double x1, x2, y1, y2;
 	x1 = lerp(grad(aaa, xf, yf, zf),     // The gradient function calculates the dot product between a pseudorandom
@@ -167,7 +162,28 @@ CP_API float CP_Random_Noise(float x, float y, float z)
 		u);
 	y2 = lerp(x1, x2, v);
 
-	return (float)((lerp(y1, y2, w) + 1) / 2); // For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
+	return lerp(y1, y2, w);
+}
+
+// Raw noise to 0..1 (see NOISE_SPREAD)
+static float noiseToUnit(double raw)
+{
+	const double value = 0.5 + 0.5 * raw / NOISE_SPREAD;
+	if (value < 0.0)
+	{
+		return 0.0f;
+	}
+	if (value > 1.0)
+	{
+		return 1.0f;
+	}
+	return (float)value;
+}
+
+//		Noise returns a value in the range [0, 1.0] based on three dimensional input values
+CP_API float CP_Random_Noise(float x, float y, float z)
+{
+	return noiseToUnit(rawNoise((double)x, (double)y, (double)z));
 }
 
 // Several layers of noise added together, each at twice the detail of the
@@ -179,16 +195,20 @@ CP_API float CP_Random_NoiseOctaves(float x, float y, float z, int octaves, floa
 		octaves = 1;
 	}
 
-	float total = 0.0f;
+	// Dividing the sum by the sum of the strengths, as before, pulled the result
+	// toward 0.5 with every layer (4 layers spanned only about 0.23 to 0.77).
+	// The layers are about independent, so dividing by the square root of the
+	// sum of the squared strengths keeps the spread of a single layer.
+	double total = 0.0;
+	double sumOfSquares = 0.0;
 	float frequency = 1.0f;
-	float amplitude = 1.0f;
-	float maxValue = 0.0f; // Used for normalizing result to 0.0 - 1.0
+	double amplitude = 1.0;
 	for (int i = 0; i < octaves; ++i)
 	{
-		total += CP_Random_Noise(x * frequency, y * frequency, z * frequency) * amplitude;
-		maxValue += amplitude;
+		total += rawNoise((double)(x * frequency), (double)(y * frequency), (double)(z * frequency)) * amplitude;
+		sumOfSquares += amplitude * amplitude;
 		amplitude *= persistence;
 		frequency *= 2.0f;
 	}
-	return total / maxValue;
+	return noiseToUnit(total / sqrt(sumOfSquares));
 }

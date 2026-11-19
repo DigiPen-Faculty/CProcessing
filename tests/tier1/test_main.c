@@ -37,6 +37,8 @@ int main(void)
 	RUN_TEST(test_math_lerpint_factor_zero_returns_a);
 	RUN_TEST(test_math_lerpint_factor_one_returns_b);
 	RUN_TEST(test_math_lerpint_factor_half);
+	RUN_TEST(test_math_lerpint_rounds_negative_values_the_same_way);
+	RUN_TEST(test_math_lerpint_of_equal_ends_is_that_value);
 	RUN_TEST(test_math_lerpint_factor_below_zero_clamps);
 	RUN_TEST(test_math_lerpint_factor_above_one_clamps);
 	RUN_TEST(test_math_lerpfloat_factor_zero_returns_a);
@@ -99,6 +101,9 @@ int main(void)
 	RUN_TEST(test_vector_angleccw_same_direction_stays_zero);
 	RUN_TEST(test_vector_angleccw_stays_within_negative_360_to_0);
 	RUN_TEST(test_vector_angleccw_equals_anglecw_minus_360);
+	RUN_TEST(test_vector_angle_of_parallel_vectors_is_never_nan);
+	RUN_TEST(test_vector_angle_with_a_zero_vector_is_zero);
+	RUN_TEST(test_vector_anglecw_tiny_counterclockwise_turn_stays_below_360);
 	RUN_TEST(test_vector_lerp_ends_and_middle);
 	RUN_TEST(test_vector_lerp_factor_is_clamped);
 	RUN_TEST(test_vector_rotate_a_quarter_turn_goes_clockwise_on_screen);
@@ -125,7 +130,7 @@ int main(void)
 	RUN_TEST(test_matrix_inverse_of_identity_is_identity);
 	RUN_TEST(test_matrix_inverse_of_scale);
 	RUN_TEST(test_matrix_inverse_times_original_is_identity);
-	RUN_TEST(test_matrix_inverse_of_singular_matrix_is_not_a_number);
+	RUN_TEST(test_matrix_inverse_of_singular_matrix_is_identity);
 	RUN_TEST(test_matrix_multiply_by_identity_is_noop);
 	RUN_TEST(test_matrix_multiply_composes_translations);
 
@@ -140,12 +145,15 @@ int main(void)
 	RUN_TEST(test_color_lerp_factor_one_returns_b);
 	RUN_TEST(test_color_lerp_factor_half);
 	RUN_TEST(test_color_lerp_factor_out_of_range_clamps);
+	RUN_TEST(test_color_lerp_of_a_color_with_itself_is_unchanged);
+	RUN_TEST(test_color_lerp_rounds_to_the_nearest_value);
 	RUN_TEST(test_colorhsl_create_passes_through_in_range_values);
 	RUN_TEST(test_colorhsl_create_wraps_negative_hue);
 	RUN_TEST(test_colorhsl_create_wraps_hue_above_360);
 	RUN_TEST(test_colorhsl_create_clamps_saturation_and_lightness);
 	RUN_TEST(test_colorhsl_lerp_factor_zero_returns_a);
 	RUN_TEST(test_colorhsl_lerp_factor_one_returns_b);
+	RUN_TEST(test_colorhsl_lerp_takes_the_shorter_way_round_the_hue_circle);
 	RUN_TEST(test_color_fromcolorhsl_red);
 	RUN_TEST(test_color_fromcolorhsl_green);
 	RUN_TEST(test_color_fromcolorhsl_blue);
@@ -157,6 +165,7 @@ int main(void)
 	RUN_TEST(test_colorhsl_fromcolor_white_has_zero_saturation);
 	RUN_TEST(test_colorhsl_fromcolor_black_has_zero_lightness);
 	RUN_TEST(test_colorhsl_fromcolor_preserves_alpha);
+	RUN_TEST(test_color_survives_rgb_to_hsl_and_back_closely);
 
 	// test_cp_random.c
 	RUN_TEST(test_random_getbool_produces_both_values_over_many_samples);
@@ -195,6 +204,9 @@ int main(void)
 	RUN_TEST(test_noise_octaves_with_no_persistence_are_plain_noise);
 	RUN_TEST(test_noise_octaves_stay_within_0_and_1);
 	RUN_TEST(test_noise_octaves_add_detail_and_are_deterministic);
+	RUN_TEST(test_noise_at_whole_numbers_is_not_always_the_same);
+	RUN_TEST(test_noise_along_one_axis_uses_most_of_0_to_1);
+	RUN_TEST(test_noise_octaves_keep_the_spread_of_one_layer);
 	RUN_TEST(test_random_rangeint_full_range_does_not_divide_by_zero);
 	RUN_TEST(test_random_rangeint_large_range_is_even);
 	RUN_TEST(test_random_rangeint_negative_bounds_stay_inside);

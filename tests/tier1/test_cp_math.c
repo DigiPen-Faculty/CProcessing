@@ -65,8 +65,27 @@ void test_math_lerpint_factor_one_returns_b(void)
 
 void test_math_lerpint_factor_half(void)
 {
-	// (1 - 0.5) * 0 + 0.5 * 255 = 127.5, truncated toward zero by the (int) cast.
-	TEST_ASSERT_EQUAL_INT(127, CP_Math_LerpInt(0, 255, 0.5f));
+	// 0 + 0.5 * 255 = 127.5, rounded to the nearest whole number (half away
+	// from zero). It was cut off to 127 before.
+	TEST_ASSERT_EQUAL_INT(128, CP_Math_LerpInt(0, 255, 0.5f));
+}
+
+void test_math_lerpint_rounds_negative_values_the_same_way(void)
+{
+	// Rounding is symmetric: a cast cut negative values off toward zero
+	TEST_ASSERT_EQUAL_INT(-128, CP_Math_LerpInt(0, -255, 0.5f));
+	TEST_ASSERT_EQUAL_INT(-3, CP_Math_LerpInt(0, -10, 0.29f));
+}
+
+void test_math_lerpint_of_equal_ends_is_that_value(void)
+{
+	for (int value = -300; value <= 300; value += 7)
+	{
+		for (int step = 0; step <= 100; ++step)
+		{
+			TEST_ASSERT_EQUAL_INT(value, CP_Math_LerpInt(value, value, (float)step / 100.0f));
+		}
+	}
 }
 
 void test_math_lerpint_factor_below_zero_clamps(void)

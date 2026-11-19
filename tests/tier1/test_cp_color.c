@@ -3,6 +3,7 @@
 
 // Tier 1 coverage for CP_Color -- all 7 functions are pure struct math
 // with no GL dependency (CP_Color.c), despite being "graphics-adjacent".
+#include <stdlib.h>
 #include "unity.h"
 #include "cprocessing.h"
 
@@ -91,6 +92,30 @@ void test_color_lerp_factor_out_of_range_clamps(void)
 	assertColorEqual(b, CP_Color_Lerp(a, b, 2.0f));
 }
 
+void test_color_lerp_of_a_color_with_itself_is_unchanged(void)
+{
+	// (1 - t) * a + t * a, cut off by a cast, could come out one less (3 to 2
+	// at t = 0.1)
+	for (int value = 0; value <= 255; ++value)
+	{
+		const CP_Color c = CP_Color_Create(value, value, value, value);
+		for (int step = 0; step <= 100; ++step)
+		{
+			assertColorEqual(c, CP_Color_Lerp(c, c, (float)step / 100.0f));
+		}
+	}
+}
+
+void test_color_lerp_rounds_to_the_nearest_value(void)
+{
+	// 127.5 rounds up; 255 * 0.999 = 254.7 is 255 (cut off, it was 254)
+	const CP_Color black = CP_Color_Create(0, 0, 0, 0);
+	const CP_Color white = CP_Color_Create(255, 255, 255, 255);
+	TEST_ASSERT_EQUAL_UINT8(128, CP_Color_Lerp(black, white, 0.5f).r);
+	TEST_ASSERT_EQUAL_UINT8(255, CP_Color_Lerp(black, white, 0.999f).g);
+	TEST_ASSERT_EQUAL_UINT8(1, CP_Color_Lerp(black, white, 0.003f).b);
+}
+
 // ---- CP_ColorHSL_Create ----
 
 void test_colorhsl_create_passes_through_in_range_values(void)
@@ -143,6 +168,19 @@ void test_colorhsl_lerp_factor_one_returns_b(void)
 	TEST_ASSERT_EQUAL_INT(b.h, result.h);
 	TEST_ASSERT_EQUAL_INT(b.s, result.s);
 	TEST_ASSERT_EQUAL_INT(b.l, result.l);
+}
+
+void test_colorhsl_lerp_takes_the_shorter_way_round_the_hue_circle(void)
+{
+	const CP_ColorHSL a = CP_ColorHSL_Create(350, 100, 50, 255);
+	const CP_ColorHSL b = CP_ColorHSL_Create(10, 100, 50, 255);
+	// Halfway from 350 to 10 is red (0), not cyan (180)
+	TEST_ASSERT_EQUAL_INT(0, CP_ColorHSL_Lerp(a, b, 0.5f).h);
+	TEST_ASSERT_EQUAL_INT(0, CP_ColorHSL_Lerp(b, a, 0.5f).h);
+	TEST_ASSERT_EQUAL_INT(355, CP_ColorHSL_Lerp(a, b, 0.25f).h);
+	TEST_ASSERT_EQUAL_INT(5, CP_ColorHSL_Lerp(a, b, 0.75f).h);
+	// Within half a turn nothing changes
+	TEST_ASSERT_EQUAL_INT(60, CP_ColorHSL_Lerp(CP_ColorHSL_Create(0, 100, 50, 255), CP_ColorHSL_Create(120, 100, 50, 255), 0.5f).h);
 }
 
 // ---- CP_Color_FromColorHSL ----
@@ -221,4 +259,37 @@ void test_colorhsl_fromcolor_preserves_alpha(void)
 {
 	CP_ColorHSL hsl = CP_ColorHSL_FromColor(CP_Color_Create(100, 150, 200, 77));
 	TEST_ASSERT_EQUAL_INT(77, hsl.a);
+}
+
+// ---- RGB to HSL and back ----
+
+void test_color_survives_rgb_to_hsl_and_back_closely(void)
+{
+	// Whole-number h, s and l can't hold every RGB color, so some loss is
+	// expected, but rounding keeps it small. Cut off at both steps, no color
+	// came back exactly and the worst channel was off by 9.
+	int worst = 0;
+	long total = 0;
+	long count = 0;
+	for (int r = 0; r <= 255; r += 15)
+	{
+		for (int g = 0; g <= 255; g += 15)
+		{
+			for (int b = 0; b <= 255; b += 15)
+			{
+				const CP_Color c = CP_Color_Create(r, g, b, 255);
+				const CP_Color back = CP_Color_FromColorHSL(CP_ColorHSL_FromColor(c));
+				const int dr = abs(back.r - c.r);
+				const int dg = abs(back.g - c.g);
+				const int db = abs(back.b - c.b);
+				int d = dr > dg ? dr : dg;
+				d = d > db ? d : db;
+				worst = d > worst ? d : worst;
+				total += d;
+				++count;
+			}
+		}
+	}
+	TEST_ASSERT_LESS_OR_EQUAL_INT(5, worst);
+	TEST_ASSERT_TRUE((double)total / (double)count < 1.6);
 }
