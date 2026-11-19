@@ -46,7 +46,11 @@ CP_API float CP_Math_ClampFloat(float value, float min, float max)
 CP_API int CP_Math_LerpInt(int a, int b, float lerpFactor)
 {
 	lerpFactor = CP_Math_ClampFloat(lerpFactor, 0, 1.0f);
-	return (int)((1.0f - lerpFactor) * a + (lerpFactor)*b);
+	// a + t * (b - a) gives a exactly when a and b are the same, and the
+	// result is rounded to the nearest whole number (a cast would cut the
+	// fraction off, always toward zero). Worked out in double so b - a can't
+	// overflow.
+	return (int)lround((double)a + (double)lerpFactor * ((double)b - (double)a));
 }
 
 CP_API float CP_Math_LerpFloat(float a, float b, float lerpFactor)
@@ -259,25 +263,32 @@ CP_API float CP_Vector_Distance(CP_Vector a, CP_Vector b) { return sqrtf(CP_Math
 CP_API float CP_Vector_DotProduct(CP_Vector a, CP_Vector b) { return (a.x * b.x) + (a.y * b.y); }
 CP_API float CP_Vector_CrossProduct(CP_Vector a, CP_Vector b) { return (a.x * b.y) - (a.y * b.x); }
 
+// The angle from one vector to the other, in degrees from -180 to 180,
+// positive for a clockwise turn on the screen (y points down). atan2 of the
+// cross and dot products is exact for vectors that point the same way or
+// opposite ways. (The arc cosine of the dot product over the lengths, used
+// before, could get a value just over 1 for those and return NaN.) A zero
+// vector gives 0.
+static float signedAngle(CP_Vector from, CP_Vector to)
+{
+	return CP_Math_Degrees((float)atan2((double)CP_Vector_CrossProduct(from, to), (double)CP_Vector_DotProduct(from, to)));
+}
+
 CP_API float CP_Vector_Angle(CP_Vector a, CP_Vector b)
 {
-	return CP_Math_Degrees((float)acos((double)(CP_Vector_DotProduct(a, b) / (CP_Vector_Length(a) * CP_Vector_Length(b)))));
+	return fabsf(signedAngle(a, b));
 }
 
 CP_API float CP_Vector_AngleCW(CP_Vector from, CP_Vector to)
 {
-	// update right vectors
-	CP_Vector toRight = CP_Vector_Set(-to.y, to.x);
-
-	float ang = CP_Vector_Angle(from, to);
-	if (CP_Vector_DotProduct(from, toRight) <= 0)
+	float angle = signedAngle(from, to);
+	if (angle < 0.0f)
 	{
-		return ang;
+		angle += 360.0f;
 	}
-	else
-	{
-		return 360.0f - ang;
-	}
+	// A tiny negative angle plus 360 can round to 360, which is 0 again; and
+	// -0 becomes 0
+	return (angle >= 360.0f || angle == 0.0f) ? 0.0f : angle;
 }
 
 CP_API float CP_Vector_AngleCCW(CP_Vector from, CP_Vector to)
@@ -412,6 +423,14 @@ CP_API CP_Matrix CP_Matrix_Inverse(CP_Matrix original)
 	for (i = 0; i < 3; i++)
 	{
 		determinant += (m[0][i] * (m[1][(i + 1) % 3] * m[2][(i + 2) % 3] - m[1][(i + 2) % 3] * m[2][(i + 1) % 3]));
+	}
+
+	// A matrix that flattens space (a scale of 0, say) has no inverse:
+	// return the identity rather than dividing by 0 and filling the result
+	// with infinities and NaN
+	if (determinant == 0.0f || !isfinite(1.0f / determinant))
+	{
+		return CP_Matrix_Identity();
 	}
 
 	for (i = 0; i < 3; i++)
