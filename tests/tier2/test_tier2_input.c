@@ -27,3 +27,11 @@ void test_tier2_input_no_clicks_or_keys_in_a_quiescent_frame(void)
 	// and no text was typed
 	TEST_ASSERT_TRUE(tier2_scalars.typedTextIsEmpty);
 }
+
+void test_tier2_input_no_key_is_triggered_and_no_key_is_never_down(void)
+{
+	// Nothing was pressed, so GetKeyTriggered gives CP_KEY_NONE, and
+	// CP_KEY_NONE (a CP_KEY left at zero) is never down, triggered or released
+	TEST_ASSERT_EQUAL_INT(CP_KEY_NONE, tier2_scalars.keyTriggered);
+	TEST_ASSERT_FALSE(tier2_scalars.keyNoneEverOn);
+}

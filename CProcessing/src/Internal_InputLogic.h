@@ -78,6 +78,24 @@ static inline bool CP_InputLogic_Released(bool current, bool previous)
 	return !current && previous;
 }
 
+// The key GetKeyTriggered reports: of the keys triggered this frame (down
+// now, not down last frame), the one pressed first. pressOrder[key] is a
+// count that goes up with every press, so the smallest one was pressed
+// earliest; a tap that started and ended between two frames still has its
+// count. Returns the key's index, or -1 when no key was triggered.
+static inline int CP_InputLogic_FirstTriggered(const int* current, const int* previous, const unsigned* pressOrder, int keyCount)
+{
+	int first = -1;
+	for (int key = 0; key < keyCount; ++key)
+	{
+		if (CP_InputLogic_Triggered(current[key], previous[key]) && (first < 0 || pressOrder[key] < pressOrder[first]))
+		{
+			first = key;
+		}
+	}
+	return first;
+}
+
 // Per-frame sampling of a key/button's down state.
 //
 // OS events arrive asynchronously; CProcessing samples the state once per

@@ -182,6 +182,7 @@ int main(void)
 	RUN_TEST(test_tier2_input_no_gamepad_attached_reports_disconnected);
 	RUN_TEST(test_tier2_input_mouse_wheel_is_zero_at_rest);
 	RUN_TEST(test_tier2_input_no_clicks_or_keys_in_a_quiescent_frame);
+	RUN_TEST(test_tier2_input_no_key_is_triggered_and_no_key_is_never_down);
 
 	// test_tier2_crossplatform.c
 	RUN_TEST(test_tier2_drawing_persists_into_the_next_frame);

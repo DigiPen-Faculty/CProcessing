@@ -238,6 +238,7 @@ CP_API CP_Vector		CP_Font_GetTextBoxSize				(const char* text, float rowWidth);
 // INPUT:
 //		Keyboard, mouse and gamepad support
 CP_API CP_BOOL			CP_Input_KeyTriggered				(CP_KEY keyCode);
+CP_API CP_KEY			CP_Input_GetKeyTriggered			(void);
 CP_API CP_BOOL			CP_Input_KeyReleased				(CP_KEY keyCode);
 CP_API CP_BOOL			CP_Input_KeyDown					(CP_KEY keyCode);
 CP_API CP_BOOL			CP_Input_MouseTriggered				(CP_MOUSE button);

@@ -151,6 +151,14 @@ Each change says what to do in an existing project.
   have an open outline. The new `CP_Graphics_EndShapeOpen` leaves the outline
   open (a path, a zigzag, a graph line). What to do: a shape drawn with no fill
   that was meant to be open ends with `CP_Graphics_EndShapeOpen()`.
+- **`CP_KEY_ANY` is now -1 (it was 0), and 0 is the new `CP_KEY_NONE`, no
+  key.** A global `CP_KEY` that was never set starts at 0, so it used to mean
+  every key: a forgotten `CP_KEY jumpKey;` made the player jump whenever any
+  key was held. Now it means no key, which is never down.
+  `CP_Input_GetKeyTriggered` returns `CP_KEY_NONE` when no key was pressed.
+  What to do: nothing in code that uses the names. Code that used the number
+  0 for "any key" uses `CP_KEY_ANY`, and a program built against an older
+  CProcessing DLL is rebuilt with the new header.
 - **The repository's folders were reorganized**, so each name says what is in
   it: the library is `CProcessing/` (it was `Processing_Sample/CProcessing/`),
   the solution is `CProcessing.sln`, the demo program is `demos/` (and
@@ -274,6 +282,10 @@ Each change says what to do in an existing project.
 - **Typed text:** `CP_Input_GetTypedText` gives the text the player typed
   during the last frame, as UTF-8 (including accented letters and other
   languages), so a game can ask for a name for a high score.
+- **Which key was pressed:** `CP_Input_GetKeyTriggered` returns the key
+  pressed this frame, or `CP_KEY_NONE`; if several were, the one pressed
+  first. For a menu where players choose their own controls:
+  `examples/controls.c` shows one.
 - **Examples:** eight small, complete programs, each showing one thing
   games need: `movement.c`, `collision.c`, `sprite_animation.c`,
   `camera.c`, `game_states.c`, `score_and_text.c`,
