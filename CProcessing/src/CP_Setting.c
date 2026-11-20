@@ -95,8 +95,8 @@ void CP_Settings_ApplyAll(void)
 	if (!vg)
 		return;
 
-	// CP's line, filter, wrap and alignment values are NanoVG's own
-	nvgFillColor(vg, CP_ToNVGColor(DI->fill_color));
+	// CP's line, filter, wrap and alignment values are NanoVG's own. The fill
+	// isn't given here: whatever fills sets it just before (see FillPath).
 	nvgStrokeColor(vg, CP_ToNVGColor(DI->stroke_color));
 	nvgStrokeWidth(vg, DI->stroke_weight);
 	nvgLineCap(vg, DI->line_cap);
@@ -114,6 +114,11 @@ void CP_Settings_ApplyAll(void)
 // Public Functions:
 //------------------------------------------------------------------------------
 
+// NanoVG's fill is set only here and in CP_Settings_ApplyTextFill, from the
+// DrawInfo, right before something is filled; CP_Settings_Fill and the
+// gradients only store the setting. Whatever else fills with NanoVG (images,
+// points, the game state layers) sets its own fill and leaves it, so there's
+// nothing to put back after it.
 void CP_Settings_FillPath(void)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
@@ -136,29 +141,27 @@ void CP_Settings_FillPath(void)
 		break;
 	case CP_FILL_GRADIENT_NONE:
 	default:
-		// Set every time, not only by CP_Settings_Fill: drawing an image
-		// leaves NanoVG's fill set to the image
 		nvgFillColor(vg, CP_ToNVGColor(DI->fill_color));
 		break;
 	}
 	nvgFill(vg);
+}
 
-	// After a gradient, back to a plain color, its first, which text uses
-	if (DI->fill_gradient != CP_FILL_GRADIENT_NONE)
-	{
-		nvgFillColor(vg, CP_ToNVGColor(DI->fill_color));
-	}
+// Text can't take a gradient: it's drawn in the plain fill color, which is a
+// gradient's first color
+void CP_Settings_ApplyTextFill(void)
+{
+	NVGcontext* vg = GetCPCore()->nvg;
+	if (vg)
+		nvgFillColor(vg, CP_ToNVGColor(GetDrawInfo()->fill_color));
 }
 
 CP_API void CP_Settings_Fill(CP_Color c)
 {
 	CP_DrawInfoPtr DI = GetDrawInfo();
-	NVGcontext* vg = GetCPCore()->nvg;
 	DI->fill_color = c;
 	DI->fill = TRUE;
 	DI->fill_gradient = CP_FILL_GRADIENT_NONE;
-	if (vg)
-		nvgFillColor(vg, CP_ToNVGColor(c));
 }
 
 // A gradient is a fill: Fill, NoFill and the other gradient replace it, and
@@ -167,7 +170,6 @@ CP_API void CP_Settings_Fill(CP_Color c)
 static void CP_Settings_FillGradient(CP_FILL_GRADIENT kind, float a, float b, float c, float d, CP_Color color1, CP_Color color2)
 {
 	CP_DrawInfoPtr DI = GetDrawInfo();
-	NVGcontext* vg = GetCPCore()->nvg;
 	DI->fill = TRUE;
 	DI->fill_gradient = kind;
 	DI->gradient_points[0] = a;
@@ -177,8 +179,6 @@ static void CP_Settings_FillGradient(CP_FILL_GRADIENT kind, float a, float b, fl
 	DI->gradient_colors[0] = color1;
 	DI->gradient_colors[1] = color2;
 	DI->fill_color = color1; // what text and GetFill use: text can't take a gradient
-	if (vg)
-		nvgFillColor(vg, CP_ToNVGColor(color1));
 }
 
 CP_API void CP_Settings_FillLinearGradient(float x1, float y1, CP_Color color1, float x2, float y2, CP_Color color2)

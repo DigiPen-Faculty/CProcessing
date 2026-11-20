@@ -187,9 +187,6 @@ static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float
 	nvgRect(CORE->nvg, x, y, w, h);
 	nvgFillPaint(CORE->nvg, image);
 	nvgFill(CORE->nvg);
-
-	// Put the fill color back, for text drawn after (shapes set their own)
-	nvgFillColor(CORE->nvg, nvgRGBA(DI->fill_color.r, DI->fill_color.g, DI->fill_color.b, DI->fill_color.a));
 }
 
 //------------------------------------------------------------------------------

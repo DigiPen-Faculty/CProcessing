@@ -89,8 +89,11 @@ void CP_Settings_InitDefaults(CP_DrawInfoPtr DI);
 // Gives NanoVG the current settings, once its context exists (CP_Setting.c)
 void CP_Settings_ApplyAll(void);
 // Fills the path being drawn with the fill color or gradient, a gradient
-// placed in the coordinates as they are now (CP_Setting.c)
+// placed in the coordinates as they are now (CP_Setting.c). NanoVG's fill
+// is set only by these two, right before use.
 void CP_Settings_FillPath(void);
+// Sets NanoVG's fill to the plain fill color, for text (CP_Setting.c)
+void CP_Settings_ApplyTextFill(void);
 //////////////////
 
 //////////////////
