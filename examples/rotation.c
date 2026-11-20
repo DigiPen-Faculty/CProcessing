@@ -27,8 +27,9 @@
 // BeginRotation, EndRotation and DrawRectRotated below save writing the
 // five steps every time: copy them into your own game.
 //
-// Space pauses the turning, Left and Right turn by hand, and dragging in the
-// fourth box slides its rectangle across the pivot.
+// Everything turns on its own until Space stops it (Space again starts it).
+// Hold Left or Right to turn back or forward. Drag in the fourth box to slide
+// its rectangle across the pivot, or off it.
 //
 // Try this:
 // - Make the moon in the orbit box spin around itself as it goes round.
@@ -89,17 +90,19 @@ void DrawRectRotated(float x, float y, float w, float h, float degrees, float pi
 #define BOX_HEIGHT 320.0f
 #define MARGIN     18.0f
 
-float turnTime = 0.0f; // seconds of turning: stops while paused
-CP_BOOL paused = FALSE;
-const float turnSpeed = 45.0f; // degrees per second
+float turnTime = 0.0f;          // seconds of turning, forward or back
+CP_BOOL turningOnItsOwn = TRUE; // Space switches it
+const float turnSpeed = 45.0f;  // degrees per second
 
 CP_Image slimeSheet; // 8 frames in a row, each 64x64
 const float frameSize = 64.0f;
 
-// The pivot of the fourth box, from its rectangle's top-left corner, and
-// whether the mouse is dragging it
-float choosePivotX = 20.0f;
-float choosePivotY = 15.0f;
+// The fourth box's rectangle, its pivot from its top-left corner (which can
+// be off the rectangle), and whether the mouse is dragging it
+const float chooseWidth = 64.0f;
+const float chooseHeight = 40.0f;
+float choosePivotX = 16.0f;
+float choosePivotY = 10.0f;
 CP_BOOL dragging = FALSE;
 
 CP_Color shapeColor;
@@ -207,8 +210,10 @@ void DrawChosenPivot(float left, float top, float angle)
 
 	// The pin stays in the middle of the box. Dragging slides the rectangle
 	// across it, which changes where the pin goes through the rectangle:
-	// its pivot. The mouse moves on the screen, so turn its movement back by
-	// the angle to get the movement along the turned rectangle.
+	// its pivot. Slide it off the pin and it swings around the pin, like the
+	// moon or the forearm below. The mouse moves on the screen, so turn its
+	// movement back by the angle to get the movement along the turned
+	// rectangle.
 	const float mouseX = CP_Input_GetMouseX();
 	const float mouseY = CP_Input_GetMouseY();
 	if (CP_Input_MouseTriggered(CP_MOUSE_LEFT))
@@ -222,16 +227,23 @@ void DrawChosenPivot(float left, float top, float angle)
 	if (dragging)
 	{
 		CP_Vector moved = CP_Vector_Rotate(CP_Vector_Set(CP_Input_GetMouseDeltaX(), CP_Input_GetMouseDeltaY()), -angle);
-		// The pin stays inside the rectangle, so it stays in the box
-		choosePivotX = CP_Math_ClampFloat(choosePivotX - moved.x, 0.0f, rectWidth);
-		choosePivotY = CP_Math_ClampFloat(choosePivotY - moved.y, 0.0f, rectHeight);
+		choosePivotX -= moved.x;
+		choosePivotY -= moved.y;
+
+		// Keep the pin within 62 pixels of the rectangle's middle, so the
+		// rectangle stays in the box as it swings around
+		const CP_Vector middle = CP_Vector_Set(chooseWidth / 2.0f, chooseHeight / 2.0f);
+		CP_Vector fromMiddle = CP_Vector_Subtract(CP_Vector_Set(choosePivotX, choosePivotY), middle);
+		fromMiddle = CP_Vector_Limit(fromMiddle, 62.0f);
+		choosePivotX = middle.x + fromMiddle.x;
+		choosePivotY = middle.y + fromMiddle.y;
 	}
 
 	const float x = PictureX(left);
 	const float y = PictureY(top);
 	CP_Settings_NoStroke();
 	CP_Settings_Fill(shapeColor);
-	DrawRectRotated(x, y, rectWidth, rectHeight, angle, choosePivotX, choosePivotY);
+	DrawRectRotated(x, y, chooseWidth, chooseHeight, angle, choosePivotX, choosePivotY);
 
 	BeginRotation(x, y, angle);
 	DrawOffset(-choosePivotX, -choosePivotY);
@@ -378,21 +390,19 @@ void game_init(void)
 
 void game_update(void)
 {
+	// Left and Right turn back and forward at the usual speed. Without them,
+	// it turns forward on its own, until Space stops it.
 	if (CP_Input_KeyTriggered(CP_KEY_SPACE))
 	{
-		paused = !paused;
-	}
-	if (!paused)
-	{
-		turnTime += CP_System_GetDt();
-	}
-	if (CP_Input_KeyDown(CP_KEY_RIGHT))
-	{
-		turnTime += CP_System_GetDt();
+		turningOnItsOwn = !turningOnItsOwn;
 	}
 	if (CP_Input_KeyDown(CP_KEY_LEFT))
 	{
 		turnTime -= CP_System_GetDt();
+	}
+	else if (CP_Input_KeyDown(CP_KEY_RIGHT) || turningOnItsOwn)
+	{
+		turnTime += CP_System_GetDt();
 	}
 	const float angle = turnTime * turnSpeed;
 
@@ -414,8 +424,8 @@ void game_update(void)
 
 	CP_Settings_Fill(CP_Color_Create(170, 170, 190, 255));
 	CP_Settings_TextSize(20.0f);
-	char help[80];
-	snprintf(help, sizeof(help), "Space: %s    Left/Right: turn by hand    Drag the fourth box", paused ? "go on" : "pause");
+	char help[100];
+	snprintf(help, sizeof(help), "Space: %s    Left/Right: turn back/forward    Drag the fourth box", turningOnItsOwn ? "stop" : "turn on its own");
 	CP_Font_DrawText(help, MARGIN, 705.0f);
 }
 
