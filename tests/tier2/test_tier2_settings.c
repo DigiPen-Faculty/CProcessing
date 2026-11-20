@@ -181,3 +181,124 @@ void test_tier2_settings_getfill_works_before_run(void)
 	TEST_ASSERT_EQUAL_UINT8(200, tier2_scalars.fillBeforeRun.g);
 	TEST_ASSERT_EQUAL_UINT8(34, tier2_scalars.fillBeforeRun.b);
 }
+
+// ---- Clip ----
+// See the Clip scenarios in tier2_capture.c: each draws a red canvas through a
+// clip, so red shows where the clip lets drawing through.
+
+static const CP_Color kRed = { 255, 0, 0, 255 };
+static const CP_Color kWhite = { 255, 255, 255, 255 };
+static const CP_Color kBlue = { 0, 0, 255, 255 };
+
+// Pixels in a region that are dark (text drawn in black)
+static int countDark(int scenario, int x0, int y0, int x1, int y1)
+{
+	int count = 0;
+	for (int y = y0; y <= y1; ++y)
+	{
+		for (int x = x0; x <= x1; ++x)
+		{
+			const CP_Color p = tier2_SamplePixel(scenario, x, y);
+			if (p.r < 128 && p.g < 128 && p.b < 128)
+			{
+				++count;
+			}
+		}
+	}
+	return count;
+}
+
+void test_tier2_settings_clip_corner_cuts_off_drawing_outside(void)
+{
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_CORNER, 100, 100));
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_CORNER, 53, 53));
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_CORNER, 147, 147));
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_CORNER, 46, 100));
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_CORNER, 154, 100));
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_CORNER, 100, 46));
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_CORNER, 100, 154));
+}
+
+void test_tier2_settings_clip_follows_rectmode_center(void)
+{
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_CENTER, 100, 100));
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_CENTER, 73, 73));
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_CENTER, 127, 127));
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_CENTER, 66, 100));
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_CENTER, 134, 100));
+}
+
+void test_tier2_settings_clip_with_a_negative_size_is_the_same_rectangle(void)
+{
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_NEGATIVE_SIZE, 100, 100));
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_NEGATIVE_SIZE, 53, 53));
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_NEGATIVE_SIZE, 46, 100));
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_NEGATIVE_SIZE, 154, 154));
+}
+
+void test_tier2_settings_clip_stays_put_while_drawing_moves_under_it(void)
+{
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_STAYS_PUT, 125, 100));   // moved drawing, inside the clip
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_STAYS_PUT, 75, 100));  // inside the clip, but the drawing moved away
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_STAYS_PUT, 165, 100)); // the drawing, but outside the clip
+}
+
+void test_tier2_settings_clip_replaces_the_last_one_and_noclip_removes_it(void)
+{
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_REPLACE_AND_NOCLIP, 50, 50)); // the first clip
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_REPLACE_AND_NOCLIP, 150, 150)); // the second
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_REPLACE_AND_NOCLIP, 50, 150));
+	assertColorWithin(2, kBlue, tier2_SamplePixel(SCN_CLIP_REPLACE_AND_NOCLIP, 175, 25)); // after NoClip
+}
+
+void test_tier2_settings_restore_brings_back_the_clip(void)
+{
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_SAVE_RESTORE, 50, 100));
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_SAVE_RESTORE, 150, 100));
+}
+
+void test_tier2_settings_clip_set_after_rotate_is_turned(void)
+{
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_TURNED, 100, 100));
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_TURNED, 100, 165)); // toward a corner of the diamond
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_TURNED, 35, 100));
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_TURNED, 145, 145)); // inside the square unturned
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_TURNED, 100, 178));
+}
+
+void test_tier2_settings_clip_cuts_images_and_text(void)
+{
+	assertColorWithin(4, kRed, tier2_SamplePixel(SCN_CLIP_TEXT_AND_IMAGE, 50, 25));    // the image's red quarter
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_TEXT_AND_IMAGE, 150, 25)); // its green quarter, cut off
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_TEXT_AND_IMAGE, 150, 75)); // its yellow quarter, cut off
+	TEST_ASSERT_TRUE(countDark(SCN_CLIP_TEXT_AND_IMAGE, 0, 100, 99, 199) > 100);       // the first H
+	TEST_ASSERT_EQUAL_INT(0, countDark(SCN_CLIP_TEXT_AND_IMAGE, 103, 100, 199, 199));  // the second, cut off
+}
+
+void test_tier2_settings_clearbackground_clears_the_whole_window_inside_a_clip(void)
+{
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_CLEAR_BACKGROUND, 50, 100));
+	assertColorWithin(2, kBlue, tier2_SamplePixel(SCN_CLIP_CLEAR_BACKGROUND, 150, 100));
+}
+
+void test_tier2_settings_drawing_into_an_image_is_unclipped_and_the_clip_comes_back(void)
+{
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_IMAGE_DRAWING, 145, 45)); // all of the image is red
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_IMAGE_DRAWING, 165, 65));
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_IMAGE_DRAWING, 45, 45)); // clipped again after EndDrawing
+}
+
+void test_tier2_settings_clip_is_gone_in_the_next_frame(void)
+{
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_LEFT_SET, 10, 10));
+	assertColorWithin(2, kWhite, tier2_SamplePixel(SCN_CLIP_LEFT_SET, 100, 100));
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_GONE_NEXT_FRAME, 100, 100));
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_GONE_NEXT_FRAME, 190, 190));
+}
+
+void test_tier2_settings_clip_doesnt_reach_the_next_game_state(void)
+{
+	TEST_ASSERT_TRUE(tier2_scalars.clipStateBelowRanFirst);
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_NEW_STATE, 10, 100));
+	assertColorWithin(2, kRed, tier2_SamplePixel(SCN_CLIP_NEW_STATE, 100, 100));
+}

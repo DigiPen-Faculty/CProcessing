@@ -60,6 +60,20 @@ typedef enum
 	SCN_GRADIENT_TEXT_AND_STROKE,
 	SCN_GRADIENT_FADE_TO_TRANSPARENT,
 	SCN_FILL_AFTER_IMAGE,
+	SCN_CLIP_CORNER,
+	SCN_CLIP_CENTER,
+	SCN_CLIP_NEGATIVE_SIZE,
+	SCN_CLIP_STAYS_PUT,
+	SCN_CLIP_REPLACE_AND_NOCLIP,
+	SCN_CLIP_SAVE_RESTORE,
+	SCN_CLIP_TURNED,
+	SCN_CLIP_TEXT_AND_IMAGE,
+	SCN_CLIP_CLEAR_BACKGROUND,
+	SCN_CLIP_IMAGE_DRAWING,
+	// These two must stay consecutive: the first leaves a clip set, and the
+	// second shows it's gone in the next frame
+	SCN_CLIP_LEFT_SET,
+	SCN_CLIP_GONE_NEXT_FRAME,
 	SCN_SETTINGS_NOFILL,
 	SCN_SETTINGS_STROKEWEIGHT,
 	SCN_SETTINGS_RECTMODE_CORNER,
@@ -106,6 +120,8 @@ typedef enum
 	SCN_GAMESTATE_STACK,
 	// A screenshot of one state drawn in the next (see Scn_GameStateSnapshot)
 	SCN_GAMESTATE_SNAPSHOT,
+	// A state's clip doesn't reach the state drawn after it (see Scn_ClipNewState)
+	SCN_CLIP_NEW_STATE,
 	SCN_IMAGE_DRAW_INTO,
 	// Cross-platform work: these two must stay consecutive -- the second
 	// one draws on top of the first one's frame without clearing.
@@ -324,6 +340,9 @@ typedef struct
 	CP_Color snapshotInPushedInitCenter; // a screenshot in E's init: the picture below, D's green
 	CP_Color snapshotInPushedInitCorner;
 	int snapshotHarnessDepthAfter; // 1
+
+	// A clip and game states (see Scn_ClipNewState)
+	CP_BOOL clipStateBelowRanFirst; // the state below set its clip in the same frame
 
 	// Drawing into an image (see Scn_ImageDrawInto)
 	CP_BOOL drawIntoCreated;

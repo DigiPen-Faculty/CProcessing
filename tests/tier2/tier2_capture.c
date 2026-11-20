@@ -716,6 +716,161 @@ static void Scn_FillAfterImage(void)
 }
 
 
+// ---- Clip (CP_Settings_Clip, CP_Settings_NoClip) ----
+// Each draws a red rect over the whole canvas after setting a clip, so the
+// red shows exactly where the clip lets drawing through.
+
+static void FillCanvasRed(void)
+{
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Graphics_DrawRect(0, 0, TIER2_CANVAS_SIZE, TIER2_CANVAS_SIZE);
+}
+
+// CORNER: the clip spans [50,150] x [50,150]
+static void Scn_ClipCorner(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Clip(50, 50, 100, 100);
+	FillCanvasRed();
+}
+
+// CENTER (the baseline): the clip spans [70,130] x [70,130]
+static void Scn_ClipCenter(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Clip(100, 100, 60, 60);
+	FillCanvasRed();
+}
+
+// A negative width and height go left and up from (150, 150), as a
+// rectangle does: [50,150] x [50,150] again
+static void Scn_ClipNegativeSize(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Clip(150, 150, -100, -100);
+	FillCanvasRed();
+}
+
+// The clip, [50,150] x [50,150], stays where it was set while the drawing
+// moves 100 to the right under it: red only in [100,150]
+static void Scn_ClipStaysPut(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Clip(50, 50, 100, 100);
+	CP_Settings_Translate(100, 0);
+	FillCanvasRed();
+}
+
+// A second clip, the bottom right quarter, replaces the first, the top left
+// quarter (an intersection would leave nothing). Then NoClip, and a blue
+// square in the top right, outside both.
+static void Scn_ClipReplaceAndNoClip(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Clip(0, 0, 100, 100);
+	CP_Settings_Clip(100, 100, 100, 100);
+	FillCanvasRed();
+	CP_Settings_NoClip();
+	CP_Settings_Fill(BLUE);
+	CP_Graphics_DrawRect(150, 0, 50, 50);
+}
+
+// Clip to the left half, Save, clip to the right half, Restore: the left
+// half again
+static void Scn_ClipSaveRestore(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Clip(0, 0, 100, 200);
+	CP_Settings_Save();
+	CP_Settings_Clip(100, 0, 100, 200);
+	CP_Settings_Restore();
+	FillCanvasRed();
+}
+
+// A 100x100 clip set after Translate(100, 100) and Rotate(45): a diamond
+// around the middle, its corners 70.7 from it, straight up, down, left and
+// right. (145, 145) is inside the square unturned, outside the diamond.
+static void Scn_ClipTurned(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Translate(100, 100);
+	CP_Settings_Rotate(45);
+	CP_Settings_Clip(0, 0, 100, 100);
+	CP_Settings_ResetMatrix();
+	FillCanvasRed();
+}
+
+// The clip, the left half, cuts images and text too: the four color image
+// across the top, and black "HH" across the bottom
+static void Scn_ClipTextAndImage(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Clip(0, 0, 100, 200);
+	CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Image image = CreateFourColorImage();
+	CP_Image_Draw(image, 0, 0, 200, 100, 255);
+	CP_Image_Free(&image);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_Fill(BLACK);
+	CP_Settings_TextSize(100.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+	CP_Font_DrawText("HH", 100, 150);
+}
+
+// ClearBackground inside a clip still clears the whole window, and the clip
+// is still set after it
+static void Scn_ClipClearBackground(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Clip(0, 0, 100, 200);
+	CP_Graphics_ClearBackground(BLUE);
+	FillCanvasRed();
+}
+
+// With the right half clipped, a 50x50 image is drawn into: there's no clip
+// inside, so the image is all red. After EndDrawing the clip is back: the
+// image shows on the right and not on the left.
+static void Scn_ClipImageDrawing(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Clip(100, 0, 100, 200);
+	CP_Image image = CP_Image_Create(50, 50);
+	CP_Image_BeginDrawing(image);
+	FillCanvasRed();
+	CP_Image_EndDrawing();
+	CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Image_Draw(image, 120, 20, 50, 50, 255);
+	CP_Image_Draw(image, 20, 20, 50, 50, 255);
+	CP_Image_Free(&image);
+}
+
+// Leaves a clip, the top left 20x20, set at the end of the frame...
+static void Scn_ClipLeftSet(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Clip(0, 0, 20, 20);
+	FillCanvasRed();
+}
+
+// ...and the next frame draws everywhere
+static void Scn_ClipGoneNextFrame(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	FillCanvasRed();
+}
+
+
 // The image drawn 100x100, nearest on the left half of the canvas and
 // linear on the right. Nearest keeps four solid colors; linear blends them
 // in the middle.
@@ -1537,6 +1692,56 @@ static void Scn_GameStateSnapshot(void)
 	snapshotAwaitingResume = true;
 }
 
+// A clip and game states. The harness pushes ClipBelow, which pushes
+// ClipAbove; ClipAbove lets ClipBelow keep running under it. In one frame
+// ClipBelow updates first and leaves a clip set, the left 20 pixels, and then
+// ClipAbove draws a red canvas with no clip of its own (captured): it isn't
+// cut, because each state starts drawing unclipped. Then both pop.
+static int clipBelowFrame = 0;
+static unsigned clipBelowFrameCount = 0;
+
+static void ClipAbove_Init(void)
+{
+	CP_Engine_SetGameStatePassThrough(CP_PASSTHROUGH_ALL);
+}
+
+static void ClipAbove_Update(void)
+{
+	tier2_scalars.clipStateBelowRanFirst = clipBelowFrameCount == CP_System_GetFrameCount();
+	CP_Graphics_ClearBackground(WHITE);
+	FillCanvasRed();
+	CaptureCurrentFrame(SCN_CLIP_NEW_STATE);
+	CP_Engine_PopGameState();
+}
+
+static void ClipBelow_Init(void) { clipBelowFrame = 0; }
+static void ClipBelow_Update(void)
+{
+	switch (clipBelowFrame++)
+	{
+	case 0:
+		CP_Graphics_ClearBackground(WHITE);
+		CP_Engine_PushGameState(ClipAbove_Init, ClipAbove_Update, NULL);
+		break;
+	case 1:
+		CP_Settings_RectMode(CP_POSITION_CORNER);
+		CP_Settings_Clip(0, 0, 20, TIER2_CANVAS_SIZE);
+		clipBelowFrameCount = CP_System_GetFrameCount();
+		break;
+	case 2:
+		CP_Engine_PopGameState();
+		break;
+	default:
+		break;
+	}
+}
+
+static void Scn_ClipNewState(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Engine_PushGameState(ClipBelow_Init, ClipBelow_Update, NULL);
+}
+
 // Drawing into an image: a 50x50 image gets a red square in its top left
 // corner and a half-transparent blue one in its bottom right, then is drawn
 // over white at 4 times its size (captured)
@@ -1825,6 +2030,18 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
 	[SCN_GRADIENT_TEXT_AND_STROKE] = Scn_GradientTextAndStroke,
 	[SCN_GRADIENT_FADE_TO_TRANSPARENT] = Scn_GradientFadeToTransparent,
 	[SCN_FILL_AFTER_IMAGE] = Scn_FillAfterImage,
+	[SCN_CLIP_CORNER] = Scn_ClipCorner,
+	[SCN_CLIP_CENTER] = Scn_ClipCenter,
+	[SCN_CLIP_NEGATIVE_SIZE] = Scn_ClipNegativeSize,
+	[SCN_CLIP_STAYS_PUT] = Scn_ClipStaysPut,
+	[SCN_CLIP_REPLACE_AND_NOCLIP] = Scn_ClipReplaceAndNoClip,
+	[SCN_CLIP_SAVE_RESTORE] = Scn_ClipSaveRestore,
+	[SCN_CLIP_TURNED] = Scn_ClipTurned,
+	[SCN_CLIP_TEXT_AND_IMAGE] = Scn_ClipTextAndImage,
+	[SCN_CLIP_CLEAR_BACKGROUND] = Scn_ClipClearBackground,
+	[SCN_CLIP_IMAGE_DRAWING] = Scn_ClipImageDrawing,
+	[SCN_CLIP_LEFT_SET] = Scn_ClipLeftSet,
+	[SCN_CLIP_GONE_NEXT_FRAME] = Scn_ClipGoneNextFrame,
 	[SCN_SETTINGS_NOFILL] = Scn_SettingsNoFill,
 	[SCN_SETTINGS_STROKEWEIGHT] = Scn_SettingsStrokeWeight,
 	[SCN_SETTINGS_RECTMODE_CORNER] = Scn_SettingsRectModeCorner,
@@ -1866,6 +2083,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
 	[SCN_INPUT_QUIESCENT_DEFAULTS] = Scn_InputQuiescentDefaults,
 	[SCN_GAMESTATE_STACK] = Scn_GameStateStack,
 	[SCN_GAMESTATE_SNAPSHOT] = Scn_GameStateSnapshot,
+	[SCN_CLIP_NEW_STATE] = Scn_ClipNewState,
 	[SCN_IMAGE_DRAW_INTO] = Scn_ImageDrawInto,
 	[SCN_PERSIST_FIRST_FRAME] = Scn_PersistFirstFrame,
 	[SCN_PERSIST_NEXT_FRAME] = Scn_PersistNextFrame,

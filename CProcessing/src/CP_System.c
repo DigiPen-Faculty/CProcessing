@@ -784,8 +784,10 @@ static void CP_GameStates_Activate(CP_StateSlot* slot, bool top)
 		_settingsOwner = slot;
 		if (_CORE.nvg)
 		{
-			// each state starts drawing untransformed, as a frame does
+			// each state starts drawing untransformed and unclipped, as a
+			// frame does
 			nvgResetTransform(_CORE.nvg);
+			nvgResetScissor(_CORE.nvg);
 		}
 	}
 	CP_SetDrawLayer(slot->layer, !slot->bottom);
@@ -1722,8 +1724,10 @@ void CP_Update(void)
 	CP_Input_Update();
 	glfwPollEvents();
 
-	// Reset camera transforms
+	// Reset camera transforms and the clip (our NanoVG keeps the rest of the
+	// drawing state from one frame to the next)
 	nvgResetTransform(_CORE.nvg);
+	nvgResetScissor(_CORE.nvg);
 
 	// Image Update
 	CP_Image_Update();

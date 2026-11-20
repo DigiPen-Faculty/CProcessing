@@ -398,6 +398,45 @@ CP_API void CP_Settings_ResetMatrix(void)
 	CP_Input_SetWorldMouseDirty();
 }
 
+// Drawing is cut off outside this rectangle, the one CP_Graphics_DrawRect
+// would draw with the same numbers. It's placed in the coordinates as they
+// are now, so drawing moved by a later Translate moves under it, and a clip
+// set after a Rotate is turned. A new clip replaces the old one. It's
+// NanoVG's scissor, which Save and Restore keep, and which starts over every
+// frame, in each game state, and in each image drawn into, like the transform.
+CP_API void CP_Settings_Clip(float x, float y, float w, float h)
+{
+	NVGcontext* vg = GetCPCore()->nvg;
+	if (!vg)
+		return; // no frame yet, and the clip would end with the first one
+
+	if (GetDrawInfo()->rect_mode == CP_POSITION_CENTER)
+	{
+		x -= w * 0.5f;
+		y -= h * 0.5f;
+	}
+	// A negative size goes the other way from x or y, as a rectangle does;
+	// NanoVG would take it as 0 and clip everything
+	if (w < 0.0f)
+	{
+		x += w;
+		w = -w;
+	}
+	if (h < 0.0f)
+	{
+		y += h;
+		h = -h;
+	}
+	nvgScissor(vg, x, y, w, h);
+}
+
+CP_API void CP_Settings_NoClip(void)
+{
+	NVGcontext* vg = GetCPCore()->nvg;
+	if (vg)
+		nvgResetScissor(vg);
+}
+
 // The current settings, as the drawing functions use them. Save and Restore
 // bring back what these return, like the settings themselves.
 

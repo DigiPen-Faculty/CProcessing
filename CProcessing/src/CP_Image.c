@@ -445,6 +445,7 @@ CP_API void CP_Image_BeginDrawing(CP_Image img)
 	CP_Canvas_BeginImage(img->framebuffer, img->w, img->h);
 	CP_Settings_Save();
 	CP_Settings_ResetMatrix();
+	CP_Settings_NoClip(); // a clip in window coordinates means nothing here
 }
 
 CP_API void CP_Image_EndDrawing(void)
