@@ -1148,9 +1148,9 @@ CP_API void CP_Engine_SetPostUpdateFunction(CP_FunctionPtr postUpdateFunction)
 // SYSTEM:
 //		OS functions supporting window management and timing
 
-CP_API void CP_System_SetWindowSize(int new_width, int new_height)
+CP_API void CP_System_SetWindowSize(int width, int height)
 {
-	CP_SetWindowSizeInternal(new_width, new_height, false);
+	CP_SetWindowSizeInternal(width, height, false);
 }
 
 CP_API void CP_System_SetWindowPosition(int x, int y)

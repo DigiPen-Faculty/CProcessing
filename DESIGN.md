@@ -83,6 +83,28 @@ Positions and sizes in pixels, angles in **degrees**, time in **seconds**,
 colors from 0 to 255, lerp factors from 0 to 1. A function in other units says
 so in its name (`CP_Matrix_RotateRadians`).
 
+### Comments in the headers
+
+`cprocessing.h` is the index of the library: one line per function, in
+columns, so a student can find a name quickly. Visual Studio shows a comment
+on the same line, or just above it, when the mouse is over the function, so
+a short comment there is help without leaving the code. The wiki has the
+details; the headers say only what the names and types can't.
+
+* A **section note**, under the section's heading, says what is true for the
+  whole section: its units, which way angles turn, what lasts until it's
+  freed.
+* A **note at the end of a function's line** says what its signature can't,
+  and only when a student would get it wrong without it: a range
+  (`0 to 180`), a hidden rule (`0xRRGGBBAA: all 8 digits`), a difference
+  from a function next to it.
+* **Before writing a note, try a better parameter name.** `left, top, right,
+  bottom` don't look like 0 to 1, the way `u0, v0, u1, v1` did.
+* No comment says again what a name already says: `CP_Graphics_DrawCircle`
+  has none.
+* A note is a fact the wiki also states, so the two say the same thing. A
+  change to the behavior changes both.
+
 ### Numbers
 
 * A float that becomes an integer (a color channel, a position) is

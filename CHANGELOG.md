@@ -322,6 +322,16 @@ Each change says what to do in an existing project.
 
 ### Changed
 
+- **The headers explain what the names can't.** Hover over a function in
+  Visual Studio to see its note: a range (`CP_Vector_Angle` is 0 to 180), a
+  hidden rule (`CP_Color_CreateHex` needs all 8 digits, `0xRRGGBBAA`), or a
+  difference from the function beside it. Each section of `cprocessing.h`
+  starts with what holds for all of it: units, which way angles turn, how long
+  things last. Three functions have clearer parameter names, which doesn't
+  change any program: `CP_Image_DrawSubImage` takes the part of the image as
+  `left, top, right, bottom` (pixels, not 0 to 1), and
+  `CP_System_SetWindowSize` and `CP_Image_CreateFromData` take
+  `width, height`.
 - **Frames come on time, with much less work for the computer.** The frame
   limiter slept 1 ms at a time and spun when it got close, but on Windows a
   short sleep often lasts a whole system timer tick (about 15.6 ms). Drawing

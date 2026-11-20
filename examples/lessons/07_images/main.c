@@ -270,16 +270,16 @@ void game_update(void)
 
 	// The slime: one frame of the sheet. Frame n is the part of the sheet
 	// from n * 64 to n * 64 + 64 across, and all 64 down.
-	const float u0 = currentFrame * frameSize;
-	const float u1 = u0 + frameSize;
+	const float frameLeft = currentFrame * frameSize;
+	const float frameRight = frameLeft + frameSize;
 	if (facingLeft)
 	{
 		// Asking for the frame's edges the other way round draws it flipped
-		CP_Image_DrawSubImage(slimeSheet, slimePosition.x, slimePosition.y, drawSize, drawSize, u1, 0.0f, u0, frameSize, 255);
+		CP_Image_DrawSubImage(slimeSheet, slimePosition.x, slimePosition.y, drawSize, drawSize, frameRight, 0.0f, frameLeft, frameSize, 255);
 	}
 	else
 	{
-		CP_Image_DrawSubImage(slimeSheet, slimePosition.x, slimePosition.y, drawSize, drawSize, u0, 0.0f, u1, frameSize, 255);
+		CP_Image_DrawSubImage(slimeSheet, slimePosition.x, slimePosition.y, drawSize, drawSize, frameLeft, 0.0f, frameRight, frameSize, 255);
 	}
 
 	// The orb, on top
