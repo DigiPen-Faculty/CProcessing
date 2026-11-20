@@ -24,9 +24,9 @@ static void PauseInit(void) { gCalls[6]++; }
 static void PauseUpdate(void) { gCalls[7]++; }
 static void PauseExit(void) { gCalls[8]++; }
 
-static const CP_GSL_State kMenu = { MenuInit, MenuUpdate, MenuExit, CP_STATE_FROZEN };
-static const CP_GSL_State kGame = { GameInit, GameUpdate, GameExit, CP_STATE_FROZEN };
-static const CP_GSL_State kPause = { PauseInit, PauseUpdate, PauseExit, CP_STATE_FROZEN };
+static const CP_GSL_State kMenu = { MenuInit, MenuUpdate, MenuExit, CP_PASSTHROUGH_VISIBLE };
+static const CP_GSL_State kGame = { GameInit, GameUpdate, GameExit, CP_PASSTHROUGH_VISIBLE };
+static const CP_GSL_State kPause = { PauseInit, PauseUpdate, PauseExit, CP_PASSTHROUGH_VISIBLE };
 
 static char gLog[512];
 
@@ -231,7 +231,7 @@ void test_gamestate_the_last_set_wins(void)
 void test_gamestate_requests_without_update_are_ignored(void)
 {
 	Reset();
-	CP_GSL_State noUpdate = { MenuInit, NULL, MenuExit, CP_STATE_FROZEN };
+	CP_GSL_State noUpdate = { MenuInit, NULL, MenuExit, CP_PASSTHROUGH_VISIBLE };
 	TEST_ASSERT_EQUAL_INT(CP_GSL_NO_UPDATE, CP_GSL_Ask(&gStack, CP_GSL_SET, noUpdate));
 	TEST_ASSERT_EQUAL_INT(CP_GSL_NO_UPDATE, CP_GSL_Ask(&gStack, CP_GSL_PUSH, noUpdate));
 	TEST_ASSERT_EQUAL_INT(0, gStack.queued);
@@ -276,10 +276,10 @@ void test_gamestate_which_states_run(void)
 {
 	StartIn(kGame);
 	CP_GSL_State dialog = kPause;
-	dialog.passThrough = CP_STATE_PASSIVE;
+	dialog.passThrough = CP_PASSTHROUGH_ALL;
 	CP_GSL_Ask(&gStack, CP_GSL_PUSH, dialog);
 	NextFrame();
-	TEST_ASSERT_TRUE(CP_GSL_IsRunning(&gStack, 0)); // the game runs under a PASSIVE dialog
+	TEST_ASSERT_TRUE(CP_GSL_IsRunning(&gStack, 0)); // the game runs under a dialog that lets everything through
 	TEST_ASSERT_TRUE(CP_GSL_IsRunning(&gStack, 1));
 
 	CP_GSL_Ask(&gStack, CP_GSL_PUSH, kMenu); // a frozen state on top stops both
@@ -298,7 +298,7 @@ void test_gamestate_which_states_are_seen(void)
 	TEST_ASSERT_EQUAL_INT(0, CP_GSL_LowestVisible(gStack.states, gStack.depth)); // frozen: still seen
 
 	CP_GSL_State options = kMenu;
-	options.passThrough = CP_STATE_NONE;
+	options.passThrough = CP_PASSTHROUGH_NONE;
 	CP_GSL_Ask(&gStack, CP_GSL_PUSH, options);
 	NextFrame();
 	TEST_ASSERT_EQUAL_INT(2, CP_GSL_LowestVisible(gStack.states, gStack.depth)); // hides both below
@@ -313,10 +313,10 @@ void test_gamestate_a_set_state_starts_with_the_default_pass_through(void)
 	// a pass-through is about the states under one; a set state has none
 	Reset();
 	CP_GSL_State hidden = kGame;
-	hidden.passThrough = CP_STATE_NONE;
+	hidden.passThrough = CP_PASSTHROUGH_NONE;
 	CP_GSL_Ask(&gStack, CP_GSL_SET, hidden);
 	NextFrame();
-	TEST_ASSERT_EQUAL_UINT(CP_STATE_FROZEN, gStack.states[0].passThrough);
+	TEST_ASSERT_EQUAL_UINT(CP_PASSTHROUGH_VISIBLE, gStack.states[0].passThrough);
 }
 
 void test_gamestate_pass_throughs_combine(void)
@@ -324,7 +324,7 @@ void test_gamestate_pass_throughs_combine(void)
 	// game, a dialog that lets it keep running, and a pause over both
 	StartIn(kGame);
 	CP_GSL_State dialog = kMenu;
-	dialog.passThrough = CP_STATE_PASSIVE;
+	dialog.passThrough = CP_PASSTHROUGH_ALL;
 	CP_GSL_Ask(&gStack, CP_GSL_PUSH, dialog);
 	CP_GSL_Ask(&gStack, CP_GSL_PUSH, kPause);
 	NextFrame();
@@ -339,14 +339,14 @@ void test_gamestate_pass_throughs_combine(void)
 	// a full-screen map that lets the game run out of sight
 	StartIn(kGame);
 	CP_GSL_State map = kMenu;
-	map.passThrough = CP_STATE_UPDATING;
+	map.passThrough = CP_PASSTHROUGH_UPDATE;
 	CP_GSL_Ask(&gStack, CP_GSL_PUSH, map);
 	NextFrame();
 	TEST_ASSERT_TRUE(CP_GSL_IsRunning(&gStack, 0));
 	TEST_ASSERT_EQUAL_INT(1, CP_GSL_LowestVisible(gStack.states, gStack.depth));
 
 	// changing a pass-through takes effect at once
-	gStack.states[1].passThrough = CP_STATE_FROZEN;
+	gStack.states[1].passThrough = CP_PASSTHROUGH_VISIBLE;
 	TEST_ASSERT_FALSE(CP_GSL_IsRunning(&gStack, 0));
 	TEST_ASSERT_EQUAL_INT(0, CP_GSL_LowestVisible(gStack.states, gStack.depth));
 }
@@ -355,7 +355,7 @@ void test_gamestate_pop_from_below_the_top_takes_the_states_above_too(void)
 {
 	StartIn(kGame);
 	CP_GSL_State dialog = kMenu;
-	dialog.passThrough = CP_STATE_PASSIVE;
+	dialog.passThrough = CP_PASSTHROUGH_ALL;
 	CP_GSL_Ask(&gStack, CP_GSL_PUSH, dialog);
 	CP_GSL_Ask(&gStack, CP_GSL_PUSH, kPause);
 	NextFrame();

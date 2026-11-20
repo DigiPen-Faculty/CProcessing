@@ -138,7 +138,7 @@ void CP_Image_Shutdown(void)
 	vect_free_CP_Image(free_image_queue);
 }
 
-static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float h, float s0, float t0, float s1, float t1, int alpha, float degrees)
+static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float h, float s0, float t0, float s1, float t1, int alpha)
 {
 	if (!img)
 	{
@@ -183,15 +183,10 @@ static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float
 		image = nvgImagePattern(CORE->nvg, x, y, w, h, 0, img->handle, a);
 	}
 
-	// rotation
-	CP_Draw_BeginRotation(x + (w / 2.0f), y + (h / 2.0f), degrees);
-
 	nvgBeginPath(CORE->nvg);
 	nvgRect(CORE->nvg, x, y, w, h);
 	nvgFillPaint(CORE->nvg, image);
 	nvgFill(CORE->nvg);
-
-	CP_Draw_EndRotation();
 }
 
 //------------------------------------------------------------------------------
@@ -306,22 +301,12 @@ CP_API int CP_Image_GetHeight(CP_Image img)
 
 CP_API void CP_Image_Draw(CP_Image img, float x, float y, float w, float h, int alpha)
 {
-	CP_Image_DrawInternal(img, x, y, w, h, 0, 0, 0, 0, alpha, 0);
-}
-
-CP_API void CP_Image_DrawAdvanced(CP_Image img, float x, float y, float w, float h, int alpha, float degrees)
-{
-	CP_Image_DrawInternal(img, x, y, w, h, 0, 0, 0, 0, alpha, degrees);
+	CP_Image_DrawInternal(img, x, y, w, h, 0, 0, 0, 0, alpha);
 }
 
 CP_API void CP_Image_DrawSubImage(CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha)
 {
-	CP_Image_DrawInternal(img, x, y, w, h, u0, v0, u1, v1, alpha, 0);
-}
-
-CP_API void CP_Image_DrawSubImageAdvanced(CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha, float degrees)
-{
-	CP_Image_DrawInternal(img, x, y, w, h, u0, v0, u1, v1, alpha, degrees);
+	CP_Image_DrawInternal(img, x, y, w, h, u0, v0, u1, v1, alpha);
 }
 
 CP_API CP_Image CP_Image_CreateFromData(int w, int h, const CP_Color* pixelDataInput)

@@ -24,7 +24,7 @@ static CP_BOOL firstVertex = FALSE;
 // Internal Functions:
 //------------------------------------------------------------------------------
 
-static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, float degrees, float cornerRadius)
+static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, float cornerRadius)
 {
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
@@ -34,9 +34,6 @@ static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, flo
 
 	// make sure corner radius isn't negative
 	cornerRadius = cornerRadius < 0 ? 0 : cornerRadius;
-
-	float pointOfRotationX = x;
-	float pointOfRotationY = y;
 
 	switch (DI->rect_mode)
 	{
@@ -48,12 +45,6 @@ static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, flo
 		// default for NanoVG
 	default:
 		break;
-	}
-
-	// rotation
-	if (degrees != 0)
-	{
-		CP_Draw_BeginRotation(pointOfRotationX, pointOfRotationY, degrees);
 	}
 
 	// Rectangle path
@@ -74,11 +65,6 @@ static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, flo
 	if (DI->stroke)
 	{
 		nvgStroke(CORE->nvg);
-	}
-
-	if (degrees != 0)
-	{
-		CP_Draw_EndRotation();
 	}
 }
 
@@ -161,37 +147,16 @@ CP_API void CP_Graphics_DrawLine(float x1, float y1, float x2, float y2)
 	}
 }
 
-CP_API void CP_Graphics_DrawLineAdvanced(float x1, float y1, float x2, float y2, float degrees)
-{
-	CP_CorePtr CORE = GetCPCore();
-	CP_DrawInfoPtr DI = GetDrawInfo();
-
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
-
-	// rotation
-	CP_Draw_BeginRotation(((x1 + x2) / 2.0f), ((y1 + y2) / 2.0f), degrees);
-
-	// Line stroke
-	if (DI->stroke)
-	{
-		nvgBeginPath(CORE->nvg);
-		nvgMoveTo(CORE->nvg, x1, y1);
-		nvgLineTo(CORE->nvg, x2, y2);
-		nvgStroke(CORE->nvg);
-	}
-
-	CP_Draw_EndRotation();
-}
-
 CP_API void CP_Graphics_DrawRect(float x, float y, float w, float h)
 {
-	CP_Graphics_DrawRectInternal(x, y, w, h, 0, 0);
+	CP_Graphics_DrawRectInternal(x, y, w, h, 0);
 }
 
-CP_API void CP_Graphics_DrawRectAdvanced(float x, float y, float w, float h, float degrees, float cornerRadius)
+// A rectangle with round corners, placed like CP_Graphics_DrawRect. The
+// radius is capped by NanoVG at half the shorter side (a circle's worth)
+CP_API void CP_Graphics_DrawRoundedRect(float x, float y, float w, float h, float cornerRadius)
 {
-	CP_Graphics_DrawRectInternal(x, y, w, h, degrees, cornerRadius);
+	CP_Graphics_DrawRectInternal(x, y, w, h, cornerRadius);
 }
 
 CP_API void CP_Graphics_DrawCircle(float x, float y, float diameter)
@@ -235,24 +200,6 @@ CP_API void CP_Graphics_DrawEllipse(float x, float y, float w, float h)
 	{
 		nvgStroke(CORE->nvg);
 	}
-}
-
-CP_API void CP_Graphics_DrawEllipseAdvanced(float x, float y, float w, float h, float degrees)
-{
-	CP_CorePtr CORE = GetCPCore();
-
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
-
-	float pointOfRotationX = x;
-	float pointOfRotationY = y;
-
-	// rotation
-	CP_Draw_BeginRotation(pointOfRotationX, pointOfRotationY, degrees);
-
-	CP_Graphics_DrawEllipse(x, y, w, h);
-
-	CP_Draw_EndRotation();
 }
 
 // The circle that an arc or a pie is part of: centered on (x, y) with
@@ -359,21 +306,6 @@ CP_API void CP_Graphics_DrawTriangle(float x1, float y1, float x2, float y2, flo
 	}
 }
 
-CP_API void CP_Graphics_DrawTriangleAdvanced(float x1, float y1, float x2, float y2, float x3, float y3, float degrees)
-{
-	CP_CorePtr CORE = GetCPCore();
-
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
-
-	// rotation
-	CP_Draw_BeginRotation(((x1 + x2 + x3) / 3.0f), ((y1 + y2 + y3) / 3.0f), degrees);
-
-	CP_Graphics_DrawTriangle(x1, y1, x2, y2, x3, y3);
-
-	CP_Draw_EndRotation();
-}
-
 //////////////////////////////////////////////////////////////////////////////////////
 //  QUAD                                                                            //
 //                                                                                  //
@@ -408,21 +340,6 @@ CP_API void CP_Graphics_DrawQuad(float x1, float y1, float x2, float y2, float x
 	}
 }
 
-CP_API void CP_Graphics_DrawQuadAdvanced(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float degrees)
-{
-	CP_CorePtr CORE = GetCPCore();
-
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
-
-	// rotation
-	CP_Draw_BeginRotation(((x1 + x2 + x3 + x4) / 4.0f), ((y1 + y2 + y3 + y4) / 4.0f), degrees);
-
-	CP_Graphics_DrawQuad(x1, y1, x2, y2, x3, y3, x4, y4);
-
-	CP_Draw_EndRotation();
-}
-
 CP_API void CP_Graphics_BeginShape(void)
 {
 	CP_CorePtr CORE = GetCPCore();
@@ -453,7 +370,10 @@ CP_API void CP_Graphics_AddVertex(float x, float y)
 	}
 }
 
-CP_API void CP_Graphics_EndShape(void)
+// Fill and outline the shape made since CP_Graphics_BeginShape. The outline
+// goes back to the first vertex unless open is set; the fill always covers
+// the whole shape (an open outline's fill is still closed).
+static void CP_Graphics_EndShapeInternal(CP_BOOL open)
 {
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
@@ -461,17 +381,29 @@ CP_API void CP_Graphics_EndShape(void)
 	if (!CORE->nvg)
 		return; // no window yet: CP_Engine_Run hasn't started
 
-	// Shape fill
+	if (!open)
+	{
+		nvgClosePath(CORE->nvg);
+	}
 	if (DI->fill)
 	{
-		// if the user wants a filled shape then make sure to close it so the stroke is correct
-		nvgClosePath(CORE->nvg);
 		nvgFill(CORE->nvg);
 	}
-
-	// Shape stroke
 	if (DI->stroke)
 	{
 		nvgStroke(CORE->nvg);
 	}
+}
+
+// The outline is closed, back to the first vertex, with or without a fill.
+// (It used to be closed only when the fill was on.)
+CP_API void CP_Graphics_EndShape(void)
+{
+	CP_Graphics_EndShapeInternal(FALSE);
+}
+
+// The outline stops at the last vertex: a path, a zigzag, a graph line
+CP_API void CP_Graphics_EndShapeOpen(void)
+{
+	CP_Graphics_EndShapeInternal(TRUE);
 }

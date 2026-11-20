@@ -48,12 +48,12 @@ void test_tier2_graphics_drawline(void)
 	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_LINE, 100, 20));
 }
 
-void test_tier2_graphics_drawlineadvanced_rotates_90_degrees(void)
+void test_tier2_graphics_drawline_turned_90_degrees_with_translate_and_rotate(void)
 {
-	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_LINE_ADVANCED, 100, 100));
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_LINE_ROTATED, 100, 100));
 	// The unrotated line would have passed through here; after a 90 degree
 	// rotation about its midpoint it no longer does.
-	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_LINE_ADVANCED, 20, 100));
+	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_LINE_ROTATED, 20, 100));
 }
 
 void test_tier2_graphics_drawrect(void)
@@ -62,12 +62,22 @@ void test_tier2_graphics_drawrect(void)
 	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_RECT, 10, 10));
 }
 
-void test_tier2_graphics_drawrectadvanced_rotates_45_degrees(void)
+void test_tier2_graphics_drawroundedrect_cuts_the_corners(void)
+{
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_ROUNDED_RECT, 100, 100));
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_ROUNDED_RECT, 63, 100));
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_ROUNDED_RECT, 100, 137));
+	// The square's corner at (60, 60) is outside the radius-20 rounding
+	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_ROUNDED_RECT, 63, 63));
+	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_ROUNDED_RECT, 137, 137));
+}
+
+void test_tier2_graphics_drawrect_turned_45_degrees_with_translate_and_rotate(void)
 {
 	// Along the rotated long axis: still inside.
-	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_RECT_ADVANCED, 125, 125));
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_RECT_ROTATED, 125, 125));
 	// Along the *original*, unrotated long axis: now outside.
-	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_RECT_ADVANCED, 135, 100));
+	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_RECT_ROTATED, 135, 100));
 }
 
 void test_tier2_graphics_drawcircle(void)
@@ -86,11 +96,11 @@ void test_tier2_graphics_drawellipse_is_not_circular(void)
 	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_ELLIPSE, 150, 100));
 }
 
-void test_tier2_graphics_drawellipseadvanced_rotates_90_degrees(void)
+void test_tier2_graphics_drawellipse_turned_90_degrees_with_translate_and_rotate(void)
 {
 	// Exactly swapped from the unrotated case above: the wide axis is now vertical.
-	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_ELLIPSE_ADVANCED, 100, 135));
-	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_ELLIPSE_ADVANCED, 150, 100));
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_ELLIPSE_ROTATED, 100, 135));
+	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_ELLIPSE_ROTATED, 150, 100));
 }
 
 void test_tier2_graphics_drawarc_goes_clockwise_from_the_right_and_has_no_fill(void)
@@ -154,14 +164,14 @@ void test_tier2_graphics_drawtriangle(void)
 	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_TRIANGLE, 100, 20));
 }
 
-void test_tier2_graphics_drawtriangleadvanced_rotates_180_degrees(void)
+void test_tier2_graphics_drawtriangle_turned_180_degrees_with_translate_and_rotate(void)
 {
 	// Centroid stays inside any rotation about itself.
-	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_TRIANGLE_ADVANCED, 100, 100));
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_TRIANGLE_ROTATED, 100, 100));
 	// The original apex was at y=50; after a 180 degree flip about the
 	// centroid, the triangle's topmost edge is at y=75, so y=55 is now
 	// above the entire shape.
-	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_TRIANGLE_ADVANCED, 100, 55));
+	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_TRIANGLE_ROTATED, 100, 55));
 }
 
 void test_tier2_graphics_drawquad(void)
@@ -171,18 +181,32 @@ void test_tier2_graphics_drawquad(void)
 	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_QUAD, 100, 65));
 }
 
-void test_tier2_graphics_drawquadadvanced_rotates_45_degrees(void)
+void test_tier2_graphics_drawquad_turned_45_degrees_with_translate_and_rotate(void)
 {
-	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_QUAD_ADVANCED, 100, 100));
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_QUAD_ROTATED, 100, 100));
 	// Same point that was *outside* the unrotated square (35 > half-size
 	// 30) is now *inside* the rotated diamond, whose reach along the pure
 	// vertical axis grew to 30*sqrt(2) =~ 42.4.
-	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_QUAD_ADVANCED, 100, 65));
-	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_QUAD_ADVANCED, 100, 30));
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_DRAW_QUAD_ROTATED, 100, 65));
+	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_DRAW_QUAD_ROTATED, 100, 30));
 }
 
 void test_tier2_graphics_customshape_beginend(void)
 {
 	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_CUSTOM_SHAPE, 100, 100));
 	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_CUSTOM_SHAPE, 10, 10));
+}
+
+void test_tier2_graphics_endshape_closes_an_outline_without_fill(void)
+{
+	// The top edge, from the last vertex back to the first, is drawn
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_SHAPE_OUTLINE_CLOSED, 100, 70));
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_SHAPE_OUTLINE_CLOSED, 100, 130));
+	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_SHAPE_OUTLINE_CLOSED, 100, 100));
+}
+
+void test_tier2_graphics_endshapeopen_leaves_the_outline_open(void)
+{
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_SHAPE_OUTLINE_OPEN, 100, 130));
+	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_SHAPE_OUTLINE_OPEN, 100, 70));
 }

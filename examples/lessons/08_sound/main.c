@@ -50,6 +50,12 @@ float effectsVolume = 0.8f;
 float musicDip = 0.0f;      // 1 right after a hit, easing back to 0
 const float dipTime = 0.8f; // seconds for the music to recover
 
+// Easing (lesson 7): starts fast and ends slow. t goes from 0 to 1.
+float EaseOutQuad(float t)
+{
+	return 1.0f - (1.0f - t) * (1.0f - t);
+}
+
 // Play an effect in the effects group, at a pitch near 1 so repeats of the
 // same sound don't sound exactly alike
 void PlayEffect(CP_Sound sound)
@@ -172,7 +178,7 @@ void game_update(void)
 	{
 		musicDip = CP_Math_ClampFloat(musicDip - dt / dipTime, 0.0f, 1.0f);
 	}
-	CP_Sound_SetGroupPitch(CP_SOUND_GROUP_MUSIC, 1.0f - 0.35f * CP_Math_EaseOutQuad(musicDip));
+	CP_Sound_SetGroupPitch(CP_SOUND_GROUP_MUSIC, 1.0f - 0.35f * EaseOutQuad(musicDip));
 
 	//-----------------------------------------------------
 	// The player: across, and a jump with gravity

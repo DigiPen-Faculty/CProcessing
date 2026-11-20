@@ -119,6 +119,38 @@ Each change says what to do in an existing project.
   `Assets/` with `assets/` in the paths. The built-in font's path is now
   `./assets/Exo2-Regular.ttf`: a program that loads the font by its old path,
   `./Assets/Exo2-Regular.ttf`, now needs the file in its assets folder.
+- **The `*Advanced` draw functions that turned one shape are gone:**
+  `CP_Graphics_DrawLineAdvanced`, `DrawRectAdvanced`, `DrawEllipseAdvanced`,
+  `DrawTriangleAdvanced`, `DrawQuadAdvanced`, `CP_Image_DrawAdvanced` and
+  `CP_Image_DrawSubImageAdvanced`. Each turned around a different point (a
+  rectangle around its corner in CORNER mode, an image always around its
+  middle, a triangle around the average of its corners), so a student
+  couldn't predict where a shape would go, and they couldn't turn two things
+  together. Round corners, which only `DrawRectAdvanced` had, are now
+  `CP_Graphics_DrawRoundedRect(x, y, w, h, cornerRadius)`. What to do: the
+  compiler points at each call. Turn a shape by moving (0, 0) to it, rotating,
+  and drawing it at (0, 0):
+
+  ```c
+  CP_Settings_Save();
+  CP_Settings_Translate(x, y);
+  CP_Settings_Rotate(degrees);
+  CP_Graphics_DrawRect(0.0f, 0.0f, w, h); // or CP_Image_Draw(image, 0.0f, 0.0f, w, h, alpha)
+  CP_Settings_Restore();
+  ```
+
+  A rectangle, ellipse or image in the default CENTER mode then turns around
+  its middle, as `DrawRectAdvanced` did in CENTER mode. Give a triangle's or
+  quad's corners around (0, 0). To turn around another point, draw the shape
+  away from (0, 0): `examples/rotation.c` shows how, with helpers to copy.
+  `DrawRectAdvanced(x, y, w, h, 0, radius)` becomes
+  `CP_Graphics_DrawRoundedRect(x, y, w, h, radius)`.
+- **`CP_Graphics_EndShape` always closes the outline**, back to the first
+  vertex. It closed it only when the fill was on, so a shape drawn with
+  `CP_Settings_NoFill` was missing its last edge, and a filled shape couldn't
+  have an open outline. The new `CP_Graphics_EndShapeOpen` leaves the outline
+  open (a path, a zigzag, a graph line). What to do: a shape drawn with no fill
+  that was meant to be open ends with `CP_Graphics_EndShapeOpen()`.
 - **The repository's folders were reorganized**, so each name says what is in
   it: the library is `CProcessing/` (it was `Processing_Sample/CProcessing/`),
   the solution is `CProcessing.sln`, the demo program is `demos/` (and
@@ -156,14 +188,14 @@ Each change says what to do in an existing project.
   - Only the top state gets input.
   - `CP_Engine_SetGameStatePassThrough` lets a state choose what the states
     under it do, usually in its init:
-    - `CP_STATE_FROZEN`, the default: they stop and stay visible;
-    - `CP_STATE_PASSIVE`: they keep running and drawing, without input, for
+    - `CP_PASSTHROUGH_VISIBLE`, the default: they stop and stay visible;
+    - `CP_PASSTHROUGH_ALL`: they keep running and drawing, without input, for
       a dialog over a world that keeps moving;
-    - `CP_STATE_NONE`: they stop and can't be seen, for a page that fills
-      the window.
+    - `CP_PASSTHROUGH_NONE`: they stop and can't be seen, for a page that
+      fills the window.
     
-    The values are bits (`CP_STATE_UPDATING`, `CP_STATE_VISIBLE`), and a
-    state under several gets only what all of them let through.
+    The values are bits (`CP_PASSTHROUGH_UPDATE`, `CP_PASSTHROUGH_VISIBLE`),
+    and a state under several gets only what all of them let through.
   - `CP_Engine_GetGameStateDepth`, `CP_Engine_IsTopGameState` and
     `CP_Engine_GetGameStateTime` tell a state about itself.
     `CP_Engine_GetGameStateTime` gives the seconds a state has run, not
@@ -223,11 +255,22 @@ Each change says what to do in an existing project.
 - **Measuring text:** `CP_Font_GetTextWidth`, `CP_Font_GetTextSize` (width and
   line height) and `CP_Font_GetTextBoxSize` (the size of wrapped text), so you
   can center text, right-align it, or draw a box around it.
-- **Math helpers:** `CP_Math_Map` (convert a value from one range to another),
-  easing functions (`CP_Math_EaseInQuad`, `EaseOutQuad`, `EaseInOutQuad`, the
-  same for `Cubic`, and `EaseOutBounce`) for smooth animation, and the
-  constants `CP_PI`, `CP_TWO_PI` and `CP_HALF_PI`. For vectors: `CP_Vector_Lerp`,
+- **Math helpers:** `CP_Math_Map` (convert a value from one range to another)
+  and the constants `CP_PI`, `CP_TWO_PI` and `CP_HALF_PI`. For vectors: `CP_Vector_Lerp`,
   `CP_Vector_Rotate`, `CP_Vector_FromAngle` and `CP_Vector_Limit`.
+- **Round corners and open shapes:** `CP_Graphics_DrawRoundedRect` draws a
+  rectangle with round corners (a button, a panel), and
+  `CP_Graphics_EndShapeOpen` ends a shape without closing its outline.
+- **`examples/easing.c`** draws twelve easing functions side by side (quad,
+  cubic, sine, back, elastic, bounce, ...) with the code of each to copy.
+  Easing functions are a line or two of math on a lerp factor, so they are
+  written in a game, not part of the library: lesson 7 has the student write
+  them.
+- **`examples/rotation.c`** turns shapes around their middle, a corner, any
+  point inside them and a point outside them (an orbit), and then puts that
+  to use: an arm with two joints, a sprite rocking on its feet and a cannon
+  facing the mouse. Its `BeginRotation`, `EndRotation` and `DrawRectRotated`
+  helpers save writing Save, Translate, Rotate and Restore each time.
 - **Typed text:** `CP_Input_GetTypedText` gives the text the player typed
   during the last frame, as UTF-8 (including accented letters and other
   languages), so a game can ask for a name for a high score.

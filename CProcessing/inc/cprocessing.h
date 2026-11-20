@@ -64,7 +64,7 @@ CP_API void				CP_Engine_SetNextGameState			(CP_FunctionPtr init, CP_FunctionPtr
 CP_API void				CP_Engine_SetNextGameStateForced	(CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit);
 CP_API void				CP_Engine_PushGameState				(CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit);
 CP_API void				CP_Engine_PopGameState				(void);
-CP_API void				CP_Engine_SetGameStatePassThrough	(CP_STATE passThrough);
+CP_API void				CP_Engine_SetGameStatePassThrough	(CP_PASSTHROUGH passThrough);
 CP_API int				CP_Engine_GetGameStateDepth			(void);
 CP_API CP_BOOL			CP_Engine_IsTopGameState			(void);
 CP_API float			CP_Engine_GetGameStateTime			(void);
@@ -160,22 +160,19 @@ CP_API CP_ColorHSL		CP_ColorHSL_FromColor				(CP_Color rgb);
 CP_API void				CP_Graphics_ClearBackground			(CP_Color c);
 CP_API void				CP_Graphics_DrawPoint				(float x, float y);
 CP_API void				CP_Graphics_DrawLine				(float x1, float y1, float x2, float y2);
-CP_API void				CP_Graphics_DrawLineAdvanced		(float x1, float y1, float x2, float y2, float degrees);
 CP_API void				CP_Graphics_DrawRect				(float x, float y, float w, float h);
-CP_API void				CP_Graphics_DrawRectAdvanced		(float x, float y, float w, float h, float degrees, float cornerRadius);
+CP_API void				CP_Graphics_DrawRoundedRect			(float x, float y, float w, float h, float cornerRadius);
 CP_API void				CP_Graphics_DrawCircle				(float x, float y, float diameter);
 CP_API void				CP_Graphics_DrawEllipse				(float x, float y, float w, float h);
-CP_API void				CP_Graphics_DrawEllipseAdvanced		(float x, float y, float w, float h, float degrees);
 CP_API void				CP_Graphics_DrawArc					(float x, float y, float diameter, float startDegrees, float sweepDegrees);
 CP_API void				CP_Graphics_DrawPie					(float x, float y, float diameter, float startDegrees, float sweepDegrees);
 CP_API void				CP_Graphics_DrawBezier				(float x1, float y1, float controlX1, float controlY1, float controlX2, float controlY2, float x2, float y2);
 CP_API void				CP_Graphics_DrawTriangle			(float x1, float y1, float x2, float y2, float x3, float y3);
-CP_API void				CP_Graphics_DrawTriangleAdvanced	(float x1, float y1, float x2, float y2, float x3, float y3, float degrees);
 CP_API void				CP_Graphics_DrawQuad				(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
-CP_API void				CP_Graphics_DrawQuadAdvanced		(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float degrees);
 CP_API void				CP_Graphics_BeginShape				(void);
 CP_API void				CP_Graphics_AddVertex				(float x, float y);
 CP_API void				CP_Graphics_EndShape				(void);
+CP_API void				CP_Graphics_EndShapeOpen			(void);
 
 
 //---------------------------------------------------------
@@ -186,9 +183,7 @@ CP_API void				CP_Image_Free						(CP_Image* img);
 CP_API int				CP_Image_GetWidth					(CP_Image img);
 CP_API int				CP_Image_GetHeight					(CP_Image img);
 CP_API void				CP_Image_Draw						(CP_Image img, float x, float y, float w, float h, int alpha);
-CP_API void				CP_Image_DrawAdvanced				(CP_Image img, float x, float y, float w, float h, int alpha, float degrees);
 CP_API void				CP_Image_DrawSubImage				(CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha);
-CP_API void				CP_Image_DrawSubImageAdvanced       (CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha, float degrees);
 CP_API CP_Image			CP_Image_CreateFromData				(int w, int h, const CP_Color* pixelDataInput);
 CP_API CP_Image			CP_Image_Create						(int width, int height);
 CP_API void				CP_Image_BeginDrawing				(CP_Image img);
@@ -292,13 +287,6 @@ CP_API float			CP_Math_Distance					(float x1, float y1, float x2, float y2);
 CP_API float			CP_Math_Degrees						(float radians);
 CP_API float			CP_Math_Radians						(float degrees);
 CP_API float			CP_Math_Map							(float value, float inMin, float inMax, float outMin, float outMax);
-CP_API float			CP_Math_EaseInQuad					(float t);
-CP_API float			CP_Math_EaseOutQuad					(float t);
-CP_API float			CP_Math_EaseInOutQuad				(float t);
-CP_API float			CP_Math_EaseInCubic					(float t);
-CP_API float			CP_Math_EaseOutCubic				(float t);
-CP_API float			CP_Math_EaseInOutCubic				(float t);
-CP_API float			CP_Math_EaseOutBounce				(float t);
 CP_API void				CP_Math_ScreenToWorld				(float xIn, float yIn, float* xOut, float* yOut);
 CP_API void				CP_Math_WorldToScreen				(float xIn, float yIn, float* xOut, float* yOut);
 

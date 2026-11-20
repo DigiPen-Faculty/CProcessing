@@ -399,19 +399,17 @@ typedef enum CP_CURSOR_MODE
 //---------------------------------------------------------
 // Game states
 
-// What a game state lets the states under it do: its pass-through
-// (CP_Engine_SetGameStatePassThrough). Only the top state gets input.
-// A set of bits, so the names below can also be combined with |; it isn't
-// an enum type, so that works in C++ too.
-typedef unsigned int CP_STATE;
+// What a game state lets pass through to the states under it
+// (CP_Engine_SetGameStatePassThrough). Input never passes through: only the
+// top state gets it. A set of bits, so the names can also be combined with |;
+// it isn't an enum type, so that works in C++ too.
+typedef unsigned int CP_PASSTHROUGH;
 enum
 {
-	CP_STATE_UPDATING	= 1 << 0,	// their update functions run
-	CP_STATE_VISIBLE	= 1 << 1,	// they can be seen (their last picture, if they aren't updating)
-
-	CP_STATE_NONE		= 0,		// they are kept, but don't run and can't be seen
-	CP_STATE_FROZEN		= CP_STATE_VISIBLE,							// Default: they stop, and stay visible
-	CP_STATE_PASSIVE	= CP_STATE_UPDATING | CP_STATE_VISIBLE		// they keep running and drawing, without input
+	CP_PASSTHROUGH_NONE		= 0,		// they are kept, but don't run and can't be seen
+	CP_PASSTHROUGH_UPDATE	= 1 << 0,	// their update functions keep running
+	CP_PASSTHROUGH_VISIBLE	= 1 << 1,	// Default: they can be seen (their last picture, if they don't update)
+	CP_PASSTHROUGH_ALL		= CP_PASSTHROUGH_UPDATE | CP_PASSTHROUGH_VISIBLE	// they keep running and drawing
 };
 
 

@@ -15,8 +15,8 @@
 //   again
 // - stack more cards: options over the pause, "really quit?" over that
 // - choose what the cards under a state do with
-//   CP_Engine_SetGameStatePassThrough: CP_STATE_PASSIVE for a hint over a
-//   game that keeps moving, CP_STATE_NONE for a full-screen options page
+//   CP_Engine_SetGameStatePassThrough: CP_PASSTHROUGH_ALL for a hint over a
+//   game that keeps moving, CP_PASSTHROUGH_NONE for a full-screen options page
 // - draw a HUD with a function at the end of the game's update
 // - draw into an image (CP_Image_Create, CP_Image_BeginDrawing) for a trail
 //   that fades
@@ -219,7 +219,7 @@ void game_exit(void)
 
 //-------------------------
 // PAUSE: on top of the frozen game. It needs no init: by default, the states
-// under a pushed one stop and stay visible (CP_STATE_FROZEN).
+// under a pushed one stop and stay visible (CP_PASSTHROUGH_VISIBLE).
 
 void pause_update(void)
 {
@@ -258,7 +258,7 @@ void pause_update(void)
 void options_init(void)
 {
 	// They stop and are hidden, until options pops
-	CP_Engine_SetGameStatePassThrough(CP_STATE_NONE);
+	CP_Engine_SetGameStatePassThrough(CP_PASSTHROUGH_NONE);
 }
 
 void options_update(void)
@@ -310,7 +310,7 @@ void confirm_update(void)
 void hint_init(void)
 {
 	// The states under it keep running and drawing; only the hint gets input
-	CP_Engine_SetGameStatePassThrough(CP_STATE_PASSIVE);
+	CP_Engine_SetGameStatePassThrough(CP_PASSTHROUGH_ALL);
 }
 
 void hint_update(void)

@@ -159,7 +159,7 @@ Use it when you want to restart the same state. That's the only difference.
 
 ## Step 8: A soft switch
 
-Switching is sudden, and a sudden change is a little jarring. The menu, play and game over set `stateTime` to 0 in their init, and add `dt` to it in their update, so it's the seconds since the state started. (The pause doesn't touch it: `stateTime` belongs to play, which carries on with it after the pause. The pause fades its cover in with `CP_Engine_GetGameStateTime()`, a clock the engine keeps for each state.) `DrawFadeIn` uses it to draw a black cover over everything that fades away over half a second, using lesson 7's `EaseOutQuad`:
+Switching is sudden, and a sudden change is a little jarring. The menu, play and game over set `stateTime` to 0 in their init, and add `dt` to it in their update, so it's the seconds since the state started. (The pause doesn't touch it: `stateTime` belongs to play, which carries on with it after the pause. The pause fades its cover in with `CP_Engine_GetGameStateTime()`, a clock the engine keeps for each state.) `DrawFadeIn` uses it to draw a black cover over everything that fades away over half a second, using `EaseOutQuad`, the easing function from lesson 7 (the program has its own copy):
 
 ```C
 const float progress = CP_Math_ClampFloat(stateTime / 0.5f, 0.0f, 1.0f);

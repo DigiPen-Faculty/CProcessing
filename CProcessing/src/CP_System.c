@@ -909,7 +909,7 @@ static void CP_GameStates_Warn(CP_GSL_Result result)
 static void CP_GameStates_Request(CP_GSL_RequestKind kind, CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit)
 {
 	// a new state lets the ones under it be seen, frozen, until it says otherwise
-	CP_GSL_State state = { init, update, exit, CP_STATE_FROZEN };
+	CP_GSL_State state = { init, update, exit, CP_PASSTHROUGH_VISIBLE };
 	CP_GameStates_Warn(CP_GSL_Ask(&_stack, kind, state));
 }
 
@@ -1102,16 +1102,16 @@ CP_API void CP_Engine_PopGameState(void)
 }
 
 // What the states under the one that calls this can do while it is there:
-// CP_STATE_FROZEN (the default) stops them and keeps them visible,
-// CP_STATE_PASSIVE keeps them running and drawing (without input), and
-// CP_STATE_NONE stops them and hides them. Usually called in a state's init.
-CP_API void CP_Engine_SetGameStatePassThrough(CP_STATE passThrough)
+// CP_PASSTHROUGH_VISIBLE (the default) stops them and keeps them visible,
+// CP_PASSTHROUGH_ALL keeps them running and drawing (without input), and
+// CP_PASSTHROUGH_NONE stops them and hides them. Usually called in a state's init.
+CP_API void CP_Engine_SetGameStatePassThrough(CP_PASSTHROUGH passThrough)
 {
 	if (_runningSlot < 0 || _runningSlot >= _stack.depth)
 	{
 		return;
 	}
-	_stack.states[_runningSlot].passThrough = passThrough & (CP_STATE_UPDATING | CP_STATE_VISIBLE);
+	_stack.states[_runningSlot].passThrough = passThrough & (CP_PASSTHROUGH_UPDATE | CP_PASSTHROUGH_VISIBLE);
 }
 
 CP_API int CP_Engine_GetGameStateDepth(void)
@@ -1921,19 +1921,6 @@ void CP_FrameRate_FrameStart(void)
 {
 	// Update frame count
 	CP_IncFrameCount();
-}
-
-void CP_Draw_BeginRotation(float x, float y, float degrees)
-{
-	nvgSave(_CORE.nvg);
-	nvgTranslate(_CORE.nvg, x, y);
-	nvgRotate(_CORE.nvg, CP_Math_Radians(degrees));
-	nvgTranslate(_CORE.nvg, -x, -y);
-}
-
-void CP_Draw_EndRotation(void)
-{
-	nvgRestore(_CORE.nvg);
 }
 
 // Give the rest of this time slice to other programs, for a wait too short

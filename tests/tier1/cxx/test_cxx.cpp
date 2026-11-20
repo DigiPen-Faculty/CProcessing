@@ -42,20 +42,19 @@ static_assert(sizeof(CP_Vector) == 2 * sizeof(float), "CP_Vector is two floats")
 static_assert(sizeof(CP_Matrix) == 9 * sizeof(float), "CP_Matrix is nine floats");
 
 // The game state names are constants of an unsigned int type, so | gives a
-// CP_STATE in C++ too (with an enum type it would give an int, which C++
+// CP_PASSTHROUGH in C++ too (with an enum type it would give an int, which C++
 // won't pass as the enum)
-static_assert(CP_STATE_PASSIVE == (CP_STATE_UPDATING | CP_STATE_VISIBLE), "PASSIVE is both bits");
-static_assert(CP_STATE_FROZEN == CP_STATE_VISIBLE, "FROZEN is VISIBLE");
+static_assert(CP_PASSTHROUGH_ALL == (CP_PASSTHROUGH_UPDATE | CP_PASSTHROUGH_VISIBLE), "ALL is both bits");
 
 int main(int argc, char** argv)
 {
 	(void)argv;
 
 	// Game states: combining the names, and functions given as pointers
-	CP_STATE passThrough = CP_STATE_UPDATING | CP_STATE_VISIBLE;
-	Check(passThrough == CP_STATE_PASSIVE, "CP_STATE_UPDATING | CP_STATE_VISIBLE is CP_STATE_PASSIVE");
-	passThrough &= ~static_cast<CP_STATE>(CP_STATE_UPDATING);
-	Check(passThrough == CP_STATE_FROZEN, "taking UPDATING away from PASSIVE leaves FROZEN");
+	CP_PASSTHROUGH passThrough = CP_PASSTHROUGH_UPDATE | CP_PASSTHROUGH_VISIBLE;
+	Check(passThrough == CP_PASSTHROUGH_ALL, "CP_PASSTHROUGH_UPDATE | CP_PASSTHROUGH_VISIBLE is CP_PASSTHROUGH_ALL");
+	passThrough &= ~static_cast<CP_PASSTHROUGH>(CP_PASSTHROUGH_UPDATE);
+	Check(passThrough == CP_PASSTHROUGH_VISIBLE, "taking UPDATE away from ALL leaves VISIBLE");
 
 	// A lambda with no captures can be a state's function
 	CP_FunctionPtr update = [] {};
@@ -63,7 +62,7 @@ int main(int argc, char** argv)
 
 	// Each of these has to link, with the signature the header gives
 	void (*push)(CP_FunctionPtr, CP_FunctionPtr, CP_FunctionPtr) = &CP_Engine_PushGameState;
-	void (*setPassThrough)(CP_STATE) = &CP_Engine_SetGameStatePassThrough;
+	void (*setPassThrough)(CP_PASSTHROUGH) = &CP_Engine_SetGameStatePassThrough;
 	void (*setPostUpdate)(CP_FunctionPtr) = &CP_Engine_SetPostUpdateFunction;
 	Check(push != nullptr && setPassThrough != nullptr && setPostUpdate != nullptr, "engine functions link");
 
@@ -98,7 +97,7 @@ int main(int argc, char** argv)
 	// Math
 	Check(CP_Math_ClampInt(15, 0, 10) == 10, "CP_Math_ClampInt");
 	Check(Near(CP_Math_LerpFloat(0.0f, 10.0f, 0.25f), 2.5f), "CP_Math_LerpFloat");
-	Check(Near(CP_Math_EaseOutCubic(1.0f), 1.0f), "CP_Math_EaseOutCubic");
+	Check(Near(CP_Math_Map(5.0f, 0.0f, 10.0f, 0.0f, 100.0f), 50.0f), "CP_Math_Map");
 
 	// Named values from numbers need a cast in C++, as the templates' README says
 	const CP_KEY key = static_cast<CP_KEY>(CP_KEY_A + 1);

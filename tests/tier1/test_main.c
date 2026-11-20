@@ -64,12 +64,6 @@ int main(void)
 	RUN_TEST(test_math_map_can_run_backwards);
 	RUN_TEST(test_math_map_empty_input_range_gives_outmin);
 	RUN_TEST(test_math_pi_constants);
-	RUN_TEST(test_math_ease_ends_are_zero_and_one);
-	RUN_TEST(test_math_ease_stays_within_zero_and_one);
-	RUN_TEST(test_math_ease_in_starts_slow_and_out_starts_fast);
-	RUN_TEST(test_math_ease_inout_is_symmetric_around_the_middle);
-	RUN_TEST(test_math_ease_known_values);
-	RUN_TEST(test_math_ease_bounce_touches_one_before_the_end);
 
 	// test_cp_vector.c
 	RUN_TEST(test_vector_set);
