@@ -56,12 +56,12 @@ If you draw `SlimeSheet.png` whole, you get a long strip of eight slimes, which 
 
 A character with several poses could be eight separate files, but then you'd load and keep track of eight things. Games put all the frames in **one image**, side by side, and draw **one piece** of it at a time. `SlimeSheet.png` has 8 frames in a row, each 64 pixels across and 64 down, so it's 512 pixels wide.
 
-`CP_Image_DrawSubImage` draws part of a picture. After the size of the drawing, it takes the part you want, as the **corners in the picture's own pixels**: `u0, v0` for the top left and `u1, v1` for the bottom right.
+`CP_Image_DrawSubImage` draws part of a picture. After the size of the drawing, it takes the part you want, as its **edges in the picture's own pixels**: `left`, `top`, `right` and `bottom`.
 
 ```C
-const float u0 = currentFrame * frameSize;		// frame 0 starts at 0, frame 1 at 64, frame 2 at 128...
-const float u1 = u0 + frameSize;				// and it ends 64 later
-CP_Image_DrawSubImage(slimeSheet, x, y, 128.0f, 128.0f, u0, 0.0f, u1, frameSize, 255);
+const float frameLeft = currentFrame * frameSize;	// frame 0 starts at 0, frame 1 at 64, frame 2 at 128...
+const float frameRight = frameLeft + frameSize;		// and it ends 64 later
+CP_Image_DrawSubImage(slimeSheet, x, y, 128.0f, 128.0f, frameLeft, 0.0f, frameRight, frameSize, 255);
 ```
 
 The frame is 64 pixels across but is **drawn** 128 across, so it's twice as big. Frames are counted from **0**, like array indexes (the first one is frame 0, and the last of eight is frame 7).
@@ -98,12 +98,12 @@ else
 
 ## Step 5: Facing left
 
-The slime should face the way it goes. You don't need a second set of frames: ask for the frame's edges **the other way round**, giving `u1` first and `u0` second, and the picture is drawn flipped:
+The slime should face the way it goes. You don't need a second set of frames: ask for the frame's edges **the other way round**, giving the right edge first and the left edge second, and the picture is drawn flipped:
 
 ```C
 if (facingLeft)
 {
-	CP_Image_DrawSubImage(slimeSheet, x, y, 128.0f, 128.0f, u1, 0.0f, u0, frameSize, 255);
+	CP_Image_DrawSubImage(slimeSheet, x, y, 128.0f, 128.0f, frameRight, 0.0f, frameLeft, frameSize, 255);
 }
 ```
 
@@ -173,7 +173,7 @@ Pick two or more.
 
 * Why is an image loaded in `game_init` and not in `game_update`?
 * What is a sprite sheet, and why do games use them?
-* In `CP_Image_DrawSubImage`, what are `u0`, `v0`, `u1` and `v1`, and in what units?
+* In `CP_Image_DrawSubImage`, what are `left`, `top`, `right` and `bottom`, and in what units?
 * How does the animation know when to go on to the next frame, and why does that not depend on the frame rate?
 * How do you draw a frame flipped?
 * What does an easing function change, and what does it leave the same?
@@ -184,7 +184,7 @@ Pick two or more.
 * **The game runs slower and slower, or stutters.** `CP_Image_Load` is in `game_update`.
 * **The animation runs at a different speed on each computer.** It changes the frame every frame, instead of by time.
 * **The slime shows two frames at once.** The corners are in the wrong units. They are pixels of the **sheet**, not of the window.
-* **A frame is the wrong width.** `u1` is `u0` plus the width of one frame. Check `frameSize`.
+* **A frame is the wrong width.** `frameRight` is `frameLeft` plus the width of one frame. Check `frameSize`.
 * **An easing does nothing.** It was given a number outside 0 to 1, or the progress was never divided by the trip's duration.
 
 **Next:** [Lesson 8: Sound](Lesson-08-Sound).

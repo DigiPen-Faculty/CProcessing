@@ -109,15 +109,15 @@ void DrawCenteredText(const char* text, float y, float size)
 // slime faces left when `faceLeft` is true. `alpha` is how solid it is.
 void DrawSlime(CP_Image sheet, CP_Vector position, int frame, CP_BOOL faceLeft, float size, int alpha)
 {
-	const float u0 = frame * frameSize;
-	const float u1 = u0 + frameSize;
+	const float frameLeft = frame * frameSize;
+	const float frameRight = frameLeft + frameSize;
 	if (faceLeft)
 	{
-		CP_Image_DrawSubImage(sheet, position.x, position.y, size, size, u1, 0.0f, u0, frameSize, alpha);
+		CP_Image_DrawSubImage(sheet, position.x, position.y, size, size, frameRight, 0.0f, frameLeft, frameSize, alpha);
 	}
 	else
 	{
-		CP_Image_DrawSubImage(sheet, position.x, position.y, size, size, u0, 0.0f, u1, frameSize, alpha);
+		CP_Image_DrawSubImage(sheet, position.x, position.y, size, size, frameLeft, 0.0f, frameRight, frameSize, alpha);
 	}
 }
 

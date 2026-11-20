@@ -328,13 +328,13 @@ void DrawSprite(float left, float top, float seconds)
 	{
 		frame += 8; // below 0 after turning back by hand
 	}
-	const float u0 = (float)frame * frameSize;
+	const float frameLeft = (float)frame * frameSize;
 
 	// The pivot is the middle of the bottom edge, so draw the corner half
 	// the width to the left and the whole height up
 	BeginRotation(PictureX(left), groundY, wobble);
 	CP_Settings_ImageMode(CP_POSITION_CORNER);
-	CP_Image_DrawSubImage(slimeSheet, -size / 2.0f, -size, size, size, u0, 0.0f, u0 + frameSize, frameSize, 255);
+	CP_Image_DrawSubImage(slimeSheet, -size / 2.0f, -size, size, size, frameLeft, 0.0f, frameLeft + frameSize, frameSize, 255);
 	CP_Settings_NoFill(); // the outline of the frame: its corner is where it's drawn
 	CP_Settings_StrokeWeight(1.0f);
 	CP_Settings_Stroke(CP_Color_Create(90, 96, 120, 255));

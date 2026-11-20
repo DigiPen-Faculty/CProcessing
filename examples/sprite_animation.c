@@ -70,23 +70,22 @@ void game_update(void)
 
 	CP_Graphics_ClearBackground(CP_Color_Create(40, 40, 40, 255));
 
-	// The part of the sheet to draw, in the sheet's pixels: from (u0, v0) at
-	// its top left to (u1, v1) at its bottom right. Frame 0 is 0 to 64
-	// across, frame 1 is 64 to 128, and so on.
-	float u0 = currentFrame * frameSize;
-	float v0 = 0.0f;
-	float u1 = u0 + frameSize;
-	float v1 = frameSize;
+	// The part of the sheet to draw, as its edges in the sheet's pixels.
+	// Frame 0 is 0 to 64 across, frame 1 is 64 to 128, and so on.
+	float frameLeft = currentFrame * frameSize;
+	float frameTop = 0.0f;
+	float frameRight = frameLeft + frameSize;
+	float frameBottom = frameSize;
 
 	// Draw that frame big, 4 times its size, in the middle of the window
-	CP_Image_DrawSubImage(slimeSheet, 400.0f, 340.0f, frameSize * 4.0f, frameSize * 4.0f, u0, v0, u1, v1, 255);
+	CP_Image_DrawSubImage(slimeSheet, 400.0f, 340.0f, frameSize * 4.0f, frameSize * 4.0f, frameLeft, frameTop, frameRight, frameBottom, 255);
 
 	// The whole sheet at the top, and a box around the current frame
 	float sheetLeft = 400.0f - frameCount * frameSize / 2.0f;
 	CP_Image_Draw(slimeSheet, 400.0f, 80.0f, frameCount * frameSize, frameSize, 255);
 	CP_Settings_NoFill();
 	CP_Settings_Stroke(CP_Color_Create(255, 200, 0, 255));
-	CP_Graphics_DrawRect(sheetLeft + u0 + frameSize / 2.0f, 80.0f, frameSize, frameSize);
+	CP_Graphics_DrawRect(sheetLeft + frameLeft + frameSize / 2.0f, 80.0f, frameSize, frameSize);
 
 	// What's happening, at the bottom
 	char text[100];

@@ -304,12 +304,12 @@ CP_API void CP_Image_Draw(CP_Image img, float x, float y, float w, float h, int 
 	CP_Image_DrawInternal(img, x, y, w, h, 0, 0, 0, 0, alpha);
 }
 
-CP_API void CP_Image_DrawSubImage(CP_Image img, float x, float y, float w, float h, float u0, float v0, float u1, float v1, int alpha)
+CP_API void CP_Image_DrawSubImage(CP_Image img, float x, float y, float w, float h, float left, float top, float right, float bottom, int alpha)
 {
-	CP_Image_DrawInternal(img, x, y, w, h, u0, v0, u1, v1, alpha);
+	CP_Image_DrawInternal(img, x, y, w, h, left, top, right, bottom, alpha);
 }
 
-CP_API CP_Image CP_Image_CreateFromData(int w, int h, const CP_Color* pixelDataInput)
+CP_API CP_Image CP_Image_CreateFromData(int width, int height, const CP_Color* pixelDataInput)
 {
 	if (!pixelDataInput)
 	{
@@ -335,7 +335,7 @@ CP_API CP_Image CP_Image_CreateFromData(int w, int h, const CP_Color* pixelDataI
 	img->filepath[0] = '\0';
 
 	// load the image
-	img->handle = nvgCreateImageRGBA(CORE->nvg, w, h, 0, (const unsigned char*)pixelDataInput);
+	img->handle = nvgCreateImageRGBA(CORE->nvg, width, height, 0, (const unsigned char*)pixelDataInput);
 
 	if (img->handle == 0)
 	{
@@ -344,8 +344,8 @@ CP_API CP_Image CP_Image_CreateFromData(int w, int h, const CP_Color* pixelDataI
 	}
 
 	// populate width/height
-	img->w = w;
-	img->h = h;
+	img->w = width;
+	img->h = height;
 
 	img->load_error = FALSE;
 

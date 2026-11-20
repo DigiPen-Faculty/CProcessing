@@ -45,7 +45,8 @@ extern "C"
 
 //---------------------------------------------------------
 // DEFINES:
-//		Important constant values, Pi and CP_BOOL
+//		Pi, for C's sinf and cosf, which take radians (CProcessing's angles are degrees)
+//		TRUE and FALSE, for CP_BOOL
 #define CP_PI			3.14159265358979323846f
 #define CP_TWO_PI		6.28318530717958647692f
 #define CP_HALF_PI		1.57079632679489661923f
@@ -60,11 +61,11 @@ extern "C"
 
 //---------------------------------------------------------
 // TYPES:
-//		CProcessing types
+//		Images, sounds and fonts are handles: NULL means none
 typedef unsigned int	CP_BOOL;
 typedef struct			CP_Image_Struct* CP_Image;
 typedef struct			CP_Sound_Struct* CP_Sound;
-typedef unsigned int	CP_SoundInstance;
+typedef unsigned int	CP_SoundInstance;	// One playing sound: 0 means none
 typedef struct			CP_Font_Struct* CP_Font;
 
 
@@ -80,7 +81,9 @@ typedef void(*CP_FunctionPtr)(void);
 //			Linux   - X11 Window id (cast to a pointer) or NULL under Wayland
 typedef void* CP_WindowHandle;
 
-//		PassThrough - what a game state lets pass through from the states under it
+//		PassThrough - what a game state lets the states under it do
+//		Input never passes through: only the top state gets it
+//		(Bits, not an enum type, so they combine with | in C++ too)
 typedef unsigned int CP_PASSTHROUGH;
 enum
 {
@@ -127,23 +130,23 @@ typedef enum CP_LINE_JOINT_MODE
 
 //---------------------------------------------------------
 // POSITION MODE:
-//		Change the local origin for draw functions
-//		Shape and Image positions are calculated from their center or top left corner
+//		Whether the x and y given to a shape or image are its center or its top left corner
 typedef enum CP_POSITION_MODE
 {
-	CP_POSITION_CENTER,
-	CP_POSITION_CORNER	// Top Left
+	CP_POSITION_CENTER,	// Default
+	CP_POSITION_CORNER	// Top left
 } CP_POSITION_MODE;
 
 
 //---------------------------------------------------------
 // BLEND MODE:
-//		Change the math applied to colors when drawn on top of each other
+//		How a color drawn on top combines with the color under it
+//		(Processing's name for each is after it)
 typedef enum CP_BLEND_MODE
 {
-	CP_BLEND_ALPHA,		// BLEND
+	CP_BLEND_ALPHA,		// Default, BLEND
 	CP_BLEND_ADD,		// ADD
-	CP_BLEND_SUBTRACT,	// DIFFERENCE
+	CP_BLEND_SUBTRACT,	// SUBTRACT: the color under it minus the color drawn
 	CP_BLEND_MULTIPLY,	// MULTIPLY
 	CP_BLEND_MIN,		// DARKEST
 	CP_BLEND_MAX		// LIGHTEST
@@ -152,43 +155,42 @@ typedef enum CP_BLEND_MODE
 
 //---------------------------------------------------------
 // IMAGE FILTER MODE:
-//		Nearest - pixel perfect is good for retro games and pixel art
-//		Linear - applies bilinear filtering to images and smooths things out
+//		How images look drawn bigger or smaller than their own size
 typedef enum CP_IMAGE_FILTER_MODE
 {
-	CP_IMAGE_FILTER_NEAREST,
-	CP_IMAGE_FILTER_LINEAR
+	CP_IMAGE_FILTER_NEAREST,	// Sharp pixels, for pixel art
+	CP_IMAGE_FILTER_LINEAR		// Default, smooth
 } CP_IMAGE_FILTER_MODE;
 
 
 //---------------------------------------------------------
 // IMAGE WRAP MODE:
-//		Controls what happens to the edge colors of textures
+//		What CP_Image_DrawSubImage shows past the edges of the image
 typedef enum CP_IMAGE_WRAP_MODE
 {
-	CP_IMAGE_WRAP_CLAMP,
-	CP_IMAGE_WRAP_CLAMP_EDGE,
-	CP_IMAGE_WRAP_REPEAT,
-	CP_IMAGE_WRAP_MIRROR
+	CP_IMAGE_WRAP_CLAMP,		// Default, nothing (transparent)
+	CP_IMAGE_WRAP_CLAMP_EDGE,	// The edge pixels, stretched
+	CP_IMAGE_WRAP_REPEAT,		// The image again, tiled
+	CP_IMAGE_WRAP_MIRROR		// The image again, flipped every other time
 } CP_IMAGE_WRAP_MODE;
 
 
 //---------------------------------------------------------
 // TEXT ALIGN:
-//		Horizontal and vertical text alignment settings
+//		Which part of the text is at the x and y it's drawn at
 typedef enum CP_TEXT_ALIGN_HORIZONTAL
 {
-	CP_TEXT_ALIGN_H_LEFT		= 1 << 0,	// Default, align text horizontally to left.
-	CP_TEXT_ALIGN_H_CENTER		= 1 << 1,	// Align text horizontally to center.
-	CP_TEXT_ALIGN_H_RIGHT		= 1 << 2	// Align text horizontally to right.
+	CP_TEXT_ALIGN_H_LEFT		= 1 << 0,	// Default
+	CP_TEXT_ALIGN_H_CENTER		= 1 << 1,
+	CP_TEXT_ALIGN_H_RIGHT		= 1 << 2
 } CP_TEXT_ALIGN_HORIZONTAL;
 
 typedef enum CP_TEXT_ALIGN_VERTICAL
 {
-	CP_TEXT_ALIGN_V_TOP			= 1 << 3,	// Align text vertically to top.
-	CP_TEXT_ALIGN_V_MIDDLE		= 1 << 4,	// Align text vertically to middle.
-	CP_TEXT_ALIGN_V_BOTTOM		= 1 << 5,	// Align text vertically to bottom.
-	CP_TEXT_ALIGN_V_BASELINE	= 1 << 6	// Default, align text vertically to baseline.
+	CP_TEXT_ALIGN_V_TOP			= 1 << 3,
+	CP_TEXT_ALIGN_V_MIDDLE		= 1 << 4,
+	CP_TEXT_ALIGN_V_BOTTOM		= 1 << 5,	// The bottom of letters with tails, like g and y
+	CP_TEXT_ALIGN_V_BASELINE	= 1 << 6	// Default, the line the letters sit on
 } CP_TEXT_ALIGN_VERTICAL;
 
 
@@ -215,7 +217,8 @@ typedef enum CP_SOUND_GROUP
 
 //---------------------------------------------------------
 // MATH:
-//		2D vector (x, y) and 3x3 matrix useful for basic linear algebra
+//		A 2D vector, and a 3x3 matrix for 2D transforms
+//		Matrix values are named m<row><column>: m02 and m12 hold the translation
 typedef struct CP_Vector
 {
 	float x, y;
@@ -238,10 +241,10 @@ typedef enum CP_KEY
 	CP_KEY_ANY = -1,		// Special value: KeyTriggered, KeyDown and KeyReleased check every key
 	CP_KEY_NONE = 0,		// No key: what GetKeyTriggered gives when none was pressed, and a CP_KEY left at 0
 	CP_KEY_SPACE = 32,
-	CP_KEY_APOSTROPHE = 39,	// '''
+	CP_KEY_APOSTROPHE = 39,		// '''
 	CP_KEY_COMMA = 44,			// ','
 	CP_KEY_MINUS = 45,			// '-'
-	CP_KEY_PERIOD = 46,		// '.'
+	CP_KEY_PERIOD = 46,			// '.'
 	CP_KEY_SLASH = 47,			// '/'
 	CP_KEY_0 = 48,
 	CP_KEY_1 = 49,
