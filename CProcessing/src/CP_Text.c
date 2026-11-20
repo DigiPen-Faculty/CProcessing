@@ -265,6 +265,7 @@ CP_API void CP_Font_DrawText(const char* text, float x, float y)
 		return;
 	}
 
+	CP_Settings_ApplyTextFill();
 	nvgText(CORE->nvg, x, y, text, NULL);
 }
 
@@ -277,6 +278,7 @@ CP_API void CP_Font_DrawTextBox(const char* text, float x, float y, float rowWid
 		return;
 	}
 
+	CP_Settings_ApplyTextFill();
 	nvgTextBox(CORE->nvg, x, y, rowWidth, text, NULL);
 }
 

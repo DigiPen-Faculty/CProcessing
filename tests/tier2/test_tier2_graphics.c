@@ -3,6 +3,7 @@
 
 // Assertions against the pixel buffers tier2_capture.c already captured.
 // These never touch the engine -- see tier2_capture.h for why.
+#include <stdlib.h>
 #include "unity.h"
 #include "tier2_capture.h"
 
@@ -209,4 +210,84 @@ void test_tier2_graphics_endshapeopen_leaves_the_outline_open(void)
 {
 	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_SHAPE_OUTLINE_OPEN, 100, 130));
 	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_SHAPE_OUTLINE_OPEN, 100, 70));
+}
+
+// ---- Gradient fills ----
+
+// Pixels in a region within tolerance of a color
+static int countNear(int scenario, int x0, int y0, int x1, int y1, CP_Color c, int tolerance)
+{
+	int count = 0;
+	for (int y = y0; y <= y1; ++y)
+	{
+		for (int x = x0; x <= x1; ++x)
+		{
+			const CP_Color p = tier2_SamplePixel(scenario, x, y);
+			if (abs(p.r - c.r) <= tolerance && abs(p.g - c.g) <= tolerance && abs(p.b - c.b) <= tolerance)
+			{
+				++count;
+			}
+		}
+	}
+	return count;
+}
+
+void test_tier2_graphics_linear_gradient_goes_between_its_points_and_keeps_the_end_colors(void)
+{
+	assertColorWithin(8, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_GRADIENT_LINEAR, 5, 100)); // before the start
+	assertColorWithin(8, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_GRADIENT_LINEAR, 21, 100));
+	assertColorWithin(8, CP_Color_Create(128, 0, 128, 255), tier2_SamplePixel(SCN_GRADIENT_LINEAR, 100, 100)); // halfway
+	assertColorWithin(8, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_GRADIENT_LINEAR, 179, 100));
+	assertColorWithin(8, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_GRADIENT_LINEAR, 195, 100)); // after the end
+	// It changes only along the line between the points
+	assertColorWithin(8, CP_Color_Create(128, 0, 128, 255), tier2_SamplePixel(SCN_GRADIENT_LINEAR, 100, 10));
+}
+
+void test_tier2_graphics_radial_gradient_uses_diameters(void)
+{
+	assertColorWithin(8, CP_Color_Create(0, 200, 0, 255), tier2_SamplePixel(SCN_GRADIENT_RADIAL, 100, 100));   // the middle
+	assertColorWithin(8, CP_Color_Create(0, 200, 0, 255), tier2_SamplePixel(SCN_GRADIENT_RADIAL, 118, 100));   // inside the inner 40
+	assertColorWithin(8, CP_Color_Create(0, 100, 128, 255), tier2_SamplePixel(SCN_GRADIENT_RADIAL, 150, 100)); // halfway out
+	assertColorWithin(8, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_GRADIENT_RADIAL, 100, 182));   // outside the outer 160
+	assertColorWithin(8, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_GRADIENT_RADIAL, 195, 195));
+}
+
+void test_tier2_graphics_gradient_moves_and_turns_with_the_shape(void)
+{
+	// Turned 90 degrees: red at the top of the rect, blue at the bottom
+	assertColorWithin(12, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_GRADIENT_TURNED, 100, 101));
+	assertColorWithin(12, CP_Color_Create(128, 0, 128, 255), tier2_SamplePixel(SCN_GRADIENT_TURNED, 100, 120));
+	assertColorWithin(12, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_GRADIENT_TURNED, 100, 139));
+	// and the same across a row
+	assertColorWithin(12, CP_Color_Create(128, 0, 128, 255), tier2_SamplePixel(SCN_GRADIENT_TURNED, 85, 120));
+	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_GRADIENT_TURNED, 60, 120));
+}
+
+void test_tier2_graphics_fill_replaces_a_gradient_and_restore_brings_back_the_fill(void)
+{
+	assertColorWithin(4, CP_Color_Create(0, 200, 0, 255), tier2_SamplePixel(SCN_GRADIENT_FILL_SAVE_RESTORE, 50, 100));
+	// x = 150 of a red-to-blue gradient across 200
+	assertColorWithin(8, CP_Color_Create(64, 0, 191, 255), tier2_SamplePixel(SCN_GRADIENT_FILL_SAVE_RESTORE, 150, 100));
+}
+
+void test_tier2_graphics_gradient_text_uses_the_first_color_and_outlines_the_stroke(void)
+{
+	TEST_ASSERT_TRUE(tier2_scalars.gradientGetFillIsFirstColor);
+	assertColorWithin(4, CP_Color_Create(0, 0, 0, 255), tier2_SamplePixel(SCN_GRADIENT_TEXT_AND_STROKE, 10, 30)); // the outline
+	// The "I" in the middle is red, the first color, not the purple the
+	// gradient has there
+	TEST_ASSERT_TRUE(countNear(SCN_GRADIENT_TEXT_AND_STROKE, 70, 60, 130, 180, CP_Color_Create(255, 0, 0, 255), 30) > 100);
+	TEST_ASSERT_EQUAL_INT(0, countNear(SCN_GRADIENT_TEXT_AND_STROKE, 70, 60, 130, 180, CP_Color_Create(128, 0, 128, 255), 40));
+}
+
+void test_tier2_graphics_gradient_fades_to_transparent_without_a_dark_band(void)
+{
+	assertColorWithin(10, CP_Color_Create(255, 128, 128, 255), tier2_SamplePixel(SCN_GRADIENT_FADE_TO_TRANSPARENT, 100, 100));
+	assertColorWithin(8, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_GRADIENT_FADE_TO_TRANSPARENT, 197, 100));
+}
+
+void test_tier2_graphics_shapes_and_text_after_an_image_keep_the_fill_color(void)
+{
+	assertColorWithin(4, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_FILL_AFTER_IMAGE, 150, 50));
+	TEST_ASSERT_TRUE(countNear(SCN_FILL_AFTER_IMAGE, 110, 90, 170, 199, CP_Color_Create(255, 0, 0, 255), 30) > 100);
 }

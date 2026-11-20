@@ -60,7 +60,7 @@ static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, flo
 
 	if (DI->fill)
 	{
-		nvgFill(CORE->nvg);
+		CP_Settings_FillPath();
 	}
 	if (DI->stroke)
 	{
@@ -109,7 +109,6 @@ CP_API void CP_Graphics_DrawPoint(float x, float y)
 	if (DI->stroke)
 	{
 		const CP_Color stroke = DI->stroke_color;
-		const CP_Color fill = DI->fill_color;
 		const float size = DI->stroke_weight;
 
 		nvgBeginPath(CORE->nvg);
@@ -122,10 +121,9 @@ CP_API void CP_Graphics_DrawPoint(float x, float y)
 			nvgRect(CORE->nvg, x + 0.5f - size * 0.5f, y + 0.5f - size * 0.5f, size, size);
 		}
 
-		// Fill the point with the stroke color, then put the fill color back
+		// Fill the point with the stroke color
 		nvgFillColor(CORE->nvg, nvgRGBA(stroke.r, stroke.g, stroke.b, stroke.a));
 		nvgFill(CORE->nvg);
-		nvgFillColor(CORE->nvg, nvgRGBA(fill.r, fill.g, fill.b, fill.a));
 	}
 }
 
@@ -194,7 +192,7 @@ CP_API void CP_Graphics_DrawEllipse(float x, float y, float w, float h)
 
 	if (DI->fill)
 	{
-		nvgFill(CORE->nvg);
+		CP_Settings_FillPath();
 	}
 	if (DI->stroke)
 	{
@@ -255,7 +253,7 @@ CP_API void CP_Graphics_DrawPie(float x, float y, float diameter, float startDeg
 	ArcPath(CORE, DI, x, y, diameter, startDegrees, sweepDegrees, TRUE);
 	if (DI->fill)
 	{
-		nvgFill(CORE->nvg);
+		CP_Settings_FillPath();
 	}
 	if (DI->stroke)
 	{
@@ -298,7 +296,7 @@ CP_API void CP_Graphics_DrawTriangle(float x1, float y1, float x2, float y2, flo
 
 	if (DI->fill)
 	{
-		nvgFill(CORE->nvg);
+		CP_Settings_FillPath();
 	}
 	if (DI->stroke)
 	{
@@ -332,7 +330,7 @@ CP_API void CP_Graphics_DrawQuad(float x1, float y1, float x2, float y2, float x
 
 	if (DI->fill)
 	{
-		nvgFill(CORE->nvg);
+		CP_Settings_FillPath();
 	}
 	if (DI->stroke)
 	{
@@ -387,7 +385,7 @@ static void CP_Graphics_EndShapeInternal(CP_BOOL open)
 	}
 	if (DI->fill)
 	{
-		nvgFill(CORE->nvg);
+		CP_Settings_FillPath();
 	}
 	if (DI->stroke)
 	{

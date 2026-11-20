@@ -94,6 +94,7 @@ static void ResetToBaseline(void)
 	CP_Settings_LineCapMode(CP_LINE_CAP_BUTT);
 	CP_Settings_RectMode(CP_POSITION_CENTER);
 	CP_Settings_EllipseMode(CP_POSITION_CENTER);
+	CP_Settings_ImageMode(CP_POSITION_CENTER);
 	CP_Settings_BlendMode(CP_BLEND_ALPHA);
 	CP_System_SetFrameRate(60.0f);
 }
@@ -603,6 +604,117 @@ static CP_Image CreateFourColorImage(void)
 	};
 	return CP_Image_CreateFromData(2, 2, pixels);
 }
+
+// ---- Gradient fills (CP_Settings_FillLinearGradient, FillRadialGradient) ----
+
+// Red at x = 20 to blue at x = 180, over a rect that covers the canvas: the
+// ends keep their colors past the gradient's two points
+static void Scn_GradientLinear(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_FillLinearGradient(20, 0, RED, 180, 0, BLUE);
+	CP_Graphics_DrawRect(100, 100, 200, 200);
+}
+
+// Green inside a 40-wide circle at the middle, blue outside a 160-wide one
+static void Scn_GradientRadial(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_FillRadialGradient(100, 100, 40, GREEN, 160, BLUE);
+	CP_Graphics_DrawRect(100, 100, 200, 200);
+}
+
+// The gradient's numbers are placed when the shape is drawn, so they turn
+// and move with it: red at local x = 0 to blue at local x = 40, set before
+// the Translate and Rotate. Turned 90 degrees, local x runs down the screen.
+static void Scn_GradientTurned(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_FillLinearGradient(0, 0, RED, 40, 0, BLUE);
+	CP_Settings_Translate(100, 100);
+	CP_Settings_Rotate(90);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Graphics_DrawRect(0, -20, 40, 40); // on screen: x 80 to 120, y 100 to 140
+}
+
+// Fill replaces a gradient, and Save and Restore bring back whichever fill
+// there was: the left half is green (the gradient was undone by Restore),
+// the right half is the gradient again (Fill was undone by Restore)
+static void Scn_GradientFillSaveRestore(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+
+	CP_Settings_Fill(GREEN);
+	CP_Settings_Save();
+	CP_Settings_FillLinearGradient(0, 0, RED, 200, 0, BLUE);
+	CP_Settings_Restore();
+	CP_Graphics_DrawRect(0, 0, 100, 200);
+
+	CP_Settings_FillLinearGradient(0, 0, RED, 200, 0, BLUE);
+	CP_Settings_Save();
+	CP_Settings_Fill(GREEN);
+	CP_Settings_Restore();
+	CP_Graphics_DrawRect(100, 0, 100, 200);
+}
+
+// Text and outlines don't take a gradient: text is the gradient's first
+// color, and GetFill gives it; the outline keeps the stroke color
+static void Scn_GradientTextAndStroke(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_FillLinearGradient(0, 0, RED, 200, 0, BLUE);
+	const CP_Color fill = CP_Settings_GetFill();
+	tier2_scalars.gradientGetFillIsFirstColor = fill.r == 255 && fill.g == 0 && fill.b == 0 && fill.a == 255;
+
+	CP_Settings_Stroke(BLACK);
+	CP_Settings_StrokeWeight(8.0f);
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Graphics_DrawRect(10, 10, 40, 40);
+
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(120.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+	CP_Font_DrawText("I", 100, 120); // in the middle, where the gradient is purple
+}
+
+// Red fading to transparent black, over white: blended with premultiplied
+// alpha the middle is a light pink, with no dark band
+static void Scn_GradientFadeToTransparent(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_FillLinearGradient(0, 0, RED, 200, 0, CP_Color_Create(0, 0, 0, 0));
+	CP_Graphics_DrawRect(100, 100, 200, 200);
+}
+
+// Drawing an image used to leave NanoVG's fill set to the image, so a shape
+// drawn after it, with no CP_Settings_Fill in between, showed the image (or
+// nothing) and text came out white. Both are red now.
+static void Scn_FillAfterImage(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Image image = CreateFourColorImage();
+	CP_Image_Draw(image, 0, 0, 40, 40, 255);
+
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Graphics_DrawRect(120, 20, 60, 60);
+
+	CP_Image_Draw(image, 0, 100, 40, 40, 255);
+	CP_Image_Free(&image);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(120.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+	CP_Font_DrawText("I", 140, 150);
+}
+
 
 // The image drawn 100x100, nearest on the left half of the canvas and
 // linear on the right. Nearest keeps four solid colors; linear blends them
@@ -1706,6 +1818,13 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
 	[SCN_CUSTOM_SHAPE] = Scn_CustomShape,
 	[SCN_SHAPE_OUTLINE_CLOSED] = Scn_ShapeOutlineClosed,
 	[SCN_SHAPE_OUTLINE_OPEN] = Scn_ShapeOutlineOpen,
+	[SCN_GRADIENT_LINEAR] = Scn_GradientLinear,
+	[SCN_GRADIENT_RADIAL] = Scn_GradientRadial,
+	[SCN_GRADIENT_TURNED] = Scn_GradientTurned,
+	[SCN_GRADIENT_FILL_SAVE_RESTORE] = Scn_GradientFillSaveRestore,
+	[SCN_GRADIENT_TEXT_AND_STROKE] = Scn_GradientTextAndStroke,
+	[SCN_GRADIENT_FADE_TO_TRANSPARENT] = Scn_GradientFadeToTransparent,
+	[SCN_FILL_AFTER_IMAGE] = Scn_FillAfterImage,
 	[SCN_SETTINGS_NOFILL] = Scn_SettingsNoFill,
 	[SCN_SETTINGS_STROKEWEIGHT] = Scn_SettingsStrokeWeight,
 	[SCN_SETTINGS_RECTMODE_CORNER] = Scn_SettingsRectModeCorner,

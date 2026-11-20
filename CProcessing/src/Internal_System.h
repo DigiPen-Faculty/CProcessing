@@ -43,6 +43,13 @@ typedef struct NVGcolor NVGcolor;
 
 
 //////////////////
+typedef enum CP_FILL_GRADIENT
+{
+	CP_FILL_GRADIENT_NONE, // a plain fill color
+	CP_FILL_GRADIENT_LINEAR,
+	CP_FILL_GRADIENT_RADIAL
+} CP_FILL_GRADIENT;
+
 typedef struct CP_DrawInfo
 {
 	CP_POSITION_MODE rect_mode;
@@ -55,7 +62,7 @@ typedef struct CP_DrawInfo
 	// functions work before CP_Engine_Run, when there's no NanoVG context
 	// yet (CP_Settings_ApplyAll gives them to NanoVG when the window opens),
 	// and CP_Graphics_DrawPoint uses the colors, weight and cap.
-	CP_Color fill_color;
+	CP_Color fill_color; // with a gradient, its first color: text and GetFill use it
 	CP_Color stroke_color;
 	float stroke_weight;
 	CP_LINE_CAP_MODE line_cap;
@@ -68,6 +75,12 @@ typedef struct CP_DrawInfo
 	float text_size;
 	int text_align;
 	CP_Font font; // NULL until CP_Font_Set: the default font
+	// The fill's gradient, from CP_Settings_FillLinearGradient or
+	// CP_Settings_FillRadialGradient. Its numbers are kept as given, and only
+	// placed when a shape is filled, in the coordinates of that moment.
+	CP_FILL_GRADIENT fill_gradient;
+	float gradient_points[4]; // linear: x1, y1, x2, y2; radial: x, y, inner and outer diameter
+	CP_Color gradient_colors[2];
 } CP_DrawInfo;
 typedef CP_DrawInfo* CP_DrawInfoPtr;
 
@@ -75,6 +88,12 @@ typedef CP_DrawInfo* CP_DrawInfoPtr;
 void CP_Settings_InitDefaults(CP_DrawInfoPtr DI);
 // Gives NanoVG the current settings, once its context exists (CP_Setting.c)
 void CP_Settings_ApplyAll(void);
+// Fills the path being drawn with the fill color or gradient, a gradient
+// placed in the coordinates as they are now (CP_Setting.c). NanoVG's fill
+// is set only by these two, right before use.
+void CP_Settings_FillPath(void);
+// Sets NanoVG's fill to the plain fill color, for text (CP_Setting.c)
+void CP_Settings_ApplyTextFill(void);
 //////////////////
 
 //////////////////
