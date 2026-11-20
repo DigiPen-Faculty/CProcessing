@@ -15,23 +15,19 @@ extern "C"
 #endif
 
 //---------------------------------------------------------
-// Version of this CProcessing release: major.minor.patch
-// (CMakeLists.txt reads the project version from these lines)
-
+// VERSION:
+//		CProcessing release: major.minor.patch
+//		(CMakeLists.txt reads the project version from these lines)
 #define CP_VERSION_MAJOR 3
 #define CP_VERSION_MINOR 1
 #define CP_VERSION_PATCH 0
 
 
 //---------------------------------------------------------
-// Exports for shared library functions
-//
-// This header is the same on every platform and includes no OS headers.
-// (Projects that want Windows APIs include <windows.h> themselves.)
-//
-// CPROCESSING_EXPORTS - defined while building the library itself
-// CPROCESSING_STATIC  - defined when building/using CProcessing as a static library
-
+// LIBRARY:
+//		Exports for shared library functions
+//		CPROCESSING_EXPORTS - defined while building the library itself
+//		CPROCESSING_STATIC  - defined when building/using CProcessing as a static library
 #if defined(CPROCESSING_STATIC)
 	#define CP_API
 #elif defined(_WIN32)
@@ -48,16 +44,12 @@ extern "C"
 
 
 //---------------------------------------------------------
-// CProcessing Types
-
-typedef unsigned int	CP_BOOL;
-
-// Pi, for angles in radians (the Rotate and Angle functions take degrees)
+// DEFINES:
+//		Important constant values, Pi and CP_BOOL
 #define CP_PI			3.14159265358979323846f
 #define CP_TWO_PI		6.28318530717958647692f
 #define CP_HALF_PI		1.57079632679489661923f
 
-// Values for CP_BOOL
 #ifndef TRUE
 	#define TRUE 1
 #endif
@@ -65,24 +57,38 @@ typedef unsigned int	CP_BOOL;
 	#define FALSE 0
 #endif
 
-// Native OS window handle returned by CP_System_GetWindowHandle; cast it to
-// the platform's own type:
-//   Windows - HWND
-//   macOS   - NSWindow*
-//   Linux   - X11 Window id (cast to a pointer) or NULL under Wayland
-typedef void*			CP_WindowHandle;
+
+//---------------------------------------------------------
+// TYPES:
+//		CProcessing types
+typedef unsigned int	CP_BOOL;
 typedef struct			CP_Image_Struct* CP_Image;
 typedef struct			CP_Sound_Struct* CP_Sound;
-
-// One playing sound, returned by CP_Sound_Play and CP_Sound_PlayAdvanced and
-// used to stop, pause or change just that sound. 0 means no sound.
 typedef unsigned int	CP_SoundInstance;
 typedef struct			CP_Font_Struct* CP_Font;
 
 
 //---------------------------------------------------------
-// Function Pointer
-typedef					void(*CP_FunctionPtr)(void);
+// ENGINE:
+//		Gamestate Function Pointer
+typedef void(*CP_FunctionPtr)(void);
+
+//		Native OS window handle returned by CP_System_GetWindowHandle
+//		Cast it to the platform's own type:
+//			Windows - HWND
+//			macOS   - NSWindow*
+//			Linux   - X11 Window id (cast to a pointer) or NULL under Wayland
+typedef void* CP_WindowHandle;
+
+//		PassThrough - what a game state lets pass through from the states under it
+typedef unsigned int CP_PASSTHROUGH;
+enum
+{
+	CP_PASSTHROUGH_NONE		= 0,		// the states exist, but don't run and can't be seen
+	CP_PASSTHROUGH_UPDATE	= 1 << 0,	// their update functions keep running
+	CP_PASSTHROUGH_VISIBLE	= 1 << 1,	// Default: they can be seen (frozen picture, if not updating)
+	CP_PASSTHROUGH_ALL		= CP_PASSTHROUGH_UPDATE | CP_PASSTHROUGH_VISIBLE	// they keep running and drawing
+};
 
 
 //---------------------------------------------------------
@@ -396,22 +402,6 @@ typedef enum CP_CURSOR_MODE
 	CP_CURSOR_CAPTURED,	// Visible and kept in the window (not on macOS)
 	CP_CURSOR_DISABLED	// Hidden and unlimited, for mouse look: use the mouse delta
 } CP_CURSOR_MODE;
-
-//---------------------------------------------------------
-// Game states
-
-// What a game state lets pass through to the states under it
-// (CP_Engine_SetGameStatePassThrough). Input never passes through: only the
-// top state gets it. A set of bits, so the names can also be combined with |;
-// it isn't an enum type, so that works in C++ too.
-typedef unsigned int CP_PASSTHROUGH;
-enum
-{
-	CP_PASSTHROUGH_NONE		= 0,		// they are kept, but don't run and can't be seen
-	CP_PASSTHROUGH_UPDATE	= 1 << 0,	// their update functions keep running
-	CP_PASSTHROUGH_VISIBLE	= 1 << 1,	// Default: they can be seen (their last picture, if they don't update)
-	CP_PASSTHROUGH_ALL		= CP_PASSTHROUGH_UPDATE | CP_PASSTHROUGH_VISIBLE	// they keep running and drawing
-};
 
 
 #ifdef __cplusplus
