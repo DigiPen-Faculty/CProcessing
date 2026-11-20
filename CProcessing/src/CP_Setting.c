@@ -85,6 +85,7 @@ void CP_Settings_InitDefaults(CP_DrawInfoPtr DI)
 	DI->text_size = 16.0f; // NanoVG's default
 	DI->text_align = (int)CP_TEXT_ALIGN_H_LEFT | (int)CP_TEXT_ALIGN_V_BASELINE;
 	DI->font = NULL;
+	DI->fill_gradient = CP_FILL_GRADIENT_NONE;
 }
 
 void CP_Settings_ApplyAll(void)
@@ -113,14 +114,81 @@ void CP_Settings_ApplyAll(void)
 // Public Functions:
 //------------------------------------------------------------------------------
 
+void CP_Settings_FillPath(void)
+{
+	NVGcontext* vg = GetCPCore()->nvg;
+	CP_DrawInfoPtr DI = GetDrawInfo();
+	if (!vg)
+		return;
+
+	const float* p = DI->gradient_points;
+	const NVGcolor c1 = CP_ToNVGColor(DI->gradient_colors[0]);
+	const NVGcolor c2 = CP_ToNVGColor(DI->gradient_colors[1]);
+	switch (DI->fill_gradient)
+	{
+	case CP_FILL_GRADIENT_LINEAR:
+		// nvgFillPaint places the gradient with the current transform, so its
+		// numbers mean the same place the shape's numbers do
+		nvgFillPaint(vg, nvgLinearGradient(vg, p[0], p[1], p[2], p[3], c1, c2));
+		break;
+	case CP_FILL_GRADIENT_RADIAL:
+		nvgFillPaint(vg, nvgRadialGradient(vg, p[0], p[1], p[2] * 0.5f, p[3] * 0.5f, c1, c2));
+		break;
+	case CP_FILL_GRADIENT_NONE:
+	default:
+		// Set every time, not only by CP_Settings_Fill: drawing an image
+		// leaves NanoVG's fill set to the image
+		nvgFillColor(vg, CP_ToNVGColor(DI->fill_color));
+		break;
+	}
+	nvgFill(vg);
+
+	// After a gradient, back to a plain color, its first, which text uses
+	if (DI->fill_gradient != CP_FILL_GRADIENT_NONE)
+	{
+		nvgFillColor(vg, CP_ToNVGColor(DI->fill_color));
+	}
+}
+
 CP_API void CP_Settings_Fill(CP_Color c)
 {
 	CP_DrawInfoPtr DI = GetDrawInfo();
 	NVGcontext* vg = GetCPCore()->nvg;
 	DI->fill_color = c;
 	DI->fill = TRUE;
+	DI->fill_gradient = CP_FILL_GRADIENT_NONE;
 	if (vg)
 		nvgFillColor(vg, CP_ToNVGColor(c));
+}
+
+// A gradient is a fill: Fill, NoFill and the other gradient replace it, and
+// Save and Restore keep it. The numbers are placed when each shape is drawn,
+// in the coordinates of that moment, like the shape's own numbers.
+static void CP_Settings_FillGradient(CP_FILL_GRADIENT kind, float a, float b, float c, float d, CP_Color color1, CP_Color color2)
+{
+	CP_DrawInfoPtr DI = GetDrawInfo();
+	NVGcontext* vg = GetCPCore()->nvg;
+	DI->fill = TRUE;
+	DI->fill_gradient = kind;
+	DI->gradient_points[0] = a;
+	DI->gradient_points[1] = b;
+	DI->gradient_points[2] = c;
+	DI->gradient_points[3] = d;
+	DI->gradient_colors[0] = color1;
+	DI->gradient_colors[1] = color2;
+	DI->fill_color = color1; // what text and GetFill use: text can't take a gradient
+	if (vg)
+		nvgFillColor(vg, CP_ToNVGColor(color1));
+}
+
+CP_API void CP_Settings_FillLinearGradient(float x1, float y1, CP_Color color1, float x2, float y2, CP_Color color2)
+{
+	CP_Settings_FillGradient(CP_FILL_GRADIENT_LINEAR, x1, y1, x2, y2, color1, color2);
+}
+
+CP_API void CP_Settings_FillRadialGradient(float x, float y, float innerDiameter, CP_Color innerColor, float outerDiameter, CP_Color outerColor)
+{
+	CP_Settings_FillGradient(CP_FILL_GRADIENT_RADIAL, x, y, innerDiameter, outerDiameter, innerColor, outerColor);
 }
 
 CP_API void CP_Settings_NoFill(void)

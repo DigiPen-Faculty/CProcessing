@@ -286,6 +286,14 @@ Each change says what to do in an existing project.
   pressed this frame, or `CP_KEY_NONE`; if several were, the one pressed
   first. For a menu where players choose their own controls:
   `examples/controls.c` shows one.
+- **Gradients:** `CP_Settings_FillLinearGradient` and
+  `CP_Settings_FillRadialGradient` fill shapes with colors that blend along a
+  line or out from a point: a sky, a glow, a lit button, a health bar. A
+  gradient is a fill, like `CP_Settings_Fill`, and works on every filled
+  shape. Its points are placed when each shape is drawn, so it moves and turns
+  with the shapes; radial sizes are diameters, as in `CP_Graphics_DrawCircle`.
+  Text and outlines keep plain colors (text the gradient's first color, which
+  `CP_Settings_GetFill` returns). `examples/gradients.c` draws a sunset.
 - **Examples:** eight small, complete programs, each showing one thing
   games need: `movement.c`, `collision.c`, `sprite_animation.c`,
   `camera.c`, `game_states.c`, `score_and_text.c`,
@@ -406,6 +414,10 @@ Each change says what to do in an existing project.
 
 ### Fixed
 
+- **A shape drawn after an image, with no `CP_Settings_Fill` in between, is
+  filled with the fill color again.** Drawing an image left the drawing's
+  fill set to the image, so the shape showed part of the image or nothing at
+  all, and text after an image came out white.
 - **`CP_Vector_Angle`, `CP_Vector_AngleCW` and `CP_Vector_AngleCCW` returned
   NaN for vectors pointing the same way** (about one pair in five, depending on
   the numbers) and for a zero vector, so something turned to face its target

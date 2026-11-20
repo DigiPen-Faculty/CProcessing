@@ -112,6 +112,8 @@ CP_API float			CP_System_GetSeconds				(void);
 //		Render settings
 CP_API void				CP_Settings_Fill					(CP_Color c);
 CP_API void				CP_Settings_NoFill					(void);
+CP_API void				CP_Settings_FillLinearGradient		(float x1, float y1, CP_Color color1, float x2, float y2, CP_Color color2);
+CP_API void				CP_Settings_FillRadialGradient		(float x, float y, float innerDiameter, CP_Color innerColor, float outerDiameter, CP_Color outerColor);
 CP_API CP_Color			CP_Settings_GetFill					(void);
 CP_API void				CP_Settings_Stroke					(CP_Color c);
 CP_API void				CP_Settings_NoStroke				(void);

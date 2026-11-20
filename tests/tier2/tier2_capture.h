@@ -53,6 +53,13 @@ typedef enum
 	SCN_CUSTOM_SHAPE,
 	SCN_SHAPE_OUTLINE_CLOSED,
 	SCN_SHAPE_OUTLINE_OPEN,
+	SCN_GRADIENT_LINEAR,
+	SCN_GRADIENT_RADIAL,
+	SCN_GRADIENT_TURNED,
+	SCN_GRADIENT_FILL_SAVE_RESTORE,
+	SCN_GRADIENT_TEXT_AND_STROKE,
+	SCN_GRADIENT_FADE_TO_TRANSPARENT,
+	SCN_FILL_AFTER_IMAGE,
 	SCN_SETTINGS_NOFILL,
 	SCN_SETTINGS_STROKEWEIGHT,
 	SCN_SETTINGS_RECTMODE_CORNER,
@@ -225,6 +232,9 @@ typedef struct
 	CP_BOOL keyNoneEverOn; // KeyDown, KeyTriggered or KeyReleased said yes for CP_KEY_NONE
 	CP_BOOL mouseLeftDown;
 	CP_BOOL typedTextIsEmpty; // non-NULL and "" when nothing was typed
+
+	// CP_Settings_GetFill after a gradient (see Scn_GradientTextAndStroke)
+	CP_BOOL gradientGetFillIsFirstColor;
 
 	// CP_System_GetWindowHandle
 	CP_BOOL windowHandleIsNull;
