@@ -277,6 +277,11 @@ int main(void)
 	RUN_TEST(test_inputlogic_sample_reflects_realtime_state);
 	RUN_TEST(test_inputlogic_sample_tap_between_frames_is_not_lost);
 	RUN_TEST(test_inputlogic_quick_tap_triggers_then_releases);
+	RUN_TEST(test_inputlogic_first_triggered_none_when_nothing_was_pressed);
+	RUN_TEST(test_inputlogic_first_triggered_is_the_earliest_press);
+	RUN_TEST(test_inputlogic_first_triggered_skips_a_key_held_from_before);
+	RUN_TEST(test_inputlogic_first_triggered_counts_a_quick_tap);
+	RUN_TEST(test_inputlogic_key_none_is_zero_and_any_is_not_a_key);
 	RUN_TEST(test_inputlogic_double_click_within_window);
 	RUN_TEST(test_inputlogic_double_click_window_is_inclusive);
 	RUN_TEST(test_inputlogic_double_click_too_slow);

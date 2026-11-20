@@ -221,6 +221,8 @@ typedef struct
 	float mouseWheel;
 	CP_BOOL mouseDoubleClicked;
 	CP_BOOL keyADown;
+	CP_KEY keyTriggered;   // CP_Input_GetKeyTriggered
+	CP_BOOL keyNoneEverOn; // KeyDown, KeyTriggered or KeyReleased said yes for CP_KEY_NONE
 	CP_BOOL mouseLeftDown;
 	CP_BOOL typedTextIsEmpty; // non-NULL and "" when nothing was typed
 

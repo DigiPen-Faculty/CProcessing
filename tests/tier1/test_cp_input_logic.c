@@ -111,6 +111,79 @@ void test_inputlogic_quick_tap_triggers_then_releases(void)
 
 // ---- double click ----
 
+// ---- which key was triggered (CP_Input_GetKeyTriggered) ----
+
+#define FIRST_TEST_KEYS 400 // more than every key code, like CP_NUM_KEYS
+
+void test_inputlogic_first_triggered_none_when_nothing_was_pressed(void)
+{
+	static int current[FIRST_TEST_KEYS], previous[FIRST_TEST_KEYS];
+	static unsigned order[FIRST_TEST_KEYS];
+	memset(current, 0, sizeof(current));
+	memset(previous, 0, sizeof(previous));
+	memset(order, 0, sizeof(order));
+	TEST_ASSERT_EQUAL_INT(-1, CP_InputLogic_FirstTriggered(current, previous, order, FIRST_TEST_KEYS));
+}
+
+void test_inputlogic_first_triggered_is_the_earliest_press(void)
+{
+	// D, then A, then S went down since the last frame: D was first, though
+	// A has the smallest key code
+	static int current[FIRST_TEST_KEYS], previous[FIRST_TEST_KEYS];
+	static unsigned order[FIRST_TEST_KEYS];
+	memset(current, 0, sizeof(current));
+	memset(previous, 0, sizeof(previous));
+	memset(order, 0, sizeof(order));
+	current[CP_KEY_D] = 1;
+	order[CP_KEY_D] = 7;
+	current[CP_KEY_A] = 1;
+	order[CP_KEY_A] = 8;
+	current[CP_KEY_S] = 1;
+	order[CP_KEY_S] = 9;
+	TEST_ASSERT_EQUAL_INT(CP_KEY_D, CP_InputLogic_FirstTriggered(current, previous, order, FIRST_TEST_KEYS));
+}
+
+void test_inputlogic_first_triggered_skips_a_key_held_from_before(void)
+{
+	// Shift was pressed earlier and is still down, so it isn't triggered
+	// this frame: the new press of J is
+	static int current[FIRST_TEST_KEYS], previous[FIRST_TEST_KEYS];
+	static unsigned order[FIRST_TEST_KEYS];
+	memset(current, 0, sizeof(current));
+	memset(previous, 0, sizeof(previous));
+	memset(order, 0, sizeof(order));
+	current[CP_KEY_LEFT_SHIFT] = 1;
+	previous[CP_KEY_LEFT_SHIFT] = 1;
+	order[CP_KEY_LEFT_SHIFT] = 1;
+	current[CP_KEY_J] = 1;
+	order[CP_KEY_J] = 2;
+	TEST_ASSERT_EQUAL_INT(CP_KEY_J, CP_InputLogic_FirstTriggered(current, previous, order, FIRST_TEST_KEYS));
+}
+
+void test_inputlogic_first_triggered_counts_a_quick_tap(void)
+{
+	// A tap that went down and up between two frames is down for one frame
+	// (CP_InputLogic_SampleButton), so it's the triggered key
+	static int current[FIRST_TEST_KEYS], previous[FIRST_TEST_KEYS];
+	static unsigned order[FIRST_TEST_KEYS];
+	memset(current, 0, sizeof(current));
+	memset(previous, 0, sizeof(previous));
+	memset(order, 0, sizeof(order));
+	current[CP_KEY_SPACE] = CP_InputLogic_SampleButton(false, true);
+	order[CP_KEY_SPACE] = 3;
+	TEST_ASSERT_EQUAL_INT(CP_KEY_SPACE, CP_InputLogic_FirstTriggered(current, previous, order, FIRST_TEST_KEYS));
+}
+
+void test_inputlogic_key_none_is_zero_and_any_is_not_a_key(void)
+{
+	// A CP_KEY that was never set (a global, or an array set to zeros) is
+	// CP_KEY_NONE, not CP_KEY_ANY, so it never reads as every key
+	static CP_KEY neverSet;
+	TEST_ASSERT_EQUAL_INT(0, CP_KEY_NONE);
+	TEST_ASSERT_EQUAL_INT(CP_KEY_NONE, neverSet);
+	TEST_ASSERT_TRUE(CP_KEY_ANY < 0);
+}
+
 void test_inputlogic_double_click_within_window(void)
 {
 	TEST_ASSERT_TRUE(CP_InputLogic_IsDoubleClick(10.0, 10.25));

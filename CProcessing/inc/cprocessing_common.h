@@ -229,7 +229,8 @@ typedef struct CP_Matrix
 //		Gamepad buttons follow the Xbox controller layout (via GLFW's gamepad mappings)
 typedef enum CP_KEY
 {
-	CP_KEY_ANY = 0,			// Special value for checking any key
+	CP_KEY_ANY = -1,		// Special value: KeyTriggered, KeyDown and KeyReleased check every key
+	CP_KEY_NONE = 0,		// No key: what GetKeyTriggered gives when none was pressed, and a CP_KEY left at 0
 	CP_KEY_SPACE = 32,
 	CP_KEY_APOSTROPHE = 39,	// '''
 	CP_KEY_COMMA = 44,			// ','

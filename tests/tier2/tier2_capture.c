@@ -1486,6 +1486,8 @@ static void Scn_InputQuiescentDefaults(void)
 	tier2_scalars.mouseWheel = CP_Input_MouseWheel();
 	tier2_scalars.mouseDoubleClicked = CP_Input_MouseDoubleClicked();
 	tier2_scalars.keyADown = CP_Input_KeyDown(CP_KEY_A);
+	tier2_scalars.keyTriggered = CP_Input_GetKeyTriggered();
+	tier2_scalars.keyNoneEverOn = CP_Input_KeyDown(CP_KEY_NONE) || CP_Input_KeyTriggered(CP_KEY_NONE) || CP_Input_KeyReleased(CP_KEY_NONE);
 	tier2_scalars.mouseLeftDown = CP_Input_MouseDown(CP_MOUSE_LEFT);
 	tier2_scalars.typedTextIsEmpty = CP_Input_GetTypedText() != NULL && CP_Input_GetTypedText()[0] == '\0';
 }

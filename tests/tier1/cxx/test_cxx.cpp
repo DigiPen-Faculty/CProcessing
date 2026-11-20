@@ -46,6 +46,10 @@ static_assert(sizeof(CP_Matrix) == 9 * sizeof(float), "CP_Matrix is nine floats"
 // won't pass as the enum)
 static_assert(CP_PASSTHROUGH_ALL == (CP_PASSTHROUGH_UPDATE | CP_PASSTHROUGH_VISIBLE), "ALL is both bits");
 
+// A CP_KEY left at zero means no key, and CP_KEY_ANY is a value no key has
+static_assert(CP_KEY_NONE == 0, "zero is no key");
+static_assert(CP_KEY_ANY == -1, "ANY is below every key code");
+
 int main(int argc, char** argv)
 {
 	(void)argv;

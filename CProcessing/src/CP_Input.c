@@ -45,6 +45,9 @@ static int key_states_current[CP_NUM_KEYS] = { 0 };
 static int key_states_realtime[CP_NUM_KEYS] = { 0 };
 static bool key_pressed_since_update[CP_NUM_KEYS] = { false }; // see CP_InputLogic_SampleButton
 static bool key_any_triggered = false;
+static unsigned key_press_order[CP_NUM_KEYS] = { 0 }; // counts up with each press: see CP_InputLogic_FirstTriggered
+static unsigned key_press_count = 0;
+static CP_KEY key_first_triggered = CP_KEY_NONE;
 static bool key_any_down = false;
 static bool key_any_released = false;
 
@@ -126,6 +129,7 @@ void CP_Input_KeyboardCallback(GLFWwindow* window, int key, int scancode, int ac
 	case GLFW_PRESS:
 		key_states_realtime[key] = TRUE;
 		key_pressed_since_update[key] = true;
+		key_press_order[key] = ++key_press_count;
 		break;
 	case GLFW_RELEASE:
 		key_states_realtime[key] = FALSE;
@@ -235,6 +239,10 @@ void CP_Input_KeyboardUpdate(void)
 		key_states_current[keyCode] = CP_InputLogic_SampleButton(key_states_realtime[keyCode], key_pressed_since_update[keyCode]);
 		key_pressed_since_update[keyCode] = false;
 	}
+	// the key GetKeyTriggered reports: the first one pressed, if several were
+	const int first = CP_InputLogic_FirstTriggered(key_states_current, key_states_previous, key_press_order, CP_NUM_KEYS);
+	key_first_triggered = first < 0 ? CP_KEY_NONE : (CP_KEY)first;
+
 	// track values for ANY key
 	key_any_triggered = false;
 	key_any_down = false;
@@ -440,6 +448,12 @@ CP_API CP_BOOL CP_Input_KeyTriggered(CP_KEY keyCode)
 	}
 
 	return FALSE;
+}
+
+CP_API CP_KEY CP_Input_GetKeyTriggered(void)
+{
+	if (_inputMuted) return CP_KEY_NONE;
+	return key_first_triggered;
 }
 
 CP_API CP_BOOL CP_Input_KeyReleased(CP_KEY keyCode)

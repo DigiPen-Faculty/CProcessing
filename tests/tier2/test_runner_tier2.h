@@ -128,6 +128,7 @@ void test_tier2_sound_no_instance_is_not_playing_and_is_safe(void);
 void test_tier2_input_no_gamepad_attached_reports_disconnected(void);
 void test_tier2_input_mouse_wheel_is_zero_at_rest(void);
 void test_tier2_input_no_clicks_or_keys_in_a_quiescent_frame(void);
+void test_tier2_input_no_key_is_triggered_and_no_key_is_never_down(void);
 
 // test_tier2_crossplatform.c -- Tier 2: behavior every platform must share.
 void test_tier2_drawing_persists_into_the_next_frame(void);
