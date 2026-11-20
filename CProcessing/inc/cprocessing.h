@@ -150,7 +150,7 @@ CP_API void				CP_Settings_Restore					(void);
 //		RGBA values are in the range of 0-255
 //		HSLA values are h (0-360), s (0-100), l (0-100), a (0-255)
 CP_API CP_Color			CP_Color_Create						(int r, int g, int b, int a);
-CP_API CP_Color			CP_Color_CreateHex					(unsigned hexCode);	// 0xRRGGBBAA: 6 digits are read as 0x00RRGGBB
+CP_API CP_Color			CP_Color_CreateHex					(unsigned hexCode);	// 0xRRGGBBAA: 6 digits are interpreted as 0x00GGBBAA
 CP_API CP_Color			CP_Color_Lerp						(CP_Color a, CP_Color b, float lerpFactor);
 CP_API CP_Color			CP_Color_FromColorHSL				(CP_ColorHSL hsl);
 CP_API CP_ColorHSL		CP_ColorHSL_Create					(int h, int s, int l, int a);
