@@ -141,8 +141,10 @@ Each change says what to do in an existing project.
 
   A rectangle, ellipse or image in the default CENTER mode then turns around
   its middle, as `DrawRectAdvanced` did in CENTER mode. Give a triangle's or
-  quad's corners around (0, 0). `DrawRectAdvanced(x, y, w, h, 0, radius)`
-  becomes `CP_Graphics_DrawRoundedRect(x, y, w, h, radius)`.
+  quad's corners around (0, 0). To turn around another point, draw the shape
+  away from (0, 0): `examples/rotation.c` shows how, with helpers to copy.
+  `DrawRectAdvanced(x, y, w, h, 0, radius)` becomes
+  `CP_Graphics_DrawRoundedRect(x, y, w, h, radius)`.
 - **`CP_Graphics_EndShape` always closes the outline**, back to the first
   vertex. It closed it only when the fill was on, so a shape drawn with
   `CP_Settings_NoFill` was missing its last edge, and a filled shape couldn't
@@ -264,6 +266,11 @@ Each change says what to do in an existing project.
   Easing functions are a line or two of math on a lerp factor, so they are
   written in a game, not part of the library: lesson 7 has the student write
   them.
+- **`examples/rotation.c`** turns shapes around their middle, a corner, any
+  point inside them and a point outside them (an orbit), and then puts that
+  to use: an arm with two joints, a sprite rocking on its feet and a cannon
+  facing the mouse. Its `BeginRotation`, `EndRotation` and `DrawRectRotated`
+  helpers save writing Save, Translate, Rotate and Restore each time.
 - **Typed text:** `CP_Input_GetTypedText` gives the text the player typed
   during the last frame, as UTF-8 (including accented letters and other
   languages), so a game can ask for a name for a high score.
