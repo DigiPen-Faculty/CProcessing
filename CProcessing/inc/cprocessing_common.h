@@ -146,7 +146,7 @@ typedef enum CP_BLEND_MODE
 {
 	CP_BLEND_ALPHA,		// Default, BLEND
 	CP_BLEND_ADD,		// ADD
-	CP_BLEND_SUBTRACT,	// SUBTRACT: the color under it minus the color drawn
+	CP_BLEND_SUBTRACT,	// SUBTRACT
 	CP_BLEND_MULTIPLY,	// MULTIPLY
 	CP_BLEND_MIN,		// DARKEST
 	CP_BLEND_MAX		// LIGHTEST
@@ -238,8 +238,8 @@ typedef struct CP_Matrix
 //		Gamepad buttons follow the Xbox controller layout (via GLFW's gamepad mappings)
 typedef enum CP_KEY
 {
-	CP_KEY_ANY = -1,		// Special value: KeyTriggered, KeyDown and KeyReleased check every key
-	CP_KEY_NONE = 0,		// No key: what GetKeyTriggered gives when none was pressed, and a CP_KEY left at 0
+	CP_KEY_ANY = -1,			// Special value: KeyTriggered, KeyDown and KeyReleased check every key
+	CP_KEY_NONE = 0,			// No key: what GetKeyTriggered gives when none was pressed
 	CP_KEY_SPACE = 32,
 	CP_KEY_APOSTROPHE = 39,		// '''
 	CP_KEY_COMMA = 44,			// ','
