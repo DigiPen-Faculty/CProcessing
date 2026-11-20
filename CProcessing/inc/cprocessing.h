@@ -111,7 +111,7 @@ CP_API float			CP_System_GetSeconds				(void);	// Since the program started
 //---------------------------------------------------------
 // SETTINGS:
 //		Each setting stays until it's changed; Save and Restore keep and bring back all of them
-//		The transform (Translate, Rotate, Scale) starts over every frame
+//		The transform (Translate, Rotate, Scale) and the clip start over every frame
 CP_API void				CP_Settings_Fill					(CP_Color c);
 CP_API void				CP_Settings_NoFill					(void);
 CP_API void				CP_Settings_FillLinearGradient		(float x1, float y1, CP_Color color1, float x2, float y2, CP_Color color2);
@@ -141,6 +141,8 @@ CP_API void				CP_Settings_Rotate					(float degrees);	// Clockwise, around (0, 
 CP_API void				CP_Settings_Translate				(float x, float y);
 CP_API void				CP_Settings_ApplyMatrix				(CP_Matrix matrix);
 CP_API void				CP_Settings_ResetMatrix				(void);
+CP_API void				CP_Settings_Clip					(float x, float y, float w, float h);	// Follows RectMode; stays put under later transforms
+CP_API void				CP_Settings_NoClip					(void);
 CP_API void				CP_Settings_Save					(void);
 CP_API void				CP_Settings_Restore					(void);
 

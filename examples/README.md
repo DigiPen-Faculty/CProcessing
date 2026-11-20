@@ -20,6 +20,7 @@ top.
 | [controls.c](controls.c) | Letting the player choose their own keys: an array of keys for the actions, CP_Input_GetKeyTriggered to find the key pressed, and each key's name on the screen. |
 | [easing.c](easing.c) | Twelve easing functions drawn side by side, each with its code to copy: make movement start slow, arrive gently, overshoot or bounce. |
 | [rotation.c](rotation.c) | Turning shapes and sprites around any point: their middle, a corner, a pin anywhere, an orbit, joints, and aiming at the mouse, with helpers to copy. |
+| [clipping.c](clipping.c) | Drawing kept inside a box: an inventory that scrolls in its panel, a minimap, ability icons that refill as their cooldowns run out, and a title that wipes in. |
 | [gradients.c](gradients.c) | A sunset over the hills in gradients: a three-color sky, a glowing sun, a lit button, a health bar that turns red as it empties, and a flashlight. |
 | [curves.c](curves.c) | A pie chart, a loading ring, a Bezier curve with draggable handles, and hills made of layered noise. |
 | [window_options.c](window_options.c) | Fullscreen, a resizable window, vsync and the frame rate limit, with keys to change them. |

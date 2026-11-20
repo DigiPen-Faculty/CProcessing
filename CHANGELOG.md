@@ -294,6 +294,14 @@ Each change says what to do in an existing project.
   with the shapes; radial sizes are diameters, as in `CP_Graphics_DrawCircle`.
   Text and outlines keep plain colors (text the gradient's first color, which
   `CP_Settings_GetFill` returns). `examples/gradients.c` draws a sunset.
+- **Clipping:** `CP_Settings_Clip(x, y, w, h)` cuts off everything drawn
+  outside a rectangle, until `CP_Settings_NoClip`: a list that scrolls inside
+  a panel, text kept inside a dialog box, a minimap, a wipe. The rectangle
+  follows `CP_Settings_RectMode`, like `CP_Graphics_DrawRect`, and is placed
+  when it's set, so drawing moved by a later Translate moves under it. A new
+  clip replaces the old one, Save and Restore keep it, and like the transform
+  it's undone at the start of every frame and in each game state.
+  `examples/clipping.c` scrolls an inventory and draws a minimap.
 - **Examples:** eight small, complete programs, each showing one thing
   games need: `movement.c`, `collision.c`, `sprite_animation.c`,
   `camera.c`, `game_states.c`, `score_and_text.c`,
