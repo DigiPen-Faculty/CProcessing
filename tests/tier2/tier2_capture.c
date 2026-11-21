@@ -588,7 +588,8 @@ static void Scn_ShapeHolesOutlined(void)
 	CP_Graphics_EndShape();
 }
 
-// Points for the outline after a hole are left out (with a message). Added,
+// The outline can't go on after a hole: its points there are left out (with
+// a message). Added,
 // they'd have made a piece of their own: the triangle to the right of the
 // square.
 static void Scn_ShapeOutlineAfterHole(void)

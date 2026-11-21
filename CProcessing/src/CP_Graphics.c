@@ -376,7 +376,7 @@ static CP_BOOL CP_Graphics_CanAddPoint(const char* function)
 	{
 		if (!toldOutlineFirst)
 		{
-			printf("CProcessing: %s after CP_Graphics_EndHole was ignored. Add the whole outline of a shape first, then its holes.\n", function);
+			printf("CProcessing: %s after a hole was ignored. Add the whole outline of a shape first, then its holes.\n", function);
 			toldOutlineFirst = TRUE;
 		}
 		return FALSE;

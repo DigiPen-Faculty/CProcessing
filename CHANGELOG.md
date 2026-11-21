@@ -307,8 +307,8 @@ Each change says what to do in an existing project.
   that bends toward one control point, and `CP_Graphics_AddBezierVertex` one
   with two control points, like `CP_Graphics_DrawBezier`. After the whole
   outline, each `CP_Graphics_BeginHole`...`CP_Graphics_EndHole` cuts a hole,
-  whichever way round its points go. Points for the outline after a hole are
-  left out, with a message, and `CP_Graphics_AddVertex` outside a shape now
+  whichever way round its points go. The outline can't go on after a hole: its
+  points there are left out, with a message, and `CP_Graphics_AddVertex` outside a shape now
   does nothing (it used to add to whatever was drawn last).
   `examples/shapes.c` draws stars, a speech bubble, a heart, a waving flag, a
   blob through points, an arched window and a donut; the wiki has a new guide,
