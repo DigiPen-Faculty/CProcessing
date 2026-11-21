@@ -165,7 +165,7 @@ CP_API CP_ColorHSL		CP_ColorHSL_FromColor				(CP_Color rgb);
 //		Shapes use the fill and stroke; points, lines, arcs and Bezier curves use only the stroke
 //		Positions follow RectMode and EllipseMode (CENTER by default)
 //		Angles are degrees: 0 points right and positive turns clockwise (y points down)
-//		A shape: BeginShape, its whole outline, then any holes, then EndShape, which closes it
+//		Custom shapes: BeginShape, its whole outline, then any holes, then EndShape, which closes it
 CP_API void				CP_Graphics_ClearBackground			(CP_Color c);
 CP_API void				CP_Graphics_DrawPoint				(float x, float y);
 CP_API void				CP_Graphics_DrawLine				(float x1, float y1, float x2, float y2);
