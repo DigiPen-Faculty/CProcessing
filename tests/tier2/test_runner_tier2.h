@@ -92,6 +92,13 @@ void test_tier2_font_measuring_null_text_is_zero(void);
 void test_tier2_font_opentype_cff_font_loads_and_draws(void);
 void test_tier2_font_large_text_draws(void);
 void test_tier2_font_text_mirrored_and_flipped_draws(void);
+void test_tier2_font_text_blur_spreads_the_letters_and_follows_save_restore(void);
+void test_tier2_font_text_blur_below_zero_is_sharp(void);
+void test_tier2_font_text_blur_rounds_to_whole_steps(void);
+void test_tier2_font_letter_spacing_widens_measured_and_drawn_text(void);
+void test_tier2_font_letter_spacing_keeps_centered_text_centered(void);
+void test_tier2_font_line_spacing_adds_a_gap_between_lines(void);
+void test_tier2_font_line_spacing_leaves_one_line_alone(void);
 
 // test_tier2_gamestates.c -- Tier 2: the game state stack.
 void test_tier2_gamestate_push_and_pop_run_inits_and_exits_in_order(void);

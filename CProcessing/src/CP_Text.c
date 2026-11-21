@@ -269,6 +269,16 @@ CP_API void CP_Font_DrawText(const char* text, float x, float y)
 	nvgText(CORE->nvg, x, y, text, NULL);
 }
 
+// Gives NanoVG the line spacing as its line height: a multiple of the font's
+// own line height at the current size, which the extra pixels are added to
+static void CP_Font_ApplyLineSpacing(NVGcontext* vg)
+{
+	float lineHeight = 0.0f;
+	nvgTextMetrics(vg, NULL, NULL, &lineHeight);
+	float spacing = GetDrawInfo()->text_line_spacing;
+	nvgTextLineHeight(vg, lineHeight > 0.0f ? (lineHeight + spacing) / lineHeight : 1.0f);
+}
+
 CP_API void CP_Font_DrawTextBox(const char* text, float x, float y, float rowWidth)
 {
 	CP_CorePtr CORE = GetCPCore();
@@ -279,6 +289,7 @@ CP_API void CP_Font_DrawTextBox(const char* text, float x, float y, float rowWid
 	}
 
 	CP_Settings_ApplyTextFill();
+	CP_Font_ApplyLineSpacing(CORE->nvg);
 	nvgTextBox(CORE->nvg, x, y, rowWidth, text, NULL);
 }
 
@@ -322,6 +333,7 @@ CP_API CP_Vector CP_Font_GetTextBoxSize(const char* text, float rowWidth)
 	}
 
 	float bounds[4];
+	CP_Font_ApplyLineSpacing(CORE->nvg);
 	nvgTextBoxBounds(CORE->nvg, 0.0f, 0.0f, rowWidth, text, NULL, bounds);
 	return CP_Vector_Set(bounds[2] - bounds[0], bounds[3] - bounds[1]);
 }

@@ -146,6 +146,13 @@ int main(void)
 	RUN_TEST(test_tier2_font_opentype_cff_font_loads_and_draws);
 	RUN_TEST(test_tier2_font_large_text_draws);
 	RUN_TEST(test_tier2_font_text_mirrored_and_flipped_draws);
+	RUN_TEST(test_tier2_font_text_blur_spreads_the_letters_and_follows_save_restore);
+	RUN_TEST(test_tier2_font_text_blur_below_zero_is_sharp);
+	RUN_TEST(test_tier2_font_text_blur_rounds_to_whole_steps);
+	RUN_TEST(test_tier2_font_letter_spacing_widens_measured_and_drawn_text);
+	RUN_TEST(test_tier2_font_letter_spacing_keeps_centered_text_centered);
+	RUN_TEST(test_tier2_font_line_spacing_adds_a_gap_between_lines);
+	RUN_TEST(test_tier2_font_line_spacing_leaves_one_line_alone);
 
 	// test_tier2_gamestates.c
 	RUN_TEST(test_tier2_gamestate_push_and_pop_run_inits_and_exits_in_order);

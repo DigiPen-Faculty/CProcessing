@@ -832,7 +832,9 @@ void fonsSetSpacing(FONScontext* stash, float spacing)
 
 void fonsSetBlur(FONScontext* stash, float blur)
 {
-	fons__getState(stash)->blur = blur;
+	// CProcessing: rounded to whole steps, as glyphs are blurred in. Upstream
+	// keeps the fraction and cuts it off where glyphs are made, so 2.9 is 2.
+	fons__getState(stash)->blur = (float)(int)(blur + 0.5f);
 }
 
 void fonsSetAlign(FONScontext* stash, int align)
@@ -1252,7 +1254,10 @@ static void fons__getQuad(FONScontext* stash, FONSfont* font,
 
 	if (prevGlyphIndex != -1) {
 		float adv = fons__tt_getGlyphKernAdvance(&font->font, prevGlyphIndex, glyph->index) * scale;
-		*x += (int)(adv + spacing + 0.5f);
+		// CProcessing: floorf, so a negative gap (letter spacing below 0, or
+		// kerning that pulls letters together) rounds to the nearest pixel
+		// too. Upstream's (int) rounds -4.5 to -4, not -5.
+		*x += floorf(adv + spacing + 0.5f);
 	}
 
 	// Each glyph has 2px border to allow good interpolation,

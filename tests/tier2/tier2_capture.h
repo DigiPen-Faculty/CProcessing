@@ -118,6 +118,10 @@ typedef enum
 	SCN_FONT_EM_SIZE,
 	SCN_FONT_LARGE,
 	SCN_FONT_MIRRORED,
+	SCN_TEXT_BLUR,
+	SCN_TEXT_BLUR_ROUNDS,
+	SCN_TEXT_LETTER_SPACING,
+	SCN_TEXT_LINE_SPACING,
 	SCN_SYSTEM_ENGINE_STATE,
 	// Not last: the frames after it show the frame limiter didn't hang
 	SCN_SYSTEM_FRAME_RATE_NO_LIMIT,
@@ -281,6 +285,18 @@ typedef struct
 	CP_Vector textBoxOneLine; // a short text in a wide box
 	CP_Vector textBoxWrapped; // a long text in a narrow box
 	float textWidthNull;      // NULL text
+
+	// Letter and line spacing (see Scn_TextLetterSpacing, Scn_TextLineSpacing)
+	float letterWidthPlain;         // "HHHH" at size 40
+	float letterWidthSpaced;        // with a letter spacing of 10
+	float letterSizeSpaced;         // CP_Font_GetTextSize's width, spaced
+	float letterWidthTight;         // with a letter spacing of -5
+	CP_Vector lineBoxPlain;         // three lines in a text box, size 30
+	CP_Vector lineBoxSpaced;        // with a line spacing of 20
+	CP_Vector lineBoxOneLinePlain;  // one line in a text box
+	CP_Vector lineBoxOneLineSpaced; // with a line spacing of 20
+	float lineTextHeightPlain;      // CP_Font_GetTextSize("I").y
+	float lineTextHeightSpaced;     // with a line spacing of 20
 
 	// Text animated by size and by scale (see Scn_FontSizeSweep)
 	Tier2TextSweep textSizeSweep;
