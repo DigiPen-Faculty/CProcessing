@@ -302,6 +302,17 @@ Each change says what to do in an existing project.
   clip replaces the old one, Save and Restore keep it, and like the transform
   it's undone at the start of every frame and in each game state.
   `examples/clipping.c` scrolls an inventory and draws a minimap.
+- **Curves and holes in shapes:** between `CP_Graphics_BeginShape` and
+  `CP_Graphics_EndShape`, `CP_Graphics_AddQuadraticVertex` adds a curved side
+  that bends toward one control point, and `CP_Graphics_AddBezierVertex` one
+  with two control points, like `CP_Graphics_DrawBezier`. After the whole
+  outline, each `CP_Graphics_BeginHole`...`CP_Graphics_EndHole` cuts a hole,
+  whichever way round its points go. Points for the outline after a hole are
+  left out, with a message, and `CP_Graphics_AddVertex` outside a shape now
+  does nothing (it used to add to whatever was drawn last).
+  `examples/shapes.c` draws stars, a speech bubble, a heart, a waving flag, a
+  blob through points, an arched window and a donut; the wiki has a new guide,
+  "Your own shapes".
 - **Examples:** eight small, complete programs, each showing one thing
   games need: `movement.c`, `collision.c`, `sprite_animation.c`,
   `camera.c`, `game_states.c`, `score_and_text.c`,
