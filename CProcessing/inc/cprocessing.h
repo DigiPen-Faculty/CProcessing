@@ -165,6 +165,7 @@ CP_API CP_ColorHSL		CP_ColorHSL_FromColor				(CP_Color rgb);
 //		Shapes use the fill and stroke; points, lines, arcs and Bezier curves use only the stroke
 //		Positions follow RectMode and EllipseMode (CENTER by default)
 //		Angles are degrees: 0 points right and positive turns clockwise (y points down)
+//		A shape: BeginShape, its whole outline, then any holes, then EndShape, which closes it
 CP_API void				CP_Graphics_ClearBackground			(CP_Color c);
 CP_API void				CP_Graphics_DrawPoint				(float x, float y);
 CP_API void				CP_Graphics_DrawLine				(float x1, float y1, float x2, float y2);
@@ -179,6 +180,10 @@ CP_API void				CP_Graphics_DrawTriangle			(float x1, float y1, float x2, float y
 CP_API void				CP_Graphics_DrawQuad				(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
 CP_API void				CP_Graphics_BeginShape				(void);
 CP_API void				CP_Graphics_AddVertex				(float x, float y);
+CP_API void				CP_Graphics_AddQuadraticVertex		(float controlX, float controlY, float x, float y);	// Curves to (x, y), bending toward the control point
+CP_API void				CP_Graphics_AddBezierVertex			(float controlX1, float controlY1, float controlX2, float controlY2, float x, float y);
+CP_API void				CP_Graphics_BeginHole				(void);
+CP_API void				CP_Graphics_EndHole					(void);
 CP_API void				CP_Graphics_EndShape				(void);
 CP_API void				CP_Graphics_EndShapeOpen			(void);
 
