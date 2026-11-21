@@ -209,6 +209,7 @@ CP_API void				CP_Image_EndDrawing					(void);
 CP_API CP_Image			CP_Image_Screenshot					(int x, int y, int w, int h);
 CP_API void				CP_Image_GetPixelData				(CP_Image img, CP_Color* pixelDataOutput);		// Fills an array of width * height colors that you made
 CP_API void				CP_Image_UpdatePixelData			(CP_Image img, const CP_Color* pixelDataInput);	// width * height colors
+CP_API CP_BOOL			CP_Image_Save						(CP_Image img, const char* filepath);			// As a PNG file (the name must end in .png); TRUE if it was saved
 
 
 //---------------------------------------------------------

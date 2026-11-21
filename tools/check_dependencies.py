@@ -99,9 +99,9 @@ def check_commit(pinned, repo, note=None):
 
 
 def stb_note(files):
-    changed = [f for f in files if f in ("stb_image.h", "stb_truetype.h")]
+    changed = [f for f in files if f in ("stb_image.h", "stb_truetype.h", "stb_image_write.h")]
     if not changed:
-        return "stb_image.h and stb_truetype.h unchanged"
+        return "stb_image.h, stb_truetype.h and stb_image_write.h unchanged"
     return "changed: " + ", ".join(changed)
 
 
@@ -135,7 +135,8 @@ def dependencies():
     def stb_versions():
         image = file_version(read("CProcessing/third_party/nanovg/src/stb_image.h"), r"stb_image - v(\d+\.\d+)")
         truetype = file_version(read("CProcessing/third_party/nanovg/src/stb_truetype.h"), r"stb_truetype\.h - v(\d+\.\d+)")
-        return f"stb_image {image}, stb_truetype {truetype}"
+        write = file_version(read("CProcessing/third_party/stb/stb_image_write.h"), r"stb_image_write - v(\d+\.\d+)")
+        return f"stb_image {image}, stb_truetype {truetype}, stb_image_write {write}"
 
     def glad_check():
         newest = latest_tag("Dav1dde/glad", r"v0\.1\.\d+").lstrip("v")

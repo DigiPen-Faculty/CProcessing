@@ -62,6 +62,11 @@ void CP_Image_Init(void);
 void CP_Image_Update(void);
 void CP_Image_Shutdown(void);
 
+// Writes width * height RGBA pixels, row by row from the top left, to a PNG
+// file, with stb_image_write. Returns 0 if the file couldn't be written.
+// (third_party/stb/stb_image_write.c)
+int CP_WritePNG(const char* filepath, int width, int height, const void* rgbaPixels);
+
 #ifdef __cplusplus
 }
 #endif

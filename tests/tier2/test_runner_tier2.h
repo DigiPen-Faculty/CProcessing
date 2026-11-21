@@ -122,6 +122,9 @@ void test_tier2_gamestate_a_screenshot_drawn_in_the_next_state_blends_over_it(vo
 void test_tier2_gamestate_a_screenshot_in_a_pushed_init_is_the_picture_below(void);
 void test_tier2_image_drawing_into_an_image(void);
 void test_tier2_image_drawn_into_reads_back_top_row_first_with_plain_alpha(void);
+void test_tier2_image_save_writes_a_png_that_loads_back_the_same(void);
+void test_tier2_image_save_keeps_drawn_images_and_screenshots_the_right_way_up(void);
+void test_tier2_image_save_refuses_what_it_cannot_save(void);
 
 // test_tier2_system_engine.c -- Tier 2: CP_System + CP_Engine lifecycle.
 void test_tier2_system_window_size_matches_what_was_set(void);

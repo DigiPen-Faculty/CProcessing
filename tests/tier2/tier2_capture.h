@@ -146,6 +146,7 @@ typedef enum
 	// A state's clip doesn't reach the state drawn after it (see Scn_ClipNewState)
 	SCN_CLIP_NEW_STATE,
 	SCN_IMAGE_DRAW_INTO,
+	SCN_IMAGE_SAVE,
 	// Cross-platform work: these two must stay consecutive -- the second
 	// one draws on top of the first one's frame without clearing.
 	SCN_PERSIST_FIRST_FRAME,
@@ -274,7 +275,18 @@ typedef struct
 
 	// CP_Settings_GetFill after a gradient (see Scn_GradientTextAndStroke)
 	CP_BOOL gradientGetFillIsFirstColor;
-	CP_BOOL imageFillGetFillKept; // GetFill after FillImage: the color from before
+
+	// CP_Image_Save (see Scn_ImageSave)
+	CP_BOOL saveReturnedTrue;        // saving an image made from data
+	CP_BOOL saveFileIsPNG;           // the file starts with PNG's signature
+	CP_BOOL saveRoundTrip;           // loaded back, every pixel the same, alpha too
+	CP_BOOL saveDrawnRoundTrip;      // the same for an image drawn into
+	CP_BOOL saveDrawnTopRowFirst;    // ...with its top row at the top of the file
+	CP_BOOL saveScreenshotRoundTrip; // and for a screenshot
+	CP_BOOL saveCapitalPNG;          // "...PNG" is saved too
+	int saveRefusals;                // of 5 saves that must fail, how many did
+	CP_BOOL saveRefusedLeftNoFile;   // the refused .jpg and missing folder made no file
+	CP_BOOL imageFillGetFillKept;    // GetFill after FillImage: the color from before
 
 	// CP_System_GetWindowHandle
 	CP_BOOL windowHandleIsNull;

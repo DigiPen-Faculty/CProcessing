@@ -333,6 +333,15 @@ Each change says what to do in an existing project.
   dirt, brick walls with windows, a moving platform, clouds, water in a
   porthole, a striped loading bar and pixel art, with every tile drawn in
   code.
+- **Saving images:** `CP_Image_Save(img, "picture.png")` saves any image as
+  a PNG file: one loaded, one drawn into, or a screenshot. It returns
+  `TRUE` when the file was written, and when it can't save (no image, a
+  name that doesn't end in `.png`, a folder that isn't there) it says why
+  and returns `FALSE`. A name without a folder goes in the current folder.
+  `examples/painting.c` is a paint program that saves your painting,
+  loads it back the next time it starts, and saves numbered screenshots.
+  The PNG writing is stb_image_write, from the same stb commit as the
+  image loading.
 - **Examples:** eight small, complete programs, each showing one thing
   games need: `movement.c`, `collision.c`, `sprite_animation.c`,
   `camera.c`, `game_states.c`, `score_and_text.c`,

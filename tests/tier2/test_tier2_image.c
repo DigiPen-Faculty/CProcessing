@@ -220,9 +220,9 @@ void test_tier2_image_fill_with_no_image_or_no_size_fills_nothing(void)
 	// (not the old fill, not black)
 	const int samples[][2] = {
 		{ 25, 125 },
-        { 75, 125 },
-        { 25, 175 },
-        { 75, 175 }
+		{ 75, 125 },
+		{ 25, 175 },
+		{ 75, 175 }
 	};
 	for (int i = 0; i < 4; ++i)
 	{
@@ -299,4 +299,28 @@ void test_tier2_image_many_images_load_draw_and_free(void)
 	// The first and the last were drawn: 10x10 squares at (0,0) and (140,80)
 	assertColorWithin(2, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_IMAGE_MANY, 5, 5));
 	assertColorWithin(2, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_IMAGE_MANY, 145, 85));
+}
+
+// ---- CP_Image_Save: see Scn_ImageSave ----
+
+void test_tier2_image_save_writes_a_png_that_loads_back_the_same(void)
+{
+	TEST_ASSERT_TRUE(tier2_scalars.saveReturnedTrue);
+	TEST_ASSERT_TRUE_MESSAGE(tier2_scalars.saveFileIsPNG, "the saved file doesn't start with PNG's signature");
+	TEST_ASSERT_TRUE_MESSAGE(tier2_scalars.saveRoundTrip, "an image made from data didn't load back the same");
+	TEST_ASSERT_TRUE_MESSAGE(tier2_scalars.saveCapitalPNG, "a name ending in .PNG wasn't saved");
+}
+
+void test_tier2_image_save_keeps_drawn_images_and_screenshots_the_right_way_up(void)
+{
+	TEST_ASSERT_TRUE_MESSAGE(tier2_scalars.saveDrawnRoundTrip, "an image drawn into didn't load back the same");
+	TEST_ASSERT_TRUE_MESSAGE(tier2_scalars.saveDrawnTopRowFirst, "an image drawn into was saved upside down");
+	TEST_ASSERT_TRUE_MESSAGE(tier2_scalars.saveScreenshotRoundTrip, "a screenshot didn't load back the same");
+}
+
+void test_tier2_image_save_refuses_what_it_cannot_save(void)
+{
+	// No image, no name, an empty name, a .jpg name, a folder that isn't there
+	TEST_ASSERT_EQUAL_INT(5, tier2_scalars.saveRefusals);
+	TEST_ASSERT_TRUE(tier2_scalars.saveRefusedLeftNoFile);
 }

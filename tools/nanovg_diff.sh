@@ -7,7 +7,8 @@
 # on. Every difference should be one of the patches listed in
 # CProcessing/third_party/nanovg/CPROCESSING.md, marked in the code
 # with a "CProcessing:" comment. stb_image.h and stb_truetype.h come from
-# the stb repository and have no changes.
+# the stb repository and have no changes, and so does stb_image_write.h
+# (in CProcessing/third_party/stb/, for CP_Image_Save), from the same commit.
 #
 # Usage: tools/nanovg_diff.sh [--stat]
 # Needs git and network access. Runs in Git Bash on Windows.
@@ -30,6 +31,7 @@ FILES=(
     "nanovg README.md README.md"
     "stb stb_image.h src/stb_image.h"
     "stb stb_truetype.h src/stb_truetype.h"
+    "stb stb_image_write.h ../stb/stb_image_write.h"
 )
 
 repo=$(cd "$(dirname "$0")/.." && pwd)

@@ -24,6 +24,7 @@ top.
 | [shapes.c](shapes.c) | Your own shapes: stars and polygons from a loop, a speech bubble and a waving flag with curves, a heart, a blob through points, and an arched window and a donut with holes. Space shows the points and control points. |
 | [clipping.c](clipping.c) | Drawing kept inside a box: an inventory that scrolls in its panel, a minimap, ability icons that refill as their cooldowns run out, and a title that wipes in. |
 | [tiled_fill.c](tiled_fill.c) | Shapes filled with tiles of an image: hills of dirt, brick walls with windows, a moving platform, drifting clouds, water in a porthole, a striped loading bar and pixel art, with every tile drawn in code. |
+| [painting.c](painting.c) | A paint program: paint into an image with the mouse, save it as a PNG file and pick it up again the next time, and save numbered screenshots. |
 | [gradients.c](gradients.c) | A sunset over the hills in gradients: a three-color sky, a glowing sun, a lit button, a health bar that turns red as it empties, and a flashlight. |
 | [curves.c](curves.c) | A pie chart, a loading ring, a Bezier curve with draggable handles, and hills made of layered noise. |
 | [window_options.c](window_options.c) | Fullscreen, a resizable window, vsync and the frame rate limit, with keys to change them. |
