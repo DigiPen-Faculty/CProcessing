@@ -129,6 +129,15 @@ int main(void)
 	RUN_TEST(test_tier2_image_16_bit_png_loads_and_draws);
 	RUN_TEST(test_tier2_image_filter_mode_nearest_and_linear);
 	RUN_TEST(test_tier2_image_wrap_modes);
+	RUN_TEST(test_tier2_image_fill_repeats_the_tiles_whatever_the_wrap_mode);
+	RUN_TEST(test_tier2_image_fill_tiles_start_at_their_corner);
+	RUN_TEST(test_tier2_image_fill_fills_only_the_shape);
+	RUN_TEST(test_tier2_image_fill_with_no_image_or_no_size_fills_nothing);
+	RUN_TEST(test_tier2_image_fill_alpha);
+	RUN_TEST(test_tier2_image_fill_follows_translate_and_scale);
+	RUN_TEST(test_tier2_image_fill_is_replaced_by_fill_and_kept_by_save_restore);
+	RUN_TEST(test_tier2_image_fill_text_keeps_the_last_fill_color);
+	RUN_TEST(test_tier2_image_fill_leaves_the_wrap_mode_for_images);
 	RUN_TEST(test_tier2_shared_image_survives_freeing_one_load);
 	RUN_TEST(test_tier2_shared_font_and_sound_survive_freeing_one_load);
 	RUN_TEST(test_tier2_assets_still_loaded_are_reported_at_exit);

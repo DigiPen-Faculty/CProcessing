@@ -156,6 +156,140 @@ void test_tier2_image_wrap_modes(void)
 	}
 }
 
+// ---- Image fills: see Scn_ImageFillTiles and the scenarios after it ----
+
+// The color of the four color image's square at (x, y), for tiles of 40x40
+// from (tileX, tileY): red, green / blue, yellow, repeating
+static CP_Color TileColor(int x, int y, int tileX, int tileY)
+{
+	const CP_Color colors[4] = {
+		CP_Color_Create(255, 0, 0, 255), CP_Color_Create(0, 255, 0, 255),
+		CP_Color_Create(0, 0, 255, 255), CP_Color_Create(255, 255, 0, 255)
+	};
+	// floor division, so squares left of or above the tiles' corner count too
+	int column = (x - tileX + 4000) / 20;
+	int row = (y - tileY + 4000) / 20;
+	return colors[(row % 2) * 2 + column % 2];
+}
+
+static const CP_Color canvasWhite = { 255, 255, 255, 255 };
+
+void test_tier2_image_fill_repeats_the_tiles_whatever_the_wrap_mode(void)
+{
+	// The middle of every square of the 200x100 rect: five tiles across
+	for (int y = 10; y < 100; y += 20)
+	{
+		for (int x = 10; x < 200; x += 20)
+		{
+			assertColorWithin(2, TileColor(x, y, 0, 0), tier2_SamplePixel(SCN_IMAGE_FILL_TILES, x, y));
+		}
+	}
+}
+
+void test_tier2_image_fill_tiles_start_at_their_corner(void)
+{
+	for (int x = 10; x < 200; x += 20)
+	{
+		// Moved a square right: the first square is the green from the tile
+		// to the left
+		assertColorWithin(2, TileColor(x, 110, 20, 100), tier2_SamplePixel(SCN_IMAGE_FILL_TILES, x, 110));
+		assertColorWithin(2, TileColor(x, 130, 20, 100), tier2_SamplePixel(SCN_IMAGE_FILL_TILES, x, 130));
+		// Moved whole tiles: the same as from 0
+		assertColorWithin(2, TileColor(x, 10, 0, 0), tier2_SamplePixel(SCN_IMAGE_FILL_TILES, x, 160));
+		assertColorWithin(2, TileColor(x, 30, 0, 0), tier2_SamplePixel(SCN_IMAGE_FILL_TILES, x, 180));
+	}
+	assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_FILL_TILES, 10, 110));
+}
+
+void test_tier2_image_fill_fills_only_the_shape(void)
+{
+	// The circle: tiles inside, nothing in the corners around it
+	assertColorWithin(2, TileColor(50, 50, 0, 0), tier2_SamplePixel(SCN_IMAGE_FILL_SHAPES, 50, 50));
+	assertColorWithin(2, TileColor(30, 70, 0, 0), tier2_SamplePixel(SCN_IMAGE_FILL_SHAPES, 30, 70));
+	assertColorWithin(2, canvasWhite, tier2_SamplePixel(SCN_IMAGE_FILL_SHAPES, 14, 14));
+	assertColorWithin(2, canvasWhite, tier2_SamplePixel(SCN_IMAGE_FILL_SHAPES, 86, 86));
+	// The square with a hole: tiles around it, nothing in it
+	assertColorWithin(2, TileColor(120, 20, 0, 0), tier2_SamplePixel(SCN_IMAGE_FILL_SHAPES, 120, 20));
+	assertColorWithin(2, TileColor(180, 80, 0, 0), tier2_SamplePixel(SCN_IMAGE_FILL_SHAPES, 180, 80));
+	assertColorWithin(2, canvasWhite, tier2_SamplePixel(SCN_IMAGE_FILL_SHAPES, 150, 50));
+}
+
+void test_tier2_image_fill_with_no_image_or_no_size_fills_nothing(void)
+{
+	// A NULL image and a tile of no size: no tiles, and nothing else either
+	// (not the old fill, not black)
+	const int samples[][2] = {
+		{ 25, 125 },
+        { 75, 125 },
+        { 25, 175 },
+        { 75, 175 }
+	};
+	for (int i = 0; i < 4; ++i)
+	{
+		assertColorWithin(2, canvasWhite, tier2_SamplePixel(SCN_IMAGE_FILL_SHAPES, samples[i][0], samples[i][1]));
+	}
+	// An image freed after it was set, the frame after: the same
+	for (int y = 10; y < 200; y += 20)
+	{
+		for (int x = 10; x < 200; x += 20)
+		{
+			assertColorWithin(2, canvasWhite, tier2_SamplePixel(SCN_IMAGE_FILL_FREED_NEXT_FRAME, x, y));
+		}
+	}
+}
+
+void test_tier2_image_fill_alpha(void)
+{
+	// Half of each color over white: red is (255, 127, 127), blue (127, 127, 255)
+	assertColorWithin(3, CP_Color_Create(255, 127, 127, 255), tier2_SamplePixel(SCN_IMAGE_FILL_TRANSFORMED, 10, 10));
+	assertColorWithin(3, CP_Color_Create(127, 127, 255, 255), tier2_SamplePixel(SCN_IMAGE_FILL_TRANSFORMED, 10, 30));
+	assertColorWithin(3, CP_Color_Create(255, 255, 127, 255), tier2_SamplePixel(SCN_IMAGE_FILL_TRANSFORMED, 70, 190));
+}
+
+void test_tier2_image_fill_follows_translate_and_scale(void)
+{
+	// 40x40 on screen from (100, 0). Placed in window coordinates instead,
+	// they would be 20x20 from (0, 0), so the squares would alternate
+	// every 10 pixels.
+	for (int y = 10; y < 200; y += 20)
+	{
+		for (int x = 110; x < 200; x += 20)
+		{
+			assertColorWithin(2, TileColor(x, y, 100, 0), tier2_SamplePixel(SCN_IMAGE_FILL_TRANSFORMED, x, y));
+		}
+	}
+}
+
+void test_tier2_image_fill_is_replaced_by_fill_and_kept_by_save_restore(void)
+{
+	// Restore undid the FillImage: green
+	assertColorWithin(2, CP_Color_Create(0, 200, 0, 255), tier2_SamplePixel(SCN_IMAGE_FILL_SETTINGS, 30, 10));
+	assertColorWithin(2, CP_Color_Create(0, 200, 0, 255), tier2_SamplePixel(SCN_IMAGE_FILL_SETTINGS, 70, 70));
+	// Restore undid the Fill: the tiles
+	for (int y = 10; y < 100; y += 20)
+	{
+		for (int x = 110; x < 200; x += 20)
+		{
+			assertColorWithin(2, TileColor(x, y, 0, 0), tier2_SamplePixel(SCN_IMAGE_FILL_SETTINGS, x, y));
+		}
+	}
+}
+
+void test_tier2_image_fill_text_keeps_the_last_fill_color(void)
+{
+	TEST_ASSERT_TRUE(tier2_scalars.imageFillGetFillKept);
+	// The middle of a 120 high I
+	assertColorWithin(2, CP_Color_Create(0, 0, 255, 255), tier2_SamplePixel(SCN_IMAGE_FILL_SETTINGS, 50, 150));
+}
+
+void test_tier2_image_fill_leaves_the_wrap_mode_for_images(void)
+{
+	// The sub-image's own top left square, then nothing past the image
+	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_IMAGE_FILL_SETTINGS, 120, 120));
+	assertColorWithin(2, canvasWhite, tier2_SamplePixel(SCN_IMAGE_FILL_SETTINGS, 170, 130));
+	assertColorWithin(2, canvasWhite, tier2_SamplePixel(SCN_IMAGE_FILL_SETTINGS, 170, 170));
+}
+
 void test_tier2_image_many_images_load_draw_and_free(void)
 {
 	// See Scn_ImageMany: 40 images, more than the image list starts with.

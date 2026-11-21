@@ -322,6 +322,17 @@ Each change says what to do in an existing project.
   a dialog box that fits its text. Letters that the font's kerning pulls
   together are now placed to the nearest pixel, so some pairs, like "AV", sit
   a pixel closer than before.
+- **Image fills:** `CP_Settings_FillImage(img, x, y, w, h, alpha)` fills the
+  shapes after it with tiles of an image: one tile at (x, y), w by h, repeated
+  in every direction. It works on any shape (circles, rounded rectangles,
+  your own shapes with curves and holes), and the tiles move, turn and grow
+  with the transform, so they stay put in a world the camera moves through.
+  Moving (x, y) scrolls them. Unlike drawing an image many times, it leaves
+  no seams between the tiles. Text keeps the last plain fill color, and a
+  NULL or freed image fills nothing. `examples/tiled_fill.c` has hills of
+  dirt, brick walls with windows, a moving platform, clouds, water in a
+  porthole, a striped loading bar and pixel art, with every tile drawn in
+  code.
 - **Examples:** eight small, complete programs, each showing one thing
   games need: `movement.c`, `collision.c`, `sprite_animation.c`,
   `camera.c`, `game_states.c`, `score_and_text.c`,

@@ -78,6 +78,15 @@ void test_tier2_image_many_images_load_draw_and_free(void);
 void test_tier2_image_16_bit_png_loads_and_draws(void);
 void test_tier2_image_filter_mode_nearest_and_linear(void);
 void test_tier2_image_wrap_modes(void);
+void test_tier2_image_fill_repeats_the_tiles_whatever_the_wrap_mode(void);
+void test_tier2_image_fill_tiles_start_at_their_corner(void);
+void test_tier2_image_fill_fills_only_the_shape(void);
+void test_tier2_image_fill_with_no_image_or_no_size_fills_nothing(void);
+void test_tier2_image_fill_alpha(void);
+void test_tier2_image_fill_follows_translate_and_scale(void);
+void test_tier2_image_fill_is_replaced_by_fill_and_kept_by_save_restore(void);
+void test_tier2_image_fill_text_keeps_the_last_fill_color(void);
+void test_tier2_image_fill_leaves_the_wrap_mode_for_images(void);
 
 // test_tier2_font.c -- Tier 2: CP_Font (bounding-box/occupancy checks).
 void test_tier2_font_drawtext_occupies_expected_region(void);

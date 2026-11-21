@@ -96,6 +96,8 @@ static void ResetToBaseline(void)
 	CP_Settings_EllipseMode(CP_POSITION_CENTER);
 	CP_Settings_ImageMode(CP_POSITION_CENTER);
 	CP_Settings_BlendMode(CP_BLEND_ALPHA);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_LINEAR);
+	CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_CLAMP);
 	CP_Settings_TextBlur(0.0f);
 	CP_Settings_TextLetterSpacing(0.0f);
 	CP_Settings_TextLineSpacing(0.0f);
@@ -873,6 +875,154 @@ static void Scn_GradientFadeToTransparent(void)
 	CP_Settings_NoStroke();
 	CP_Settings_FillLinearGradient(0, 0, RED, 200, 0, CP_Color_Create(0, 0, 0, 0));
 	CP_Graphics_DrawRect(100, 100, 200, 200);
+}
+
+// ---- Image fills (CP_Settings_FillImage) ----
+// The four color image (red, green / blue, yellow) as 40x40 tiles, so each of
+// its pixels is a 20x20 square: the color at (x, y) is picked by whether
+// (x - tile x) / 20 and (y - tile y) / 20 are even or odd. Nearest filtering
+// keeps the squares sharp.
+
+// Top half: tiles from (0, 0) across a 200x100 rect, with the default wrap
+// mode (clamp, which shows one image past its edge when drawing it).
+// Then strips of the same width with the tiles moved: a square to the right
+// (y 100 to 150, tiles from (20, 100)), and whole tiles to the left
+// (y 150 to 200, tiles from (-400, 150)), which looks the same as from 0.
+static void Scn_ImageFillTiles(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Image image = CreateFourColorImage();
+
+	CP_Settings_FillImage(image, 0, 0, 40, 40, 255);
+	CP_Graphics_DrawRect(0, 0, 200, 100);
+	CP_Settings_FillImage(image, 20, 100, 40, 40, 255);
+	CP_Graphics_DrawRect(0, 100, 200, 50);
+	CP_Settings_FillImage(image, -400, 150, 40, 40, 255);
+	CP_Graphics_DrawRect(0, 150, 200, 50);
+
+	CP_Image_Free(&image);
+}
+
+// Only the shape is filled. Top left: a circle 80 wide at (50, 50). Top
+// right: a square from (110, 10) to (190, 90) with a square hole from
+// (130, 30) to (170, 70). Bottom left: rects that fill nothing, with a NULL
+// image (y 100 to 150) and a tile of no size (y 150 to 200).
+static void Scn_ImageFillShapes(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Image image = CreateFourColorImage();
+	CP_Settings_FillImage(image, 0, 0, 40, 40, 255);
+	CP_Graphics_DrawCircle(50, 50, 80);
+
+	CP_Graphics_BeginShape();
+	CP_Graphics_AddVertex(110, 10);
+	CP_Graphics_AddVertex(190, 10);
+	CP_Graphics_AddVertex(190, 90);
+	CP_Graphics_AddVertex(110, 90);
+	CP_Graphics_BeginHole();
+	CP_Graphics_AddVertex(130, 30);
+	CP_Graphics_AddVertex(130, 70);
+	CP_Graphics_AddVertex(170, 70);
+	CP_Graphics_AddVertex(170, 30);
+	CP_Graphics_EndHole();
+	CP_Graphics_EndShape();
+
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_FillImage(NULL, 0, 0, 40, 40, 255);
+	CP_Graphics_DrawRect(0, 100, 100, 50);
+	CP_Settings_FillImage(image, 0, 0, 0, 40, 255);
+	CP_Graphics_DrawRect(0, 150, 100, 50);
+	CP_Image_Free(&image);
+}
+
+// A fill set to an image that is then freed. CP_Image_Free deletes the image
+// at the end of the frame, so it's the next frame that fills with an image
+// that's gone: it fills nothing, and doesn't crash.
+static void Scn_ImageFillFreed(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Image image = CreateFourColorImage();
+	CP_Settings_FillImage(image, 0, 0, 40, 40, 255);
+	CP_Image_Free(&image);
+}
+
+static void Scn_ImageFillFreedNextFrame(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Graphics_DrawRect(0, 0, 200, 200);
+}
+
+// Left: the tiles at half alpha over white (0 to 100, all the way down).
+// Right: the tiles follow the transform like the shape's numbers do: 20x20
+// tiles from (0, 0), with (0, 0) moved to (100, 0) and everything twice the
+// size, so on screen the tiles are 40x40 from (100, 0) and each image pixel
+// is a 20x20 square again.
+static void Scn_ImageFillTransformed(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Image image = CreateFourColorImage();
+
+	CP_Settings_FillImage(image, 0, 0, 40, 40, 128);
+	CP_Graphics_DrawRect(0, 0, 100, 200);
+
+	CP_Settings_FillImage(image, 0, 0, 20, 20, 255);
+	CP_Settings_Translate(100, 0);
+	CP_Settings_Scale(2, 2);
+	CP_Graphics_DrawRect(0, 0, 50, 100);
+
+	CP_Image_Free(&image);
+}
+
+// Top left: Fill was set, then FillImage between Save and Restore: green.
+// Top right: FillImage, then Fill between Save and Restore: the tiles, from
+// (0, 0). Bottom left: text drawn with FillImage set, after Fill(BLUE): blue,
+// and GetFill gives blue. Bottom right: the image drawn as a sub-image twice
+// its size right after a tiled shape, with the default wrap mode (clamp): the
+// fill's repeat doesn't stay, so nothing is drawn past the image's edge.
+static void Scn_ImageFillSettings(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Image image = CreateFourColorImage();
+
+	CP_Settings_Fill(GREEN);
+	CP_Settings_Save();
+	CP_Settings_FillImage(image, 0, 0, 40, 40, 255);
+	CP_Settings_Restore();
+	CP_Graphics_DrawRect(0, 0, 100, 100);
+
+	CP_Settings_FillImage(image, 0, 0, 40, 40, 255);
+	CP_Settings_Save();
+	CP_Settings_Fill(GREEN);
+	CP_Settings_Restore();
+	CP_Graphics_DrawRect(100, 0, 100, 100);
+
+	CP_Settings_Fill(BLUE);
+	CP_Settings_FillImage(image, 0, 0, 40, 40, 255);
+	const CP_Color fill = CP_Settings_GetFill();
+	tier2_scalars.imageFillGetFillKept = fill.r == 0 && fill.g == 0 && fill.b == 255 && fill.a == 255;
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(120.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+	CP_Font_DrawText("I", 50, 150);
+
+	CP_Graphics_DrawRect(100, 100, 10, 10); // a tiled shape, then the sub-image
+	CP_Image_DrawSubImage(image, 110, 110, 80, 80, 0, 0, 4, 4, 255);
+
+	CP_Image_Free(&image);
 }
 
 // Drawing an image used to leave NanoVG's fill set to the image, so a shape
@@ -2325,6 +2475,12 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
 	[SCN_GRADIENT_FILL_SAVE_RESTORE] = Scn_GradientFillSaveRestore,
 	[SCN_GRADIENT_TEXT_AND_STROKE] = Scn_GradientTextAndStroke,
 	[SCN_GRADIENT_FADE_TO_TRANSPARENT] = Scn_GradientFadeToTransparent,
+	[SCN_IMAGE_FILL_TILES] = Scn_ImageFillTiles,
+	[SCN_IMAGE_FILL_SHAPES] = Scn_ImageFillShapes,
+	[SCN_IMAGE_FILL_TRANSFORMED] = Scn_ImageFillTransformed,
+	[SCN_IMAGE_FILL_SETTINGS] = Scn_ImageFillSettings,
+	[SCN_IMAGE_FILL_FREED] = Scn_ImageFillFreed,
+	[SCN_IMAGE_FILL_FREED_NEXT_FRAME] = Scn_ImageFillFreedNextFrame,
 	[SCN_FILL_AFTER_IMAGE] = Scn_FillAfterImage,
 	[SCN_CLIP_CORNER] = Scn_ClipCorner,
 	[SCN_CLIP_CENTER] = Scn_ClipCenter,
@@ -2450,7 +2606,7 @@ static void HarnessUpdate(void)
 
 	if (scenarioIndex < SCN_COUNT)
 	{
-		if (scenarioIndex != SCN_SETTINGS_BEFORE_RUN)
+		if (scenarioIndex != SCN_SETTINGS_BEFORE_RUN && scenarioIndex != SCN_IMAGE_FILL_FREED_NEXT_FRAME)
 		{
 			ResetToBaseline();
 		}
