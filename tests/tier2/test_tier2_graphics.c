@@ -212,6 +212,92 @@ void test_tier2_graphics_endshapeopen_leaves_the_outline_open(void)
 	assertColorWithin(2, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_SHAPE_OUTLINE_OPEN, 100, 70));
 }
 
+// ---- Curves and holes in shapes ----
+// See the Shape scenarios in tier2_capture.c for the geometry.
+
+static const CP_Color kShapeRed = { 255, 0, 0, 255 };
+static const CP_Color kShapeWhite = { 255, 255, 255, 255 };
+static const CP_Color kShapeBlack = { 0, 0, 0, 255 };
+
+void test_tier2_graphics_shape_quadratic_curve_bends_toward_its_control_point(void)
+{
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_QUADRATIC, 100, 87));   // just under the middle of the curve
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_QUADRATIC, 100, 73)); // just over it
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_QUADRATIC, 30, 142));
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_QUADRATIC, 30, 120));
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_QUADRATIC, 100, 158)); // below the closing edge
+}
+
+void test_tier2_graphics_shape_bezier_curve_makes_an_s(void)
+{
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_BEZIER, 59, 80));
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_BEZIER, 59, 63));
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_BEZIER, 141, 120));
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_BEZIER, 141, 137));
+}
+
+void test_tier2_graphics_shape_curve_as_the_first_point_starts_there(void)
+{
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_CURVE_FIRST, 60, 60));
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_CURVE_FIRST, 100, 100));
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_CURVE_FIRST, 30, 30));
+}
+
+void test_tier2_graphics_shape_curve_with_endshapeopen_leaves_the_outline_open(void)
+{
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_CURVE_OPEN, 100, 80));
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_CURVE_OPEN, 100, 150));
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_CURVE_OPEN, 100, 110));
+}
+
+void test_tier2_graphics_shape_hole_points_can_go_either_way_round(void)
+{
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_HOLE_EITHER_WAY, 52, 100));
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_HOLE_EITHER_WAY, 20, 100));
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_HOLE_EITHER_WAY, 52, 70));
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_HOLE_EITHER_WAY, 147, 100));
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_HOLE_EITHER_WAY, 180, 100));
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_HOLE_EITHER_WAY, 147, 130));
+}
+
+void test_tier2_graphics_shape_hole_before_the_outline_works_too(void)
+{
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_HOLE_FIRST, 100, 100));
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_HOLE_FIRST, 40, 100));
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_HOLE_FIRST, 100, 40));
+}
+
+void test_tier2_graphics_shape_holes_are_outlined_and_closed(void)
+{
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_HOLES_OUTLINED, 60, 100));
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_HOLES_OUTLINED, 140, 100));
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_HOLES_OUTLINED, 100, 100));
+	assertColorWithin(2, kShapeBlack, tier2_SamplePixel(SCN_SHAPE_HOLES_OUTLINED, 20, 100));  // the outline's closing edge
+	assertColorWithin(2, kShapeBlack, tier2_SamplePixel(SCN_SHAPE_HOLES_OUTLINED, 80, 100));  // the first hole
+	assertColorWithin(2, kShapeBlack, tier2_SamplePixel(SCN_SHAPE_HOLES_OUTLINED, 120, 100)); // the second hole's closing edge
+}
+
+void test_tier2_graphics_shape_outline_points_after_a_hole_are_left_out(void)
+{
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_OUTLINE_AFTER_HOLE, 100, 100)); // the hole
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_OUTLINE_AFTER_HOLE, 40, 40));     // the square
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_OUTLINE_AFTER_HOLE, 194, 40));  // no triangle
+}
+
+void test_tier2_graphics_shape_hole_reaching_outside_its_shape_is_filled_there(void)
+{
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_HOLE_OUTSIDE, 100, 100));
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_HOLE_OUTSIDE, 50, 100));
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_HOLE_OUTSIDE, 140, 100));
+}
+
+void test_tier2_graphics_shape_overlapping_holes_fill_where_they_overlap(void)
+{
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_HOLES_OVERLAP, 70, 100));
+	assertColorWithin(2, kShapeWhite, tier2_SamplePixel(SCN_SHAPE_HOLES_OVERLAP, 130, 100));
+	assertColorWithin(2, kShapeRed, tier2_SamplePixel(SCN_SHAPE_HOLES_OVERLAP, 100, 100));
+}
+
 // ---- Gradient fills ----
 
 // Pixels in a region within tolerance of a color

@@ -13,12 +13,23 @@
 
 #include "cprocessing.h"
 #include "Internal_System.h"
+#include <stdio.h>
 
 //------------------------------------------------------------------------------
 // Defines and Internal Variables:
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-static CP_BOOL firstVertex = FALSE;
+// A shape, from CP_Graphics_BeginShape to EndShape, goes straight to NanoVG
+// as a path of parts: the outline, and a part for each hole. Each point is
+// added to the part started last, so the whole outline comes first (or after
+// all the holes); BeginHole closes it, since NanoVG can only close the part
+// it's adding to.
+static CP_BOOL inShape = FALSE;          // between BeginShape and EndShape
+static CP_BOOL inHole = FALSE;           // between BeginHole and EndHole
+static CP_BOOL firstVertex = FALSE;      // the next point starts a part
+static CP_BOOL outlineStarted = FALSE;   // the outline has a point
+static CP_BOOL outlineFinished = FALSE;  // and a hole came after it
+static CP_BOOL toldOutlineFirst = FALSE; // the message below, once per run
 
 //------------------------------------------------------------------------------
 // Internal Functions:
@@ -345,44 +356,155 @@ CP_API void CP_Graphics_BeginShape(void)
 	if (!CORE->nvg)
 		return; // no window yet: CP_Engine_Run hasn't started
 	nvgBeginPath(CORE->nvg);
+	inShape = TRUE;
+	inHole = FALSE;
 	firstVertex = TRUE;
+	outlineStarted = FALSE;
+	outlineFinished = FALSE;
+}
+
+// Whether a point can be added now: only in a shape, and not to an outline
+// that a hole has already closed. A point there would be added to the hole
+// (NanoVG's last part), so it's left out, with a message the first time.
+static CP_BOOL CP_Graphics_CanAddPoint(const char* function)
+{
+	if (!GetCPCore()->nvg || !inShape)
+	{
+		return FALSE;
+	}
+	if (!inHole && outlineFinished)
+	{
+		if (!toldOutlineFirst)
+		{
+			printf("CProcessing: %s after a hole was ignored. Add the whole outline of a shape first, then its holes.\n", function);
+			toldOutlineFirst = TRUE;
+		}
+		return FALSE;
+	}
+	return TRUE;
+}
+
+// The first point of the outline or of a hole starts a new part of the path
+static void CP_Graphics_StartPart(float x, float y)
+{
+	NVGcontext* vg = GetCPCore()->nvg;
+	nvgMoveTo(vg, x, y);
+	if (inHole)
+	{
+		// NanoVG turns the part to go the hole's way, whichever way the
+		// points were given
+		nvgPathWinding(vg, NVG_HOLE);
+	}
+	else
+	{
+		outlineStarted = TRUE;
+	}
+	firstVertex = FALSE;
 }
 
 CP_API void CP_Graphics_AddVertex(float x, float y)
 {
-	CP_CorePtr CORE = GetCPCore();
-
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
+	if (!CP_Graphics_CanAddPoint("CP_Graphics_AddVertex"))
+		return;
 
 	if (firstVertex)
 	{
-		nvgMoveTo(CORE->nvg, x, y);
-
-		// Update tracking
-		firstVertex = FALSE;
+		CP_Graphics_StartPart(x, y);
 	}
 	else
 	{
-		nvgLineTo(CORE->nvg, x, y);
+		nvgLineTo(GetCPCore()->nvg, x, y);
 	}
 }
 
+// A curve from the last point to (x, y), bending toward the control point.
+// As the first point of a part, there's no last point: it starts there.
+CP_API void CP_Graphics_AddQuadraticVertex(float controlX, float controlY, float x, float y)
+{
+	if (!CP_Graphics_CanAddPoint("CP_Graphics_AddQuadraticVertex"))
+		return;
+
+	if (firstVertex)
+	{
+		CP_Graphics_StartPart(x, y);
+	}
+	else
+	{
+		nvgQuadTo(GetCPCore()->nvg, controlX, controlY, x, y);
+	}
+}
+
+// A curve from the last point to (x, y), like CP_Graphics_DrawBezier: it
+// leaves toward the first control point and arrives from the second
+CP_API void CP_Graphics_AddBezierVertex(float controlX1, float controlY1, float controlX2, float controlY2, float x, float y)
+{
+	if (!CP_Graphics_CanAddPoint("CP_Graphics_AddBezierVertex"))
+		return;
+
+	if (firstVertex)
+	{
+		CP_Graphics_StartPart(x, y);
+	}
+	else
+	{
+		nvgBezierTo(GetCPCore()->nvg, controlX1, controlY1, controlX2, controlY2, x, y);
+	}
+}
+
+// The points after this are a hole in the shape, until EndHole. The outline,
+// if it has started, is finished and closed here. A second BeginHole ends
+// the hole before it.
+CP_API void CP_Graphics_BeginHole(void)
+{
+	NVGcontext* vg = GetCPCore()->nvg;
+	if (!vg || !inShape)
+		return;
+
+	if (inHole || outlineStarted)
+	{
+		nvgClosePath(vg);
+	}
+	if (outlineStarted)
+	{
+		outlineFinished = TRUE;
+	}
+	inHole = TRUE;
+	firstVertex = TRUE;
+}
+
+CP_API void CP_Graphics_EndHole(void)
+{
+	NVGcontext* vg = GetCPCore()->nvg;
+	if (!vg || !inShape || !inHole)
+		return;
+
+	nvgClosePath(vg);
+	inHole = FALSE;
+	firstVertex = TRUE; // an outline after all the holes starts its own part
+}
+
 // Fill and outline the shape made since CP_Graphics_BeginShape. The outline
-// goes back to the first vertex unless open is set; the fill always covers
-// the whole shape (an open outline's fill is still closed).
+// goes back to the first vertex unless open is set (an outline a hole came
+// after is closed already); the fill always covers the whole shape (an open
+// outline's fill is still closed). Holes are always closed.
 static void CP_Graphics_EndShapeInternal(CP_BOOL open)
 {
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
+	if (!CORE->nvg || !inShape)
+		return; // no window yet, or no shape begun
 
-	if (!open)
+	if (inHole)
 	{
-		nvgClosePath(CORE->nvg);
+		nvgClosePath(CORE->nvg); // a hole with no EndHole
 	}
+	else if (!open && outlineStarted && !outlineFinished)
+	{
+		nvgClosePath(CORE->nvg); // the outline, still the part being added to
+	}
+	inShape = FALSE;
+	inHole = FALSE;
 	if (DI->fill)
 	{
 		CP_Settings_FillPath();

@@ -458,6 +458,186 @@ static void Scn_ShapeOutlineOpen(void)
 	CP_Graphics_EndShapeOpen();
 }
 
+// ---- Curves and holes in shapes ----
+
+// A red square of the given corners, as a shape's outline or a hole
+static void AddRectVertices(float left, float top, float right, float bottom)
+{
+	CP_Graphics_AddVertex(left, top);
+	CP_Graphics_AddVertex(right, top);
+	CP_Graphics_AddVertex(right, bottom);
+	CP_Graphics_AddVertex(left, bottom);
+}
+
+// From (20, 150) to (180, 150), bending toward (100, 10): the middle of the
+// curve is at (100, 80), and the shape closes along y = 150. It's given 10
+// left and 20 up, under a Translate(10, 20), so the points move with it.
+static void Scn_ShapeQuadratic(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Settings_Translate(10, 20);
+	CP_Graphics_BeginShape();
+	CP_Graphics_AddVertex(10, 130);
+	CP_Graphics_AddQuadraticVertex(90, -10, 170, 130);
+	CP_Graphics_EndShape();
+}
+
+// An S curve from (20, 100) to (180, 100), leaving toward (70, 0) and
+// arriving from (130, 200), then down and back along y = 190. A quarter of
+// the way along, the curve is at about (59, 72), above the straight line;
+// three quarters along, at about (141, 128), below it.
+static void Scn_ShapeBezier(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_BeginShape();
+	CP_Graphics_AddVertex(20, 100);
+	CP_Graphics_AddBezierVertex(70, 0, 130, 200, 180, 100);
+	CP_Graphics_AddVertex(180, 190);
+	CP_Graphics_AddVertex(20, 190);
+	CP_Graphics_EndShape();
+}
+
+// A curve as the first point starts the shape at its end point, (50, 50):
+// the shape is the square [50,150]. (NanoVG alone would drop it, leaving a
+// triangle.)
+static void Scn_ShapeCurveFirst(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_BeginShape();
+	CP_Graphics_AddQuadraticVertex(0, 0, 50, 50);
+	CP_Graphics_AddVertex(150, 50);
+	CP_Graphics_AddVertex(150, 150);
+	CP_Graphics_AddVertex(50, 150);
+	CP_Graphics_EndShape();
+}
+
+// The quadratic curve's outline alone, open: no line along y = 150
+static void Scn_ShapeCurveOpen(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoFill();
+	CP_Settings_Stroke(RED);
+	CP_Settings_StrokeWeight(6.0f);
+	CP_Graphics_BeginShape();
+	CP_Graphics_AddVertex(20, 150);
+	CP_Graphics_AddQuadraticVertex(100, 10, 180, 150);
+	CP_Graphics_EndShapeOpen();
+}
+
+// Two squares with a square hole each. On the left the hole's points go the
+// same way round as the outline's, on the right the other way: both holes.
+static void Scn_ShapeHoleEitherWay(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_BeginShape();
+	AddRectVertices(10, 50, 95, 150);
+	CP_Graphics_BeginHole();
+	AddRectVertices(35, 85, 70, 115);
+	CP_Graphics_EndHole();
+	CP_Graphics_EndShape();
+
+	CP_Graphics_BeginShape();
+	AddRectVertices(105, 50, 190, 150);
+	CP_Graphics_BeginHole();
+	CP_Graphics_AddVertex(130, 85);
+	CP_Graphics_AddVertex(130, 115);
+	CP_Graphics_AddVertex(165, 115);
+	CP_Graphics_AddVertex(165, 85);
+	CP_Graphics_EndHole();
+	CP_Graphics_EndShape();
+}
+
+// The hole before the outline: the same as after it
+static void Scn_ShapeHoleFirst(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_BeginShape();
+	CP_Graphics_BeginHole();
+	AddRectVertices(70, 70, 130, 130);
+	CP_Graphics_EndHole();
+	AddRectVertices(20, 20, 180, 180);
+	CP_Graphics_EndShape();
+}
+
+// Two holes with an outline 4 wide, and no EndHole: the second BeginHole
+// ends the first hole, and EndShape the second. Every edge is outlined,
+// including the closing edges, x = 20 (the outline's, closed by the first
+// BeginHole) and x = 120 (the second hole's, closed by EndShape).
+static void Scn_ShapeHolesOutlined(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(RED);
+	CP_Settings_Stroke(BLACK);
+	CP_Settings_StrokeWeight(4.0f);
+	CP_Graphics_BeginShape();
+	AddRectVertices(20, 60, 180, 140);
+	CP_Graphics_BeginHole();
+	AddRectVertices(40, 80, 80, 120);
+	CP_Graphics_BeginHole();
+	AddRectVertices(120, 80, 160, 120);
+	CP_Graphics_EndShape();
+}
+
+// The outline can't go on after a hole: its points there are left out (with
+// a message). Added,
+// they'd have made a piece of their own: the triangle to the right of the
+// square.
+static void Scn_ShapeOutlineAfterHole(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_BeginShape();
+	AddRectVertices(20, 20, 180, 180);
+	CP_Graphics_BeginHole();
+	AddRectVertices(70, 70, 130, 130);
+	CP_Graphics_EndHole();
+	CP_Graphics_AddVertex(184, 20);
+	CP_Graphics_AddVertex(198, 20);
+	CP_Graphics_AddQuadraticVertex(199, 70, 198, 120);
+	CP_Graphics_EndShape();
+}
+
+static void Scn_ShapeHoleOutside(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_BeginShape();
+	AddRectVertices(20, 50, 120, 150);
+	CP_Graphics_BeginHole();
+	AddRectVertices(90, 80, 150, 120);
+	CP_Graphics_EndHole();
+	CP_Graphics_EndShape();
+}
+
+// Two holes that overlap in [90,110]: the overlap is filled again (1 - 1 - 1)
+static void Scn_ShapeHolesOverlap(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(RED);
+	CP_Graphics_BeginShape();
+	AddRectVertices(20, 50, 180, 150);
+	CP_Graphics_BeginHole();
+	AddRectVertices(50, 80, 110, 120);
+	CP_Graphics_EndHole();
+	CP_Graphics_BeginHole();
+	AddRectVertices(90, 80, 150, 120);
+	CP_Graphics_EndHole();
+	CP_Graphics_EndShape();
+}
+
 static void Scn_SettingsNoFill(void)
 {
 	CP_Graphics_ClearBackground(GREEN);
@@ -2023,6 +2203,16 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
 	[SCN_CUSTOM_SHAPE] = Scn_CustomShape,
 	[SCN_SHAPE_OUTLINE_CLOSED] = Scn_ShapeOutlineClosed,
 	[SCN_SHAPE_OUTLINE_OPEN] = Scn_ShapeOutlineOpen,
+	[SCN_SHAPE_QUADRATIC] = Scn_ShapeQuadratic,
+	[SCN_SHAPE_BEZIER] = Scn_ShapeBezier,
+	[SCN_SHAPE_CURVE_FIRST] = Scn_ShapeCurveFirst,
+	[SCN_SHAPE_CURVE_OPEN] = Scn_ShapeCurveOpen,
+	[SCN_SHAPE_HOLE_EITHER_WAY] = Scn_ShapeHoleEitherWay,
+	[SCN_SHAPE_HOLE_FIRST] = Scn_ShapeHoleFirst,
+	[SCN_SHAPE_HOLES_OUTLINED] = Scn_ShapeHolesOutlined,
+	[SCN_SHAPE_OUTLINE_AFTER_HOLE] = Scn_ShapeOutlineAfterHole,
+	[SCN_SHAPE_HOLE_OUTSIDE] = Scn_ShapeHoleOutside,
+	[SCN_SHAPE_HOLES_OVERLAP] = Scn_ShapeHolesOverlap,
 	[SCN_GRADIENT_LINEAR] = Scn_GradientLinear,
 	[SCN_GRADIENT_RADIAL] = Scn_GradientRadial,
 	[SCN_GRADIENT_TURNED] = Scn_GradientTurned,
