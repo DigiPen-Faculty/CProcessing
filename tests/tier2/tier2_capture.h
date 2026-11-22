@@ -69,6 +69,15 @@ typedef enum
 	SCN_GRADIENT_FILL_SAVE_RESTORE,
 	SCN_GRADIENT_TEXT_AND_STROKE,
 	SCN_GRADIENT_FADE_TO_TRANSPARENT,
+	SCN_IMAGE_FILL_TILES,
+	SCN_IMAGE_FILL_SHAPES,
+	SCN_IMAGE_FILL_TRANSFORMED,
+	SCN_IMAGE_FILL_SETTINGS,
+	// These two must stay consecutive: the first sets an image fill and frees
+	// the image, and the second fills with it, a frame later, when the image
+	// is really gone (ResetToBaseline isn't run before it)
+	SCN_IMAGE_FILL_FREED,
+	SCN_IMAGE_FILL_FREED_NEXT_FRAME,
 	SCN_FILL_AFTER_IMAGE,
 	SCN_CLIP_CORNER,
 	SCN_CLIP_CENTER,
@@ -265,6 +274,7 @@ typedef struct
 
 	// CP_Settings_GetFill after a gradient (see Scn_GradientTextAndStroke)
 	CP_BOOL gradientGetFillIsFirstColor;
+	CP_BOOL imageFillGetFillKept; // GetFill after FillImage: the color from before
 
 	// CP_System_GetWindowHandle
 	CP_BOOL windowHandleIsNull;

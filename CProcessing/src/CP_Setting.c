@@ -12,6 +12,7 @@
 //------------------------------------------------------------------------------
 
 #include "cprocessing.h"
+#include "Internal_Image.h"
 #include "Internal_System.h"
 #include <stdbool.h>
 
@@ -88,7 +89,9 @@ void CP_Settings_InitDefaults(CP_DrawInfoPtr DI)
 	DI->text_letter_spacing = 0.0f;
 	DI->text_line_spacing = 0.0f;
 	DI->font = NULL;
-	DI->fill_gradient = CP_FILL_GRADIENT_NONE;
+	DI->fill_kind = CP_FILL_COLOR;
+	DI->fill_image = 0;
+	DI->fill_image_alpha = 1.0f;
 }
 
 void CP_Settings_ApplyAll(void)
@@ -120,10 +123,10 @@ void CP_Settings_ApplyAll(void)
 //------------------------------------------------------------------------------
 
 // NanoVG's fill is set only here and in CP_Settings_ApplyTextFill, from the
-// DrawInfo, right before something is filled; CP_Settings_Fill and the
-// gradients only store the setting. Whatever else fills with NanoVG (images,
-// points, the game state layers) sets its own fill and leaves it, so there's
-// nothing to put back after it.
+// DrawInfo, right before something is filled; CP_Settings_Fill, the
+// gradients and FillImage only store the setting. Whatever else fills with
+// NanoVG (images, points, the game state layers) sets its own fill and leaves
+// it, so there's nothing to put back after it.
 void CP_Settings_FillPath(void)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
@@ -131,20 +134,38 @@ void CP_Settings_FillPath(void)
 	if (!vg)
 		return;
 
-	const float* p = DI->gradient_points;
+	const float* p = DI->fill_points;
 	const NVGcolor c1 = CP_ToNVGColor(DI->gradient_colors[0]);
 	const NVGcolor c2 = CP_ToNVGColor(DI->gradient_colors[1]);
-	switch (DI->fill_gradient)
+	switch (DI->fill_kind)
 	{
-	case CP_FILL_GRADIENT_LINEAR:
+	case CP_FILL_LINEAR_GRADIENT:
 		// nvgFillPaint places the gradient with the current transform, so its
 		// numbers mean the same place the shape's numbers do
 		nvgFillPaint(vg, nvgLinearGradient(vg, p[0], p[1], p[2], p[3], c1, c2));
 		break;
-	case CP_FILL_GRADIENT_RADIAL:
+	case CP_FILL_RADIAL_GRADIENT:
 		nvgFillPaint(vg, nvgRadialGradient(vg, p[0], p[1], p[2] * 0.5f, p[3] * 0.5f, c1, c2));
 		break;
-	case CP_FILL_GRADIENT_NONE:
+	case CP_FILL_IMAGE:
+	{
+		// A freed image (NanoVG no longer knows its size) or a tile of no
+		// size fills nothing. (For a freed image NanoVG would draw nothing
+		// too, but only by giving up halfway through setting up the fill.)
+		int w = 0, h = 0;
+		nvgImageSize(vg, DI->fill_image, &w, &h);
+		if (w <= 0 || h <= 0 || p[2] == 0.0f || p[3] == 0.0f)
+			return;
+		// One tile at (x, y), w by h, repeated past its edges whatever the
+		// wrap mode (which is for CP_Image_Draw and DrawSubImage), then the
+		// wrap mode put back
+		nvgFillPaint(vg, nvgImagePattern(vg, p[0], p[1], p[2], p[3], 0.0f, DI->fill_image, DI->fill_image_alpha));
+		nvgTextureWrap(vg, NVG_TEXTURE_WRAP_REPEAT);
+		nvgFill(vg);
+		nvgTextureWrap(vg, DI->wrap_mode);
+		return;
+	}
+	case CP_FILL_COLOR:
 	default:
 		nvgFillColor(vg, CP_ToNVGColor(DI->fill_color));
 		break;
@@ -166,21 +187,27 @@ CP_API void CP_Settings_Fill(CP_Color c)
 	CP_DrawInfoPtr DI = GetDrawInfo();
 	DI->fill_color = c;
 	DI->fill = TRUE;
-	DI->fill_gradient = CP_FILL_GRADIENT_NONE;
+	DI->fill_kind = CP_FILL_COLOR;
 }
 
-// A gradient is a fill: Fill, NoFill and the other gradient replace it, and
-// Save and Restore keep it. The numbers are placed when each shape is drawn,
-// in the coordinates of that moment, like the shape's own numbers.
-static void CP_Settings_FillGradient(CP_FILL_GRADIENT kind, float a, float b, float c, float d, CP_Color color1, CP_Color color2)
+// A gradient or an image is a fill: Fill, NoFill and the other fills replace
+// it, and Save and Restore keep it. The numbers are placed when each shape is
+// drawn, in the coordinates of that moment, like the shape's own numbers.
+static void CP_Settings_FillPoints(CP_FILL_KIND kind, float a, float b, float c, float d)
 {
 	CP_DrawInfoPtr DI = GetDrawInfo();
 	DI->fill = TRUE;
-	DI->fill_gradient = kind;
-	DI->gradient_points[0] = a;
-	DI->gradient_points[1] = b;
-	DI->gradient_points[2] = c;
-	DI->gradient_points[3] = d;
+	DI->fill_kind = kind;
+	DI->fill_points[0] = a;
+	DI->fill_points[1] = b;
+	DI->fill_points[2] = c;
+	DI->fill_points[3] = d;
+}
+
+static void CP_Settings_FillGradient(CP_FILL_KIND kind, float a, float b, float c, float d, CP_Color color1, CP_Color color2)
+{
+	CP_DrawInfoPtr DI = GetDrawInfo();
+	CP_Settings_FillPoints(kind, a, b, c, d);
 	DI->gradient_colors[0] = color1;
 	DI->gradient_colors[1] = color2;
 	DI->fill_color = color1; // what text and GetFill use: text can't take a gradient
@@ -188,12 +215,22 @@ static void CP_Settings_FillGradient(CP_FILL_GRADIENT kind, float a, float b, fl
 
 CP_API void CP_Settings_FillLinearGradient(float x1, float y1, CP_Color color1, float x2, float y2, CP_Color color2)
 {
-	CP_Settings_FillGradient(CP_FILL_GRADIENT_LINEAR, x1, y1, x2, y2, color1, color2);
+	CP_Settings_FillGradient(CP_FILL_LINEAR_GRADIENT, x1, y1, x2, y2, color1, color2);
 }
 
 CP_API void CP_Settings_FillRadialGradient(float x, float y, float innerDiameter, CP_Color innerColor, float outerDiameter, CP_Color outerColor)
 {
-	CP_Settings_FillGradient(CP_FILL_GRADIENT_RADIAL, x, y, innerDiameter, outerDiameter, innerColor, outerColor);
+	CP_Settings_FillGradient(CP_FILL_RADIAL_GRADIENT, x, y, innerDiameter, outerDiameter, innerColor, outerColor);
+}
+
+// Text can't take an image either, so the fill color stays what it was. A
+// NULL image fills nothing, like CP_Image_Draw draws nothing.
+CP_API void CP_Settings_FillImage(CP_Image img, float x, float y, float w, float h, int alpha)
+{
+	CP_DrawInfoPtr DI = GetDrawInfo();
+	CP_Settings_FillPoints(CP_FILL_IMAGE, x, y, w, h);
+	DI->fill_image = img ? img->handle : 0;
+	DI->fill_image_alpha = CP_Math_ClampInt(alpha, 0, 255) / 255.0f;
 }
 
 CP_API void CP_Settings_NoFill(void)

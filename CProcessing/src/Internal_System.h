@@ -43,12 +43,14 @@ typedef struct NVGcolor NVGcolor;
 
 
 //////////////////
-typedef enum CP_FILL_GRADIENT
+// What shapes are filled with (with fill on)
+typedef enum CP_FILL_KIND
 {
-	CP_FILL_GRADIENT_NONE, // a plain fill color
-	CP_FILL_GRADIENT_LINEAR,
-	CP_FILL_GRADIENT_RADIAL
-} CP_FILL_GRADIENT;
+	CP_FILL_COLOR, // a plain fill color
+	CP_FILL_LINEAR_GRADIENT,
+	CP_FILL_RADIAL_GRADIENT,
+	CP_FILL_IMAGE // tiles of an image, from CP_Settings_FillImage
+} CP_FILL_KIND;
 
 typedef struct CP_DrawInfo
 {
@@ -62,7 +64,7 @@ typedef struct CP_DrawInfo
 	// functions work before CP_Engine_Run, when there's no NanoVG context
 	// yet (CP_Settings_ApplyAll gives them to NanoVG when the window opens),
 	// and CP_Graphics_DrawPoint uses the colors, weight and cap.
-	CP_Color fill_color; // with a gradient, its first color: text and GetFill use it
+	CP_Color fill_color; // with a gradient, its first color; with an image, the last color: text and GetFill use it
 	CP_Color stroke_color;
 	float stroke_weight;
 	CP_LINE_CAP_MODE line_cap;
@@ -81,12 +83,17 @@ typedef struct CP_DrawInfo
 	// NanoVG when a text box is drawn or measured (CP_Text.c)
 	float text_line_spacing;
 	CP_Font font; // NULL until CP_Font_Set: the default font
-	// The fill's gradient, from CP_Settings_FillLinearGradient or
-	// CP_Settings_FillRadialGradient. Its numbers are kept as given, and only
-	// placed when a shape is filled, in the coordinates of that moment.
-	CP_FILL_GRADIENT fill_gradient;
-	float gradient_points[4]; // linear: x1, y1, x2, y2; radial: x, y, inner and outer diameter
+	// The fill's gradient or image, from CP_Settings_FillLinearGradient,
+	// CP_Settings_FillRadialGradient or CP_Settings_FillImage. Its numbers are
+	// kept as given, and only placed when a shape is filled, in the
+	// coordinates of that moment.
+	CP_FILL_KIND fill_kind;
+	float fill_points[4]; // linear: x1, y1, x2, y2; radial: x, y, inner and outer diameter; image: a tile's x, y, w, h
 	CP_Color gradient_colors[2];
+	// The image's NanoVG handle, not the CP_Image: a freed image's handle
+	// is never given out again, so it then fills nothing instead of crashing
+	int fill_image;
+	float fill_image_alpha; // 0 to 1
 } CP_DrawInfo;
 typedef CP_DrawInfo* CP_DrawInfoPtr;
 
@@ -94,9 +101,9 @@ typedef CP_DrawInfo* CP_DrawInfoPtr;
 void CP_Settings_InitDefaults(CP_DrawInfoPtr DI);
 // Gives NanoVG the current settings, once its context exists (CP_Setting.c)
 void CP_Settings_ApplyAll(void);
-// Fills the path being drawn with the fill color or gradient, a gradient
-// placed in the coordinates as they are now (CP_Setting.c). NanoVG's fill
-// is set only by these two, right before use.
+// Fills the path being drawn with the fill color, gradient or image, a
+// gradient or image placed in the coordinates as they are now
+// (CP_Setting.c). NanoVG's fill is set only by these two, right before use.
 void CP_Settings_FillPath(void);
 // Sets NanoVG's fill to the plain fill color, for text (CP_Setting.c)
 void CP_Settings_ApplyTextFill(void);
