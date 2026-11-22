@@ -220,9 +220,9 @@ void test_tier2_image_fill_with_no_image_or_no_size_fills_nothing(void)
 	// (not the old fill, not black)
 	const int samples[][2] = {
 		{ 25, 125 },
-        { 75, 125 },
-        { 25, 175 },
-        { 75, 175 }
+		{ 75, 125 },
+		{ 25, 175 },
+		{ 75, 175 }
 	};
 	for (int i = 0; i < 4; ++i)
 	{
