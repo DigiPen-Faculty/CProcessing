@@ -231,7 +231,7 @@ void game_update(void)
 	if (CP_Input_KeyTriggered(CP_KEY_LEFT)) letterSpacing -= 2.0f;
 	if (CP_Input_KeyTriggered(CP_KEY_UP)) lineSpacing += 2.0f;
 	if (CP_Input_KeyTriggered(CP_KEY_DOWN)) lineSpacing -= 2.0f;
-	letterSpacing = CP_Math_ClampFloat(letterSpacing, -4.0f, 20.0f);
+	letterSpacing = CP_Math_ClampFloat(letterSpacing, -4.0f, 14.0f);
 	lineSpacing = CP_Math_ClampFloat(lineSpacing, -8.0f, 24.0f);
 	titleTime += CP_System_GetDt();
 	if (titleTime > TITLE_CYCLE_TIME)
