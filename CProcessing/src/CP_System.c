@@ -763,6 +763,13 @@ static int _inheritLayer = -1;              // the picture the next bottom state
 static CP_StateSlot* _settingsOwner = NULL; // the state whose settings are in use
 static int _runningSlot = -1;               // the slot whose function is running
 
+// The mouse when a push was asked for, which is what the state it covers saw
+// last. The push happens at the start of the next frame, after the mouse has
+// been read again, so the mouse then may already be somewhere else.
+static bool _pushMouseSaved = false;
+static CP_Vector _pushMouse;
+static CP_Vector _pushWorldMouse;
+
 static int CP_GameStates_Top(void)
 {
 	return _stack.depth - 1;
@@ -826,8 +833,18 @@ static void CP_GameStates_Enter(void* user, int index, CP_GSL_RequestKind why)
 		// A state on top starts with a clear sheet over the ones below
 		slot->bottom = false;
 		slot->layer = CP_Layer_Acquire(0.0f, 0.0f, 0.0f, 0.0f);
-		_slots[index - 1].mouseWhenCovered = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
-		_slots[index - 1].worldMouseWhenCovered = CP_Vector_Set(CP_Input_GetMouseWorldX(), CP_Input_GetMouseWorldY());
+		// the state under it keeps the mouse it saw last
+		CP_StateSlot* covered = &_slots[index - 1];
+		if (_pushMouseSaved)
+		{
+			covered->mouseWhenCovered = _pushMouse;
+			covered->worldMouseWhenCovered = _pushWorldMouse;
+		}
+		else
+		{
+			covered->mouseWhenCovered = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
+			covered->worldMouseWhenCovered = CP_Vector_Set(CP_Input_GetMouseWorldX(), CP_Input_GetMouseWorldY());
+		}
 	}
 
 	// It starts with the settings in use now, as a new state always has
@@ -924,6 +941,7 @@ static void CP_GameStates_ApplyRequests(void)
 	{
 		CP_GameStates_Warn(CP_GSL_Apply(&_stack, &requests[i], &_hooks));
 	}
+	_pushMouseSaved = false;
 	if (count > 0 && _stack.depth > 0)
 	{
 		CP_GameStates_MakeCurrent(CP_GameStates_Top());
@@ -1091,6 +1109,15 @@ CP_API void CP_Engine_SetNextGameStateForced(CP_FunctionPtr init, CP_FunctionPtr
 // changes that). It always goes on top, whichever state asks.
 CP_API void CP_Engine_PushGameState(CP_FunctionPtr init, CP_FunctionPtr update, CP_FunctionPtr exit)
 {
+	// A state running under another one asks with the mouse it was given,
+	// not the one the top state sees; the push then takes the mouse when it
+	// happens
+	_pushMouseSaved = !CP_Input_IsMuted();
+	if (_pushMouseSaved)
+	{
+		_pushMouse = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
+		_pushWorldMouse = CP_Vector_Set(CP_Input_GetMouseWorldX(), CP_Input_GetMouseWorldY());
+	}
 	CP_GameStates_Request(CP_GSL_PUSH, init, update, exit);
 }
 
