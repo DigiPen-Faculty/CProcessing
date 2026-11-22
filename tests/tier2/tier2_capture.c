@@ -96,6 +96,9 @@ static void ResetToBaseline(void)
 	CP_Settings_EllipseMode(CP_POSITION_CENTER);
 	CP_Settings_ImageMode(CP_POSITION_CENTER);
 	CP_Settings_BlendMode(CP_BLEND_ALPHA);
+	CP_Settings_TextBlur(0.0f);
+	CP_Settings_TextLetterSpacing(0.0f);
+	CP_Settings_TextLineSpacing(0.0f);
 	CP_System_SetFrameRate(60.0f);
 }
 
@@ -1563,6 +1566,109 @@ static void Scn_FontMirrored(void)
 	CP_Settings_ResetMatrix();
 }
 
+// ---- Text effects ----
+// The letter I at size 60, near the top left of each 100x100 quarter of the
+// canvas, so the quarters can be compared pixel for pixel.
+static void SetUpTextQuarters(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(BLACK);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(60.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
+}
+
+static void DrawIInQuarter(int quarter, float blur)
+{
+	CP_Settings_TextBlur(blur);
+	CP_Font_DrawText("I", 30.0f + (float)(quarter % 2) * 100.0f, 20.0f + (float)(quarter / 2) * 100.0f);
+}
+
+// Top left sharp; top right blurred by 8, which Restore brought back; bottom
+// left a blur below 0, which is sharp
+static void Scn_TextBlur(void)
+{
+	SetUpTextQuarters();
+	DrawIInQuarter(0, 0.0f);
+	CP_Settings_TextBlur(8.0f);
+	CP_Settings_Save();
+	CP_Settings_TextBlur(0.0f);
+	CP_Settings_Restore();
+	CP_Font_DrawText("I", 130.0f, 20.0f);
+	DrawIInQuarter(2, -5.0f);
+}
+
+// The blur rounds to whole steps (a CProcessing patch to fontstash, which
+// cuts off the fraction): 2.8 draws like 3, and 2.2 like 2. Chosen so the
+// pairs also match at a pixel ratio of 2 (5.6 and 6, 4.4 and 4).
+static void Scn_TextBlurRounds(void)
+{
+	SetUpTextQuarters();
+	DrawIInQuarter(0, 2.8f);
+	DrawIInQuarter(1, 3.0f);
+	DrawIInQuarter(2, 2.2f);
+	DrawIInQuarter(3, 2.0f);
+}
+
+// "HHHH" plain at the top and with a letter spacing of 10 (brought back by
+// Restore) in the middle; "HH" centered on x = 100 with a spacing of 30 at
+// the bottom
+static void Scn_TextLetterSpacing(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(BLACK);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(40.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
+	tier2_scalars.letterWidthPlain = CP_Font_GetTextWidth("HHHH");
+	CP_Font_DrawText("HHHH", 10.0f, 10.0f);
+
+	CP_Settings_TextLetterSpacing(10.0f);
+	CP_Settings_Save();
+	CP_Settings_TextLetterSpacing(0.0f);
+	CP_Settings_Restore();
+	tier2_scalars.letterWidthSpaced = CP_Font_GetTextWidth("HHHH");
+	tier2_scalars.letterSizeSpaced = CP_Font_GetTextSize("HHHH").x;
+	CP_Font_DrawText("HHHH", 10.0f, 70.0f);
+
+	CP_Settings_TextLetterSpacing(-5.0f);
+	tier2_scalars.letterWidthTight = CP_Font_GetTextWidth("HHHH");
+
+	CP_Settings_TextLetterSpacing(30.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_TOP);
+	CP_Font_DrawText("HH", 100.0f, 130.0f);
+}
+
+// Three lines (a box too narrow for more than one I) plain on the left, and
+// with a line spacing of 20 (brought back by Restore) on the right. NanoVG
+// keeps the line height it was last given, so each box is measured or drawn
+// right after one with the other spacing (set directly: Restore would bring
+// NanoVG's back too), so each has to give NanoVG its own.
+static void Scn_TextLineSpacing(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	CP_Settings_Fill(BLACK);
+	CP_Font_Set(CP_Font_GetDefault());
+	CP_Settings_TextSize(30.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_TOP);
+	tier2_scalars.lineBoxPlain = CP_Font_GetTextBoxSize("I I I", 1.0f);
+	tier2_scalars.lineBoxOneLinePlain = CP_Font_GetTextBoxSize("I", 1000.0f);
+	tier2_scalars.lineTextHeightPlain = CP_Font_GetTextSize("I").y;
+	CP_Font_DrawTextBox("I I I", 30.0f, 10.0f, 1.0f);
+
+	CP_Settings_TextLineSpacing(20.0f);
+	CP_Settings_Save();
+	CP_Settings_TextLineSpacing(0.0f);
+	CP_Settings_Restore();
+	tier2_scalars.lineBoxSpaced = CP_Font_GetTextBoxSize("I I I", 1.0f);
+	tier2_scalars.lineBoxOneLineSpaced = CP_Font_GetTextBoxSize("I", 1000.0f);
+	tier2_scalars.lineTextHeightSpaced = CP_Font_GetTextSize("I").y;
+	CP_Settings_TextLineSpacing(0.0f);
+	CP_Font_GetTextBoxSize("I I I", 1.0f);
+	CP_Settings_TextLineSpacing(20.0f);
+	CP_Font_DrawTextBox("I I I", 130.0f, 10.0f, 1.0f);
+}
+
 // ---- CP_System / CP_Engine (Phase E) ----
 // These read state via the public getters rather than touching _CORE
 // directly, and must run *during* the single CP_Engine_Run() call: once it
@@ -2265,6 +2371,10 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
 	[SCN_FONT_EM_SIZE] = Scn_FontEmSize,
 	[SCN_FONT_LARGE] = Scn_FontLarge,
 	[SCN_FONT_MIRRORED] = Scn_FontMirrored,
+	[SCN_TEXT_BLUR] = Scn_TextBlur,
+	[SCN_TEXT_BLUR_ROUNDS] = Scn_TextBlurRounds,
+	[SCN_TEXT_LETTER_SPACING] = Scn_TextLetterSpacing,
+	[SCN_TEXT_LINE_SPACING] = Scn_TextLineSpacing,
 	[SCN_SYSTEM_ENGINE_STATE] = Scn_SystemEngineState,
 	[SCN_SYSTEM_FRAME_RATE_NO_LIMIT] = Scn_SystemFrameRateNoLimit,
 	[SCN_SYSTEM_STALL] = Scn_SystemStall,

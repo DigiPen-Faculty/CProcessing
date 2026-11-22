@@ -136,6 +136,9 @@ CP_API void				CP_Settings_ImageWrapMode			(CP_IMAGE_WRAP_MODE wrapMode);
 CP_API void				CP_Settings_TextSize				(float size);
 CP_API float			CP_Settings_GetTextSize				(void);
 CP_API void				CP_Settings_TextAlignment			(CP_TEXT_ALIGN_HORIZONTAL h, CP_TEXT_ALIGN_VERTICAL v);
+CP_API void				CP_Settings_TextBlur				(float blur);		// In whole pixels, up to 20; 0 is sharp
+CP_API void				CP_Settings_TextLetterSpacing		(float spacing);	// Extra pixels between letters
+CP_API void				CP_Settings_TextLineSpacing			(float spacing);	// Extra pixels between the lines of a text box
 CP_API void				CP_Settings_Scale					(float xScale, float yScale);
 CP_API void				CP_Settings_Rotate					(float degrees);	// Clockwise, around (0, 0)
 CP_API void				CP_Settings_Translate				(float x, float y);
@@ -236,7 +239,7 @@ CP_API float			CP_Sound_GetGroupPitch				(CP_SOUND_GROUP group);
 
 //---------------------------------------------------------
 // FONT:
-//		Text uses the fill color, TextSize and TextAlignment
+//		Text uses the fill color and the CP_Settings_Text settings
 //		By default x is the left end of the text and y the line the letters sit on
 CP_API CP_Font			CP_Font_GetDefault					(void);
 CP_API CP_Font			CP_Font_Load						(const char* filepath);

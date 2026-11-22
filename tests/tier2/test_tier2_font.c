@@ -214,3 +214,159 @@ void test_tier2_font_getcurrent_falls_back_to_the_default_when_the_font_is_freed
 {
 	TEST_ASSERT_TRUE(tier2_scalars.freedFontFallsBackToDefault);
 }
+
+// ---- Text effects ----
+
+// Pixels in a region with any ink at all, light or dark
+static int InkCount(Tier2Scenario scenario, int x0, int y0, int x1, int y1)
+{
+	int count = 0;
+	for (int y = y0; y < y1; ++y)
+	{
+		for (int x = x0; x < x1; ++x)
+		{
+			CP_Color c = tier2_SamplePixel(scenario, x, y);
+			if (c.r < 250 || c.g < 250 || c.b < 250)
+			{
+				++count;
+			}
+		}
+	}
+	return count;
+}
+
+// The darkest red value in a region
+static int Darkest(Tier2Scenario scenario, int x0, int y0, int x1, int y1)
+{
+	int darkest = 255;
+	for (int y = y0; y < y1; ++y)
+	{
+		for (int x = x0; x < x1; ++x)
+		{
+			CP_Color c = tier2_SamplePixel(scenario, x, y);
+			if (c.r < darkest)
+			{
+				darkest = c.r;
+			}
+		}
+	}
+	return darkest;
+}
+
+// The pixels of two 100x100 quarters of a capture that differ by more than
+// a little (quarters 0 to 3: top left, top right, bottom left, bottom right)
+static int QuarterDifferences(Tier2Scenario scenario, int a, int b)
+{
+	int differences = 0;
+	for (int y = 0; y < 100; ++y)
+	{
+		for (int x = 0; x < 100; ++x)
+		{
+			CP_Color ca = tier2_SamplePixel(scenario, x + (a % 2) * 100, y + (a / 2) * 100);
+			CP_Color cb = tier2_SamplePixel(scenario, x + (b % 2) * 100, y + (b / 2) * 100);
+			int dr = ca.r - cb.r;
+			if (dr > 8 || dr < -8)
+			{
+				++differences;
+			}
+		}
+	}
+	return differences;
+}
+
+// Where the dark ink is in a region: its leftmost and rightmost columns and
+// its top and bottom rows. All -1 if there is none.
+typedef struct
+{
+	int left, right, top, bottom;
+} InkBox;
+
+static InkBox FindInk(Tier2Scenario scenario, int x0, int y0, int x1, int y1)
+{
+	InkBox box = { -1, -1, -1, -1 };
+	for (int y = y0; y < y1; ++y)
+	{
+		for (int x = x0; x < x1; ++x)
+		{
+			if (IsInk(tier2_SamplePixel(scenario, x, y)))
+			{
+				if (box.left < 0 || x < box.left) box.left = x;
+				if (x > box.right) box.right = x;
+				if (box.top < 0) box.top = y;
+				box.bottom = y;
+			}
+		}
+	}
+	return box;
+}
+
+void test_tier2_font_text_blur_spreads_the_letters_and_follows_save_restore(void)
+{
+	// The blurred I covers more pixels than the sharp one, and none of it
+	// is as dark: the blur spreads the same ink out
+	int sharpInk = InkCount(SCN_TEXT_BLUR, 0, 0, 100, 100);
+	int blurredInk = InkCount(SCN_TEXT_BLUR, 100, 0, 200, 100);
+	int sharpDarkest = Darkest(SCN_TEXT_BLUR, 0, 0, 100, 100);
+	TEST_ASSERT_GREATER_THAN_INT(100, sharpInk);
+	TEST_ASSERT_GREATER_THAN_INT(sharpInk * 3 / 2, blurredInk);
+	TEST_ASSERT_LESS_THAN_INT(40, sharpDarkest);
+	TEST_ASSERT_GREATER_THAN_INT(sharpDarkest + 40, Darkest(SCN_TEXT_BLUR, 100, 0, 200, 100));
+}
+
+void test_tier2_font_text_blur_below_zero_is_sharp(void)
+{
+	TEST_ASSERT_EQUAL_INT(0, QuarterDifferences(SCN_TEXT_BLUR, 0, 2));
+}
+
+void test_tier2_font_text_blur_rounds_to_whole_steps(void)
+{
+	// 2.8 like 3, 2.2 like 2, and 3 unlike 2
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, QuarterDifferences(SCN_TEXT_BLUR_ROUNDS, 0, 1), "a blur of 2.8 didn't draw like 3");
+	TEST_ASSERT_EQUAL_INT_MESSAGE(0, QuarterDifferences(SCN_TEXT_BLUR_ROUNDS, 2, 3), "a blur of 2.2 didn't draw like 2");
+	TEST_ASSERT_GREATER_THAN_INT(20, QuarterDifferences(SCN_TEXT_BLUR_ROUNDS, 1, 3));
+}
+
+void test_tier2_font_letter_spacing_widens_measured_and_drawn_text(void)
+{
+	// Three gaps between four letters: 30 wider with 10, 15 narrower with -5
+	TEST_ASSERT_GREATER_THAN_FLOAT(60.0f, tier2_scalars.letterWidthPlain);
+	TEST_ASSERT_FLOAT_WITHIN(1.0f, tier2_scalars.letterWidthPlain + 30.0f, tier2_scalars.letterWidthSpaced);
+	TEST_ASSERT_EQUAL_FLOAT(tier2_scalars.letterWidthSpaced, tier2_scalars.letterSizeSpaced);
+	TEST_ASSERT_FLOAT_WITHIN(1.0f, tier2_scalars.letterWidthPlain - 15.0f, tier2_scalars.letterWidthTight);
+
+	InkBox plain = FindInk(SCN_TEXT_LETTER_SPACING, 0, 0, 200, 60);
+	InkBox spaced = FindInk(SCN_TEXT_LETTER_SPACING, 0, 60, 200, 120);
+	TEST_ASSERT_GREATER_THAN_INT(0, plain.left);
+	TEST_ASSERT_INT_WITHIN(1, plain.left, spaced.left);
+	TEST_ASSERT_INT_WITHIN(2, plain.right + 30, spaced.right);
+}
+
+void test_tier2_font_letter_spacing_keeps_centered_text_centered(void)
+{
+	// The spacing goes only between letters, so "HH" centered on x = 100
+	// with a spacing of 30 is still centered there
+	InkBox centered = FindInk(SCN_TEXT_LETTER_SPACING, 0, 120, 200, 200);
+	TEST_ASSERT_GREATER_THAN_INT(0, centered.left);
+	TEST_ASSERT_GREATER_THAN_INT(40, centered.right - centered.left);
+	TEST_ASSERT_INT_WITHIN(2, 200, centered.left + centered.right);
+}
+
+void test_tier2_font_line_spacing_adds_a_gap_between_lines(void)
+{
+	// Three lines: two gaps of 20
+	TEST_ASSERT_GREATER_THAN_FLOAT(2.0f * tier2_scalars.lineBoxOneLinePlain.y, tier2_scalars.lineBoxPlain.y);
+	TEST_ASSERT_FLOAT_WITHIN(1.0f, tier2_scalars.lineBoxPlain.y + 40.0f, tier2_scalars.lineBoxSpaced.y);
+	TEST_ASSERT_EQUAL_FLOAT(tier2_scalars.lineBoxPlain.x, tier2_scalars.lineBoxSpaced.x);
+
+	InkBox plain = FindInk(SCN_TEXT_LINE_SPACING, 0, 0, 100, 200);
+	InkBox spaced = FindInk(SCN_TEXT_LINE_SPACING, 100, 0, 200, 200);
+	TEST_ASSERT_GREATER_THAN_INT(0, plain.top);
+	TEST_ASSERT_INT_WITHIN(1, plain.top, spaced.top);
+	TEST_ASSERT_INT_WITHIN(2, plain.bottom + 40, spaced.bottom);
+}
+
+void test_tier2_font_line_spacing_leaves_one_line_alone(void)
+{
+	TEST_ASSERT_EQUAL_FLOAT(tier2_scalars.lineBoxOneLinePlain.y, tier2_scalars.lineBoxOneLineSpaced.y);
+	TEST_ASSERT_EQUAL_FLOAT(tier2_scalars.lineTextHeightPlain, tier2_scalars.lineTextHeightSpaced);
+}

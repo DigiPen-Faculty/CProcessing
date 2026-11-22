@@ -74,6 +74,12 @@ typedef struct CP_DrawInfo
 	CP_IMAGE_WRAP_MODE wrap_mode;
 	float text_size;
 	int text_align;
+	float text_blur;
+	float text_letter_spacing;
+	// NanoVG's line height is a multiple of the font's own, which changes
+	// with the font and size, so this one is only kept here, and given to
+	// NanoVG when a text box is drawn or measured (CP_Text.c)
+	float text_line_spacing;
 	CP_Font font; // NULL until CP_Font_Set: the default font
 	// The fill's gradient, from CP_Settings_FillLinearGradient or
 	// CP_Settings_FillRadialGradient. Its numbers are kept as given, and only

@@ -313,6 +313,15 @@ Each change says what to do in an existing project.
   `examples/shapes.c` draws stars, a speech bubble, a heart, a waving flag, a
   blob through points, an arched window and a donut; the wiki has a new guide,
   "Your own shapes".
+- **Text effects:** `CP_Settings_TextBlur` blurs text, in whole pixels up to
+  20. Text drawn blurred and then sharp on top gets a glow, or a shadow when
+  the blurred copy is dark and moved. `CP_Settings_TextLetterSpacing` adds
+  pixels between letters, and `CP_Settings_TextLineSpacing` between the lines
+  of a text box; the measuring functions count both. `examples/text_effects.c`
+  has a neon sign, a drop shadow, a title that comes in from wide spacing, and
+  a dialog box that fits its text. Letters that the font's kerning pulls
+  together are now placed to the nearest pixel, so some pairs, like "AV", sit
+  a pixel closer than before.
 - **Examples:** eight small, complete programs, each showing one thing
   games need: `movement.c`, `collision.c`, `sprite_animation.c`,
   `camera.c`, `game_states.c`, `score_and_text.c`,

@@ -84,6 +84,9 @@ void CP_Settings_InitDefaults(CP_DrawInfoPtr DI)
 	DI->wrap_mode = CP_IMAGE_WRAP_CLAMP;
 	DI->text_size = 16.0f; // NanoVG's default
 	DI->text_align = (int)CP_TEXT_ALIGN_H_LEFT | (int)CP_TEXT_ALIGN_V_BASELINE;
+	DI->text_blur = 0.0f;
+	DI->text_letter_spacing = 0.0f;
+	DI->text_line_spacing = 0.0f;
 	DI->font = NULL;
 	DI->fill_gradient = CP_FILL_GRADIENT_NONE;
 }
@@ -108,6 +111,8 @@ void CP_Settings_ApplyAll(void)
 	nvgTextureWrap(vg, DI->wrap_mode);
 	nvgFontSize(vg, DI->text_size);
 	nvgTextAlign(vg, DI->text_align);
+	nvgFontBlur(vg, DI->text_blur);
+	nvgTextLetterSpacing(vg, DI->text_letter_spacing);
 }
 
 //------------------------------------------------------------------------------
@@ -336,6 +341,33 @@ CP_API void CP_Settings_TextAlignment(CP_TEXT_ALIGN_HORIZONTAL h, CP_TEXT_ALIGN_
 	GetDrawInfo()->text_align = flags;
 	if (vg)
 		nvgTextAlign(vg, flags);
+}
+
+// Fontstash blurs glyphs in whole steps, rounded (a CProcessing patch), and
+// stops at 20. It can't draw a negative blur, so that's sharp.
+CP_API void CP_Settings_TextBlur(float blur)
+{
+	NVGcontext* vg = GetCPCore()->nvg;
+	if (!(blur > 0.0f))
+		blur = 0.0f;
+	GetDrawInfo()->text_blur = blur;
+	if (vg)
+		nvgFontBlur(vg, blur);
+}
+
+// Only between letters, not after the last one, so aligned text and its
+// measured width stay right. Negative brings letters closer.
+CP_API void CP_Settings_TextLetterSpacing(float spacing)
+{
+	NVGcontext* vg = GetCPCore()->nvg;
+	GetDrawInfo()->text_letter_spacing = spacing;
+	if (vg)
+		nvgTextLetterSpacing(vg, spacing);
+}
+
+CP_API void CP_Settings_TextLineSpacing(float spacing)
+{
+	GetDrawInfo()->text_line_spacing = spacing;
 }
 
 CP_API void CP_Settings_Scale(float xScale, float yScale)
