@@ -26,6 +26,9 @@
 // - Put a dark gradient across the bottom of the screen, behind the text,
 //   so it's easy to read over anything.
 //
+// See also: tiled_fill.c, for shapes filled with an image; color_picker.c,
+// for choosing the colors.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

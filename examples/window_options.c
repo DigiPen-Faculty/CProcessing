@@ -25,6 +25,8 @@
 // - Keep the circle round, and as big as fits, when the window is not square.
 // - Show the window size only while it is being resized.
 //
+// See also: camera.c, for drawing a world bigger than the window.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

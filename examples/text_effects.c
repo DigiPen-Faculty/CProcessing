@@ -33,6 +33,9 @@
 // - Glow a button when the mouse is over it.
 // - Bring the title in from blurred to sharp as well as from wide to narrow.
 //
+// See also: score_and_text.c, for placing text; text_input.c, for typing
+// it.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

@@ -1,31 +1,45 @@
 //---------------------------------------------------------
-// file:	color_picker_demo.c
+// file:	color_picker.c
 //
-// An interactive color picker, the companion to Lesson 3: Color.
+// Example: a color picker, the companion to Lesson 3 (Color). Keep it open
+// while you read the lesson: it shows everything on that page.
+//
+// Shows how to:
+// - mix a color from red, green and blue (CP_Color_Create), or from hue,
+//   saturation and lightness (CP_ColorHSL_Create), and convert between
+//   the two (CP_Color_FromColorHSL, CP_ColorHSL_FromColor)
+// - make a color see-through with its alpha, over a checkerboard so you
+//   can tell
+// - find the colors between two colors with CP_Color_Lerp
+// - write a color as one number for CP_Color_CreateHex: 0xRRGGBBAA, all
+//   eight digits, because six digits leave the alpha at 0 (invisible)
+// - make sliders that the mouse drags (DoSliders below: copy it for a
+//   volume slider or an options menu)
 //
 // Drag the sliders to change the color. The red, green and blue sliders
 // and the hue, saturation and lightness sliders describe the same color, so
-// moving one set moves the other. The alpha slider makes it see-through, over
-// a checkerboard so you can tell.
+// moving one set moves the other. Press A or B to keep the current color
+// in slot A or B. The row of boxes below them shows the colors between the
+// two.
 //
-// Press A or B to keep the current color in slot A or B. The row of boxes
-// below them shows the colors between the two, found with CP_Color_Lerp.
+// Try this:
+// - Add a slider for the size of the swatch, or for the window's
+//   background color.
+// - Show the color's complement: the same saturation and lightness, with
+//   the hue 180 further round.
+// - Print the CP_Color_Create line to the console when C is pressed, to
+//   paste into your own game.
 //
-// CProcessing features in this demo:
-// CP_Color_Create, CP_Color_Lerp	- RGB colors, and the colors between two colors
-// CP_ColorHSL_Create				- HSL colors
-// CP_Color_FromColorHSL			- convert HSL to RGB
-// CP_ColorHSL_FromColor			- convert RGB to HSL
-// CP_Input_MouseDown				- drag the sliders
+// See also: gradients.c, for colors that blend across a shape.
+//
+// To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2019-2026 DigiPen Institute of Technology and CProcessing contributors
+// Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
-#include <stdio.h>
+#include <stdio.h> // for snprintf
 #include "cprocessing.h"
-#include "color_picker_demo.h"
-#include "demo_manager.h"
 
 // The sliders, in the order they're drawn
 enum
@@ -40,33 +54,33 @@ enum
 	SLIDER_COUNT
 };
 
-static const char* sliderNames[SLIDER_COUNT] = { "Red", "Green", "Blue", "Hue", "Saturation", "Lightness", "Alpha" };
-static const int sliderMax[SLIDER_COUNT] = { 255, 255, 255, 359, 100, 100, 255 };
+const char* sliderNames[SLIDER_COUNT] = { "Red", "Green", "Blue", "Hue", "Saturation", "Lightness", "Alpha" };
+const int sliderMax[SLIDER_COUNT] = { 255, 255, 255, 359, 100, 100, 255 };
 
 // Where the sliders are: a column on the left of the window
-static const float sliderLeft = 150.0f;
-static const float sliderWidth = 420.0f;
-static const float sliderTop = 80.0f;
-static const float sliderSpacing = 70.0f;
-static const float sliderHeight = 26.0f;
+const float sliderLeft = 150.0f;
+const float sliderWidth = 420.0f;
+const float sliderTop = 80.0f;
+const float sliderSpacing = 70.0f;
+const float sliderHeight = 26.0f;
 
 // The color, kept both ways. Changing an RGB slider recalculates the HSL
 // numbers, and the other way round. They're both kept, rather than
 // converting every frame, because a gray has no hue: converting it
 // back would lose the hue chosen with the slider.
-static int value[SLIDER_COUNT];
-static int draggedSlider; // the slider being dragged, or -1
+int value[SLIDER_COUNT];
+int draggedSlider = -1; // the slider being dragged, or -1
 
 // The colors kept in slots A and B
-static CP_Color slotA;
-static CP_Color slotB;
+CP_Color slotA;
+CP_Color slotB;
 
-static CP_Color CurrentColor(void)
+CP_Color CurrentColor(void)
 {
 	return CP_Color_Create(value[RED], value[GREEN], value[BLUE], value[ALPHA]);
 }
 
-static void SetFromRGB(void)
+void SetFromRGB(void)
 {
 	CP_ColorHSL hsl = CP_ColorHSL_FromColor(CP_Color_Create(value[RED], value[GREEN], value[BLUE], 255));
 	value[HUE] = hsl.h;
@@ -74,7 +88,7 @@ static void SetFromRGB(void)
 	value[LIGHTNESS] = hsl.l;
 }
 
-static void SetFromHSL(void)
+void SetFromHSL(void)
 {
 	CP_Color rgb = CP_Color_FromColorHSL(CP_ColorHSL_Create(value[HUE], value[SATURATION], value[LIGHTNESS], 255));
 	value[RED] = rgb.r;
@@ -85,7 +99,7 @@ static void SetFromHSL(void)
 // The color a slider's track shows at a point along it: the current color,
 // with only that slider's value changed. This is what makes the tracks show
 // what dragging will do.
-static CP_Color TrackColor(int slider, float t)
+CP_Color TrackColor(int slider, float t)
 {
 	int v[SLIDER_COUNT];
 	for (int i = 0; i < SLIDER_COUNT; i++)
@@ -106,7 +120,7 @@ static CP_Color TrackColor(int slider, float t)
 }
 
 // A gray and white checkerboard, to show through see-through colors
-static void DrawCheckerboard(float x, float y, float w, float h, float square)
+void DrawCheckerboard(float x, float y, float w, float h, float square)
 {
 	for (int row = 0; row * square < h; row++)
 	{
@@ -121,13 +135,14 @@ static void DrawCheckerboard(float x, float y, float w, float h, float square)
 	}
 }
 
-static void DrawText(const char* text, float x, float y)
+void DrawLabel(const char* text, float x, float y)
 {
 	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
 	CP_Font_DrawText(text, x, y);
 }
 
-static void DoSliders(void)
+// The sliders: each frame, pick one up, move it, and draw them all
+void DoSliders(void)
 {
 	float mouseX = CP_Input_GetMouseX();
 	float mouseY = CP_Input_GetMouseY();
@@ -177,8 +192,9 @@ static void DoSliders(void)
 		{
 			DrawCheckerboard(sliderLeft, top, sliderWidth, sliderHeight, 13.0f);
 		}
-		// (The boxes of the alpha track must not overlap: where they did,
-		// the see-through colors would add up and show as stripes.)
+		// Each box is drawn a pixel wider than its place, so no gaps show
+		// between them. The boxes of the alpha track must not overlap: where
+		// they did, the see-through colors would add up and show as stripes.
 		float segmentWidth = sliderWidth / segments;
 		float overlap = (i == ALPHA) ? 0.0f : 1.0f;
 		for (int s = 0; s < segments; s++)
@@ -196,13 +212,14 @@ static void DoSliders(void)
 
 		// The name and number
 		char text[40];
-		DrawText(sliderNames[i], 40.0f, top + 20.0f);
+		DrawLabel(sliderNames[i], 40.0f, top + 20.0f);
 		snprintf(text, sizeof(text), "%d", value[i]);
-		DrawText(text, sliderLeft + sliderWidth + 20.0f, top + 20.0f);
+		DrawLabel(text, sliderLeft + sliderWidth + 20.0f, top + 20.0f);
 	}
 }
 
-static void DoSlots(void)
+// Slots A and B, and the colors between them
+void DoSlots(void)
 {
 	if (CP_Input_KeyTriggered(CP_KEY_A))
 	{
@@ -216,7 +233,7 @@ static void DoSlots(void)
 	const float left = 700.0f;
 	const float top = 490.0f;
 
-	DrawText("Slots: press A or B to keep the color", left, top - 14.0f);
+	DrawLabel("Slots: press A or B to keep the color", left, top - 14.0f);
 
 	// The two slots, over the checkerboard, with the colors between them
 	// in the row of ten boxes
@@ -227,14 +244,15 @@ static void DoSlots(void)
 		CP_Settings_Fill(CP_Color_Lerp(slotA, slotB, i / 9.0f));
 		CP_Graphics_DrawRect(left + i * (box + 4.0f), top + 20.0f, box, box);
 	}
-	DrawText("A", left + 20.0f, top + 98.0f);
-	DrawText("B", left + 9 * (box + 4.0f) + 20.0f, top + 98.0f);
-	DrawText("The colors between A and B (CP_Color_Lerp)", left, top + 140.0f);
+	DrawLabel("A", left + 20.0f, top + 98.0f);
+	DrawLabel("B", left + 9 * (box + 4.0f) + 20.0f, top + 98.0f);
+	DrawLabel("The colors between A and B (CP_Color_Lerp)", left, top + 140.0f);
 }
 
-void ColorPickerDemoInit(void)
+void game_init(void)
 {
-	CP_Settings_Save();
+	CP_System_SetWindowSize(1280, 720);
+	CP_System_SetWindowTitle("Color picker");
 	CP_Settings_RectMode(CP_POSITION_CORNER);
 	CP_Settings_TextSize(22.0f);
 	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
@@ -245,15 +263,14 @@ void ColorPickerDemoInit(void)
 	value[BLUE] = 0;
 	value[ALPHA] = 255;
 	SetFromRGB();
-	draggedSlider = -1;
 
 	slotA = CP_Color_Create(255, 80, 60, 255);
 	slotB = CP_Color_Create(40, 60, 200, 255);
 }
 
-void ColorPickerDemoUpdate(void)
+void game_update(void)
 {
-	CP_Graphics_ClearBackground(GetCommonBackgroundColor());
+	CP_Graphics_ClearBackground(CP_Color_Create(30, 30, 30, 255));
 	CP_Settings_NoStroke();
 
 	DoSliders();
@@ -267,19 +284,26 @@ void ColorPickerDemoUpdate(void)
 	CP_Settings_Fill(CurrentColor());
 	CP_Graphics_DrawRect(swatchLeft, swatchTop, swatchWidth, swatchHeight);
 
-	// The color as code and as a hex number
+	// The color as code: from red, green and blue, from hue, saturation and
+	// lightness, and as one number
 	char text[120];
 	snprintf(text, sizeof(text), "CP_Color_Create(%d, %d, %d, %d)", value[RED], value[GREEN], value[BLUE], value[ALPHA]);
-	DrawText(text, swatchLeft, swatchTop + swatchHeight + 40.0f);
+	DrawLabel(text, swatchLeft, swatchTop + swatchHeight + 40.0f);
 	snprintf(text, sizeof(text), "CP_ColorHSL_Create(%d, %d, %d, %d)", value[HUE], value[SATURATION], value[LIGHTNESS], value[ALPHA]);
-	DrawText(text, swatchLeft, swatchTop + swatchHeight + 75.0f);
-	snprintf(text, sizeof(text), "Hex: 0x%02X%02X%02X", value[RED], value[GREEN], value[BLUE]);
-	DrawText(text, swatchLeft, swatchTop + swatchHeight + 110.0f);
+	DrawLabel(text, swatchLeft, swatchTop + swatchHeight + 75.0f);
+	snprintf(text, sizeof(text), "CP_Color_CreateHex(0x%02X%02X%02X%02X)", value[RED], value[GREEN], value[BLUE], value[ALPHA]);
+	DrawLabel(text, swatchLeft, swatchTop + swatchHeight + 110.0f);
 
 	DoSlots();
 }
 
-void ColorPickerDemoExit(void)
+void game_exit(void)
 {
-	CP_Settings_Restore();
+}
+
+int main(void)
+{
+	CP_Engine_SetNextGameState(game_init, game_update, game_exit);
+	CP_Engine_Run();
+	return 0;
 }

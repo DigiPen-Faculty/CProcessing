@@ -34,6 +34,9 @@
 // - Make a cloud from a blob with more points and a slower wobble.
 // - Cut a keyhole in a door: a circle and a trapezoid as one hole.
 //
+// See also: curves.c, for arcs, pies and Bezier curves; tiled_fill.c and
+// gradients.c, to fill your shapes.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

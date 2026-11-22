@@ -35,7 +35,7 @@ const float cellHeight = 300.0f;
 //---------------------------------------------------------
 
 // Text centered on x. CP_Font_GetTextWidth says how wide the text will be.
-void DrawCenteredText(const char* text, float x, float y)
+void DrawTextCenteredAt(const char* text, float x, float y)
 {
 	CP_Font_DrawText(text, x - CP_Font_GetTextWidth(text) / 2.0f, y);
 }
@@ -66,7 +66,7 @@ void DrawLamp(const char* label, float x, float y, CP_BOOL lit, CP_Color color)
 	CP_Graphics_DrawCircle(x, y, 44.0f);
 	CP_Settings_NoStroke();
 	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
-	DrawCenteredText(label, x, y + 44.0f);
+	DrawTextCenteredAt(label, x, y + 44.0f);
 }
 
 //---------------------------------------------------------
@@ -257,7 +257,7 @@ void DrawStick(const char* label, CP_Vector stick, float x, float y)
 	CP_Graphics_DrawCircle(x + stick.x * stickRadius, y - stick.y * stickRadius, 18.0f);
 
 	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
-	DrawCenteredText(label, x, y + stickRadius + 22.0f);
+	DrawTextCenteredAt(label, x, y + stickRadius + 22.0f);
 }
 
 void DrawButton(const char* label, CP_BOOL down, float x, float y)
@@ -272,8 +272,8 @@ void DoGamepad(float cellX, float cellY)
 	if (!CP_Input_GamepadConnected())
 	{
 		CP_Settings_Fill(CP_Color_Create(200, 200, 200, 255));
-		DrawCenteredText("No gamepad connected.", cellX + cellWidth / 2.0f, cellY + 140.0f);
-		DrawCenteredText("Plug one in (or turn it on).", cellX + cellWidth / 2.0f, cellY + 170.0f);
+		DrawTextCenteredAt("No gamepad connected.", cellX + cellWidth / 2.0f, cellY + 140.0f);
+		DrawTextCenteredAt("Plug one in (or turn it on).", cellX + cellWidth / 2.0f, cellY + 170.0f);
 		return;
 	}
 

@@ -32,6 +32,8 @@
 // - Push a "level complete" state when the player reaches a corner.
 // - Add the transition helper from transitions.c, and slide the pause in.
 //
+// See also: game_states.c, for the basics; transitions.c; state_effects.c.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

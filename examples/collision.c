@@ -17,6 +17,9 @@
 // - Make the player bounce off the walls instead of passing through.
 // - Count how many shapes the player touches and show the number.
 //
+// See also: movement.c, to move the player with the keys; lesson 6, which
+// builds collecting, blocking and bouncing.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

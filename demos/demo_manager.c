@@ -18,7 +18,6 @@
 #include "gamepad_sound_demo.h"
 #include "noise_demo.h"
 #include "screenshot_demo.h"
-#include "color_picker_demo.h"
 
 // window size and fullscreen
 static const int windowWidth = 1280;
@@ -49,7 +48,6 @@ static const Demo demos[] = {
 	{ "Gamepad and sound", GamepadSoundDemoInit, GamepadSoundDemoUpdate, GamepadSoundDemoExit },
 	{ "Noise",             NoiseDemoInit,        NoiseDemoUpdate,        NoiseDemoExit        },
 	{ "Screenshots",       ScreenshotDemoInit,   ScreenshotDemoUpdate,   ScreenshotDemoExit   },
-	{ "Color picker",      ColorPickerDemoInit,  ColorPickerDemoUpdate,  ColorPickerDemoExit  },
 };
 #define DEMO_COUNT (int)(sizeof(demos) / sizeof(demos[0]))
 

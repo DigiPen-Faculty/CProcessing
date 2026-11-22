@@ -21,6 +21,9 @@
 // - Make the pie slice under the mouse stick out.
 // - Make the hills scroll as time passes (the z of the noise).
 //
+// See also: shapes.c, for curves inside your own shapes; rotation.c, for
+// turning them.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

@@ -36,6 +36,9 @@
 // - Give the pause a slide of its own, and the menu a fade.
 // - Change EaseInOutCubic in Transition_Progress for another easing.
 //
+// See also: state_stack.c, for the state stack; easing.c, for other
+// easings.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

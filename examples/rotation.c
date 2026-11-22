@@ -39,6 +39,9 @@
 // - Turn a ship with the arrow keys, and move it forward the way it faces
 //   with CP_Vector_FromAngle.
 //
+// See also: camera.c, for moving and zooming the whole world; shapes.c,
+// for shapes worth turning.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

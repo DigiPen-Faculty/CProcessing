@@ -221,7 +221,6 @@ if(CPROCESSING_BUILD_DEMOS)
         "${DEMO_DIR}/grid_wave_demo.c"
         "${DEMO_DIR}/noise_demo.c"
         "${DEMO_DIR}/screenshot_demo.c"
-        "${DEMO_DIR}/color_picker_demo.c"
     )
     target_include_directories(CProcessing_Demos PRIVATE "${DEMO_DIR}")
     target_link_libraries(CProcessing_Demos PRIVATE CProcessing)

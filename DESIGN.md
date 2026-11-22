@@ -122,3 +122,28 @@ details; the headers say only what the names and types can't.
   them all.
 * The planning notes record why a decision was made, so it isn't made again
   from scratch.
+
+## Examples and lessons
+
+Students look for an example when they want to make something: "a health
+bar", "random levels", "a pause menu". These rules keep that search short.
+
+* **One example, one subject,** named for what a student wants to make or
+  do. An example may use other features for its scenery (noise for the hills
+  behind a gradient sky), but it teaches only its own subject; a second
+  subject gets an example of its own.
+* **Every trick can be found.** An example's row in `examples/README.md`
+  says what it shows, and a trick that lives inside a bigger example goes in
+  the README's "Looking for..." table. The wiki's Examples page lists the
+  same, and each API page links to the examples that use it.
+* **Each example's header** says what it shows, its keys, ideas to try, and
+  a "See also" line naming the examples next to it.
+* **Everything shown ships.** Examples and lessons are in every release
+  package; nothing is only for people who clone the repository.
+* **Each example is one file** copied over `main.c`, so small helpers (a
+  centered label, an easing curve) are repeated in the examples that need
+  them, with the same name and the same code each time. Drawing that gives
+  an example its own look (a panel's color) may differ.
+* **A lesson builds one program step by step; an example is a short recipe.**
+  Where both cover a subject, they use the same method, and each points to
+  the other.

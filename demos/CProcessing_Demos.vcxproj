@@ -199,7 +199,6 @@ xcopy "$(ProjectDir)assets\*" "$(OutDir)assets\" /s /r /y /q</Command>
     <ClCompile Include="grid_wave_demo.c" />
     <ClCompile Include="noise_demo.c" />
     <ClCompile Include="screenshot_demo.c" />
-    <ClCompile Include="color_picker_demo.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
@@ -209,7 +208,6 @@ xcopy "$(ProjectDir)assets\*" "$(OutDir)assets\" /s /r /y /q</Command>
     <ClInclude Include="grid_wave_demo.h" />
     <ClInclude Include="noise_demo.h" />
     <ClInclude Include="screenshot_demo.h" />
-    <ClInclude Include="color_picker_demo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -20,6 +20,9 @@
 // - Add a "How to play" state, reached from the menu with H.
 // - Make the blocks fall faster the longer you survive.
 //
+// See also: state_stack.c, transitions.c and state_effects.c, which go
+// further; lesson 9.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

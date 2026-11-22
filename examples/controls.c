@@ -23,6 +23,9 @@
 // - Add a "Reset" button that puts back the keys the game started with.
 // - Save the keys to a file, and load them when the game starts.
 //
+// See also: text_input.c, for typing text; movement.c, for moving with
+// held keys and a gamepad.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

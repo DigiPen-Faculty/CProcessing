@@ -348,13 +348,23 @@ Each change says what to do in an existing project.
   `music_and_sounds.c` and `text_input.c`. Each is one file with step-by-step comments and
   ideas to try. They're in an `examples` folder in every release package
   and in the repository; to run one, copy it over `main.c`.
+- **Finding an example:** `examples/README.md` groups every example by what
+  you want to make (drawing, text, moving and controls, pictures, sound,
+  game structure, game feel, the window), has a "Looking for..." table of
+  tricks that live inside bigger examples (a health bar, a minimap, slow
+  motion, a slider), and pairs each lesson with its example. A new wiki page,
+  Examples, lists the same, each API page on the wiki names the examples
+  that use it, and each example's header ends with a "See also" line. CI
+  checks that every example is listed (`tools/check_examples.py`, and the
+  wiki audit for the Examples page).
 - **Lessons 1 to 11 (Your first window, Shapes and the coordinate system, Color, Input, Moving with vectors and delta time, Collision, Images and animation, Sound, Game states, a Capstone game, and an extra on writing your own state manager):** each is a page of
   step-by-step teaching with a finished program in `examples/lessons`, and
   challenges and check-yourself questions. The pages are in `docs/lessons`
   until they are published to the wiki.
-- **A Color picker demo** (6 in `CProcessing_Demos`): drag red, green, blue,
-  hue, saturation, lightness and alpha sliders and watch the color, its
-  code and the colors between two kept colors.
+- **A color picker, `examples/color_picker.c`**, the companion to lesson 3:
+  drag red, green, blue, hue, saturation, lightness and alpha sliders and
+  watch the color, its code (including the eight-digit number for
+  `CP_Color_CreateHex`) and the colors between two kept colors.
 - **New assets in the templates' `assets` folder**, made for the examples
   and free to use in your own games: a sprite sheet (`SlimeSheet.png`), a
   music loop (`Music.wav`) and three sound effects (`Coin.wav`,
