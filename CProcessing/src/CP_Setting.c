@@ -82,8 +82,8 @@ void CP_Settings_InitDefaults(CP_DrawInfoPtr DI)
 	DI->anti_alias = TRUE;
 	DI->blend_mode = CP_BLEND_ALPHA;
 	DI->filter_mode = CP_IMAGE_FILTER_LINEAR;
-	DI->wrap_mode = CP_IMAGE_WRAP_CLAMP;
-	DI->text_size = 16.0f; // NanoVG's default
+	DI->wrap_mode = CP_IMAGE_WRAP_CLAMP_EDGE; // solid edges when drawn bigger
+	DI->text_size = 16.0f;                    // NanoVG's default
 	DI->text_align = (int)CP_TEXT_ALIGN_H_LEFT | (int)CP_TEXT_ALIGN_V_BASELINE;
 	DI->text_blur = 0.0f;
 	DI->text_letter_spacing = 0.0f;

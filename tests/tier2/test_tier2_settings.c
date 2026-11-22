@@ -32,6 +32,16 @@ void test_tier2_settings_made_before_run_are_kept(void)
 	assertColorWithin(2, fill, tier2_SamplePixel(SCN_SETTINGS_BEFORE_RUN, 54, 100));
 }
 
+void test_tier2_settings_default_wrap_mode_is_clamp_to_edge(void)
+{
+	// Past the bottom right corner of the image: its corner pixel, yellow,
+	// stretched out. With CP_IMAGE_WRAP_CLAMP it would be see-through (the
+	// blue background); with REPEAT or MIRROR, another color of the image.
+	assertColorWithin(2, CP_Color_Create(255, 255, 0, 255), tier2_SamplePixel(SCN_SETTINGS_BEFORE_RUN, 188, 188));
+	// Past the right edge beside the top row: green, the top right pixel
+	assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_SETTINGS_BEFORE_RUN, 188, 158));
+}
+
 void test_tier2_settings_nofill_leaves_interior_untouched(void)
 {
 	// Interior: still the ClearBackground color, since fill is off.

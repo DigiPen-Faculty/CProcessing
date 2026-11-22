@@ -168,8 +168,8 @@ typedef enum CP_IMAGE_FILTER_MODE
 //		What CP_Image_DrawSubImage shows past the edges of the image
 typedef enum CP_IMAGE_WRAP_MODE
 {
-	CP_IMAGE_WRAP_CLAMP,		// Default, nothing (transparent)
-	CP_IMAGE_WRAP_CLAMP_EDGE,	// The edge pixels, stretched
+	CP_IMAGE_WRAP_CLAMP,		// Nothing (transparent)
+	CP_IMAGE_WRAP_CLAMP_EDGE,	// Default, the edge pixels, stretched
 	CP_IMAGE_WRAP_REPEAT,		// The image again, tiled
 	CP_IMAGE_WRAP_MIRROR		// The image again, flipped every other time
 } CP_IMAGE_WRAP_MODE;
