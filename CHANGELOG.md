@@ -230,7 +230,7 @@ Each change says what to do in an existing project.
   `CP_Image_GetPixelData` and `UpdatePixelData` work on these images as on
   any other.
 - **`examples/state_stack.c`** shows the stack, pass-through, a HUD drawn by
-  a function and a trail drawn into an image. **`examples/state_effects.c`**
+  a function, and an options page that changes the game under it. **`examples/state_effects.c`**
   shows effects written with ordinary CProcessing functions: easing into
   slow motion under a level-up box (a time scale of your own, and the
   sound's pitch), and turning the music down under a pause, with the
@@ -271,6 +271,12 @@ Each change says what to do in an existing project.
   numbers, shows the scale, makes a firefly wander and a flame flicker, and
   draws hills, drifting clouds and an island map from a seed. They replace
   the noise hills in curves.c and the noise demo.
+- **Particles, `examples/particles.c`:** fireworks, a campfire, two kinds of
+  trail (drawn into an image that fades, and made of particles) and dots
+  joined by lines, with a glow from `CP_BLEND_ADD`. The particles are an
+  array of structs with a count, added and removed without `malloc`, and
+  spawned at the same rate at any frame rate. It replaces the dancing lines
+  demo and the trail in state_stack.c.
 - **Control one sound while it plays:** `CP_Sound_Play` and
   `CP_Sound_PlayAdvanced` now return a `CP_SoundInstance`, one play of the
   sound (programs that ignore it work as before). `CP_Sound_Stop`,
