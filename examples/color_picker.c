@@ -135,7 +135,7 @@ void DrawCheckerboard(float x, float y, float w, float h, float square)
 	}
 }
 
-void DrawLabel(const char* text, float x, float y)
+void DrawWhiteText(const char* text, float x, float y)
 {
 	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
 	CP_Font_DrawText(text, x, y);
@@ -212,9 +212,9 @@ void DoSliders(void)
 
 		// The name and number
 		char text[40];
-		DrawLabel(sliderNames[i], 40.0f, top + 20.0f);
+		DrawWhiteText(sliderNames[i], 40.0f, top + 20.0f);
 		snprintf(text, sizeof(text), "%d", value[i]);
-		DrawLabel(text, sliderLeft + sliderWidth + 20.0f, top + 20.0f);
+		DrawWhiteText(text, sliderLeft + sliderWidth + 20.0f, top + 20.0f);
 	}
 }
 
@@ -233,7 +233,7 @@ void DoSlots(void)
 	const float left = 700.0f;
 	const float top = 490.0f;
 
-	DrawLabel("Slots: press A or B to keep the color", left, top - 14.0f);
+	DrawWhiteText("Slots: press A or B to keep the color", left, top - 14.0f);
 
 	// The two slots, over the checkerboard, with the colors between them
 	// in the row of ten boxes
@@ -244,9 +244,9 @@ void DoSlots(void)
 		CP_Settings_Fill(CP_Color_Lerp(slotA, slotB, i / 9.0f));
 		CP_Graphics_DrawRect(left + i * (box + 4.0f), top + 20.0f, box, box);
 	}
-	DrawLabel("A", left + 20.0f, top + 98.0f);
-	DrawLabel("B", left + 9 * (box + 4.0f) + 20.0f, top + 98.0f);
-	DrawLabel("The colors between A and B (CP_Color_Lerp)", left, top + 140.0f);
+	DrawWhiteText("A", left + 20.0f, top + 98.0f);
+	DrawWhiteText("B", left + 9 * (box + 4.0f) + 20.0f, top + 98.0f);
+	DrawWhiteText("The colors between A and B (CP_Color_Lerp)", left, top + 140.0f);
 }
 
 void game_init(void)
@@ -288,11 +288,11 @@ void game_update(void)
 	// lightness, and as one number
 	char text[120];
 	snprintf(text, sizeof(text), "CP_Color_Create(%d, %d, %d, %d)", value[RED], value[GREEN], value[BLUE], value[ALPHA]);
-	DrawLabel(text, swatchLeft, swatchTop + swatchHeight + 40.0f);
+	DrawWhiteText(text, swatchLeft, swatchTop + swatchHeight + 40.0f);
 	snprintf(text, sizeof(text), "CP_ColorHSL_Create(%d, %d, %d, %d)", value[HUE], value[SATURATION], value[LIGHTNESS], value[ALPHA]);
-	DrawLabel(text, swatchLeft, swatchTop + swatchHeight + 75.0f);
+	DrawWhiteText(text, swatchLeft, swatchTop + swatchHeight + 75.0f);
 	snprintf(text, sizeof(text), "CP_Color_CreateHex(0x%02X%02X%02X%02X)", value[RED], value[GREEN], value[BLUE], value[ALPHA]);
-	DrawLabel(text, swatchLeft, swatchTop + swatchHeight + 110.0f);
+	DrawWhiteText(text, swatchLeft, swatchTop + swatchHeight + 110.0f);
 
 	DoSlots();
 }
