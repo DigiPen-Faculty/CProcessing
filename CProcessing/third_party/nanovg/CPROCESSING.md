@@ -128,5 +128,8 @@ declarations only.
 
 Copy both files from a newer stb commit, unchanged, and update the commit
 and versions here, in `tools/nanovg_diff.sh` and in `DEPENDENCIES.md`.
-Then build and test as above; Tier 2 loads a 16-bit PNG and an `.otf`
-font, and checks images and text throughout.
+Copy `stb_image_write.h` from the same commit into
+`CProcessing/third_party/stb/` (it isn't NanoVG's: `CP_Image_Save` uses
+it), so one pin covers all three. Then build and test as above; Tier 2
+loads a 16-bit PNG and an `.otf` font, saves PNGs and loads them back, and
+checks images and text throughout.

@@ -11,8 +11,10 @@
 // Include Files:
 //------------------------------------------------------------------------------
 
+#include <ctype.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <string.h>
 #include "cprocessing.h"
 #include "Internal_Image.h"
 #include "Internal_System.h"
@@ -542,6 +544,70 @@ CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 	free(buffer);
 
 	return newImg;
+}
+
+// Whether a file name ends in ".png", in capitals or not
+static CP_BOOL CP_EndsInPNG(const char* filepath)
+{
+	const size_t length = strlen(filepath);
+	if (length < 4)
+	{
+		return FALSE;
+	}
+	const char* end = filepath + length - 4;
+	return end[0] == '.' && tolower((unsigned char)end[1]) == 'p' && tolower((unsigned char)end[2]) == 'n' &&
+		   tolower((unsigned char)end[3]) == 'g';
+}
+
+// Saves only PNG (lossless, and it keeps alpha), so a name that promises
+// another kind of file is refused rather than given a PNG inside. Every
+// failure says why: a save that quietly does nothing leaves a student
+// looking for a file that isn't there.
+CP_API CP_BOOL CP_Image_Save(CP_Image img, const char* filepath)
+{
+	CP_CorePtr CORE = GetCPCore();
+	if (!img)
+	{
+		printf("CProcessing: CP_Image_Save was given no image (NULL), so nothing was saved.\n");
+		return FALSE;
+	}
+	if (!filepath || filepath[0] == '\0')
+	{
+		printf("CProcessing: CP_Image_Save needs a file name, such as \"picture.png\".\n");
+		return FALSE;
+	}
+	if (!CP_EndsInPNG(filepath))
+	{
+		printf("CProcessing: CP_Image_Save writes PNG files, so the name must end in .png: %s was not saved.\n", filepath);
+		return FALSE;
+	}
+
+	// A freed image: NanoVG no longer knows its size
+	int w = 0, h = 0;
+	if (CORE && CORE->nvg)
+	{
+		nvgImageSize(CORE->nvg, img->handle, &w, &h);
+	}
+	if (w <= 0 || h <= 0)
+	{
+		printf("CProcessing: CP_Image_Save was given an image that has been freed: %s was not saved.\n", filepath);
+		return FALSE;
+	}
+
+	CP_Color* pixels = (CP_Color*)malloc(sizeof(CP_Color) * (size_t)w * (size_t)h);
+	if (!pixels)
+	{
+		printf("CProcessing: not enough memory to save %s.\n", filepath);
+		return FALSE;
+	}
+	CP_Image_GetPixelData(img, pixels);
+	const CP_BOOL saved = CP_WritePNG(filepath, w, h, pixels) != 0;
+	free(pixels);
+	if (!saved)
+	{
+		printf("CProcessing: couldn't save %s. Check that its folder exists, and that the file isn't open in another program.\n", filepath);
+	}
+	return saved;
 }
 
 CP_API void CP_Image_GetPixelData(CP_Image img, CP_Color* pixelDataOutput)

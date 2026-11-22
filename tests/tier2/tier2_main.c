@@ -176,6 +176,9 @@ int main(void)
 	RUN_TEST(test_tier2_gamestate_a_screenshot_in_a_pushed_init_is_the_picture_below);
 	RUN_TEST(test_tier2_image_drawing_into_an_image);
 	RUN_TEST(test_tier2_image_drawn_into_reads_back_top_row_first_with_plain_alpha);
+	RUN_TEST(test_tier2_image_save_writes_a_png_that_loads_back_the_same);
+	RUN_TEST(test_tier2_image_save_keeps_drawn_images_and_screenshots_the_right_way_up);
+	RUN_TEST(test_tier2_image_save_refuses_what_it_cannot_save);
 
 	// test_tier2_system_engine.c
 	RUN_TEST(test_tier2_system_window_size_matches_what_was_set);

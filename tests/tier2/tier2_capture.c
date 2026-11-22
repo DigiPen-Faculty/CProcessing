@@ -2220,6 +2220,138 @@ static void Scn_ImageDrawInto(void)
 	CP_Image_Free(&loaded);
 }
 
+// CP_Image_Save, into the folder the tests run in, and each file loaded back
+// and compared pixel by pixel. The files are deleted at the end.
+static CP_BOOL SameColor4(CP_Color a, CP_Color b)
+{
+	return a.r == b.r && a.g == b.g && a.b == b.b && a.a == b.a;
+}
+
+static CP_BOOL FileExists(const char* path)
+{
+	FILE* file = fopen(path, "rb");
+	if (file)
+	{
+		fclose(file);
+	}
+	return file != NULL;
+}
+
+// Saves the image, loads the file back, and compares every pixel
+static CP_BOOL SavesAndLoadsBack(CP_Image image, const char* path)
+{
+	const int w = CP_Image_GetWidth(image);
+	const int h = CP_Image_GetHeight(image);
+	if (!CP_Image_Save(image, path))
+	{
+		return FALSE;
+	}
+	CP_Image loaded = CP_Image_Load(path);
+	if (!loaded || CP_Image_GetWidth(loaded) != w || CP_Image_GetHeight(loaded) != h)
+	{
+		CP_Image_Free(&loaded);
+		return FALSE;
+	}
+	CP_Color* before = (CP_Color*)malloc(sizeof(CP_Color) * (size_t)w * (size_t)h);
+	CP_Color* after = (CP_Color*)malloc(sizeof(CP_Color) * (size_t)w * (size_t)h);
+	CP_BOOL same = before != NULL && after != NULL;
+	if (same)
+	{
+		CP_Image_GetPixelData(image, before);
+		CP_Image_GetPixelData(loaded, after);
+		for (int i = 0; i < w * h && same; ++i)
+		{
+			same = SameColor4(before[i], after[i]);
+		}
+	}
+	free(before);
+	free(after);
+	CP_Image_Free(&loaded);
+	return same;
+}
+
+static void Scn_ImageSave(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+
+	// An image made from data, with see-through pixels, including one that
+	// is invisible but still has a color (alpha 0 isn't turned into black)
+	CP_Color data[4 * 3] = {
+		CP_Color_Create(255, 0, 0, 255),
+		CP_Color_Create(0, 255, 0, 255),
+		CP_Color_Create(0, 0, 255, 255),
+		CP_Color_Create(255, 255, 255, 255),
+		CP_Color_Create(10, 20, 30, 0),
+		CP_Color_Create(200, 100, 50, 128),
+		CP_Color_Create(1, 2, 3, 4),
+		CP_Color_Create(0, 0, 0, 255),
+		CP_Color_Create(128, 128, 128, 77),
+		CP_Color_Create(250, 240, 230, 220),
+		CP_Color_Create(5, 255, 5, 1),
+		CP_Color_Create(60, 70, 80, 90),
+	};
+	CP_Image image = CP_Image_CreateFromData(4, 3, data);
+	tier2_scalars.saveReturnedTrue = CP_Image_Save(image, "tier2_saved.png");
+	FILE* file = fopen("tier2_saved.png", "rb");
+	if (file)
+	{
+		unsigned char signature[8] = { 0 };
+		const unsigned char png[8] = { 0x89, 'P', 'N', 'G', '\r', '\n', 0x1A, '\n' };
+		tier2_scalars.saveFileIsPNG = fread(signature, 1, 8, file) == 8 && memcmp(signature, png, 8) == 0;
+		fclose(file);
+	}
+	tier2_scalars.saveRoundTrip = SavesAndLoadsBack(image, "tier2_saved_again.png");
+	tier2_scalars.saveCapitalPNG = CP_Image_Save(image, "tier2_saved_capital.PNG");
+
+	// Saves that must fail, each with a message, and without making a file
+	int refusals = 0;
+	refusals += !CP_Image_Save(NULL, "tier2_saved_null.png");
+	refusals += !CP_Image_Save(image, NULL);
+	refusals += !CP_Image_Save(image, "");
+	refusals += !CP_Image_Save(image, "tier2_saved.jpg");
+	refusals += !CP_Image_Save(image, "tier2_no_such_folder/saved.png");
+	tier2_scalars.saveRefusals = refusals;
+	tier2_scalars.saveRefusedLeftNoFile = !FileExists("tier2_saved.jpg") && !FileExists("tier2_saved_null.png");
+	CP_Image_Free(&image);
+
+	// An image drawn into (kept upside down, with premultiplied alpha): red
+	// along the top, half-transparent blue along the bottom
+	CP_Image drawn = CP_Image_Create(20, 20);
+	CP_Image_BeginDrawing(drawn);
+	CP_Settings_NoStroke();
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Fill(RED);
+	CP_Graphics_DrawRect(0.0f, 0.0f, 20.0f, 8.0f);
+	CP_Settings_Fill(CP_Color_Create(0, 0, 255, 128));
+	CP_Graphics_DrawRect(0.0f, 12.0f, 20.0f, 8.0f);
+	CP_Image_EndDrawing();
+	tier2_scalars.saveDrawnRoundTrip = SavesAndLoadsBack(drawn, "tier2_saved_drawn.png");
+	CP_Image_Free(&drawn);
+	CP_Image reloaded = CP_Image_Load("tier2_saved_drawn.png");
+	if (reloaded)
+	{
+		CP_Color pixels[20 * 20];
+		CP_Image_GetPixelData(reloaded, pixels);
+		tier2_scalars.saveDrawnTopRowFirst = SameColor4(pixels[2 * 20 + 10], RED) && pixels[17 * 20 + 10].b > 200 && pixels[17 * 20 + 10].r == 0;
+		CP_Image_Free(&reloaded);
+	}
+
+	// A screenshot of what this frame has drawn so far
+	CP_Settings_Fill(GREEN);
+	CP_Graphics_DrawRect(0.0f, 0.0f, 100.0f, 100.0f);
+	CP_Image shot = CP_Image_Screenshot(0, 0, 100, 100);
+	tier2_scalars.saveScreenshotRoundTrip = SavesAndLoadsBack(shot, "tier2_saved_screenshot.png");
+	CP_Image_Free(&shot);
+
+	const char* files[] = { "tier2_saved.png", "tier2_saved_again.png", "tier2_saved_capital.PNG",
+		"tier2_saved_drawn.png", "tier2_saved_screenshot.png", "tier2_saved.jpg",
+		"tier2_saved_null.png" };
+	for (size_t i = 0; i < sizeof(files) / sizeof(files[0]); ++i)
+	{
+		remove(files[i]);
+	}
+}
+
 // Pushed on the next-to-last frame, running, so the harness keeps going:
 // still on the stack when the program ends, its exit must run
 // pushed with no init, so it says what it lets through in its update: the
@@ -2541,6 +2673,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
 	[SCN_GAMESTATE_SNAPSHOT] = Scn_GameStateSnapshot,
 	[SCN_CLIP_NEW_STATE] = Scn_ClipNewState,
 	[SCN_IMAGE_DRAW_INTO] = Scn_ImageDrawInto,
+	[SCN_IMAGE_SAVE] = Scn_ImageSave,
 	[SCN_PERSIST_FIRST_FRAME] = Scn_PersistFirstFrame,
 	[SCN_PERSIST_NEXT_FRAME] = Scn_PersistNextFrame,
 	[SCN_SCREENSHOT_SUBREGION] = Scn_ScreenshotSubregion,

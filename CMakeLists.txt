@@ -152,15 +152,17 @@ set(CPROCESSING_SOURCES
     "${CP_DIR}/src/CP_System.c"
     "${CP_DIR}/src/CP_Text.c"
     "${CP_DIR}/third_party/nanovg/nanovg_gl3.c"
+    "${CP_DIR}/third_party/stb/stb_image_write.c"
     "${CP_DIR}/third_party/vect/vect.c"
 )
 # Vendored third-party sources (NanoVG and its OpenGL 3 back end with the
-# bundled stb_image/stb_truetype, GLAD) are compiled as-is;
+# bundled stb_image/stb_truetype, stb_image_write, GLAD) are compiled as-is;
 # don't report their warnings. The Visual Studio project does the same.
 set(CPROCESSING_VENDORED_SOURCES
     "${CP_DIR}/third_party/glad/glad.c"
     "${CP_DIR}/third_party/nanovg/src/nanovg.c"
     "${CP_DIR}/third_party/nanovg/nanovg_gl3.c"
+    "${CP_DIR}/third_party/stb/stb_image_write.c"
 )
 if(MSVC)
     set_source_files_properties(${CPROCESSING_VENDORED_SOURCES} PROPERTIES COMPILE_OPTIONS "/W0")

@@ -16,6 +16,9 @@
     <Filter Include="NanoVG">
       <UniqueIdentifier>{81cc42bc-6c55-4f02-bb72-4d40f8553eb0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="stb">
+      <UniqueIdentifier>{4130a968-a512-4a54-a524-bf6ea3dfde43}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Internal Headers">
       <UniqueIdentifier>{75887fa6-25b3-4b41-b261-66badf909de2}</UniqueIdentifier>
     </Filter>
@@ -38,6 +41,9 @@
     </ClInclude>
     <ClInclude Include="third_party\nanovg\src\stb_truetype.h">
       <Filter>NanoVG</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\stb\stb_image_write.h">
+      <Filter>stb</Filter>
     </ClInclude>
     <ClInclude Include="src\Internal_Random.h">
       <Filter>Internal Headers</Filter>
@@ -106,6 +112,9 @@
     </ClCompile>
     <ClCompile Include="third_party\nanovg\nanovg_gl3.c">
       <Filter>NanoVG</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\stb\stb_image_write.c">
+      <Filter>stb</Filter>
     </ClCompile>
     <ClCompile Include="src\CP_Graphics.c">
       <Filter>Source Files</Filter>

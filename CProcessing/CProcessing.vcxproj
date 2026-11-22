@@ -209,6 +209,7 @@
     <ClInclude Include="third_party\nanovg\src\nanovg_gl_utils.h" />
     <ClInclude Include="third_party\nanovg\src\stb_image.h" />
     <ClInclude Include="third_party\nanovg\src\stb_truetype.h" />
+    <ClInclude Include="third_party\stb\stb_image_write.h" />
     <ClInclude Include="src\Internal_File.h" />
     <ClInclude Include="src\Internal_Image.h" />
     <ClInclude Include="src\Internal_System.h" />
@@ -236,6 +237,9 @@
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="third_party\nanovg\nanovg_gl3.c">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="third_party\stb\stb_image_write.c">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="src\CP_Color.c" />
