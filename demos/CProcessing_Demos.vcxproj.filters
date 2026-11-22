@@ -33,9 +33,6 @@
     <ClCompile Include="grid_wave_demo.c">
       <Filter>Demos</Filter>
     </ClCompile>
-    <ClCompile Include="noise_demo.c">
-      <Filter>Demos</Filter>
-    </ClCompile>
     <ClCompile Include="screenshot_demo.c">
       <Filter>Demos</Filter>
     </ClCompile>
@@ -51,9 +48,6 @@
       <Filter>Demos</Filter>
     </ClInclude>
     <ClInclude Include="grid_wave_demo.h">
-      <Filter>Demos</Filter>
-    </ClInclude>
-    <ClInclude Include="noise_demo.h">
       <Filter>Demos</Filter>
     </ClInclude>
     <ClInclude Include="screenshot_demo.h">

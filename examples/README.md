@@ -14,7 +14,7 @@ more than their title.
 | Example | What it shows |
 |---|---|
 | [shapes.c](shapes.c) | Your own shapes: stars and polygons from a loop, a speech bubble and a waving flag with curves, a heart, a blob through points, and an arched window and a donut with holes. Space shows the points and control points. |
-| [curves.c](curves.c) | A pie chart, a loading ring, a Bezier curve with draggable handles, and hills made of layered noise. |
+| [curves.c](curves.c) | A pie chart, a loading ring, a Bezier curve with draggable handles, and a car that drives a winding road made of curves, facing the way it goes, at a steady speed. |
 | [rotation.c](rotation.c) | Turning shapes and sprites around any point: their middle, a corner, a pin anywhere, an orbit, joints, and aiming at the mouse, with helpers to copy. |
 | [gradients.c](gradients.c) | A sunset over the hills in gradients: a three-color sky, a glowing sun, a lit button, a health bar that turns red as it empties, and a flashlight. |
 | [tiled_fill.c](tiled_fill.c) | Shapes filled with tiles of an image: hills of dirt, brick walls with windows, a moving platform, drifting clouds, water in a porthole, a striped loading bar and pixel art, with every tile drawn in code. |
@@ -60,6 +60,13 @@ more than their title.
 | [transitions.c](transitions.c) | Animated changes between game states: a fade, a crossfade, slides and one you draw, with a small helper to copy into your own game. |
 | [state_effects.c](state_effects.c) | Easing into slow motion under a level-up box, and a pause that turns the music down and blurs the game behind it, with a few lines of your own code. |
 
+## Random and noise
+
+| Example | What it shows |
+|---|---|
+| [random.c](random.c) | Random numbers for games: dice and a coin, loot that's never the same twice in a row, a shuffle, a critical hit chance and rare loot, shots spread evenly or in a bell curve, and a world made again from its seed. |
+| [noise.c](noise.c) | Random that changes smoothly: noise next to random numbers, the scale, a wandering firefly and a flickering flame, scrolling hills from layers of noise, drifting clouds drawn into pixels, and an island map from a seed. |
+
 ## Game feel
 
 | Example | What it shows |
@@ -88,8 +95,13 @@ Tricks that live inside an example about something bigger.
 | A scrolling list or inventory | [clipping.c](clipping.c) |
 | A loading bar or spinner | [tiled_fill.c](tiled_fill.c) (striped bar), [curves.c](curves.c) (ring) |
 | A pie chart | [curves.c](curves.c) |
+| Something that follows a path: a car on a road, an enemy's flight path | [curves.c](curves.c) (`BezierPoint`, `BezierDirection`) |
+| A smooth path through points | [curves.c](curves.c) (`RoadCurve`), [shapes.c](shapes.c) (`AddSmoothVertices`) |
 | A glow, a flashlight, a sky | [gradients.c](gradients.c) |
-| Hills or terrain from noise | [curves.c](curves.c) (layers of noise), [gradients.c](gradients.c), [tiled_fill.c](tiled_fill.c) |
+| Hills or terrain from noise | [noise.c](noise.c) (layers of noise, scrolling), [gradients.c](gradients.c), [tiled_fill.c](tiled_fill.c) |
+| Clouds, a map or an island from noise | [noise.c](noise.c) |
+| Something that wanders, a flame that flickers | [noise.c](noise.c) |
+| Drawing pixel by pixel into an image | [noise.c](noise.c) (`CP_Image_UpdatePixelData`) |
 | A wobbling blob | [shapes.c](shapes.c) |
 | Brick, grass, water or other patterns | [tiled_fill.c](tiled_fill.c) |
 | A moving platform | [tiled_fill.c](tiled_fill.c) |
@@ -117,6 +129,12 @@ Tricks that live inside an example about something bigger.
 | Slow motion | [state_effects.c](state_effects.c) |
 | Music that goes quiet under a pause | [state_effects.c](state_effects.c) |
 | A blurred or pixelated game behind a menu | [state_effects.c](state_effects.c) |
+| Dice, a coin flip | [random.c](random.c) |
+| Random loot, never the same twice in a row | [random.c](random.c) (`PickLoot`) |
+| Shuffling cards or a playlist | [random.c](random.c) (`Shuffle`) |
+| A critical hit chance; rare and common loot | [random.c](random.c) (`PickWeighted`) |
+| Bullet spread, aim that wobbles | [random.c](random.c) (`CP_Random_Gaussian`) |
+| The same level every time, from a seed | [random.c](random.c) (`MakeWorld`), [noise.c](noise.c) (an island), [tiled_fill.c](tiled_fill.c) |
 | Things that pop in, bounce or overshoot | [easing.c](easing.c) |
 | A color's code, or the colors between two colors | [color_picker.c](color_picker.c) |
 | Fullscreen, a resizable window, the frame rate | [window_options.c](window_options.c) |

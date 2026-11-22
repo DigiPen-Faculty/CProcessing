@@ -250,10 +250,18 @@ Each change says what to do in an existing project.
   as a curved line, `CP_Graphics_DrawPie` draws a filled slice of a circle (for
   pie charts and meters), and `CP_Graphics_DrawBezier` draws a smooth curve
   bent by two control points. Angles are in degrees, 0 points right and a
-  positive sweep goes clockwise. `examples/curves.c` shows all three.
+  positive sweep goes clockwise. `examples/curves.c` shows all three, and
+  drives a car along a road made of curves, at a steady speed.
 - **Layered noise:** `CP_Random_NoiseOctaves` adds several layers of
   `CP_Random_Noise`, each with twice the detail and less strength, for more
   natural hills and clouds.
+- **Random numbers and noise, `examples/random.c` and `examples/noise.c`:**
+  random.c rolls dice, picks loot (never the same twice in a row), shuffles
+  cards, gives chances and weights, spreads shots evenly or in a bell curve,
+  and makes the same world from a seed. noise.c puts noise next to random
+  numbers, shows the scale, makes a firefly wander and a flame flicker, and
+  draws hills, drifting clouds and an island map from a seed. They replace
+  the noise hills in curves.c and the noise demo.
 - **Control one sound while it plays:** `CP_Sound_Play` and
   `CP_Sound_PlayAdvanced` now return a `CP_SoundInstance`, one play of the
   sound (programs that ignore it work as before). `CP_Sound_Stop`,
@@ -350,7 +358,7 @@ Each change says what to do in an existing project.
   and in the repository; to run one, copy it over `main.c`.
 - **Finding an example:** `examples/README.md` groups every example by what
   you want to make (drawing, text, moving and controls, pictures, sound,
-  game structure, game feel, the window), has a "Looking for..." table of
+  game structure, random and noise, game feel, the window), has a "Looking for..." table of
   tricks that live inside bigger examples (a health bar, a minimap, slow
   motion, a slider), and pairs each lesson with its example. A new wiki page,
   Examples, lists the same, each API page on the wiki names the examples

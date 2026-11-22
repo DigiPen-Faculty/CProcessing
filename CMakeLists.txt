@@ -219,7 +219,6 @@ if(CPROCESSING_BUILD_DEMOS)
         "${DEMO_DIR}/demo_manager.c"
         "${DEMO_DIR}/gamepad_sound_demo.c"
         "${DEMO_DIR}/grid_wave_demo.c"
-        "${DEMO_DIR}/noise_demo.c"
         "${DEMO_DIR}/screenshot_demo.c"
     )
     target_include_directories(CProcessing_Demos PRIVATE "${DEMO_DIR}")
