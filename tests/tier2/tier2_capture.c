@@ -97,7 +97,7 @@ static void ResetToBaseline(void)
 	CP_Settings_ImageMode(CP_POSITION_CENTER);
 	CP_Settings_BlendMode(CP_BLEND_ALPHA);
 	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_LINEAR);
-	CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_CLAMP);
+	CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_CLAMP_EDGE);
 	CP_Settings_TextBlur(0.0f);
 	CP_Settings_TextLetterSpacing(0.0f);
 	CP_Settings_TextLineSpacing(0.0f);
@@ -107,10 +107,24 @@ static void ResetToBaseline(void)
 // Draws with the settings made before CP_Engine_Run (tier2_RunCaptureOnce):
 // a fill of (12, 200, 34) and CORNER rects, kept from before the window
 // existed, and the default stroke, black and 3 wide.
+// Bottom right, with the default image settings (CENTER, linear, clamp to
+// edge): a 2x2 image (red, green / blue, yellow) as a sub-image twice its
+// size, so the image fills [155,175] x [155,175] and past its edges, to 195,
+// are its edge pixels stretched out.
 static void Scn_SettingsBeforeRun(void)
 {
 	CP_Graphics_ClearBackground(BLUE);
 	CP_Graphics_DrawRect(50, 50, 100, 100); // CORNER: spans [50,150] x [50,150]
+
+	const CP_Color pixels[4] = {
+		CP_Color_Create(255, 0, 0, 255),
+		CP_Color_Create(0, 255, 0, 255),
+		CP_Color_Create(0, 0, 255, 255),
+		CP_Color_Create(255, 255, 0, 255),
+	};
+	CP_Image image = CP_Image_CreateFromData(2, 2, pixels);
+	CP_Image_DrawSubImage(image, 175, 175, 40, 40, 0, 0, 4, 4, 255);
+	CP_Image_Free(&image);
 }
 
 // Vsync and a resizable window were turned on before CP_Engine_Run
@@ -884,7 +898,7 @@ static void Scn_GradientFadeToTransparent(void)
 // keeps the squares sharp.
 
 // Top half: tiles from (0, 0) across a 200x100 rect, with the default wrap
-// mode (clamp, which shows one image past its edge when drawing it).
+// mode (clamp to edge, which doesn't repeat an image drawn on its own).
 // Then strips of the same width with the tiles moved: a square to the right
 // (y 100 to 150, tiles from (20, 100)), and whole tiles to the left
 // (y 150 to 200, tiles from (-400, 150)), which looks the same as from 0.
@@ -987,8 +1001,9 @@ static void Scn_ImageFillTransformed(void)
 // Top right: FillImage, then Fill between Save and Restore: the tiles, from
 // (0, 0). Bottom left: text drawn with FillImage set, after Fill(BLUE): blue,
 // and GetFill gives blue. Bottom right: the image drawn as a sub-image twice
-// its size right after a tiled shape, with the default wrap mode (clamp): the
-// fill's repeat doesn't stay, so nothing is drawn past the image's edge.
+// its size right after a tiled shape, with the default wrap mode (clamp to
+// edge): the fill's repeat doesn't stay, so past the image's edge are its
+// edge pixels stretched out, not the image again.
 static void Scn_ImageFillSettings(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
@@ -1239,7 +1254,7 @@ static void Scn_ImageWrapModes(void)
 		CP_Image_DrawSubImage(image, 10.0f + 100.0f * (i % 2), 10.0f + 100.0f * (i / 2), 80, 80, 0, 0, 4, 4, 255);
 	}
 	CP_Image_Free(&image);
-	CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_CLAMP);
+	CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_CLAMP_EDGE);
 }
 
 // Settings carry over to the next frame, as in Processing (NanoVG resets

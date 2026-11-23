@@ -159,6 +159,15 @@ Each change says what to do in an existing project.
   What to do: nothing in code that uses the names. Code that used the number
   0 for "any key" uses `CP_KEY_ANY`, and a program built against an older
   CProcessing DLL is rebuilt with the new header.
+- **The default wrap mode is `CP_IMAGE_WRAP_CLAMP_EDGE`** (it was
+  `CP_IMAGE_WRAP_CLAMP`). With CLAMP, an image drawn bigger than it is, with
+  the default smooth filtering, faded out over half of one of its pixels at
+  every edge: a soft rim on every sprite, and pale lines between tiles drawn
+  side by side. CLAMP_EDGE keeps the edges solid; it is also NanoVG's own
+  default. `CP_Image_DrawSubImage` with a part that goes past the image now
+  shows its edge pixels stretched out there, instead of nothing. What to do:
+  nothing for most programs. To get the soft edges, or nothing drawn past the
+  image, back, call `CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_CLAMP)`.
 - **The repository's folders were reorganized**, so each name says what is in
   it: the library is `CProcessing/` (it was `Processing_Sample/CProcessing/`),
   the solution is `CProcessing.sln`, the demo program is `demos/` (and

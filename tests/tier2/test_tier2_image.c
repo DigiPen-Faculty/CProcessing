@@ -284,10 +284,12 @@ void test_tier2_image_fill_text_keeps_the_last_fill_color(void)
 
 void test_tier2_image_fill_leaves_the_wrap_mode_for_images(void)
 {
-	// The sub-image's own top left square, then nothing past the image
+	// The sub-image's own top left square (red), then past its right edge
+	// the edge pixels stretched out: green beside the top row, yellow beside
+	// the bottom. Repeating would show the image again there: red at both.
 	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_IMAGE_FILL_SETTINGS, 120, 120));
-	assertColorWithin(2, canvasWhite, tier2_SamplePixel(SCN_IMAGE_FILL_SETTINGS, 170, 130));
-	assertColorWithin(2, canvasWhite, tier2_SamplePixel(SCN_IMAGE_FILL_SETTINGS, 170, 170));
+	assertColorWithin(2, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_FILL_SETTINGS, 160, 120));
+	assertColorWithin(2, CP_Color_Create(255, 255, 0, 255), tier2_SamplePixel(SCN_IMAGE_FILL_SETTINGS, 160, 160));
 }
 
 void test_tier2_image_many_images_load_draw_and_free(void)
