@@ -305,6 +305,13 @@ Each change says what to do in an existing project.
   sharp pixels, a padded sheet, anti-aliasing off, overdraw, a shape
   behind, one image fill), with a magnifier from `CP_Image_Screenshot`. The
   wiki has a guide to go with it, "Tiles without seams".
+- **Vectors, `examples/vectors.c`:** a turret that turns toward its target
+  at a limited speed, the shorter way round (`CP_Vector_AngleCW`); a guard
+  that sees the player only in front, within its view and close enough
+  (`CP_Vector_DotProduct`, `CP_Vector_Angle`); which side of a road a point
+  is on (`CP_Vector_CrossProduct`); and a creature that chases the mouse or
+  runs away from it (`CP_Vector_Negate`), turning smoothly
+  (`CP_Vector_Lerp`) at a top speed (`CP_Vector_Limit`).
 - **Control one sound while it plays:** `CP_Sound_Play` and
   `CP_Sound_PlayAdvanced` now return a `CP_SoundInstance`, one play of the
   sound (programs that ignore it work as before). `CP_Sound_Stop`,
