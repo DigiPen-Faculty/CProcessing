@@ -38,6 +38,7 @@
 
 #include "cprocessing.h"
 #include <stdio.h>
+#include <string.h>
 
 #define WINDOW_WIDTH  1280
 #define WINDOW_HEIGHT 720
@@ -105,10 +106,9 @@ CP_Color PlayerColor(int pad)
 
 void AddLogLine(const char* text)
 {
-	for (int i = LOG_SIZE - 1; i > 0; --i)
-	{
-		snprintf(logLines[i], sizeof(logLines[i]), "%s", logLines[i - 1]);
-	}
+	// move every line down one row (the last one drops off), then put the
+	// new line on top. memmove is the copy for when the two places overlap.
+	memmove(logLines[1], logLines[0], sizeof(logLines[0]) * (LOG_SIZE - 1));
 	snprintf(logLines[0], sizeof(logLines[0]), "%s", text);
 	if (logCount < LOG_SIZE)
 	{
