@@ -31,6 +31,9 @@
 //   setting it back at once.
 // - Make the glass more or less frosted (FROST_STEPS), or tint it.
 //
+// See also: easing.c, for the easing curves; transitions.c;
+// music_and_sounds.c.
+//
 // To run it, copy this file over the template's main.c. It needs Music.wav,
 // Coin.wav and Jump.wav in the assets folder, which the template includes.
 //

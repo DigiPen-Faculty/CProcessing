@@ -22,6 +22,9 @@
 //   other examples.
 // - Slow the music down (CP_Sound_SetGroupPitch) while a key is held.
 //
+// See also: state_effects.c, for music that goes quiet under a pause and
+// sound in slow motion; lesson 8.
+//
 // To run it, copy this file over the template's main.c. It needs Music.wav,
 // Coin.wav, Jump.wav and Hit.wav in the assets folder, which the template
 // includes.

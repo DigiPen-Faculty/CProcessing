@@ -6,7 +6,7 @@ A learn-by-building path for CProcessing, for self-study or alongside a class. E
 |---|---|---|
 | 1. Your first window | [Lesson-01-Your-First-Window.md](Lesson-01-Your-First-Window.md) | [examples/lessons/01_first_window](../../examples/lessons/01_first_window/main.c) |
 | 2. Shapes and the coordinate system | [Lesson-02-Shapes-and-Coordinates.md](Lesson-02-Shapes-and-Coordinates.md) | [examples/lessons/02_shapes](../../examples/lessons/02_shapes/main.c) |
-| 3. Color | [Lesson-03-Color.md](Lesson-03-Color.md) | [examples/lessons/03_color](../../examples/lessons/03_color/main.c), and the Color picker demo (6) in `Processing_Demos` |
+| 3. Color | [Lesson-03-Color.md](Lesson-03-Color.md) | [examples/lessons/03_color](../../examples/lessons/03_color/main.c), and the color picker, [examples/color_picker.c](../../examples/color_picker.c) |
 | 4. Input | [Lesson-04-Input.md](Lesson-04-Input.md) | [examples/lessons/04_input](../../examples/lessons/04_input/main.c) |
 | 5. Moving with vectors and delta time | [Lesson-05-Moving-with-Vectors-and-Delta-Time.md](Lesson-05-Moving-with-Vectors-and-Delta-Time.md) | [examples/lessons/05_movement](../../examples/lessons/05_movement/main.c), and [examples/movement.c](../../examples/movement.c) |
 | 6. Collision | [Lesson-06-Collision.md](Lesson-06-Collision.md) | [examples/lessons/06_collision](../../examples/lessons/06_collision/main.c), and [examples/collision.c](../../examples/collision.c) |
@@ -45,4 +45,4 @@ Put what you learn here, under a heading with the date and the group, so the lat
 
 ## Releases and the live wiki
 
-Students use a release for a whole course, and the wiki has to match it. Lessons use things the current release doesn't have (the examples folder, the new template and its assets, the Color picker demo), so they wait for the release that has them. Until then, nothing here is on the live wiki.
+Students use a release for a whole course, and the wiki has to match it. Lessons use things the current release doesn't have (the examples folder, the new template and its assets, the color picker), so they wait for the release that has them. Until then, nothing here is on the live wiki.

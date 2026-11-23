@@ -29,6 +29,9 @@
 // - Make the minimap round: draw a thick ring over its square edges.
 // - Wipe in the other direction, or from the middle out.
 //
+// See also: gradients.c, for a health bar; tiled_fill.c, for patterns
+// inside shapes.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

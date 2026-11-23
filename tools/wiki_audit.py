@@ -16,6 +16,8 @@ exits with status 1 for:
     parameter names
   - links to a page or heading that doesn't exist, and table-of-contents
     entries missing or out of order
+  - links to an example program (examples/*.c on GitHub) that the repository
+    doesn't have, and an Examples page that doesn't list every example
   - Windows-only calls in examples (sprintf_s, _countof, ...)
   - examples that don't compile. Each C code block is compiled on its own,
     with cprocessing.h and the common standard headers included first, as
@@ -139,6 +141,17 @@ for page, text in pages.items():
         toc = [t.lower() for t in re.findall(r"\(#(\w+)\)", text.split("# Table", 1)[1].split("\n# ", 1)[0])]
         if [t for t in toc if t in heads] != [h for h in heads if h in toc] or set(heads) - set(toc):
             problems.append(f"{page}: table of contents doesn't list every entry in page order")
+
+# Links to the example programs, and the Examples page, which lists them all
+# (DESIGN.md, "Examples and lessons")
+example_files = {p.name for p in (repo / "examples").glob("*.c")}
+EXAMPLE_LINK = re.compile(r"github\.com/DigiPen-Faculty/CProcessing/blob/main/examples/([a-z0-9_]+\.c)\b")
+for page, text in pages.items():
+    for name in sorted(set(EXAMPLE_LINK.findall(text)) - example_files):
+        problems.append(f"{page}: link to a missing example: examples/{name}")
+if "Examples" in pages:
+    for name in sorted(example_files - set(EXAMPLE_LINK.findall(pages["Examples"]))):
+        problems.append(f"Examples: doesn't list examples/{name}")
 
 
 # Compiling the examples

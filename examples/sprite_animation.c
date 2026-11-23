@@ -16,6 +16,8 @@
 // - Move the slime with the arrow keys, and only animate while it moves.
 // - Make the animation play once when a key is pressed, then stop.
 //
+// See also: rotation.c, for turning a sprite around its feet; lesson 7.
+//
 // To run it, copy this file over the template's main.c. It needs
 // SlimeSheet.png in the assets folder, which the template includes.
 //

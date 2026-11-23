@@ -17,6 +17,9 @@
 // - Make the camera follow a player that moves with the keys.
 // - Stop the camera at the edges of the world.
 //
+// See also: movement.c, for a player for the camera to follow; clipping.c,
+// for a minimap of a world.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

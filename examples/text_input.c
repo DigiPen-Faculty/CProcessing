@@ -20,6 +20,9 @@
 // - Show the name in the middle of the window, using the text's width.
 // - Keep a list of the last five names entered.
 //
+// See also: controls.c, for finding which key was pressed;
+// score_and_text.c, for placing text.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

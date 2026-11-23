@@ -29,6 +29,9 @@
 //   CP_Image_Load gives NULL (no such file yet), freeing the ones it finds.
 // - Save a picture of your game when the player wins, to show off later.
 //
+// See also: state_stack.c, for a trail drawn into an image; tiled_fill.c,
+// for tiles drawn into images.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

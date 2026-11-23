@@ -10,9 +10,9 @@
 
 **You need:** [Lesson 1](Lesson-01-Your-First-Window), or any program that draws a shape.
 
-The finished program is in the repository as [examples/lessons/03_color/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/03_color/main.c). The sliders in the picture below are the **Color picker** demo, number 6 in `Processing_Demos`. Keep it open while you read: it shows everything on this page.
+The finished program is in the repository as [examples/lessons/03_color/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/03_color/main.c). The sliders in the picture below are the **color picker**, [examples/color_picker.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/color_picker.c): copy it over your `main.c` in another project and run it. Keep it open while you read: it shows everything on this page.
 
-![The color picker demo](images/color-picker.png)
+![The color picker](images/color-picker.png)
 
 ---
 

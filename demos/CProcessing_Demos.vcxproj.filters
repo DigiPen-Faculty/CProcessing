@@ -39,9 +39,6 @@
     <ClCompile Include="screenshot_demo.c">
       <Filter>Demos</Filter>
     </ClCompile>
-    <ClCompile Include="color_picker_demo.c">
-      <Filter>Demos</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dancing_lines_demo.h">
@@ -60,9 +57,6 @@
       <Filter>Demos</Filter>
     </ClInclude>
     <ClInclude Include="screenshot_demo.h">
-      <Filter>Demos</Filter>
-    </ClInclude>
-    <ClInclude Include="color_picker_demo.h">
       <Filter>Demos</Filter>
     </ClInclude>
   </ItemGroup>

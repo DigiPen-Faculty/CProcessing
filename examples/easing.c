@@ -25,6 +25,9 @@
 // - Write your own: what does t * t * t * t look like? And 1 - t?
 // - Combine two: ease in for the first half, bounce for the second.
 //
+// See also: transitions.c and state_effects.c, which use easing for slides
+// and slow motion.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

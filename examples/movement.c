@@ -14,6 +14,9 @@
 // - Make the player speed up and slow down smoothly instead of starting
 //   and stopping at once.
 //
+// See also: collision.c, for what the player touches; camera.c, for a
+// world bigger than the window; lesson 5.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT

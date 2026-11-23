@@ -28,6 +28,9 @@
 // - Fill the player's health bar with a pattern that moves when it's low.
 // - Make a second layer of hills, further back, that scrolls more slowly.
 //
+// See also: painting.c, for drawing into an image; gradients.c, for the
+// other kind of fill.
+//
 // To run it, copy this file over the template's main.c.
 //
 // SPDX-License-Identifier: MIT
