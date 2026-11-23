@@ -280,6 +280,13 @@ Each change says what to do in an existing project.
   to 4 gamepads at once, which one the functions without Advanced read,
   what happens to the indexes when one is unplugged, and a player for each
   gamepad. It replaces the Gamepad and sound demo.
+- **Sound control, `examples/sound_control.c`:** a pause menu that pauses
+  the game's sound groups while its own music and clicks play, pausing
+  every sound while the window isn't in front, and a radio whose volume
+  falls with distance and whose pitch slows while a key is held (one
+  instance, changed as it plays). Resuming a group brings back every sound
+  in it, so the example shows how to pause again what the player paused on
+  purpose.
 - **Control one sound while it plays:** `CP_Sound_Play` and
   `CP_Sound_PlayAdvanced` now return a `CP_SoundInstance`, one play of the
   sound (programs that ignore it work as before). `CP_Sound_Stop`,
