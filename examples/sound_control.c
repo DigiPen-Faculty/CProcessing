@@ -44,6 +44,7 @@
 //---------------------------------------------------------
 
 #include "cprocessing.h"
+#include <math.h>
 #include <stdio.h>
 
 #define WINDOW_WIDTH  1280
@@ -75,6 +76,7 @@ CP_Vector radioPosition;
 CP_BOOL radioOn = TRUE;
 float radioVolume = 1.0f;
 float radioPitch = 1.0f;
+float radioRings = 0.0f; // how far its rings have grown, 0 to 1, over and over
 
 // The player, and the coins
 CP_Vector player;
@@ -247,6 +249,14 @@ void UpdateGame(float dt)
 	float target = CP_Input_KeyDown(CP_KEY_LEFT_SHIFT) || CP_Input_KeyDown(CP_KEY_RIGHT_SHIFT) ? 0.5f : 1.0f;
 	radioPitch += (target - radioPitch) * CP_Math_ClampFloat(dt * 3.0f, 0.0f, 1.0f);
 	CP_Sound_SetPitch(radio, radioPitch);
+
+	// Its rings grow once a second at normal pitch, and slower as it slows.
+	// Adding a little each frame follows the pitch as it changes; time
+	// multiplied by the pitch would jump when the pitch changes.
+	if (radioOn)
+	{
+		radioRings = fmodf(radioRings + dt * radioPitch, 1.0f);
+	}
 }
 
 void DrawGame(void)
@@ -258,12 +268,11 @@ void DrawGame(void)
 	// The radio, with rings that grow louder the closer the player is
 	if (radioOn && !menuOpen)
 	{
-		float ring = CP_System_GetSeconds() * radioPitch;
 		CP_Settings_NoFill();
 		CP_Settings_StrokeWeight(3.0f);
 		for (int i = 0; i < 3; ++i)
 		{
-			float grow = (ring + i / 3.0f) - (float)(int)(ring + i / 3.0f); // 0 to 1, over and over
+			float grow = fmodf(radioRings + i / 3.0f, 1.0f); // three rings, a third apart
 			CP_Settings_Stroke(CP_Color_Create(150, 200, 255, (int)(255.0f * (1.0f - grow) * radioVolume)));
 			CP_Graphics_DrawCircle(radioPosition.x, radioPosition.y, 60.0f + grow * 120.0f);
 		}
