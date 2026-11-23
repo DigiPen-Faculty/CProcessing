@@ -150,7 +150,7 @@ Pick two or more.
 
 1. **A miss.** Play a soft sound when a coin lands on the ground uncaught. Which of the three sounds would you use?
 2. **Pitch with the combo.** Make the music itself play faster as the combo gets longer, and go back to normal when the combo ends.
-3. **Pause.** Add a pause with P. Pause the music instance while paused, and stop the things from falling.
+3. **Pause.** Add a pause with P. Pause the music instance while paused, and stop the things from falling. [examples/sound_control.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/sound_control.c) pauses whole groups instead, for a pause menu with music of its own.
 4. **Your own sounds.** Record or make a sound (a free tool like Audacity works), put the file in `assets` and use it for the jump.
 5. **A volume that is remembered.** Show the volume of the music as a percentage in the bar. Then make it so that M mutes by setting the volume to 0, and brings back the volume it had before.
 

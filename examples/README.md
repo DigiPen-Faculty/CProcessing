@@ -51,6 +51,7 @@ more than their title.
 | Example | What it shows |
 |---|---|
 | [music_and_sounds.c](music_and_sounds.c) | Looping music and sound effects, each with its own volume. |
+| [sound_control.c](sound_control.c) | Controlling sound in a game: a pause menu with music of its own while the game's sounds wait, pausing everything when the window is left, and one playing sound's volume and pitch changed as it plays. |
 
 ## Game structure
 
@@ -127,6 +128,10 @@ Tricks that live inside an example about something bigger.
 | Numbered file names (`screenshot_1.png`...) | [painting.c](painting.c) (`snprintf`) |
 | Music that loops; effects with their own volume | [music_and_sounds.c](music_and_sounds.c) |
 | A sound that sounds different each time | [music_and_sounds.c](music_and_sounds.c) (pitch) |
+| A pause menu with its own music and clicks | [sound_control.c](sound_control.c) (`CP_Sound_PauseGroup`) |
+| Sound that pauses when the player switches windows | [sound_control.c](sound_control.c) (`CP_Sound_PauseAll`) |
+| A sound that's quieter far away | [sound_control.c](sound_control.c) (`CP_Sound_SetVolume`) |
+| A coin sound that rises with each coin in a row | [sound_control.c](sound_control.c) |
 | A pause menu | [game_states.c](game_states.c), [state_stack.c](state_stack.c) (with options and "really quit?") |
 | A HUD over the game | [state_stack.c](state_stack.c) |
 | Restarting a level; keeping the best score | [game_states.c](game_states.c) |
