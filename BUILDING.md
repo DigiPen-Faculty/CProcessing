@@ -79,7 +79,7 @@ v145), as does the student template. The solution contains:
 | Project | Folder | What it is |
 |---|---|---|
 | `CProcessing` | `CProcessing/` | The library: `CProcessing.dll`, or `CProcessingd.dll` for Debug. |
-| `CProcessing_Demos` | `demos/` | The demo program. Press 1–5 to switch demos, F for fullscreen, M to change the mouse cursor mode, C to show or hide the console, H to hide the key bar at the bottom, Escape to quit. |
+| `CProcessing_Demos` | `demos/` | The demo program. Press 1–4 to switch demos, F for fullscreen, M to change the mouse cursor mode, C to show or hide the console, H to hide the key bar at the bottom, Escape to quit. |
 | `CProcessing_Tests` | `tests/tier1/` | Tier 1 tests: pure functions, no window needed. |
 | `CProcessing_Tests_Tier2` | `tests/tier2/` | Tier 2 tests: drives the real engine and checks the rendered pixels. |
 

@@ -197,7 +197,6 @@ xcopy "$(ProjectDir)assets\*" "$(OutDir)assets\" /s /r /y /q</Command>
     <ClCompile Include="demo_manager.c" />
     <ClCompile Include="gamepad_sound_demo.c" />
     <ClCompile Include="grid_wave_demo.c" />
-    <ClCompile Include="noise_demo.c" />
     <ClCompile Include="screenshot_demo.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
@@ -206,7 +205,6 @@ xcopy "$(ProjectDir)assets\*" "$(OutDir)assets\" /s /r /y /q</Command>
     <ClInclude Include="demo_manager.h" />
     <ClInclude Include="gamepad_sound_demo.h" />
     <ClInclude Include="grid_wave_demo.h" />
-    <ClInclude Include="noise_demo.h" />
     <ClInclude Include="screenshot_demo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
