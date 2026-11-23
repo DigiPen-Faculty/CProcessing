@@ -8,10 +8,12 @@
 #include "unity.h"
 #include "tier2_capture.h"
 
-void test_tier2_input_no_gamepad_attached_reports_disconnected(void)
+// Holds with or without gamepads plugged in, so the test can run anywhere
+void test_tier2_input_gamepad_default_is_index_0_and_indexes_have_no_gaps(void)
 {
-	TEST_ASSERT_FALSE(tier2_scalars.gamepadConnected);
-	TEST_ASSERT_FALSE(tier2_scalars.gamepad0ConnectedAdvanced);
+	TEST_ASSERT_EQUAL_INT(tier2_scalars.gamepad0ConnectedAdvanced, tier2_scalars.gamepadConnected);
+	TEST_ASSERT_TRUE(tier2_scalars.gamepadIndexesHaveNoGaps);
+	TEST_ASSERT_FALSE(tier2_scalars.gamepadPastLastConnected);
 }
 
 void test_tier2_input_mouse_wheel_is_zero_at_rest(void)

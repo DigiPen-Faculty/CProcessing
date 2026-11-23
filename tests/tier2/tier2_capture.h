@@ -265,6 +265,8 @@ typedef struct
 	// CP_Input (quiescent-state defaults only -- see Scn_InputQuiescentDefaults)
 	CP_BOOL gamepadConnected;
 	CP_BOOL gamepad0ConnectedAdvanced;
+	CP_BOOL gamepadIndexesHaveNoGaps;
+	CP_BOOL gamepadPastLastConnected; // index CP_MAX_GAMEPADS
 	float mouseWheel;
 	CP_BOOL mouseDoubleClicked;
 	CP_BOOL keyADown;

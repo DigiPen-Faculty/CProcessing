@@ -37,6 +37,7 @@ more than their title.
 | [collision.c](collision.c) | Checking whether points, circles and rectangles touch. |
 | [camera.c](camera.c) | A camera that moves and zooms around a world bigger than the window. |
 | [controls.c](controls.c) | Letting the player choose their own keys: an array of keys for the actions, CP_Input_GetKeyTriggered to find the key pressed, and each key's name on the screen. |
+| [gamepad.c](gamepad.c) | Gamepads: every button, stick and trigger of up to 4 at once, which one the functions without Advanced read, gamepads connecting and disconnecting, and a player for each. |
 
 ## Pictures
 
@@ -117,6 +118,9 @@ Tricks that live inside an example about something bigger.
 | Typing a name, a blinking cursor | [text_input.c](text_input.c) |
 | Rebinding keys, showing a key's name | [controls.c](controls.c) |
 | Movement that's the same speed diagonally | [movement.c](movement.c) |
+| Two to four players, a gamepad each | [gamepad.c](gamepad.c) (the Advanced functions) |
+| Noticing a gamepad plugged in or unplugged | [gamepad.c](gamepad.c) |
+| A trigger that's pressed part way, like a throttle | [gamepad.c](gamepad.c) (faster players) |
 | A sprite sheet animation | [sprite_animation.c](sprite_animation.c) |
 | Drawing that stays from frame to frame | [painting.c](painting.c), [particles.c](particles.c) (a trail that fades) |
 | Saving a picture or screenshot; loading it next time | [painting.c](painting.c) |
@@ -159,7 +163,7 @@ into the other:
 |---|---|
 | 2. Shapes and the coordinate system | [shapes.c](shapes.c) goes further: your own shapes |
 | 3. Color | [color_picker.c](color_picker.c) |
-| 4. Input | [controls.c](controls.c), [text_input.c](text_input.c), and the gamepad in [movement.c](movement.c) |
+| 4. Input | [controls.c](controls.c), [text_input.c](text_input.c), [gamepad.c](gamepad.c) |
 | 5. Moving with vectors and delta time | [movement.c](movement.c) |
 | 6. Collision | [collision.c](collision.c) |
 | 7. Images and animation | [sprite_animation.c](sprite_animation.c), and [easing.c](easing.c) for its easing step |

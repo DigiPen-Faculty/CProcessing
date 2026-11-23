@@ -2395,11 +2395,20 @@ static void Scn_InputQuiescentDefaults(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 
-	// Assumes no gamepad is actually attached to the machine running this;
-	// true in CI once Phase G lands, and was true on the dev machine this
-	// was verified on, but is a real caveat for local runs elsewhere.
+	// Gamepads may or may not be plugged in, so capture what holds either
+	// way: the default is index 0, indexes are filled from 0 with no gaps,
+	// and an index past the last is never connected
 	tier2_scalars.gamepadConnected = CP_Input_GamepadConnected();
 	tier2_scalars.gamepad0ConnectedAdvanced = CP_Input_GamepadConnectedAdvanced(0);
+	tier2_scalars.gamepadIndexesHaveNoGaps = TRUE;
+	for (unsigned i = 1; i < CP_MAX_GAMEPADS; ++i)
+	{
+		if (CP_Input_GamepadConnectedAdvanced(i) && !CP_Input_GamepadConnectedAdvanced(i - 1))
+		{
+			tier2_scalars.gamepadIndexesHaveNoGaps = FALSE;
+		}
+	}
+	tier2_scalars.gamepadPastLastConnected = CP_Input_GamepadConnectedAdvanced(CP_MAX_GAMEPADS);
 	tier2_scalars.mouseWheel = CP_Input_MouseWheel();
 	tier2_scalars.mouseDoubleClicked = CP_Input_MouseDoubleClicked();
 	tier2_scalars.keyADown = CP_Input_KeyDown(CP_KEY_A);
