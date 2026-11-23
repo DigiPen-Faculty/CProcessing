@@ -194,14 +194,12 @@ xcopy "$(ProjectDir)assets\*" "$(OutDir)assets\" /s /r /y /q</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="demo_manager.c" />
-    <ClCompile Include="gamepad_sound_demo.c" />
     <ClCompile Include="grid_wave_demo.c" />
     <ClCompile Include="screenshot_demo.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_manager.h" />
-    <ClInclude Include="gamepad_sound_demo.h" />
     <ClInclude Include="grid_wave_demo.h" />
     <ClInclude Include="screenshot_demo.h" />
   </ItemGroup>

@@ -173,7 +173,7 @@ A stick that is let go of never rests at exactly the middle: it wobbles a little
 
 The triggers are numbers too: `CP_Input_GamepadLeftTrigger()` and `GamepadRightTrigger()` give 0.0 (not pressed) to 1.0 (all the way), and the panel draws them as bars.
 
-If more than one gamepad is plugged in, the functions that end in `Advanced` take a gamepad number, like `CP_Input_GamepadDownAdvanced(CP_GAMEPAD_A, 1)`.
+If more than one gamepad is plugged in, the functions that end in `Advanced` take a gamepad number, like `CP_Input_GamepadDownAdvanced(CP_GAMEPAD_A, 1)`. [examples/gamepad.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/gamepad.c) shows up to four gamepads at once, with a player for each.
 
 > **Try it:** if you have a gamepad, draw a ball and add the left stick's x and y to its position each frame (try `* 5.0f` so it moves fast enough to see). Let go of the stick: the ball stops. That's the dead zone at work. (Remember the y sign from above.)
 

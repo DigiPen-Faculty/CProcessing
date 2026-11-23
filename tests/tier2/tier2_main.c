@@ -228,7 +228,7 @@ int main(void)
 	RUN_TEST(test_tier2_sound_no_instance_is_not_playing_and_is_safe);
 
 	// test_tier2_input.c
-	RUN_TEST(test_tier2_input_no_gamepad_attached_reports_disconnected);
+	RUN_TEST(test_tier2_input_gamepad_default_is_index_0_and_indexes_have_no_gaps);
 	RUN_TEST(test_tier2_input_mouse_wheel_is_zero_at_rest);
 	RUN_TEST(test_tier2_input_no_clicks_or_keys_in_a_quiescent_frame);
 	RUN_TEST(test_tier2_input_no_key_is_triggered_and_no_key_is_never_down);

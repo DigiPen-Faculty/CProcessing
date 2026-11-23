@@ -277,6 +277,10 @@ Each change says what to do in an existing project.
   array of structs with a count, added and removed without `malloc`, and
   spawned at the same rate at any frame rate. It replaces the dancing lines
   demo and the trail in state_stack.c.
+- **Gamepads, `examples/gamepad.c`:** every button, stick and trigger of up
+  to 4 gamepads at once, which one the functions without Advanced read,
+  what happens to the indexes when one is unplugged, and a player for each
+  gamepad. It replaces the Gamepad and sound demo.
 - **Control one sound while it plays:** `CP_Sound_Play` and
   `CP_Sound_PlayAdvanced` now return a `CP_SoundInstance`, one play of the
   sound (programs that ignore it work as before). `CP_Sound_Stop`,

@@ -14,7 +14,6 @@
 
 // demo headers
 #include "grid_wave_demo.h"
-#include "gamepad_sound_demo.h"
 #include "screenshot_demo.h"
 
 // window size and fullscreen
@@ -41,9 +40,8 @@ typedef struct Demo
 } Demo;
 
 static const Demo demos[] = {
-	{ "Grid wave",         GridWaveDemoInit,     GridWaveDemoUpdate,     GridWaveDemoExit     },
-	{ "Gamepad and sound", GamepadSoundDemoInit, GamepadSoundDemoUpdate, GamepadSoundDemoExit },
-	{ "Screenshots",       ScreenshotDemoInit,   ScreenshotDemoUpdate,   ScreenshotDemoExit   },
+	{ "Grid wave",   GridWaveDemoInit,   GridWaveDemoUpdate,   GridWaveDemoExit   },
+	{ "Screenshots", ScreenshotDemoInit, ScreenshotDemoUpdate, ScreenshotDemoExit },
 };
 #define DEMO_COUNT (int)(sizeof(demos) / sizeof(demos[0]))
 

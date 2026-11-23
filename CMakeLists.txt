@@ -216,7 +216,6 @@ if(CPROCESSING_BUILD_DEMOS)
     add_executable(CProcessing_Demos
         "${DEMO_DIR}/main.c"
         "${DEMO_DIR}/demo_manager.c"
-        "${DEMO_DIR}/gamepad_sound_demo.c"
         "${DEMO_DIR}/grid_wave_demo.c"
         "${DEMO_DIR}/screenshot_demo.c"
     )
