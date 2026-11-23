@@ -298,6 +298,13 @@ Each change says what to do in an existing project.
   go for the left, right and middle buttons; click to choose and double
   click to open; drag and drop into slots; the wheel; and whether, how far
   and how fast the mouse moved.
+- **Tiles without seams, `examples/tile_seams.c`:** a scrolling tile map
+  with a key for each cause of lines between tiles (a camera or a zoom
+  between pixels, anti-aliased edges, a sprite sheet's neighbors bleeding
+  in, `CP_IMAGE_WRAP_CLAMP`) and each fix (whole pixels, a rounded camera,
+  sharp pixels, a padded sheet, anti-aliasing off, overdraw, a shape
+  behind, one image fill), with a magnifier from `CP_Image_Screenshot`. The
+  wiki has a guide to go with it, "Tiles without seams".
 - **Control one sound while it plays:** `CP_Sound_Play` and
   `CP_Sound_PlayAdvanced` now return a `CP_SoundInstance`, one play of the
   sound (programs that ignore it work as before). `CP_Sound_Stop`,
