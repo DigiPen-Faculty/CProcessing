@@ -170,8 +170,7 @@ Each change says what to do in an existing project.
   image, back, call `CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_CLAMP)`.
 - **The repository's folders were reorganized**, so each name says what is in
   it: the library is `CProcessing/` (it was `Processing_Sample/CProcessing/`),
-  the solution is `CProcessing.sln`, the demo program is `demos/` (and
-  `CProcessing_Demos`, it was `Processing_Demos`), the tests are
+  the solution is `CProcessing.sln`, the tests are
   `tests/tier1`, `tests/tier2` and `tests/unity`, `examples/` (it was
   `Examples/`), the templates are `templates/vs` and `templates/cmake` (were
   `Processing_Empty` and `Processing_Empty_CMake`), and the scripts are in
@@ -467,7 +466,7 @@ Each change says what to do in an existing project.
 - **Every CProcessing source file now says it's MIT licensed**, matching
   `LICENSE`: `SPDX-License-Identifier: MIT` and `Copyright (c) <years>
   DigiPen Institute of Technology and CProcessing contributors`. This covers
-  the library, the demos, the examples and lessons, the tests and the
+  the library, the examples and lessons, the tests and the
   scripts (CI checks it with `tools/check_license_headers.py`); the bundled
   libraries keep their own licenses, and the built-in font data says
   `OFL-1.1`. Before, the library's files said "All rights reserved" and the
@@ -489,19 +488,24 @@ Each change says what to do in an existing project.
   the CMake starter. `CProcessingTemplate.zip` now unzips into one folder,
   `CProcessingTemplate`, like the Linux and macOS packages, and has a
   README.
-- **The demo program lists its keys in a bar at the bottom of the
-  window,** with the current demo's name: 1-6 switch demos, F fullscreen,
-  M the mouse cursor mode, C the console, H hides the bar, Escape quits.
-  Before, the keys were only in the documentation. The gamepad demo's
-  screenshots are now a demo of their own (5, Screenshots), and the
-  gamepad demo is now Gamepad and sound.
+- **The demo program is gone, and its demos became examples.** It wasn't
+  in the release packages, so students never had it. Now everything it
+  showed is in an example that ships: `color_picker.c`, `noise.c`,
+  `particles.c` (from the dancing lines), `gamepad.c`, and
+  `window_options.c`, which gained the mouse cursor modes and the console
+  from the demo program's keys. The grid wave is dropped, and the
+  screenshot magnifier is in the wiki's `CP_Image_Screenshot` example.
+  `demos/`, `CProcessing_Demos` (it was `Processing_Demos`) and the
+  `CPROCESSING_BUILD_DEMOS` CMake option are removed. The Exo 2 font files
+  and their license moved to the templates' assets
+  (`templates/vs/assets`), where a program can load them.
 - **Less inside the library, with no change to how it works:** TinyCThread
   (1,400 lines, used for one 1 millisecond sleep) is gone, the seven
   copies of "turn about a point" are one function, and dead code is out.
   CI builds the whole Visual Studio solution in Release as well as Debug,
   and a new test fails if a test is written but not run.
-- **One code style, checked in CI.** The library, examples, demos, templates
-  and tests are formatted with clang-format (`.clang-format`: tabs, Allman
+- **One code style, checked in CI.** The library, examples, templates and
+  tests are formatted with clang-format (`.clang-format`: tabs, Allman
   braces), and a `format` job fails a pull request that isn't. The reformat
   is one commit that only moved whitespace and braces, listed in
   `.git-blame-ignore-revs` so `git blame` skips it. The test projects' 4-space
@@ -552,9 +556,7 @@ Each change says what to do in an existing project.
   `-Wpedantic -Werror` failed. They are plain structs now (see Breaking
   changes), so the header needs no warning pragmas, no `__extension__` and
   no macro.
-- **The demos compile as C++:** casts after `malloc` and `calloc`, and when
-  making a key from a number.
-- **C++ is checked in CI.** Every example, lesson, demo and template
+- **C++ is checked in CI.** Every example, lesson and template
   `main.c` is also compiled as C++11, with `-Wpedantic` or `/permissive-`,
   on Windows, Linux and macOS. A small C++ program links with CProcessing
   and runs with the Tier 1 tests.

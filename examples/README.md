@@ -79,7 +79,7 @@ more than their title.
 
 | Example | What it shows |
 |---|---|
-| [window_options.c](window_options.c) | Fullscreen, a resizable window, vsync and the frame rate limit, with keys to change them. |
+| [window_options.c](window_options.c) | Fullscreen, a resizable window, vsync, the frame rate limit, the mouse cursor modes and a console for printf, with keys to change them. |
 
 ## Looking for...
 
@@ -149,6 +149,8 @@ Tricks that live inside an example about something bigger.
 | Things that pop in, bounce or overshoot | [easing.c](easing.c) |
 | A color's code, or the colors between two colors | [color_picker.c](color_picker.c) |
 | Fullscreen, a resizable window, the frame rate | [window_options.c](window_options.c) |
+| Hiding the mouse cursor; mouse look | [window_options.c](window_options.c) (`CP_System_SetCursorMode`) |
+| A console window for printf | [window_options.c](window_options.c) (`CP_System_ShowConsole`) |
 
 ## Examples and lessons
 

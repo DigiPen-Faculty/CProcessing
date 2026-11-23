@@ -1388,8 +1388,8 @@ CP_API CP_CURSOR_MODE CP_System_GetCursorMode(void)
 // CONSOLE:
 //		A text console, so printf debugging works.
 //
-//		Windows: programs built as GUI apps (the CProcessing template and
-//		demos) start without a console. The first CP_System_ShowConsole(TRUE)
+//		Windows: programs built as GUI apps (the CProcessing template)
+//		start without a console. The first CP_System_ShowConsole(TRUE)
 //		attaches to the terminal the program was started from, or else opens a
 //		new console window, and points stdout, stderr and stdin at it.
 //		A console window the program has to itself is then only ever hidden

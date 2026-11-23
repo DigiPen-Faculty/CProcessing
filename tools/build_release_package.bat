@@ -138,7 +138,7 @@ GOTO :init
 		XCOPY .\CProcessing\inc\cprocessing*.h .\CProcessingOutput\inc\ /r /y /q
 		XCOPY .\CProcessing\lib\* .\CProcessingOutput\lib\ /s /r /y /q
 		REM the built-in default font's license must travel with the library
-		COPY .\demos\assets\Exo2_license.txt .\CProcessingOutput\ /y
+		COPY .\templates\vs\assets\Exo2_license.txt .\CProcessingOutput\ /y
 		REM keep only the .dll and .lib files
 		FOR %%a in (x64 x86) do (
 			FOR %%e in (exp iobj ipdb pdb ilk) do (

@@ -4,7 +4,7 @@ name: Tests
 #
 #   format            The code follows .clang-format (a pinned clang-format).
 #   windows-msbuild   The Visual Studio solution students and faculty use:
-#                     whole solution (library, demos, tests) for x64 and x86,
+#                     whole solution (library, tests) for x64 and x86,
 #                     then Tier 1.
 #   windows-tier2     Tier 2 (real engine, pixel-sampling) for the Visual
 #                     Studio build, using Mesa's llvmpipe software OpenGL

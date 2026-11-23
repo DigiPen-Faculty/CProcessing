@@ -8,13 +8,12 @@
 # today is unchanged. See BUILDING.md for usage.
 #
 #   cmake -B build                  # configure (downloads GLFW + SoLoud, pinned)
-#   cmake --build build             # library, demos, examples and tests
+#   cmake --build build             # library, examples and tests
 #   ctest --test-dir build          # run the test suites
 #
 # Everything is placed in build/bin (build/bin/<Config> for multi-config
 # generators such as Visual Studio): the CProcessing shared library, the
-# CProcessing_Demos executable, the Example_* executables, the test
-# executables and an assets folder.
+# Example_* executables, the test executables and an assets folder.
 
 cmake_minimum_required(VERSION 3.20)
 
@@ -38,7 +37,6 @@ if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
 endif()
 
 option(CPROCESSING_BUILD_SHARED "Build CProcessing as a shared library (DLL/.so/.dylib)" ON)
-option(CPROCESSING_BUILD_DEMOS "Build the CProcessing_Demos sample program" ${CPROCESSING_IS_TOP_LEVEL})
 option(CPROCESSING_BUILD_EXAMPLES "Build the example programs in examples/" ${CPROCESSING_IS_TOP_LEVEL})
 option(CPROCESSING_BUILD_TESTS "Build the Tier 1 and Tier 2 test suites" ${CPROCESSING_IS_TOP_LEVEL})
 option(CPROCESSING_WARNINGS_AS_ERRORS "Treat compiler warnings in CProcessing code as errors" OFF)
@@ -209,27 +207,6 @@ set_target_properties(CProcessing PROPERTIES
 cprocessing_set_warnings(CProcessing)
 
 #------------------------------------------------------------------------------
-# Demos
-#------------------------------------------------------------------------------
-if(CPROCESSING_BUILD_DEMOS)
-    set(DEMO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/demos")
-    add_executable(CProcessing_Demos
-        "${DEMO_DIR}/main.c"
-        "${DEMO_DIR}/demo_manager.c"
-        "${DEMO_DIR}/grid_wave_demo.c"
-        "${DEMO_DIR}/screenshot_demo.c"
-    )
-    target_include_directories(CProcessing_Demos PRIVATE "${DEMO_DIR}")
-    target_link_libraries(CProcessing_Demos PRIVATE CProcessing)
-    if(UNIX AND NOT APPLE)
-        target_link_libraries(CProcessing_Demos PRIVATE m)
-    endif()
-    cprocessing_set_warnings(CProcessing_Demos)
-    cprocessing_set_rpath(CProcessing_Demos)
-    cprocessing_copy_assets(CProcessing_Demos "${DEMO_DIR}/assets")
-endif()
-
-#------------------------------------------------------------------------------
 # Tests
 #------------------------------------------------------------------------------
 if(CPROCESSING_BUILD_TESTS)
@@ -276,11 +253,6 @@ if(CPROCESSING_BUILD_TESTS)
         set_target_properties(CProcessing_Tests_Tier2 PROPERTIES C_STANDARD 11 C_EXTENSIONS ON)
     endif()
     cprocessing_copy_assets(CProcessing_Tests_Tier2 "${TIER2_DIR}/assets")
-    if(TARGET CProcessing_Demos)
-        # Both copy an assets folder into the same bin/assets after linking;
-        # in a parallel build the two copies can collide and fail the build
-        add_dependencies(CProcessing_Tests_Tier2 CProcessing_Demos)
-    endif()
     add_test(NAME tier2 COMMAND CProcessing_Tests_Tier2
         WORKING_DIRECTORY "$<TARGET_FILE_DIR:CProcessing_Tests_Tier2>")
     set_tests_properties(tier2 PROPERTIES LABELS "tier2;gui" TIMEOUT 120)
@@ -336,8 +308,8 @@ if(CPROCESSING_BUILD_EXAMPLES)
     endforeach()
 
     # The examples load the templates' assets. One copy into bin/assets
-    # serves them all; it waits for the demos' and tests' copies into the
-    # same folder, which would otherwise collide in a parallel build.
+    # serves them all; it waits for the tests' copy into the same folder,
+    # which would otherwise collide in a parallel build.
     list(GET example_targets 0 first_example)
     add_custom_target(Example_assets
         COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -346,27 +318,21 @@ if(CPROCESSING_BUILD_EXAMPLES)
         COMMENT "Copying the template assets for the examples"
         VERBATIM)
     set_target_properties(Example_assets PROPERTIES FOLDER Examples)
-    foreach(other CProcessing_Demos CProcessing_Tests_Tier2)
-        if(TARGET ${other})
-            add_dependencies(Example_assets ${other})
-        endif()
-    endforeach()
+    if(TARGET CProcessing_Tests_Tier2)
+        add_dependencies(Example_assets CProcessing_Tests_Tier2)
+    endif()
     foreach(target ${example_targets})
         add_dependencies(${target} Example_assets)
     endforeach()
 
     # Students often write their game in C++, starting from these files. So
-    # each example and lesson, the demos and the templates' main.c are also
+    # each example and lesson and the templates' main.c are also
     # compiled as C++ (not linked: one small file each, in the build folder,
     # includes the real one). A C-only habit in any of them, such as malloc
     # without a cast, fails the build here.
     set(cxx_check_sources ${EXAMPLE_SOURCES} ${LESSON_SOURCES}
         "${CMAKE_CURRENT_SOURCE_DIR}/templates/vs/main.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/templates/cmake/main.c")
-    if(CPROCESSING_BUILD_DEMOS)
-        file(GLOB DEMO_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/demos/*.c")
-        list(APPEND cxx_check_sources ${DEMO_SOURCES}) # includes demos/main.c
-    endif()
     set(cxx_wrappers "")
     foreach(source ${cxx_check_sources})
         file(RELATIVE_PATH relative "${CMAKE_CURRENT_SOURCE_DIR}" "${source}")
@@ -376,7 +342,6 @@ if(CPROCESSING_BUILD_EXAMPLES)
         list(APPEND cxx_wrappers "${wrapper}")
     endforeach()
     add_library(Example_CxxCheck OBJECT ${cxx_wrappers})
-    target_include_directories(Example_CxxCheck PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/demos")
     target_link_libraries(Example_CxxCheck PRIVATE CProcessing)
     cprocessing_set_cxx_warnings(Example_CxxCheck)
     set_target_properties(Example_CxxCheck PROPERTIES FOLDER Examples)

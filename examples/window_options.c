@@ -11,12 +11,17 @@
 // - turn vsync on and off with CP_System_SetVSync
 // - limit the frame rate with CP_System_SetFrameRate, and read the limit
 //   back with CP_System_GetTargetFrameRate
+// - hide the mouse cursor, keep it in the window, or free it for mouse look
+//   with CP_System_SetCursorMode
+// - show a console for printf with CP_System_ShowConsole (on Windows, a
+//   game built as a window app starts without one)
 // - read the fill color back with CP_Settings_GetFill, to put it back after
 //   drawing something in another color
 //
 // Keys:
 //   F - fullscreen or window       R - resizable or not (try dragging an edge)
 //   V - vsync on or off            1, 2, 3 - frame rate limit 30, 60, none
+//   M - the mouse cursor mode      C - the console on or off
 //
 // With vsync on, the frame rate is the monitor's. To see that, turn the frame
 // rate limit off (3) first: vsync alone then sets the speed.
@@ -24,6 +29,8 @@
 // Try this:
 // - Keep the circle round, and as big as fits, when the window is not square.
 // - Show the window size only while it is being resized.
+// - In the disabled cursor mode, turn a view with CP_Input_GetMouseDeltaX,
+//   the way a first person game looks around.
 //
 // See also: camera.c, for drawing a world bigger than the window.
 //
@@ -53,6 +60,14 @@ const char* OnOff(CP_BOOL value)
 {
 	return value ? "on" : "off";
 }
+
+// The cursor modes, in the order of the CP_CURSOR_MODE values
+const char* cursorModeNames[] = {
+	"normal",
+	"hidden over the window",
+	"kept in the window (not on macOS)",
+	"disabled: hidden, no limits, for mouse look",
+};
 
 void game_init(void)
 {
@@ -94,6 +109,18 @@ void game_update(void)
 	if (CP_Input_KeyTriggered(CP_KEY_3))
 	{
 		CP_System_SetFrameRate(0.0f); // 0: no limit
+	}
+	if (CP_Input_KeyTriggered(CP_KEY_M))
+	{
+		// the next of the 4 modes, back to the first after the last
+		CP_CURSOR_MODE mode = (CP_CURSOR_MODE)(((int)CP_System_GetCursorMode() + 1) % 4);
+		CP_System_SetCursorMode(mode);
+		printf("Cursor mode: %s\n", cursorModeNames[mode]);
+	}
+	if (CP_Input_KeyTriggered(CP_KEY_C))
+	{
+		CP_System_ShowConsole(!CP_System_GetConsoleVisible());
+		printf("printf writes here. Press C again to hide the console.\n");
 	}
 
 	const float width = (float)CP_System_GetWindowWidth();
@@ -138,6 +165,10 @@ void game_update(void)
 		snprintf(text, sizeof(text), "1 2 3  Frame rate limit: none");
 	}
 	DrawLine(text, note, 30.0f, 238.0f);
+	snprintf(text, sizeof(text), "M  Mouse cursor: %s", cursorModeNames[CP_System_GetCursorMode()]);
+	DrawLine(text, note, 30.0f, 274.0f);
+	snprintf(text, sizeof(text), "C  Console: %s", OnOff(CP_System_GetConsoleVisible()));
+	DrawLine(text, note, 30.0f, 310.0f);
 }
 
 void game_exit(void)
