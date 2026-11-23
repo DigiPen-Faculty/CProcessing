@@ -47,6 +47,7 @@ more than their title.
 |---|---|
 | [sprite_animation.c](sprite_animation.c) | Animating a character from the frames of a sprite sheet. |
 | [painting.c](painting.c) | A paint program: paint into an image with the mouse, save it as a PNG file and pick it up again the next time, and save numbered screenshots. |
+| [tile_seams.c](tile_seams.c) | Tiles without seams: why thin lines show between tiles (a camera or zoom between pixels, a sprite sheet's neighbors, edges that fade), a key for each fix, and a magnifier that shows the pixels around the mouse. |
 
 ## Sound
 
@@ -113,6 +114,9 @@ Tricks that live inside an example about something bigger.
 | Brick, grass, water or other patterns | [tiled_fill.c](tiled_fill.c) |
 | A moving platform | [tiled_fill.c](tiled_fill.c) |
 | Pixel art from a little text map | [tiled_fill.c](tiled_fill.c) (`MakePixelArt`) |
+| Lines between tiles in a tile map | [tile_seams.c](tile_seams.c) |
+| A camera that doesn't blur pixel art | [tile_seams.c](tile_seams.c) (round where the world lands on the screen) |
+| A magnifier, or a zoomed-in view | [tile_seams.c](tile_seams.c) (`CP_Image_Screenshot`, drawn big with sharp pixels) |
 | Aiming at the mouse, an orbit, an arm with joints | [rotation.c](rotation.c) |
 | A camera that follows and zooms; clicking in a moved world | [camera.c](camera.c) |
 | Text that stays put while the world moves | [camera.c](camera.c) (`CP_Settings_ResetMatrix`) |
