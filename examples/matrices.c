@@ -22,7 +22,8 @@
 //   tank, to aim the turret and to tell if the mouse is over the tank
 // - make a matrix from where its axes point with CP_Matrix_FromVector, to
 //   face a shot along the way it's going without working out an angle
-// - make any matrix you like with CP_Matrix_Set: a slant, for a shadow
+// - write a matrix out number by number with CP_Matrix_Set, to see where
+//   a move lives in it (the shadows)
 // - start from CP_Matrix_Identity (no change), and turn by radians with
 //   CP_Matrix_RotateRadians
 //
@@ -253,19 +254,25 @@ void DrawTank(void)
 {
 	CP_Settings_NoStroke();
 
-	// The shadow: the tank slanted, the same way whichever way it faces, as
-	// if the sun were up and to the left. No other CP_Matrix function makes
-	// a slant, so it's made with CP_Matrix_Set, number by number: x moves by
-	// 0.4 of y, so points lower down move further right. It slants around
-	// (0, 0), so the tank's middle is moved to (0, 0) first, then back, and
-	// a little down and to the right.
-	CP_Matrix slant = CP_Matrix_Set(1.0f, 0.4f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-	CP_Matrix toMiddle = CP_Matrix_Translate(CP_Vector_Negate(tankPosition));
-	CP_Matrix back = CP_Matrix_Translate(CP_Vector_Add(tankPosition, CP_Vector_Set(8.0f, 10.0f)));
-	CP_Matrix shadowMatrix = CP_Matrix_Multiply(back, CP_Matrix_Multiply(slant, toMiddle));
-	CP_Color shadow = CP_Color_Create(0, 0, 0, 70);
-	DrawBody(CP_Matrix_Multiply(shadowMatrix, bodyMatrix), shadow, shadow);
-	DrawTurret(CP_Matrix_Multiply(shadowMatrix, turretMatrix), shadow);
+	// The shadows: each part again, moved down and to the right in the
+	// world, as if the sun were up and to the left. The move comes after the
+	// part's own matrix (it's on the left), so it's the same way whichever
+	// way the tank faces. The drone flies higher, so its shadow lands
+	// further away.
+	// CP_Matrix_Set writes a matrix out number by number. This one is the
+	// same as CP_Matrix_Translate(CP_Vector_Set(8.0f, 10.0f)), written out
+	// to show where a move lives: in the third column, like the white
+	// numbers on the screen. Set makes any matrix, even ones no other
+	// function makes.
+	CP_Matrix tankShadow = CP_Matrix_Set(1.0f, 0.0f, 8.0f, 0.0f, 1.0f, 10.0f, 0.0f, 0.0f, 1.0f);
+	CP_Matrix droneShadow = CP_Matrix_Translate(CP_Vector_Set(30.0f, 38.0f));
+	// Solid, not see-through, so where two shadows overlap isn't darker
+	CP_Color shadow = CP_Color_Create(92, 84, 60, 255);
+	DrawBody(CP_Matrix_Multiply(tankShadow, bodyMatrix), shadow, shadow);
+	DrawTurret(CP_Matrix_Multiply(tankShadow, turretMatrix), shadow);
+	CP_Settings_ResetMatrix();
+	CP_Settings_ApplyMatrix(CP_Matrix_Multiply(droneShadow, droneMatrix));
+	CP_Graphics_DrawCircle(0.0f, 0.0f, 14.0f);
 
 	CP_Color hull = mouseOverTank ? CP_Color_Create(130, 170, 100, 255) : CP_Color_Create(100, 130, 80, 255);
 	DrawBody(bodyMatrix, CP_Color_Create(50, 55, 45, 255), hull);
