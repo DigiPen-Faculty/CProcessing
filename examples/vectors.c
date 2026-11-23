@@ -14,8 +14,9 @@
 // - tell if a guard can see the player: in front, within the angle of its
 //   view (CP_Vector_DotProduct, or CP_Vector_Angle), and close enough
 // - tell which side of a line something is on (CP_Vector_CrossProduct)
-// - chase something, or run away from it (CP_Vector_Negate), turning
-//   smoothly (CP_Vector_Lerp) at a top speed (CP_Vector_Limit)
+// - chase something and slow down to arrive, or run away from it
+//   (CP_Vector_Negate), turning smoothly (CP_Vector_Lerp) at a top speed
+//   (CP_Vector_Limit)
 //
 // Each panel says what to do in it; the mouse is the target, the player or
 // the point in all four.
@@ -287,6 +288,7 @@ CP_Vector creature;
 CP_Vector creatureVelocity;
 CP_BOOL runAway = FALSE;
 const float creatureTopSpeed = 220.0f;
+const float slowDownDistance = 150.0f; // closer than this, a chase slows down to arrive
 
 void DoChase(float dt)
 {
@@ -297,12 +299,23 @@ void DoChase(float dt)
 		runAway = !runAway;
 	}
 
-	// Where it wants to go: straight at the mouse at top speed, or, with
-	// the arrow turned round by CP_Vector_Negate, straight away from it
+	// Where it wants to go, and how fast:
+	// - chasing: straight at the mouse, at top speed while it's far away,
+	//   and slower the closer it gets, down to 0 at the mouse. Always
+	//   wanting top speed would make it overshoot, turn round, overshoot
+	//   again, and never settle.
+	// - running away: the same arrow turned round by CP_Vector_Negate, at
+	//   top speed
 	CP_Vector desired = CP_Vector_Zero();
 	if (InPanel(3, mouse))
 	{
-		desired = CP_Vector_Scale(CP_Vector_Normalize(CP_Vector_Subtract(mouse, creature)), creatureTopSpeed);
+		CP_Vector toMouse = CP_Vector_Subtract(mouse, creature);
+		float speed = creatureTopSpeed;
+		if (!runAway)
+		{
+			speed *= CP_Math_ClampFloat(CP_Vector_Length(toMouse) / slowDownDistance, 0.0f, 1.0f);
+		}
+		desired = CP_Vector_Scale(CP_Vector_Normalize(toMouse), speed);
 		if (runAway)
 		{
 			desired = CP_Vector_Negate(desired);
