@@ -374,14 +374,18 @@ typedef struct
 	CP_BOOL stackRunningStateIsTop;
 	int stackUpdatesWhileRunningBelow; // the state under one letting CP_PASSTHROUGH_ALL through kept running
 	CP_BOOL stackRunningBelowIsNotTop;
-	CP_BOOL stackRunningBelowKeyMuted; // keys and buttons read as up while it runs below
-	float stackRunningBelowMouseX;     // the mouse it sees: where it was when covered
-	float stackMouseXWhenCovered;
-	CP_BOOL stackSettingsBackAfterPop; // its own fill, not the popped state's
-	CP_BOOL stackHarnessSettingsBack;  // the harness's fill, after the stack popped
-	int stackHarnessDepthAfter;        // 1
-	int stackUpdatesOfFirstPushed;     // 4: not while frozen under the hidden one
-	CP_BOOL stackShutdownExitRan;      // a state still pushed when the program ends exits
+	CP_BOOL stackRunningBelowKeyMuted;   // keys and buttons read as up while it runs below
+	float stackRunningBelowMouseX;       // the mouse it sees: where it was when covered
+	float stackMouseXWhenCovered;        // the mouse when it was last covered (by B, then by F)
+	CP_BOOL stackRunningBelowMouseMoved; // it saw another mouse x while covered, in any frame
+	float stackWorldMouseXWhenCovered;   // with its camera moved 37 to the right, when B covered it
+	float stackMouseXWhenBCovered;       // the screen mouse then
+	float stackRunningBelowWorldMouseX;  // the world mouse it sees under B
+	CP_BOOL stackSettingsBackAfterPop;   // its own fill, not the popped state's
+	CP_BOOL stackHarnessSettingsBack;    // the harness's fill, after the stack popped
+	int stackHarnessDepthAfter;          // 1
+	int stackUpdatesOfFirstPushed;       // 4: not while frozen under the hidden one
+	CP_BOOL stackShutdownExitRan;        // a state still pushed when the program ends exits
 
 	// A screenshot drawn in the next state (see Scn_GameStateSnapshot)
 	CP_BOOL snapshotTaken;

@@ -2041,6 +2041,14 @@ static void StackA_Update(void)
 		tier2_scalars.stackRunningBelowIsNotTop = TRUE;
 		tier2_scalars.stackRunningBelowKeyMuted = !CP_Input_KeyDown(CP_KEY_ANY) && !CP_Input_MouseDown(CP_MOUSE_LEFT);
 		tier2_scalars.stackRunningBelowMouseX = CP_Input_GetMouseX();
+		if (tier2_scalars.stackRunningBelowMouseX != tier2_scalars.stackMouseXWhenCovered)
+		{
+			tier2_scalars.stackRunningBelowMouseMoved = TRUE;
+		}
+		if (stackAFrame == 1)
+		{
+			tier2_scalars.stackRunningBelowWorldMouseX = CP_Input_GetMouseWorldX();
+		}
 		if (stackAFrame == 3)
 		{
 			// under F: takes F off too
@@ -2060,13 +2068,22 @@ static void StackA_Update(void)
 		tier2_scalars.stackPushedTime = CP_Engine_GetGameStateTime();
 		CP_Settings_Fill(kStackAFill);
 		tier2_scalars.stackMouseXWhenCovered = CP_Input_GetMouseX();
+		// A camera moved when the push is asked for: the world mouse A sees
+		// under B is the one it saw here (the push happens next frame, when
+		// nothing is moved yet)
+		CP_Settings_Translate(37.0f, 0.0f);
+		tier2_scalars.stackMouseXWhenBCovered = CP_Input_GetMouseX();
+		tier2_scalars.stackWorldMouseXWhenCovered = CP_Input_GetMouseWorldX();
 		CP_Engine_PushGameState(StackB_Init, StackB_Update, StackB_Exit);
+		CP_Settings_ResetMatrix();
 		break;
 	case 1:
 		tier2_scalars.stackSettingsBackAfterPop = SameColor(CP_Settings_GetFill(), kStackAFill);
 		CP_Engine_PushGameState(StackC_Init, StackC_Update, StackC_Exit);
 		break;
 	case 2:
+		// The real mouse may have moved since B covered A: A now keeps this one
+		tier2_scalars.stackMouseXWhenCovered = CP_Input_GetMouseX();
 		CP_Engine_PushGameState(StackF_Init, StackF_Update, StackF_Exit);
 		break;
 	default:

@@ -50,7 +50,12 @@ void test_tier2_gamestate_passing_all_through_keeps_the_state_below_running_with
 	TEST_ASSERT_EQUAL_INT(2, tier2_scalars.stackUpdatesWhileRunningBelow); // under B, then under F
 	TEST_ASSERT_TRUE(tier2_scalars.stackRunningBelowIsNotTop);
 	TEST_ASSERT_TRUE(tier2_scalars.stackRunningBelowKeyMuted);
+	// Each time A is covered, it sees the mouse where it was then, every frame
 	TEST_ASSERT_EQUAL_FLOAT(tier2_scalars.stackMouseXWhenCovered, tier2_scalars.stackRunningBelowMouseX);
+	TEST_ASSERT_FALSE(tier2_scalars.stackRunningBelowMouseMoved);
+	// ...and in the world the same way: with its camera where it was then
+	TEST_ASSERT_EQUAL_FLOAT(tier2_scalars.stackMouseXWhenBCovered - 37.0f, tier2_scalars.stackWorldMouseXWhenCovered);
+	TEST_ASSERT_EQUAL_FLOAT(tier2_scalars.stackWorldMouseXWhenCovered, tier2_scalars.stackRunningBelowWorldMouseX);
 }
 
 void test_tier2_gamestate_a_frozen_state_is_not_updated(void)

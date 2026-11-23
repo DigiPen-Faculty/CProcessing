@@ -427,6 +427,11 @@ void CP_Input_SetMuted(CP_BOOL muted, CP_Vector mouse, CP_Vector worldMouse)
 	_mutedWorldMouse = worldMouse;
 }
 
+CP_BOOL CP_Input_IsMuted(void)
+{
+	return _inputMuted;
+}
+
 //------------------------------------------------------------------------------
 // Library Functions:
 //------------------------------------------------------------------------------
