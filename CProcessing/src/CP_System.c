@@ -1610,11 +1610,12 @@ void CP_Initialize(void)
 
 	// Create the window
 	glfwDefaultWindowHints();
-#ifndef NDEBUG
-	// A debug context reports OpenGL errors in detail but can be slower,
-	// so only Debug builds ask for one
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-#endif
+	// No OpenGL debug context, in Debug builds either. Nothing here installs
+	// a glDebugMessageCallback, so it reported nothing (Debug builds catch
+	// OpenGL errors with NVG_DEBUG's glGetError checks below, which work in
+	// any context). It also made fullscreen at another size fail far more
+	// often on Intel Iris Xe: CP_System_FullscreenAdvanced(1280, 720)
+	// switched the monitor, then Windows switched it back by itself.
 	glfwWindowHint(GLFW_DOUBLEBUFFER, 1); // persistence comes from the canvas framebuffer
 	glfwWindowHint(GLFW_RESIZABLE, _windowResizable);
 	glfwWindowHint(GLFW_VISIBLE, 0);

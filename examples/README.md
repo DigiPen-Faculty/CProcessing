@@ -90,7 +90,7 @@ more than their title.
 
 | Example | What it shows |
 |---|---|
-| [window_options.c](window_options.c) | Fullscreen (at the display's size or a lower one), a resizable window, the window in the middle of the display, vsync, the frame rate limit, the mouse cursor modes and a console for printf, with keys to change them. The display's size and refresh rate, and the frame count. |
+| [window_options.c](window_options.c) | Fullscreen, a resizable window, the window in the middle of the display, vsync, the frame rate limit, the mouse cursor modes and a console for printf, with keys to change them. The display's size and refresh rate, and the frame count. |
 
 ## Looking for...
 

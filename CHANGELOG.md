@@ -321,10 +321,13 @@ Each change says what to do in an existing project.
   that weren't went where they fit. The two are `CP_System_GetWindowHandle`
   and `CP_Matrix_Transpose` (which `matrices.c` mentions), and the wiki
   covers both:
-  - `window_options.c`: the display's size and refresh rate, fullscreen at a
-    lower resolution, the window in the middle of the display, showing and
-    hiding the cursor, the frame count and milliseconds, and reading the
-    stroke back.
+  - `window_options.c`: the display's size and refresh rate, the window in
+    the middle of the display, showing and hiding the cursor, the frame
+    count and milliseconds, and reading the stroke back.
+    `CP_System_FullscreenAdvanced` is left out on purpose: switching the
+    monitor to another size is hard on the player. The wiki warns about it,
+    and shows instead how to draw a game at 1280x720 into an image and
+    stretch it over a fullscreen window.
   - `camera.c`: numbered markers, with an arrow at the edge of the window
     for each one off the screen (`CP_Math_WorldToScreen`), and the part of
     the world the window shows (`CP_Math_ScreenToWorld`).
@@ -653,9 +656,18 @@ Each change says what to do in an existing project.
   144 Hz monitor. It now uses the monitor's highest refresh rate for the
   size. The frame rate is still set by `CP_System_SetFrameRate` (60 by
   default).
-- Release builds of CProcessing no longer ask for an OpenGL debug context
-  or check for an OpenGL error after every drawing step, which could slow
-  drawing down on some graphics drivers. Debug builds still do both.
+- Release builds of CProcessing no longer check for an OpenGL error after
+  every drawing step, which could slow drawing down on some graphics
+  drivers. Debug builds still do.
+- **In Debug builds, fullscreen at another size usually went back to the
+  monitor's own size.** On Intel Iris Xe graphics,
+  `CP_System_FullscreenAdvanced(1280, 720)` switched the monitor, then
+  Windows switched it back to 2560 × 1600 by itself, with the window
+  stretched and frames stalling for seconds. The OpenGL debug context that
+  Debug builds asked for made this far more likely, and CProcessing never
+  used it (there was no debug message callback), so no build asks for one
+  now. It can still happen now and then on that hardware, in GLFW itself,
+  without CProcessing.
 - **`CP_Random_Noise` was wrong for negative coordinates:** it returned
   values far outside 0 to 1 and jumped at every negative whole number. It
   now gives the same smooth noise there as for positive coordinates.

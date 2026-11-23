@@ -6,8 +6,6 @@
 // Shows how to:
 // - switch between fullscreen and a window, with CP_System_IsFullscreen to
 //   know which one it is now
-// - go fullscreen at a lower resolution with CP_System_FullscreenAdvanced:
-//   the monitor switches to the closest size it has
 // - read the display's size and refresh rate with CP_System_GetDisplayWidth,
 //   CP_System_GetDisplayHeight and CP_System_GetDisplayRefreshRate
 // - put the window in the middle of the display with
@@ -29,8 +27,7 @@
 //   after drawing something else
 //
 // Keys:
-//   F - fullscreen or window       G - fullscreen at 1280 x 720, or window
-//   R - resizable or not (try dragging an edge)
+//   F - fullscreen or window       R - resizable or not (try dragging an edge)
 //   P - the window to the middle of the display
 //   V - vsync on or off            1, 2, 3 - frame rate limit 30, 60, none
 //   M - the mouse cursor mode      H - the cursor shown or hidden
@@ -119,21 +116,11 @@ void game_update(void)
 		}
 		else
 		{
+			// Fullscreen at the display's own size. For a game drawn at a
+			// lower resolution, draw it into an image and stretch that to
+			// fit, rather than switching the monitor to another size (the
+			// wiki's CP_System_FullscreenAdvanced shows how, and why).
 			CP_System_Fullscreen();
-		}
-	}
-	if (CP_Input_KeyTriggered(CP_KEY_G))
-	{
-		if (CP_System_IsFullscreen())
-		{
-			CP_System_SetWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-		}
-		else
-		{
-			// Fewer pixels to draw, for a game that's slow at the display's
-			// own size. The window is then 1280 x 720, or the closest size
-			// the monitor has.
-			CP_System_FullscreenAdvanced(1280, 720);
 		}
 	}
 	if (CP_Input_KeyTriggered(CP_KEY_R))
@@ -212,8 +199,6 @@ void game_update(void)
 	float y = 180.0f;
 	snprintf(text, sizeof(text), "F  Fullscreen: %s", OnOff(CP_System_IsFullscreen()));
 	DrawLine(text, note, 30.0f, y);
-	y += 30.0f;
-	DrawLine("G  Fullscreen at 1280 x 720", note, 30.0f, y);
 	y += 30.0f;
 	snprintf(text, sizeof(text), "R  Resizable: %s", OnOff(CP_System_GetWindowResizable()));
 	DrawLine(text, note, 30.0f, y);
