@@ -287,6 +287,12 @@ Each change says what to do in an existing project.
   instance, changed as it plays). Resuming a group brings back every sound
   in it, so the example shows how to pause again what the player paused on
   purpose.
+- **Fonts, `examples/fonts.c`:** loading a font from the assets folder and
+  checking for NULL, choosing it and getting the built-in one back, a
+  helper that puts the font and size back after drawing, measuring text at
+  several sizes, a button that fits its label, a name that shrinks to fit,
+  and a wrapped box with a background that fits it. It loads
+  `Exo2-LightItalic.ttf` from the templates' assets.
 - **Control one sound while it plays:** `CP_Sound_Play` and
   `CP_Sound_PlayAdvanced` now return a `CP_SoundInstance`, one play of the
   sound (programs that ignore it work as before). `CP_Sound_Stop`,

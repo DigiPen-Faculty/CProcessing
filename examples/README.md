@@ -28,6 +28,7 @@ more than their title.
 | [score_and_text.c](score_and_text.c) | A score, a timer and other text, placed and sized on the screen. |
 | [text_effects.c](text_effects.c) | Glowing and shadowed text: a neon sign, a title with a drop shadow, a halo that keeps small text readable, a title that comes in from wide letter spacing, and a dialog box that fits its text as the line spacing changes. |
 | [text_input.c](text_input.c) | Typing a name: reading typed characters, Backspace, Enter and a blinking cursor. |
+| [fonts.c](fonts.c) | Fonts: loading one and checking it loaded, choosing it, measuring text, a button that fits its label, a name that shrinks to fit, a wrapped box, and freeing the font. |
 
 ## Moving and controls
 
@@ -115,6 +116,9 @@ Tricks that live inside an example about something bigger.
 | A score and a timer | [score_and_text.c](score_and_text.c) |
 | Centered or right-aligned text, wrapped text | [score_and_text.c](score_and_text.c) |
 | A dialog box that fits its text | [text_effects.c](text_effects.c) |
+| A font of your own | [fonts.c](fonts.c) (`CP_Font_Load`) |
+| A button that's as wide as its label | [fonts.c](fonts.c) (`CP_Font_GetTextSize`) |
+| A long name that shrinks to fit | [fonts.c](fonts.c) (`CP_Font_GetTextWidth`) |
 | Glowing text, a drop shadow | [text_effects.c](text_effects.c) |
 | Typing a name, a blinking cursor | [text_input.c](text_input.c) |
 | Rebinding keys, showing a key's name | [controls.c](controls.c) |
