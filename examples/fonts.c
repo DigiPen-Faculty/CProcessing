@@ -53,7 +53,6 @@ const float panelTop[4] = { 60.0f, 60.0f, 390.0f, 390.0f };
 // gives it. Other fonts are loaded from files.
 CP_Font builtIn;
 CP_Font italic;
-CP_Font missing;     // a file that isn't there: CP_Font_Load gives NULL
 CP_Font headingFont; // the one F chooses
 
 // What Space goes through
@@ -102,13 +101,20 @@ void DrawLoading(void)
 	DrawInFont(italic, 24.0f, "Exo 2 Light Italic: CP_Font_Load(\"assets/...\")", x, y + 130.0f);
 
 	// A font that didn't load is NULL. CP_Font_Set(NULL) changes nothing,
-	// so text stays in the font chosen before: check, and say so.
-	CP_Settings_Fill(CP_Color_Create(255, 140, 120, 255));
+	// so text would quietly stay in the font chosen before: check, and say
+	// so on the screen, where it's easy to see
 	CP_Settings_TextSize(18.0f);
-	if (missing == NULL)
+	if (italic == NULL)
 	{
-		CP_Font_DrawText("CP_Font_Load(\"assets/Title.ttf\") gave NULL: no such file.", x, y + 180.0f);
+		CP_Settings_Fill(CP_Color_Create(255, 140, 120, 255));
+		CP_Font_DrawText("Exo2-LightItalic.ttf didn't load: CP_Font_Load gave NULL.", x, y + 180.0f);
 		CP_Font_DrawText("Check the name, and that it's in the assets folder.", x, y + 204.0f);
+	}
+	else
+	{
+		CP_Settings_Fill(CP_Color_Create(170, 170, 185, 255));
+		CP_Font_DrawText("If a file isn't found, CP_Font_Load gives NULL, so check", x, y + 180.0f);
+		CP_Font_DrawText("before using the font. This one loaded.", x, y + 204.0f);
 	}
 
 	char text[96];
@@ -248,7 +254,10 @@ void game_init(void)
 	// Load fonts once, in init, like images and sounds
 	builtIn = CP_Font_GetDefault();
 	italic = CP_Font_Load("assets/Exo2-LightItalic.ttf");
-	missing = CP_Font_Load("assets/Title.ttf");
+	if (italic == NULL)
+	{
+		printf("Couldn't load assets/Exo2-LightItalic.ttf\n");
+	}
 	headingFont = builtIn;
 }
 
@@ -284,10 +293,9 @@ void game_update(void)
 void game_exit(void)
 {
 	// Free what CP_Font_Load loaded. The built-in font can't be freed (Free
-	// leaves it alone), and freeing NULL does nothing, so the missing font
-	// is safe to free too.
+	// leaves it alone), and freeing NULL does nothing, so this is safe even
+	// if the font didn't load.
 	CP_Font_Free(&italic);
-	CP_Font_Free(&missing);
 }
 
 int main(void)
