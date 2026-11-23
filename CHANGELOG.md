@@ -696,9 +696,14 @@ Each change says what to do in an existing project.
   example `CP_Font_DrawText("Café", ...)`. Visual Studio read source files
   in the computer's own code page, while `CP_Font_DrawText` expects UTF-8.
   The template, the CMake starter and CProcessing's own projects now pass
-  `/utf-8`, so such text draws as typed. In an existing Visual Studio
-  project, add `/utf-8` under Project Properties > C/C++ > Command Line >
-  Additional Options. Linux and macOS already worked.
+  `/utf-8`, and the template and starter come with an `.editorconfig` that
+  makes Visual Studio save C files as UTF-8 too (without it, typing © into
+  `main.c` saved it in the code page, and the build stopped with warning
+  C4828). So such text draws as typed. In an existing Visual Studio project,
+  add `/utf-8` under Project Properties > C/C++ > Command Line > Additional
+  Options, and copy the template's `.editorconfig` next to the project (or
+  use File > Save As, the arrow on the Save button, Save with Encoding,
+  "Unicode (UTF-8 without signature)"). Linux and macOS already worked.
   ([#15](https://github.com/DigiPen-Faculty/CProcessing/issues/15))
 - **stb_image and stb_truetype, which load images and fonts, are updated to
   2.32 and 1.28** (from 2.30 and 1.26), unmodified. Since then upstream fixed

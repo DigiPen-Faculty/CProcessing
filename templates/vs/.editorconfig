@@ -1,0 +1,8 @@
+# Saves your code as UTF-8, so text such as "© 2026" or "Ünïcødé" in a
+# string shows up when it's drawn. The project compiles with /utf-8; without
+# this file, Visual Studio saves a file with a typed © in your Windows code
+# page instead, and the build stops with warning C4828.
+root = true
+
+[*.{c,h,cpp,hpp}]
+charset = utf-8
