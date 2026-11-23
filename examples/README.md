@@ -79,6 +79,12 @@ more than their title.
 | [easing.c](easing.c) | Twelve easing functions drawn side by side, each with its code to copy: make movement start slow, arrive gently, overshoot or bounce. |
 | [particles.c](particles.c) | Fireworks, a campfire with smoke and sparks, a trail drawn into an image next to one made of particles, and dots joined by lines when they come close, with a glow you can switch on and off. |
 
+## Math
+
+| Example | What it shows |
+|---|---|
+| [vectors.c](vectors.c) | Vectors for games: a turret that turns toward its target the shorter way, a guard that sees the player only in front and close enough (the dot product), which side of a road a point is on (the cross product), and a creature that chases or runs away. |
+
 ## Window
 
 | Example | What it shows |
@@ -118,6 +124,10 @@ Tricks that live inside an example about something bigger.
 | A camera that doesn't blur pixel art | [tile_seams.c](tile_seams.c) (round where the world lands on the screen) |
 | A magnifier, or a zoomed-in view | [tile_seams.c](tile_seams.c) (`CP_Image_Screenshot`, drawn big with sharp pixels) |
 | Aiming at the mouse, an orbit, an arm with joints | [rotation.c](rotation.c) |
+| A turret that turns at its own speed, the shorter way round | [vectors.c](vectors.c) (`CP_Vector_AngleCW`) |
+| An enemy's field of view: can it see the player? | [vectors.c](vectors.c) (`CP_Vector_DotProduct`) |
+| Which side of a line something is on | [vectors.c](vectors.c) (`CP_Vector_CrossProduct`) |
+| An enemy that chases or runs away, turning smoothly | [vectors.c](vectors.c) (`CP_Vector_Negate`, `CP_Vector_Lerp`) |
 | A camera that follows and zooms; clicking in a moved world | [camera.c](camera.c) |
 | Text that stays put while the world moves | [camera.c](camera.c) (`CP_Settings_ResetMatrix`) |
 | A score and a timer | [score_and_text.c](score_and_text.c) |
