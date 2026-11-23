@@ -49,7 +49,7 @@ const float panelTop[6] = { 60.0f, 60.0f, 60.0f, 385.0f, 385.0f, 385.0f };
 //---------------------------------------------------------
 // Helpers
 
-CP_BOOL MouseIsOver(float left, float top, float width, float height)
+bool MouseIsOver(float left, float top, float width, float height)
 {
 	float x = CP_Input_GetMouseX();
 	float y = CP_Input_GetMouseY();
@@ -84,17 +84,17 @@ void DrawSmallText(const char* text, float x, float y)
 // who presses, changes their mind and slides off doesn't click.
 int pressedButton = -1;
 
-// Draws a button and returns TRUE on the frame it's clicked. Give each
+// Draws a button and returns true on the frame it's clicked. Give each
 // button its own id number. Corner x, y.
-CP_BOOL DoButton(int id, float x, float y, float width, float height, const char* label)
+bool DoButton(int id, float x, float y, float width, float height, const char* label)
 {
-	CP_BOOL over = MouseIsOver(x, y, width, height);
+	bool over = MouseIsOver(x, y, width, height);
 	if (over && CP_Input_MouseTriggered(CP_MOUSE_LEFT))
 	{
 		pressedButton = id;
 	}
-	CP_BOOL held = pressedButton == id && CP_Input_MouseDown(CP_MOUSE_LEFT);
-	CP_BOOL clicked = pressedButton == id && over && CP_Input_MouseReleased(CP_MOUSE_LEFT);
+	bool held = pressedButton == id && CP_Input_MouseDown(CP_MOUSE_LEFT);
+	bool clicked = pressedButton == id && over && CP_Input_MouseReleased(CP_MOUSE_LEFT);
 
 	// darker while held down over it, lighter under the mouse
 	CP_Color color = CP_Color_Create(70, 120, 210, 255);
@@ -118,7 +118,7 @@ CP_BOOL DoButton(int id, float x, float y, float width, float height, const char
 }
 
 int count = 0;
-CP_BOOL soundOn = TRUE;
+bool soundOn = true;
 
 void DoButtons(void)
 {
@@ -220,8 +220,8 @@ void DoPressHoldLetGo(float dt)
 //---------------------------------------------------------
 // 3. Click or double click
 
-CP_BOOL folderChosen = FALSE;
-CP_BOOL folderOpen = FALSE;
+bool folderChosen = false;
+bool folderOpen = false;
 
 void DoDoubleClick(void)
 {
@@ -231,7 +231,7 @@ void DoDoubleClick(void)
 
 	float folderX = x + 30.0f;
 	float folderY = y + 100.0f;
-	CP_BOOL over = MouseIsOver(folderX, folderY - 15.0f, 90.0f, 85.0f);
+	bool over = MouseIsOver(folderX, folderY - 15.0f, 90.0f, 85.0f);
 
 	// A double click is two clicks close together: the first one has already
 	// chosen the folder by the time the second one opens it. That's why
@@ -358,7 +358,7 @@ void DoDragAndDrop(void)
 	for (int s = 0; s < SLOT_COUNT; ++s)
 	{
 		CP_Vector c = SlotCenter(s);
-		CP_BOOL target = draggedGem >= 0 && gemInSlot[s] < 0 && CP_Vector_Distance(gems[draggedGem], c) < 45.0f;
+		bool target = draggedGem >= 0 && gemInSlot[s] < 0 && CP_Vector_Distance(gems[draggedGem], c) < 45.0f;
 		CP_Settings_StrokeWeight(3.0f);
 		CP_Settings_Stroke(target ? CP_Color_Create(255, 210, 60, 255) : CP_Color_Create(110, 115, 140, 255));
 		CP_Settings_Fill(CP_Color_Create(30, 32, 44, 255));
@@ -422,7 +422,7 @@ void DoWheel(void)
 // newest first, and whether it was over the panel then
 #define TRAIL_LENGTH 30
 CP_Vector trail[TRAIL_LENGTH];
-CP_BOOL trailOverPanel[TRAIL_LENGTH];
+bool trailOverPanel[TRAIL_LENGTH];
 
 void DoMovement(float dt)
 {
@@ -434,7 +434,7 @@ void DoMovement(float dt)
 	float dx = CP_Input_GetMouseDeltaX();
 	float dy = CP_Input_GetMouseDeltaY();
 	float speed = dt > 0.0f ? CP_Vector_Length(CP_Vector_Set(dx, dy)) / dt : 0.0f;
-	CP_BOOL moved = CP_Input_MouseMoved();
+	bool moved = CP_Input_MouseMoved();
 
 	// The trail moves on one point on every frame the mouse moves, wherever
 	// it is, so it fades as the mouse moves away and starts fresh when it

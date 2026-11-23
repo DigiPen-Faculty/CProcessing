@@ -55,13 +55,13 @@ CP_Sound_PlayAdvanced(sound, volume, pitch, looping, group);
 
 * **volume:** from 0 (silent) to 1 (full).
 * **pitch:** 1 is normal. 2 is an octave higher and twice as fast, 0.5 an octave lower and half as fast. (The pitch and speed go together, like a record played too fast.)
-* **looping:** `TRUE` starts over when it ends, for music. `FALSE` plays once.
+* **looping:** `true` starts over when it ends, for music. `false` plays once.
 * **group:** which group of sounds it belongs to. That's the next step.
 
 The music starts once, in init, and loops for the whole game:
 
 ```C
-musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
+musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, true, CP_SOUND_GROUP_MUSIC);
 ```
 
 ## Step 3: An instance is one play of a sound
@@ -72,7 +72,7 @@ musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MU
 CP_Sound_Pause(musicInstance);			// stops where it is
 CP_Sound_Resume(musicInstance);			// carries on from there
 CP_Sound_Stop(musicInstance);			// ends it
-CP_Sound_IsPlaying(musicInstance);		// TRUE or FALSE
+CP_Sound_IsPlaying(musicInstance);		// true or false
 ```
 
 The program does this when you press **M**. Sound effects are over in a moment, so their instances are usually thrown away.
@@ -103,9 +103,9 @@ A sound should be played at the **moment something happens**, once. In the game,
 ```C
 if (CP_Vector_Distance(things[i].position, player) <= playerRadius + thingRadius)
 {
-	things[i].active = FALSE;		// it's gone, so this can't happen again next frame
+	things[i].active = false;		// it's gone, so this can't happen again next frame
 	...
-	CP_Sound_PlayAdvanced(coinSound, 1.0f, pitch, FALSE, CP_SOUND_GROUP_SFX);
+	CP_Sound_PlayAdvanced(coinSound, 1.0f, pitch, false, CP_SOUND_GROUP_SFX);
 }
 ```
 
@@ -118,7 +118,7 @@ If a player hears the same sound 200 times, it gets tedious. Two small ideas mak
 **A little random pitch.** The program plays the jump and the hit at a pitch of 0.95 to 1.05, so no two sound exactly alike:
 
 ```C
-CP_Sound_PlayAdvanced(sound, 1.0f, CP_Random_RangeFloat(0.95f, 1.05f), FALSE, CP_SOUND_GROUP_SFX);
+CP_Sound_PlayAdvanced(sound, 1.0f, CP_Random_RangeFloat(0.95f, 1.05f), false, CP_SOUND_GROUP_SFX);
 ```
 
 **Pitch that means something.** Catching coins in a row (a **combo**) makes the chime go **higher** each time, so that a combo sounds like a run up a scale, and a miss breaks it:

@@ -73,7 +73,7 @@ const int notePattern[4] = { 0, 1, 2, 1 }; // C E G E, around and around
 // The radio: one play of the music, kept so it can change while it plays
 CP_SoundInstance radio = 0;
 CP_Vector radioPosition;
-CP_BOOL radioOn = TRUE;
+bool radioOn = true;
 float radioVolume = 1.0f;
 float radioPitch = 1.0f;
 float radioRings = 0.0f; // how far its rings have grown, 0 to 1, over and over
@@ -88,14 +88,14 @@ int combo = 0; // coins in a row, each within a second of the last
 float comboTimer = 0.0f;
 
 // The pause menu
-CP_BOOL menuOpen = FALSE;
+bool menuOpen = false;
 int menuChoice = 0;
 #define MENU_ITEMS 3
 float noteTimer = 0.0f;
 int noteIndex = 0;
 
 // Whether the window was in front last frame
-CP_BOOL wasFocused = TRUE;
+bool wasFocused = true;
 
 //---------------------------------------------------------
 // Pausing
@@ -118,7 +118,7 @@ void ApplyPauses(void)
 
 void OpenMenu(void)
 {
-	menuOpen = TRUE;
+	menuOpen = true;
 	menuChoice = 0;
 	noteTimer = 0.0f;
 	noteIndex = 0;
@@ -127,7 +127,7 @@ void OpenMenu(void)
 
 void CloseMenu(void)
 {
-	menuOpen = FALSE;
+	menuOpen = false;
 	CP_Sound_StopGroup(MENU_GROUP); // the menu's notes that are still ringing
 	CP_Sound_ResumeGroup(GAME_MUSIC);
 	CP_Sound_ResumeGroup(GAME_SFX);
@@ -191,7 +191,7 @@ void UpdateGame(float dt)
 		stepTimer -= dt;
 		if (stepTimer <= 0.0f && jumpTime <= 0.0f)
 		{
-			CP_Sound_PlayAdvanced(stepSound, 0.25f, CP_Random_RangeFloat(0.9f, 1.1f), FALSE, GAME_SFX);
+			CP_Sound_PlayAdvanced(stepSound, 0.25f, CP_Random_RangeFloat(0.9f, 1.1f), false, GAME_SFX);
 			stepTimer = 0.3f;
 		}
 	}
@@ -217,7 +217,7 @@ void UpdateGame(float dt)
 		if (CP_Vector_Distance(player, coins[i]) < 34.0f)
 		{
 			float pitch = CP_Math_ClampFloat(1.0f + 0.12f * (float)combo, 1.0f, 2.0f);
-			CP_Sound_PlayAdvanced(coinSound, 0.7f, pitch, FALSE, GAME_SFX);
+			CP_Sound_PlayAdvanced(coinSound, 0.7f, pitch, false, GAME_SFX);
 			++combo;
 			comboTimer = 1.0f;
 			coins[i] = RandomSpotInRoom();
@@ -309,7 +309,7 @@ void UpdateMenu(float dt)
 	noteTimer -= dt;
 	if (noteTimer <= 0.0f)
 	{
-		CP_Sound_PlayAdvanced(notes[notePattern[noteIndex]], 0.35f, 1.0f, FALSE, MENU_GROUP);
+		CP_Sound_PlayAdvanced(notes[notePattern[noteIndex]], 0.35f, 1.0f, false, MENU_GROUP);
 		noteIndex = (noteIndex + 1) % 4;
 		noteTimer = 0.35f;
 	}
@@ -317,12 +317,12 @@ void UpdateMenu(float dt)
 	if (CP_Input_KeyTriggered(CP_KEY_UP))
 	{
 		menuChoice = (menuChoice + MENU_ITEMS - 1) % MENU_ITEMS;
-		CP_Sound_PlayAdvanced(clickSound, 0.4f, 1.5f, FALSE, MENU_GROUP);
+		CP_Sound_PlayAdvanced(clickSound, 0.4f, 1.5f, false, MENU_GROUP);
 	}
 	if (CP_Input_KeyTriggered(CP_KEY_DOWN))
 	{
 		menuChoice = (menuChoice + 1) % MENU_ITEMS;
-		CP_Sound_PlayAdvanced(clickSound, 0.4f, 1.5f, FALSE, MENU_GROUP);
+		CP_Sound_PlayAdvanced(clickSound, 0.4f, 1.5f, false, MENU_GROUP);
 	}
 
 	// Left and Right change the chosen group's volume. It's paused, so the
@@ -340,7 +340,7 @@ void UpdateMenu(float dt)
 	if (menuChoice > 0 && change != 0.0f)
 	{
 		CP_Sound_SetGroupVolume(group, CP_Math_ClampFloat(CP_Sound_GetGroupVolume(group) + change, 0.0f, 1.0f));
-		CP_Sound_PlayAdvanced(clickSound, 0.4f, 1.0f, FALSE, MENU_GROUP);
+		CP_Sound_PlayAdvanced(clickSound, 0.4f, 1.0f, false, MENU_GROUP);
 	}
 
 	if (CP_Input_KeyTriggered(CP_KEY_ENTER) && menuChoice == 0)
@@ -462,7 +462,7 @@ void game_init(void)
 
 	// The radio loops in the music group. Keeping its instance lets the
 	// game change its volume and pitch while it plays.
-	radio = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, GAME_MUSIC);
+	radio = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, true, GAME_MUSIC);
 }
 
 void game_update(void)
@@ -472,7 +472,7 @@ void game_update(void)
 	// Leaving the window pauses every sound, and coming back resumes them
 	// all. Resuming everything also resumes what the menu or the player
 	// paused, so ApplyPauses pauses those again.
-	CP_BOOL focused = CP_System_GetWindowFocus();
+	bool focused = CP_System_GetWindowFocus();
 	if (!focused && wasFocused)
 	{
 		CP_Sound_PauseAll();

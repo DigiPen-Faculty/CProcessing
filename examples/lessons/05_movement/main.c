@@ -104,7 +104,7 @@ const float playerSize = 50.0f;
 const float areaTop = 235.0f; // the player stays below this line
 
 CP_Vector playerPosition;
-CP_BOOL normalizeDirection = TRUE;
+bool normalizeDirection = true;
 float measuredSpeed = 0.0f;
 
 // Which way does the player want to go? A vector from the keys, or the stick.

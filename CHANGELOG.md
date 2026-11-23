@@ -33,8 +33,23 @@ Each change says what to do in an existing project.
   | `GAMEPAD_A`, `GAMEPAD_DPAD_UP`, ... | `CP_GAMEPAD_A`, `CP_GAMEPAD_DPAD_UP`, ... |
   | `FunctionPtr` | `CP_FunctionPtr` |
 
-  `TRUE` and `FALSE` keep their names. `DLL_EXPORT` is gone (use `CP_API`,
-  which is what it was for); a program never needed it.
+  `TRUE` and `FALSE` are gone too (see the next entry). `DLL_EXPORT` is
+  gone (use `CP_API`, which is what it was for); a program never needed it.
+- **Yes-or-no values are C's `bool`, not `CP_BOOL`.** Students learn `bool`,
+  `true` and `false` from `<stdbool.h>` in their C course, while CProcessing
+  had its own `CP_BOOL` (an `unsigned int`) with its own `TRUE` and `FALSE`:
+  two ways to say the same thing. Every function that took or returned a `CP_BOOL` now uses `bool`, and
+  `cprocessing.h` includes `<stdbool.h>`, so `bool` works without an include
+  of your own. In an existing project, search and replace (whole words only):
+
+  | Old | New |
+  |---|---|
+  | `CP_BOOL` | `bool` |
+  | `TRUE` | `true` |
+  | `FALSE` | `false` |
+
+  Code that includes `<windows.h>` still gets Windows' own `TRUE` and
+  `FALSE`, for Windows functions.
 - **`CP_Random_RangeInt` takes and returns an `int`, not an `unsigned int`.**
   A negative bound used to become a number near 4 billion, so
   `CP_Random_RangeInt(-100, 100)` was wrong on every call, with no warning
@@ -431,9 +446,9 @@ Each change says what to do in an existing project.
   code.
 - **Saving images:** `CP_Image_Save(img, "picture.png")` saves any image as
   a PNG file: one loaded, one drawn into, or a screenshot. It returns
-  `TRUE` when the file was written, and when it can't save (no image, a
+  `true` when the file was written, and when it can't save (no image, a
   name that doesn't end in `.png`, a folder that isn't there) it says why
-  and returns `FALSE`. A name without a folder goes in the current folder.
+  and returns `false`. A name without a folder goes in the current folder.
   `examples/painting.c` is a paint program that saves your painting,
   loads it back the next time it starts, and saves numbered screenshots.
   The PNG writing is stb_image_write, from the same stb commit as the
@@ -636,7 +651,7 @@ Each change says what to do in an existing project.
   program that draws once (a painting program, say) filled only the top left
   corner. Programs that redraw every frame never noticed.
 - **Looping music loaded with `CP_Sound_LoadStream` went silent after its first
-  play**, unless it was an Ogg file: `CP_Sound_PlayAdvanced(music, ..., TRUE, ...)`
+  play**, unless it was an Ogg file: `CP_Sound_PlayAdvanced(music, ..., true, ...)`
   played once and then stopped. The cause was in SoLoud, the audio library,
   which used the wrong decoder to jump back to the start. It is fixed in
   every build, and streamed WAV, MP3 and FLAC files now loop.

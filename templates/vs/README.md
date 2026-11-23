@@ -39,7 +39,7 @@ were loaded and never freed. Run from Visual Studio, the list appears in the
 
 ## Seeing `printf` output
 
-The game opens without a console window. Call `CP_System_ShowConsole(TRUE);`
+The game opens without a console window. Call `CP_System_ShowConsole(true);`
 (it's in `main.c`, commented out) to open one.
 
 ## Writing the game in C++

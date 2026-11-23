@@ -31,7 +31,7 @@ CProcessing then calls them for you:
 
 You never call these yourself. Think of `game_update` as a flip book: each frame, you draw one page.
 
-> **Try it:** add `printf("init\n");` to `game_init` and `printf("update\n");` to `game_update`, and add `CP_System_ShowConsole(TRUE);` as the first line of `main`. Run it. How many times does each one print in a second? (`printf` needs `#include <stdio.h>` at the top.)
+> **Try it:** add `printf("init\n");` to `game_init` and `printf("update\n");` to `game_update`, and add `CP_System_ShowConsole(true);` as the first line of `main`. Run it. How many times does each one print in a second? (`printf` needs `#include <stdio.h>` at the top.)
 
 ## Step 2: Set up the window
 
@@ -100,7 +100,7 @@ if (CP_Input_MouseTriggered(CP_MOUSE_LEFT))
 
 `MouseTriggered` is true for **one frame**: the frame the button went down. (If it checked "is the button down" instead, a single click would print a dozen times.) [Input](Input) lists the others.
 
-On Windows, `CP_System_ShowConsole(TRUE);` in `main` opens the console. On Linux and macOS, run your program from a terminal. [Debugging](Debugging) has more.
+On Windows, `CP_System_ShowConsole(true);` in `main` opens the console. On Linux and macOS, run your program from a terminal. [Debugging](Debugging) has more.
 
 ---
 
@@ -126,6 +126,6 @@ Pick two or more.
 * **A shape in the wrong color.** Fill stays set. Set it *before* the shape you want it for.
 * **Nothing appears.** Drawing happens in `game_update`. A `DrawCircle` in `game_init` is erased by the first frame's `ClearBackground`.
 * **A number with a decimal point is passed to `int`, or the other way round.** Positions are `float`s, so write `650.0f`. Colors are `int`s, so write `255`.
-* **No `printf` output.** On Windows, call `CP_System_ShowConsole(TRUE);`.
+* **No `printf` output.** On Windows, call `CP_System_ShowConsole(true);`.
 
 **Next:** [Lesson 2: Shapes and the coordinate system](Lesson-02-Shapes-and-Coordinates), or jump to [Lesson 3: Color](Lesson-03-Color).

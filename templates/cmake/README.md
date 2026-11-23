@@ -60,7 +60,7 @@ result needs a cast: `(CP_Color*)malloc(...)`.
 ## Seeing `printf` output
 
 - **Linux and macOS:** run the game from a terminal, as above.
-- **Windows:** call `CP_System_ShowConsole(TRUE);` (it's in `main.c`,
+- **Windows:** call `CP_System_ShowConsole(true);` (it's in `main.c`,
   commented out) to open a console window.
 
 ## Visual Studio Code

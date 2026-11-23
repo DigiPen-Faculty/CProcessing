@@ -53,7 +53,7 @@ CP_Image stripes;
 CP_Image pixelArt;
 
 float cameraX = 0.0f; // how far into the world the window is
-CP_BOOL sharpPixels = TRUE;
+bool sharpPixels = true;
 
 //---------------------------------------------------------
 // Making the tiles. Each is drawn once, into an image, in game_init.

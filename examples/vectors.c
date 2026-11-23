@@ -57,7 +57,7 @@ CP_Vector MousePosition(void)
 	return CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
 }
 
-CP_BOOL InPanel(int panel, CP_Vector point)
+bool InPanel(int panel, CP_Vector point)
 {
 	return point.x >= panelLeft[panel] && point.x < panelLeft[panel] + PANEL_WIDTH && point.y >= panelTop[panel] + 60.0f &&
 		   point.y < panelTop[panel] + PANEL_HEIGHT;
@@ -195,7 +195,7 @@ void DoGuard(float dt)
 	DrawVectorPanel(1, "Can the guard see you?", "Move the mouse into the guard's view.");
 	CP_Vector guard = CP_Vector_Set(panelLeft[1] + 150.0f, panelTop[1] + 190.0f);
 	CP_Vector player = MousePosition();
-	CP_BOOL playerHere = InPanel(1, player);
+	bool playerHere = InPanel(1, player);
 
 	// The guard looks back and forth, 50 degrees either side of right
 	guardSweep += dt;
@@ -207,9 +207,9 @@ void DoGuard(float dt)
 	CP_Vector toPlayer = CP_Vector_Subtract(player, guard);
 	float dot = CP_Vector_DotProduct(guardFacing, CP_Vector_Normalize(toPlayer));
 	float edge = cosf(CP_Math_Radians(viewAngle / 2.0f));
-	CP_BOOL inView = dot > edge;
-	CP_BOOL closeEnough = CP_Vector_Length(toPlayer) < viewDistance;
-	CP_BOOL seen = playerHere && inView && closeEnough;
+	bool inView = dot > edge;
+	bool closeEnough = CP_Vector_Length(toPlayer) < viewDistance;
+	bool seen = playerHere && inView && closeEnough;
 
 	// The cone: a pie slice centered on where the guard faces, kept inside
 	// the panel (CP_Settings_Clip)
@@ -250,7 +250,7 @@ void DoSide(void)
 	CP_Vector start = CP_Vector_Set(panelLeft[2] + 60.0f, panelTop[2] + 270.0f);
 	CP_Vector end = CP_Vector_Set(panelLeft[2] + 360.0f, panelTop[2] + 100.0f);
 	CP_Vector point = MousePosition();
-	CP_BOOL pointHere = InPanel(2, point);
+	bool pointHere = InPanel(2, point);
 
 	// The cross product of the road's direction and the direction to the
 	// point is positive when the point is clockwise from the road: to its
@@ -286,7 +286,7 @@ void DoSide(void)
 
 CP_Vector creature;
 CP_Vector creatureVelocity;
-CP_BOOL runAway = FALSE;
+bool runAway = false;
 const float creatureTopSpeed = 220.0f;
 const float slowDownDistance = 150.0f; // closer than this, a chase slows down to arrive
 

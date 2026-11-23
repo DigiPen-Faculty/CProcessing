@@ -76,8 +76,8 @@ typedef enum TransitionChange
 
 typedef struct Transition
 {
-	CP_BOOL playing;
-	CP_BOOL asked; // the change has been asked for
+	bool playing;
+	bool asked; // the change has been asked for
 	TransitionKind kind;
 	TransitionDrawFunction draw;
 	float seconds;
@@ -96,8 +96,8 @@ static void Transition_Start(TransitionChange change, TransitionKind kind, float
 	{
 		return; // one at a time
 	}
-	transition.playing = TRUE;
-	transition.asked = FALSE;
+	transition.playing = true;
+	transition.asked = false;
 	transition.kind = kind;
 	transition.seconds = seconds > 0.0f ? seconds : 0.01f;
 	transition.time = 0.0f;
@@ -130,7 +130,7 @@ void Transition_SetDrawFunction(TransitionDrawFunction draw)
 	transition.draw = draw;
 }
 
-CP_BOOL Transition_IsPlaying(void)
+bool Transition_IsPlaying(void)
 {
 	return transition.playing;
 }
@@ -144,7 +144,7 @@ static void Transition_AskForChange(void)
 	case CHANGE_PUSH: CP_Engine_PushGameState(transition.init, transition.update, transition.exit); break;
 	case CHANGE_POP:  CP_Engine_PopGameState(); break;
 	}
-	transition.asked = TRUE;
+	transition.asked = true;
 }
 
 // Slow, fast, slow (examples/easing.c draws this curve and many others)
@@ -234,7 +234,7 @@ void Transition_Draw(void)
 
 	if (transition.time >= transition.seconds)
 	{
-		transition.playing = FALSE;
+		transition.playing = false;
 		CP_Image_Free(&transition.before); // (nothing to free after a fade)
 	}
 }

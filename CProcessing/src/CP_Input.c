@@ -68,7 +68,7 @@ static int mouse_states_realtime[CP_NUM_MOUSE_BUTTONS] = { 0 };
 static bool mouse_pressed_since_update[CP_NUM_MOUSE_BUTTONS] = { false };
 
 // Mouse Wheel
-static int mouse_wheel_captured = FALSE;
+static int mouse_wheel_captured = false;
 static float mouse_wheelx_previous = 0.0f;
 static float mouse_wheely_previous = 0.0f;
 static float mouse_wheelx_current = 0.0f;
@@ -79,8 +79,8 @@ static float mouse_wheely_realtime = 0.0f;
 static double previous_click_time = 0;
 static double current_click_time = 0;
 
-static int mouse_double_clicked_current = FALSE;
-static int mouse_double_clicked_realtime = FALSE;
+static int mouse_double_clicked_current = false;
+static int mouse_double_clicked_realtime = false;
 
 // Mouse Information
 static float _mouseX = 0;
@@ -89,7 +89,7 @@ static float _pmouseX = 0;
 static float _pmouseY = 0;
 static float _worldMouseX = 0;
 static float _worldMouseY = 0;
-static bool _worldMouseIsDirty = TRUE;
+static bool _worldMouseIsDirty = true;
 
 //-------------------------------------
 // Gamepad
@@ -127,12 +127,12 @@ void CP_Input_KeyboardCallback(GLFWwindow* window, int key, int scancode, int ac
 	switch (action)
 	{
 	case GLFW_PRESS:
-		key_states_realtime[key] = TRUE;
+		key_states_realtime[key] = true;
 		key_pressed_since_update[key] = true;
 		key_press_order[key] = ++key_press_count;
 		break;
 	case GLFW_RELEASE:
-		key_states_realtime[key] = FALSE;
+		key_states_realtime[key] = false;
 		break;
 	case GLFW_REPEAT:
 		break;
@@ -154,11 +154,11 @@ void CP_Input_MouseCallback(GLFWwindow* window, int button, int action, int mods
 	switch (action)
 	{
 	case GLFW_PRESS:
-		mouse_states_realtime[button] = TRUE;
+		mouse_states_realtime[button] = true;
 		mouse_pressed_since_update[button] = true;
 		break;
 	case GLFW_RELEASE:
-		mouse_states_realtime[button] = FALSE;
+		mouse_states_realtime[button] = false;
 
 		// Update click times
 		if (button == CP_MOUSE_1)
@@ -168,7 +168,7 @@ void CP_Input_MouseCallback(GLFWwindow* window, int button, int action, int mods
 
 			if (CP_InputLogic_IsDoubleClick(previous_click_time, current_click_time))
 			{
-				mouse_double_clicked_realtime = TRUE;
+				mouse_double_clicked_realtime = true;
 			}
 		}
 		break;
@@ -187,7 +187,7 @@ void CP_Input_MouseWheelCallback(GLFWwindow* window, double xoffset, double yoff
 	mouse_wheely_realtime = (float)yoffset;
 
 	// Mark that the wheel was captured this frame
-	mouse_wheel_captured = TRUE;
+	mouse_wheel_captured = true;
 }
 
 void CP_Input_CharCallback(GLFWwindow* window, unsigned int codepoint)
@@ -295,7 +295,7 @@ void CP_Input_MouseUpdate(void)
 	{
 		mouse_wheelx_current = mouse_wheelx_realtime;
 		mouse_wheely_current = mouse_wheely_realtime;
-		mouse_wheel_captured = FALSE;
+		mouse_wheel_captured = false;
 	}
 	else
 	{
@@ -308,7 +308,7 @@ void CP_Input_MouseUpdate(void)
 
 	// Update double clicks
 	mouse_double_clicked_current = mouse_double_clicked_realtime;
-	mouse_double_clicked_realtime = FALSE;
+	mouse_double_clicked_realtime = false;
 }
 
 void CP_Input_GamepadUpdate(void)
@@ -379,35 +379,35 @@ void CP_Input_WorldMouseUpdate(void)
 	nvgCurrentTransform(CORE->nvg, worldToScreen);     // world to screen
 	nvgTransformInverse(screenToWorld, worldToScreen); // screen to world
 	nvgTransformPoint(&_worldMouseX, &_worldMouseY, screenToWorld, _mouseX, _mouseY);
-	_worldMouseIsDirty = FALSE;
+	_worldMouseIsDirty = false;
 }
 
 void CP_Input_SetWorldMouseDirty(void)
 {
-	_worldMouseIsDirty = TRUE;
+	_worldMouseIsDirty = true;
 }
 
-CP_BOOL CP_Input_IsValidKey(CP_KEY key)
+bool CP_Input_IsValidKey(CP_KEY key)
 {
 	if (key < 0 || key >= CP_NUM_KEYS)
 	{
-		return FALSE;
+		return false;
 	}
 
 	return valid_keys_sparse[key];
 }
 
-CP_BOOL CP_Input_IsValidMouse(CP_MOUSE button)
+bool CP_Input_IsValidMouse(CP_MOUSE button)
 {
 	return (button >= 0 && button <= CP_MOUSE_LAST);
 }
 
-CP_BOOL CP_Input_IsValidGamepad(CP_GAMEPAD button)
+bool CP_Input_IsValidGamepad(CP_GAMEPAD button)
 {
 	return CP_InputLogic_GamepadButtonIsValid(button);
 }
 
-CP_BOOL CP_Input_IsValidGamepadIndex(unsigned index)
+bool CP_Input_IsValidGamepadIndex(unsigned index)
 {
 	return index < CP_MAX_GAMEPADS;
 }
@@ -416,18 +416,18 @@ CP_BOOL CP_Input_IsValidGamepadIndex(unsigned index)
 // while it runs, keys and buttons read as up, the wheel and text are empty,
 // sticks and triggers rest, and the mouse stays where it was when the state
 // was covered. (The engine turns this on and off around each state.)
-static CP_BOOL _inputMuted = FALSE;
+static bool _inputMuted = false;
 static CP_Vector _mutedMouse = { 0 };
 static CP_Vector _mutedWorldMouse = { 0 };
 
-void CP_Input_SetMuted(CP_BOOL muted, CP_Vector mouse, CP_Vector worldMouse)
+void CP_Input_SetMuted(bool muted, CP_Vector mouse, CP_Vector worldMouse)
 {
 	_inputMuted = muted;
 	_mutedMouse = mouse;
 	_mutedWorldMouse = worldMouse;
 }
 
-CP_BOOL CP_Input_IsMuted(void)
+bool CP_Input_IsMuted(void)
 {
 	return _inputMuted;
 }
@@ -439,9 +439,9 @@ CP_BOOL CP_Input_IsMuted(void)
 //-------------------------------------
 // Keyboard
 
-CP_API CP_BOOL CP_Input_KeyTriggered(CP_KEY keyCode)
+CP_API bool CP_Input_KeyTriggered(CP_KEY keyCode)
 {
-	if (_inputMuted) return FALSE;
+	if (_inputMuted) return false;
 	if (keyCode == CP_KEY_ANY)
 	{
 		return key_any_triggered;
@@ -452,7 +452,7 @@ CP_API CP_BOOL CP_Input_KeyTriggered(CP_KEY keyCode)
 		return CP_InputLogic_Triggered(key_states_current[keyCode], key_states_previous[keyCode]);
 	}
 
-	return FALSE;
+	return false;
 }
 
 CP_API CP_KEY CP_Input_GetKeyTriggered(void)
@@ -461,9 +461,9 @@ CP_API CP_KEY CP_Input_GetKeyTriggered(void)
 	return key_first_triggered;
 }
 
-CP_API CP_BOOL CP_Input_KeyReleased(CP_KEY keyCode)
+CP_API bool CP_Input_KeyReleased(CP_KEY keyCode)
 {
-	if (_inputMuted) return FALSE;
+	if (_inputMuted) return false;
 	if (keyCode == CP_KEY_ANY)
 	{
 		return key_any_released;
@@ -474,12 +474,12 @@ CP_API CP_BOOL CP_Input_KeyReleased(CP_KEY keyCode)
 		return CP_InputLogic_Released(key_states_current[keyCode], key_states_previous[keyCode]);
 	}
 
-	return FALSE;
+	return false;
 }
 
-CP_API CP_BOOL CP_Input_KeyDown(CP_KEY keyCode)
+CP_API bool CP_Input_KeyDown(CP_KEY keyCode)
 {
-	if (_inputMuted) return FALSE;
+	if (_inputMuted) return false;
 	if (keyCode == CP_KEY_ANY)
 	{
 		return key_any_down;
@@ -490,66 +490,66 @@ CP_API CP_BOOL CP_Input_KeyDown(CP_KEY keyCode)
 		return key_states_current[keyCode];
 	}
 
-	return FALSE;
+	return false;
 }
 
 //-------------------------------------
 // Mouse
 
-CP_API CP_BOOL CP_Input_MouseTriggered(CP_MOUSE button)
+CP_API bool CP_Input_MouseTriggered(CP_MOUSE button)
 {
-	if (_inputMuted) return FALSE;
+	if (_inputMuted) return false;
 	if (!CP_Input_IsValidMouse(button))
 	{
-		return FALSE;
+		return false;
 	}
 
 	return CP_InputLogic_Triggered(mouse_states_current[button], mouse_states_previous[button]);
 }
 
-CP_API CP_BOOL CP_Input_MouseReleased(CP_MOUSE button)
+CP_API bool CP_Input_MouseReleased(CP_MOUSE button)
 {
-	if (_inputMuted) return FALSE;
+	if (_inputMuted) return false;
 	if (!CP_Input_IsValidMouse(button))
 	{
-		return FALSE;
+		return false;
 	}
 
 	return CP_InputLogic_Released(mouse_states_current[button], mouse_states_previous[button]);
 }
 
-CP_API CP_BOOL CP_Input_MouseDown(CP_MOUSE button)
+CP_API bool CP_Input_MouseDown(CP_MOUSE button)
 {
-	if (_inputMuted) return FALSE;
+	if (_inputMuted) return false;
 	if (!CP_Input_IsValidMouse(button))
 	{
-		return FALSE;
+		return false;
 	}
 
 	return mouse_states_current[button];
 }
 
-CP_API CP_BOOL CP_Input_MouseMoved(void)
+CP_API bool CP_Input_MouseMoved(void)
 {
 	return ((CP_Input_GetMouseX() != CP_Input_GetMousePreviousX()) || (CP_Input_GetMouseY() != CP_Input_GetMousePreviousY()));
 }
 
-CP_API CP_BOOL CP_Input_MouseClicked(void)
+CP_API bool CP_Input_MouseClicked(void)
 {
 	return CP_Input_MouseReleased(CP_MOUSE_LEFT);
 }
 
-CP_API CP_BOOL CP_Input_MouseDoubleClicked(void)
+CP_API bool CP_Input_MouseDoubleClicked(void)
 {
-	if (_inputMuted) return FALSE;
+	if (_inputMuted) return false;
 	return mouse_double_clicked_current;
 }
 
-CP_API CP_BOOL CP_Input_MouseDragged(CP_MOUSE button)
+CP_API bool CP_Input_MouseDragged(CP_MOUSE button)
 {
 	if (!CP_Input_IsValidMouse(button))
 	{
-		return FALSE;
+		return false;
 	}
 
 	return (mouse_states_current[button] && mouse_states_previous[button]) && CP_Input_MouseMoved();
@@ -628,14 +628,14 @@ CP_API float CP_Input_GetMouseWorldY(void)
 //-------------------------------------
 // Gamepad
 
-CP_API CP_BOOL CP_Input_GamepadTriggered(CP_GAMEPAD button)
+CP_API bool CP_Input_GamepadTriggered(CP_GAMEPAD button)
 {
 	return CP_Input_GamepadTriggeredAdvanced(button, _defaultGamepadId);
 }
 
-CP_API CP_BOOL CP_Input_GamepadTriggeredAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
+CP_API bool CP_Input_GamepadTriggeredAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
 {
-	if (_inputMuted) return FALSE;
+	if (_inputMuted) return false;
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		// Wasn't pressed last frame and is pressed this frame
@@ -644,17 +644,17 @@ CP_API CP_BOOL CP_Input_GamepadTriggeredAdvanced(CP_GAMEPAD button, unsigned gam
 			CP_InputLogic_GamepadButtonDown(gamepad_prev_buttons[gamepadIndex], button));
 	}
 
-	return FALSE;
+	return false;
 }
 
-CP_API CP_BOOL CP_Input_GamepadReleased(CP_GAMEPAD button)
+CP_API bool CP_Input_GamepadReleased(CP_GAMEPAD button)
 {
 	return CP_Input_GamepadReleasedAdvanced(button, _defaultGamepadId);
 }
 
-CP_API CP_BOOL CP_Input_GamepadReleasedAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
+CP_API bool CP_Input_GamepadReleasedAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
 {
-	if (_inputMuted) return FALSE;
+	if (_inputMuted) return false;
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		// Was pressed last frame and isn't pressed this frame
@@ -663,24 +663,24 @@ CP_API CP_BOOL CP_Input_GamepadReleasedAdvanced(CP_GAMEPAD button, unsigned game
 			CP_InputLogic_GamepadButtonDown(gamepad_prev_buttons[gamepadIndex], button));
 	}
 
-	return FALSE;
+	return false;
 }
 
-CP_API CP_BOOL CP_Input_GamepadDown(CP_GAMEPAD button)
+CP_API bool CP_Input_GamepadDown(CP_GAMEPAD button)
 {
 	return CP_Input_GamepadDownAdvanced(button, _defaultGamepadId);
 }
 
-CP_API CP_BOOL CP_Input_GamepadDownAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
+CP_API bool CP_Input_GamepadDownAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
 {
-	if (_inputMuted) return FALSE;
+	if (_inputMuted) return false;
 	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
 	{
 		// Is the button down?
 		return CP_InputLogic_GamepadButtonDown(gamepad_curr_buttons[gamepadIndex], button);
 	}
 
-	return FALSE;
+	return false;
 }
 
 CP_API float CP_Input_GamepadRightTrigger(void)
@@ -747,12 +747,12 @@ CP_API CP_Vector CP_Input_GamepadLeftStickAdvanced(unsigned gamepadIndex)
 	return CP_Vector_Zero();
 }
 
-CP_API CP_BOOL CP_Input_GamepadConnected(void)
+CP_API bool CP_Input_GamepadConnected(void)
 {
 	return _defaultGamepadId >= 0;
 }
 
-CP_API CP_BOOL CP_Input_GamepadConnectedAdvanced(unsigned gamepadIndex)
+CP_API bool CP_Input_GamepadConnectedAdvanced(unsigned gamepadIndex)
 {
 	return CP_Input_IsValidGamepadIndex(gamepadIndex) && gamepad_connected[gamepadIndex];
 }

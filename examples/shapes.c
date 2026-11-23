@@ -54,7 +54,7 @@
 #define WINDOW_HEIGHT 600.0f
 #define BLOB_POINTS   8
 
-CP_BOOL showPoints = FALSE;
+bool showPoints = false;
 
 // How the star's outline turns its corners (J changes it)
 #define JOINT_COUNT 3

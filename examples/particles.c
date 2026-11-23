@@ -69,7 +69,7 @@ typedef struct Particle
 Particle particles[MAX_PARTICLES];
 int particleCount = 0; // particles[0] to particles[particleCount - 1] are alive
 
-CP_BOOL glow = TRUE;
+bool glow = true;
 
 // Adds a particle and returns it, for you to set more of it, or NULL if the
 // array is full (then skip it: nobody misses one spark). It starts with a
@@ -185,7 +185,7 @@ typedef struct Rocket
 	CP_Vector velocity;
 	CP_Color color;
 	float sparkTimer; // for SpawnCount
-	CP_BOOL flying;
+	bool flying;
 } Rocket;
 
 Rocket rockets[ROCKET_COUNT];
@@ -222,7 +222,7 @@ void LaunchRocket(void)
 			rocket->velocity = CP_Vector_Set(CP_Random_RangeFloat(-60.0f, 60.0f), CP_Random_RangeFloat(-640.0f, -520.0f));
 			rocket->color = RandomBrightColor();
 			rocket->sparkTimer = 0.0f;
-			rocket->flying = TRUE;
+			rocket->flying = true;
 			return;
 		}
 	}
@@ -267,7 +267,7 @@ void UpdateFireworks(void)
 		if (rocket->velocity.y >= 0.0f)
 		{
 			Burst(rocket->position, rocket->color, 120);
-			rocket->flying = FALSE;
+			rocket->flying = false;
 		}
 	}
 }
@@ -553,7 +553,7 @@ void ChooseScene(int newScene)
 	particleCount = 0; // every particle goes at once
 	for (int i = 0; i < ROCKET_COUNT; ++i)
 	{
-		rockets[i].flying = FALSE;
+		rockets[i].flying = false;
 	}
 	fire = CP_Vector_Set(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT - 120.0f);
 	ClearTrail();

@@ -56,7 +56,7 @@ Box MakeBox(float x, float y, float width, float height)
 
 // A point is inside a box when it is between the left and right edges AND
 // between the top and bottom edges.
-CP_BOOL PointInBox(CP_Vector point, Box box)
+bool PointInBox(CP_Vector point, Box box)
 {
 	const float left = box.center.x - box.width / 2.0f;
 	const float right = box.center.x + box.width / 2.0f;
@@ -67,7 +67,7 @@ CP_BOOL PointInBox(CP_Vector point, Box box)
 
 // Two circles touch when the distance between their centers is no more than
 // their two radii added together.
-CP_BOOL CirclesTouch(CP_Vector centerA, float radiusA, CP_Vector centerB, float radiusB)
+bool CirclesTouch(CP_Vector centerA, float radiusA, CP_Vector centerB, float radiusB)
 {
 	return CP_Vector_Distance(centerA, centerB) <= radiusA + radiusB;
 }
@@ -75,7 +75,7 @@ CP_BOOL CirclesTouch(CP_Vector centerA, float radiusA, CP_Vector centerB, float 
 // A circle touches a box when the point of the box that is closest to the
 // circle's center is inside the circle. Clamping the center to the box's
 // edges finds that point.
-CP_BOOL CircleTouchesBox(CP_Vector center, float radius, Box box)
+bool CircleTouchesBox(CP_Vector center, float radius, Box box)
 {
 	CP_Vector closest;
 	closest.x = CP_Math_ClampFloat(center.x, box.center.x - box.width / 2.0f, box.center.x + box.width / 2.0f);
@@ -102,7 +102,7 @@ CP_Vector playerStart;
 CP_Vector playerPosition;
 
 CP_Vector coinPositions[COIN_COUNT];
-CP_BOOL coinTaken[COIN_COUNT]; // has this coin been collected?
+bool coinTaken[COIN_COUNT]; // has this coin been collected?
 int coinsTaken = 0;
 
 CP_Vector ballPositions[BALL_COUNT];
@@ -110,20 +110,20 @@ CP_Vector ballVelocities[BALL_COUNT]; // pixels per second
 int hits = 0;
 
 // Can a circle be at this spot? It must be inside the window and not touch a wall.
-CP_BOOL CanBeAt(CP_Vector center, float radius)
+bool CanBeAt(CP_Vector center, float radius)
 {
 	if (center.x - radius < 0.0f || center.x + radius > (float)CP_System_GetWindowWidth() || center.y - radius < 0.0f || center.y + radius > (float)CP_System_GetWindowHeight())
 	{
-		return FALSE;
+		return false;
 	}
 	for (int i = 0; i < WALL_COUNT; i++)
 	{
 		if (CircleTouchesBox(center, radius, walls[i]))
 		{
-			return FALSE;
+			return false;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 // Moves a circle by `move`, one direction at a time: across first, then down.
@@ -131,10 +131,10 @@ CP_BOOL CanBeAt(CP_Vector center, float radius)
 // the circle slides along the wall in the other direction. Moving one axis at
 // a time also tells us WHICH way it was blocked, which is what a bouncing ball
 // needs to know. The two flags say which directions were blocked.
-void MoveCircle(CP_Vector* position, CP_Vector move, float radius, CP_BOOL* blockedAcross, CP_BOOL* blockedDown)
+void MoveCircle(CP_Vector* position, CP_Vector move, float radius, bool* blockedAcross, bool* blockedDown)
 {
-	*blockedAcross = FALSE;
-	*blockedDown = FALSE;
+	*blockedAcross = false;
+	*blockedDown = false;
 
 	CP_Vector next = *position;
 	next.x += move.x;
@@ -144,7 +144,7 @@ void MoveCircle(CP_Vector* position, CP_Vector move, float radius, CP_BOOL* bloc
 	}
 	else
 	{
-		*blockedAcross = TRUE;
+		*blockedAcross = true;
 	}
 
 	next = *position;
@@ -155,7 +155,7 @@ void MoveCircle(CP_Vector* position, CP_Vector move, float radius, CP_BOOL* bloc
 	}
 	else
 	{
-		*blockedDown = TRUE;
+		*blockedDown = true;
 	}
 }
 
@@ -164,7 +164,7 @@ void ResetGame(void)
 	playerPosition = playerStart;
 	for (int i = 0; i < COIN_COUNT; i++)
 	{
-		coinTaken[i] = FALSE;
+		coinTaken[i] = false;
 	}
 	coinsTaken = 0;
 	hits = 0;
@@ -205,7 +205,7 @@ void game_update(void)
 	const CP_Vector mouse = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
 
 	// Point in a box: is the mouse over the button when it is clicked?
-	const CP_BOOL overButton = PointInBox(mouse, resetButton);
+	const bool overButton = PointInBox(mouse, resetButton);
 	if ((overButton && CP_Input_MouseTriggered(CP_MOUSE_LEFT)) || CP_Input_KeyTriggered(CP_KEY_R))
 	{
 		ResetGame();
@@ -233,7 +233,7 @@ void game_update(void)
 	{
 		direction = CP_Vector_Normalize(direction);
 	}
-	CP_BOOL blockedAcross, blockedDown;
+	bool blockedAcross, blockedDown;
 	MoveCircle(&playerPosition, CP_Vector_Scale(direction, playerSpeed * dt), playerRadius, &blockedAcross, &blockedDown);
 
 	// Circle and circle: the player takes a coin by touching it
@@ -241,7 +241,7 @@ void game_update(void)
 	{
 		if (!coinTaken[i] && CirclesTouch(playerPosition, playerRadius, coinPositions[i], coinRadius))
 		{
-			coinTaken[i] = TRUE;
+			coinTaken[i] = true;
 			coinsTaken++;
 		}
 	}

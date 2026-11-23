@@ -67,7 +67,7 @@ CP_Vector* grabbed = NULL;
 // the rest is how far along that curve (its t). 2.5 is halfway along the
 // third curve.
 float carPosition = 0.0f;
-CP_BOOL steadySpeed = TRUE;
+bool steadySpeed = true;
 const float carSpeed = 180.0f;      // pixels per second, at a steady speed
 const float curvesPerSecond = 0.9f; // when t moves evenly
 

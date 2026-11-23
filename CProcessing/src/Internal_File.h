@@ -26,7 +26,7 @@ extern "C" {
 // Defines:
 //------------------------------------------------------------------------------
 
-#define CP_IS_ERROR(A)     ((A < 0) ? true : false)
+#define CP_IS_ERROR(A)     ((A) < 0)
 #define CP_OK              true
 #define CP_ERROR_FAILED    false // specified action failed
 #define CP_ERROR_NOT_FOUND -1    // specified file or directory wasnt found

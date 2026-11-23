@@ -225,7 +225,7 @@ void DrawHillsBox(float left, float top)
 #define CLOUD_HEIGHT 52
 CP_Color cloudPixels[CLOUD_WIDTH * CLOUD_HEIGHT]; // row by row from the top left
 CP_Image cloudImage;
-CP_BOOL rainbow = FALSE;
+bool rainbow = false;
 
 // Every pixel gets a number from the noise at its x and y. Adding time to x
 // makes the clouds drift; time as z makes them change shape as they go.

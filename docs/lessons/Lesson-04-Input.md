@@ -47,7 +47,7 @@ triggeredLampUntil = CP_System_GetSeconds() + 0.25f;
 DrawLamp("Triggered", x, y, CP_System_GetSeconds() < triggeredLampUntil, color);
 ```
 
-> **Try it:** add `printf("triggered\n");` inside the `Triggered` check and `printf("down\n");` inside the `Down` check (and `CP_System_ShowConsole(TRUE);` in `main`). Tap the key, then hold it. How many lines of each?
+> **Try it:** add `printf("triggered\n");` inside the `Triggered` check and `printf("down\n");` inside the `Down` check (and `CP_System_ShowConsole(true);` in `main`). Tap the key, then hold it. How many lines of each?
 
 ## Step 2: The mouse
 
@@ -182,7 +182,7 @@ If more than one gamepad is plugged in, the functions that end in `Advanced` tak
 Players have different keyboards, mice and gamepads, and some can use only one of them. Good games take input in several ways. A common pattern is to turn every kind of input into one *meaning*, and then use the meaning:
 
 ```C
-CP_BOOL goLeft = CP_Input_KeyDown(CP_KEY_LEFT) || CP_Input_KeyDown(CP_KEY_A)
+bool goLeft = CP_Input_KeyDown(CP_KEY_LEFT) || CP_Input_KeyDown(CP_KEY_A)
 	|| CP_Input_GamepadLeftStick().x < -0.5f;
 ```
 

@@ -54,7 +54,7 @@ static void CP_AddImageHandle(CP_Image img)
 {
 	// push a new image, used once so far
 	img->ref_count = 1;
-	img->drawable = FALSE;
+	img->drawable = false;
 	img->framebuffer = 0;
 	img->depthStencil = 0;
 	vect_push_CP_Image(image_vector, img);
@@ -246,7 +246,7 @@ CP_API CP_Image CP_Image_Load(const char* filepath)
 	// populate width/height
 	nvgImageSize(CORE->nvg, img->handle, &img->w, &img->h);
 
-	img->load_error = FALSE;
+	img->load_error = false;
 
 	CP_AddImageHandle(img);
 
@@ -349,7 +349,7 @@ CP_API CP_Image CP_Image_CreateFromData(int width, int height, const CP_Color* p
 	img->w = width;
 	img->h = height;
 
-	img->load_error = FALSE;
+	img->load_error = false;
 
 	CP_AddImageHandle(img);
 
@@ -386,9 +386,9 @@ CP_API CP_Image CP_Image_Create(int width, int height)
 	}
 	img->w = width;
 	img->h = height;
-	img->load_error = FALSE;
+	img->load_error = false;
 	CP_AddImageHandle(img);
-	img->drawable = TRUE;
+	img->drawable = true;
 	return img;
 }
 
@@ -547,12 +547,12 @@ CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 }
 
 // Whether a file name ends in ".png", in capitals or not
-static CP_BOOL CP_EndsInPNG(const char* filepath)
+static bool CP_EndsInPNG(const char* filepath)
 {
 	const size_t length = strlen(filepath);
 	if (length < 4)
 	{
-		return FALSE;
+		return false;
 	}
 	const char* end = filepath + length - 4;
 	return end[0] == '.' && tolower((unsigned char)end[1]) == 'p' && tolower((unsigned char)end[2]) == 'n' &&
@@ -563,23 +563,23 @@ static CP_BOOL CP_EndsInPNG(const char* filepath)
 // another kind of file is refused rather than given a PNG inside. Every
 // failure says why: a save that quietly does nothing leaves a student
 // looking for a file that isn't there.
-CP_API CP_BOOL CP_Image_Save(CP_Image img, const char* filepath)
+CP_API bool CP_Image_Save(CP_Image img, const char* filepath)
 {
 	CP_CorePtr CORE = GetCPCore();
 	if (!img)
 	{
 		printf("CProcessing: CP_Image_Save was given no image (NULL), so nothing was saved.\n");
-		return FALSE;
+		return false;
 	}
 	if (!filepath || filepath[0] == '\0')
 	{
 		printf("CProcessing: CP_Image_Save needs a file name, such as \"picture.png\".\n");
-		return FALSE;
+		return false;
 	}
 	if (!CP_EndsInPNG(filepath))
 	{
 		printf("CProcessing: CP_Image_Save writes PNG files, so the name must end in .png: %s was not saved.\n", filepath);
-		return FALSE;
+		return false;
 	}
 
 	// A freed image: NanoVG no longer knows its size
@@ -591,17 +591,17 @@ CP_API CP_BOOL CP_Image_Save(CP_Image img, const char* filepath)
 	if (w <= 0 || h <= 0)
 	{
 		printf("CProcessing: CP_Image_Save was given an image that has been freed: %s was not saved.\n", filepath);
-		return FALSE;
+		return false;
 	}
 
 	CP_Color* pixels = (CP_Color*)malloc(sizeof(CP_Color) * (size_t)w * (size_t)h);
 	if (!pixels)
 	{
 		printf("CProcessing: not enough memory to save %s.\n", filepath);
-		return FALSE;
+		return false;
 	}
 	CP_Image_GetPixelData(img, pixels);
-	const CP_BOOL saved = CP_WritePNG(filepath, w, h, pixels) != 0;
+	const bool saved = CP_WritePNG(filepath, w, h, pixels) != 0;
 	free(pixels);
 	if (!saved)
 	{

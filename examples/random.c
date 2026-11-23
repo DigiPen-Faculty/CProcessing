@@ -113,7 +113,7 @@ void DrawBars(float left, float bottom, float width, float height, const int cou
 // 1. Dice and coins
 
 int dice[2] = { 3, 4 };
-CP_BOOL heads = TRUE;
+bool heads = true;
 int totals[11]; // how many times each total came up: totals[0] is 2, totals[10] is 12
 const char* totalLabels[11] = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" };
 
@@ -258,7 +258,7 @@ int rarityCounts[RARITY_COUNT];
 int lastRarity = -1;
 int chests = 0;
 int criticalHits = 0;
-CP_BOOL lastWasCritical = FALSE;
+bool lastWasCritical = false;
 
 // A number from 0 to the total of the weights, then take each weight off in
 // turn: the one that takes it below 0 wins. A weight of 30 wins three times

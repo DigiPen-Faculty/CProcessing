@@ -36,7 +36,7 @@
 #define MAX_NAME_BYTES 24 // room for 23 bytes of text and the ending 0
 
 char name[MAX_NAME_BYTES] = "";
-CP_BOOL entered = FALSE; // TRUE once the player has pressed Enter
+bool entered = false; // true once the player has pressed Enter
 
 // Remove the last character. The name is UTF-8, in which characters such as
 // "é" take more than one byte: bytes that start with the bits 10 are the
@@ -86,14 +86,14 @@ void game_update(void)
 		// Enter finishes, as long as there is a name
 		if (CP_Input_KeyTriggered(CP_KEY_ENTER) && strlen(name) > 0)
 		{
-			entered = TRUE;
+			entered = true;
 		}
 	}
 	else if (CP_Input_KeyTriggered(CP_KEY_ENTER))
 	{
 		// Enter again starts over
 		name[0] = '\0';
-		entered = FALSE;
+		entered = false;
 	}
 
 	CP_Graphics_ClearBackground(CP_Color_Create(30, 30, 50, 255));

@@ -59,7 +59,7 @@ void CP_Random_Init(void)
 // Library Functions:
 //------------------------------------------------------------------------------
 
-CP_API CP_BOOL CP_Random_GetBool(void)
+CP_API bool CP_Random_GetBool(void)
 {
 	return internalRand() & 0x01;
 }

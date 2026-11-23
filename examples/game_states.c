@@ -203,7 +203,7 @@ void pause_update(void)
 //-------------------------
 // GAME OVER
 
-CP_BOOL newBest;
+bool newBest;
 
 void game_over_init(void)
 {

@@ -48,10 +48,10 @@ static CP_Core _CORE = {
 };
 static bool _isInitialized = false;
 
-static CP_BOOL _deferredSizeChange = FALSE;
+static bool _deferredSizeChange = false;
 static int _deferredWidth = 0;
 static int _deferredHeight = 0;
-static CP_BOOL _deferredFullscreen = FALSE;
+static bool _deferredFullscreen = false;
 
 // Window settings that may be requested before the window exists; they are
 // stored here and applied when CP_Initialize creates the window
@@ -101,8 +101,8 @@ static HANDLE _frameTimer = NULL;
 
 // Window and display options that can be chosen before CP_Engine_Run, and
 // are used when the window opens
-static CP_BOOL _vsync = FALSE;
-static CP_BOOL _windowResizable = FALSE;
+static bool _vsync = false;
+static bool _windowResizable = false;
 
 // Frames since the start of the program
 static unsigned int _frameCount;
@@ -713,14 +713,14 @@ void CP_Canvas_EndImage(void)
 	}
 }
 
-CP_BOOL CP_Canvas_IsDrawingIntoImage(void)
+bool CP_Canvas_IsDrawingIntoImage(void)
 {
-	return _drawingIntoImage ? TRUE : FALSE;
+	return _drawingIntoImage;
 }
 
-CP_BOOL CP_Canvas_IsPremultiplied(void)
+bool CP_Canvas_IsPremultiplied(void)
 {
-	return _drawLayerPremultiplied ? TRUE : FALSE;
+	return _drawLayerPremultiplied;
 }
 
 CP_CorePtr GetCPCore(void)
@@ -798,7 +798,7 @@ static void CP_GameStates_Activate(CP_StateSlot* slot, bool top)
 		}
 	}
 	CP_SetDrawLayer(slot->layer, !slot->bottom);
-	CP_Input_SetMuted(top ? FALSE : TRUE, slot->mouseWhenCovered, slot->worldMouseWhenCovered);
+	CP_Input_SetMuted(!top, slot->mouseWhenCovered, slot->worldMouseWhenCovered);
 }
 
 static void CP_GameStates_MakeCurrent(int index)
@@ -1148,9 +1148,9 @@ CP_API int CP_Engine_GetGameStateDepth(void)
 	return _stack.depth;
 }
 
-CP_API CP_BOOL CP_Engine_IsTopGameState(void)
+CP_API bool CP_Engine_IsTopGameState(void)
 {
-	return (_runningSlot >= 0 && _runningSlot == CP_GameStates_Top()) ? TRUE : FALSE;
+	return (_runningSlot >= 0 && _runningSlot == CP_GameStates_Top());
 }
 
 CP_API float CP_Engine_GetGameStateTime(void)
@@ -1202,41 +1202,41 @@ CP_API void CP_System_FullscreenAdvanced(int targetWidth, int targetHeight)
 	CP_SetWindowSizeInternal(targetWidth, targetHeight, true);
 }
 
-CP_API CP_BOOL CP_System_IsFullscreen(void)
+CP_API bool CP_System_IsFullscreen(void)
 {
 	if (_CORE.window && _CORE.nvg)
 	{
 		// a window on a monitor is fullscreen
-		return glfwGetWindowMonitor(_CORE.window) != NULL ? TRUE : FALSE;
+		return glfwGetWindowMonitor(_CORE.window) != NULL;
 	}
 	// no window yet: what was asked for before CP_Engine_Run
-	return (_deferredSizeChange ? _deferredFullscreen : (CP_BOOL)_CORE.isFullscreen) ? TRUE : FALSE;
+	return (_deferredSizeChange ? _deferredFullscreen : (bool)_CORE.isFullscreen);
 }
 
-CP_API void CP_System_SetWindowResizable(CP_BOOL resizable)
+CP_API void CP_System_SetWindowResizable(bool resizable)
 {
-	_windowResizable = resizable ? TRUE : FALSE;
+	_windowResizable = resizable;
 	if (_CORE.window && _CORE.nvg)
 	{
 		glfwSetWindowAttrib(_CORE.window, GLFW_RESIZABLE, _windowResizable);
 	}
 }
 
-CP_API CP_BOOL CP_System_GetWindowResizable(void)
+CP_API bool CP_System_GetWindowResizable(void)
 {
 	return _windowResizable;
 }
 
-CP_API void CP_System_SetVSync(CP_BOOL vsync)
+CP_API void CP_System_SetVSync(bool vsync)
 {
-	_vsync = vsync ? TRUE : FALSE;
+	_vsync = vsync;
 	if (_CORE.window && _CORE.nvg)
 	{
 		glfwSwapInterval(_vsync ? 1 : 0);
 	}
 }
 
-CP_API CP_BOOL CP_System_GetVSync(void)
+CP_API bool CP_System_GetVSync(void)
 {
 	return _vsync;
 }
@@ -1321,9 +1321,9 @@ CP_API void CP_System_SetWindowTitle(const char* title)
 	}
 }
 
-CP_API CP_BOOL CP_System_GetWindowFocus(void)
+CP_API bool CP_System_GetWindowFocus(void)
 {
-	return _CORE.window && glfwGetWindowAttrib(_CORE.window, GLFW_FOCUSED) ? TRUE : FALSE;
+	return _CORE.window && glfwGetWindowAttrib(_CORE.window, GLFW_FOCUSED);
 }
 
 static void CP_ApplyCursorMode(void)
@@ -1355,14 +1355,14 @@ static void CP_ApplyCursorMode(void)
 	}
 }
 
-CP_API void CP_System_ShowCursor(CP_BOOL show)
+CP_API void CP_System_ShowCursor(bool show)
 {
 	CP_System_SetCursorMode(show ? CP_CURSOR_NORMAL : CP_CURSOR_HIDDEN);
 }
 
-CP_API CP_BOOL CP_System_GetCursorVisible(void)
+CP_API bool CP_System_GetCursorVisible(void)
 {
-	return _cursorMode == CP_CURSOR_NORMAL || _cursorMode == CP_CURSOR_CAPTURED ? TRUE : FALSE;
+	return _cursorMode == CP_CURSOR_NORMAL || _cursorMode == CP_CURSOR_CAPTURED;
 }
 
 CP_API void CP_System_SetCursorMode(CP_CURSOR_MODE mode)
@@ -1389,7 +1389,7 @@ CP_API CP_CURSOR_MODE CP_System_GetCursorMode(void)
 //		A text console, so printf debugging works.
 //
 //		Windows: programs built as GUI apps (the CProcessing template)
-//		start without a console. The first CP_System_ShowConsole(TRUE)
+//		start without a console. The first CP_System_ShowConsole(true)
 //		attaches to the terminal the program was started from, or else opens a
 //		new console window, and points stdout, stderr and stdin at it.
 //		A console window the program has to itself is then only ever hidden
@@ -1442,7 +1442,7 @@ static void CP_Console_PrepareStreams(void)
 	setvbuf(stderr, NULL, _IONBF, 0);
 }
 
-CP_API void CP_System_ShowConsole(CP_BOOL show)
+CP_API void CP_System_ShowConsole(bool show)
 {
 #if defined(_WIN32)
 	if (show && GetConsoleWindow() == NULL)
@@ -1474,7 +1474,7 @@ CP_API void CP_System_ShowConsole(CP_BOOL show)
 		if (GetConsoleProcessList(processes, 2) == 1)
 		{
 			_consoleWindow = console;
-			HMENU menu = GetSystemMenu(console, FALSE);
+			HMENU menu = GetSystemMenu(console, false);
 			if (menu)
 			{
 				DeleteMenu(menu, SC_CLOSE, MF_BYCOMMAND);
@@ -1495,12 +1495,12 @@ CP_API void CP_System_ShowConsole(CP_BOOL show)
 #endif
 }
 
-CP_API CP_BOOL CP_System_GetConsoleVisible(void)
+CP_API bool CP_System_GetConsoleVisible(void)
 {
 #if defined(_WIN32)
-	return GetConsoleWindow() != NULL && !_consoleHidden ? TRUE : FALSE;
+	return GetConsoleWindow() != NULL && !_consoleHidden;
 #else
-	return isatty(STDOUT_FILENO) ? TRUE : FALSE;
+	return isatty(STDOUT_FILENO);
 #endif
 }
 
@@ -1568,7 +1568,7 @@ static void CP_InitializeFailed(void)
 
 void CP_Initialize(void)
 {
-	if (_isInitialized == true)
+	if (_isInitialized)
 		return;
 
 	// Initialize CP_Core to default
@@ -1773,7 +1773,7 @@ void CP_Report_AddLine(CP_Report* report, const char* format, ...)
 	{
 		// keep only whole lines
 		report->text[report->length] = '\0';
-		report->truncated = TRUE;
+		report->truncated = true;
 		return;
 	}
 	report->length += (size_t)written;
@@ -1869,7 +1869,7 @@ void CP_ApplyWindowSizeChosenInInit(void)
 		return;
 	}
 	nvgEndFrame(_CORE.nvg);
-	_deferredSizeChange = FALSE;
+	_deferredSizeChange = false;
 	CP_DeferredSetWindowSizeInternal(_deferredWidth, _deferredHeight, _deferredFullscreen);
 	CP_Canvas_Resize(_CORE.canvas_width, _CORE.canvas_height);
 	CP_Canvas_Bind();
@@ -1882,7 +1882,7 @@ void CP_FrameStart(void)
 
 	if (_deferredSizeChange)
 	{
-		_deferredSizeChange = FALSE;
+		_deferredSizeChange = false;
 		CP_DeferredSetWindowSizeInternal(_deferredWidth, _deferredHeight, _deferredFullscreen);
 	}
 
@@ -2084,7 +2084,7 @@ void CP_FrameRate_FrameEnd(void)
 
 void CP_SetWindowSizeInternal(int new_width, int new_height, bool isFullscreen)
 {
-	_deferredSizeChange = TRUE;
+	_deferredSizeChange = true;
 	_deferredWidth = new_width;
 	_deferredHeight = new_height;
 	_deferredFullscreen = isFullscreen;

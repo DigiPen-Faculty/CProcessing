@@ -24,12 +24,12 @@
 // added to the part started last, so the whole outline comes first (or after
 // all the holes); BeginHole closes it, since NanoVG can only close the part
 // it's adding to.
-static CP_BOOL inShape = FALSE;          // between BeginShape and EndShape
-static CP_BOOL inHole = FALSE;           // between BeginHole and EndHole
-static CP_BOOL firstVertex = FALSE;      // the next point starts a part
-static CP_BOOL outlineStarted = FALSE;   // the outline has a point
-static CP_BOOL outlineFinished = FALSE;  // and a hole came after it
-static CP_BOOL toldOutlineFirst = FALSE; // the message below, once per run
+static bool inShape = false;          // between BeginShape and EndShape
+static bool inHole = false;           // between BeginHole and EndHole
+static bool firstVertex = false;      // the next point starts a part
+static bool outlineStarted = false;   // the outline has a point
+static bool outlineFinished = false;  // and a hole came after it
+static bool toldOutlineFirst = false; // the message below, once per run
 
 //------------------------------------------------------------------------------
 // Internal Functions:
@@ -215,7 +215,7 @@ CP_API void CP_Graphics_DrawEllipse(float x, float y, float w, float h)
 // diameter, or with its top left at (x, y) in CP_POSITION_CORNER ellipse mode, as for
 // CP_Graphics_DrawCircle. Angles are in degrees, 0 is to the right and a
 // positive sweep goes clockwise (y points down), like CP_Vector_FromAngle.
-static void ArcPath(CP_CorePtr CORE, CP_DrawInfoPtr DI, float x, float y, float diameter, float startDegrees, float sweepDegrees, CP_BOOL pie)
+static void ArcPath(CP_CorePtr CORE, CP_DrawInfoPtr DI, float x, float y, float diameter, float startDegrees, float sweepDegrees, bool pie)
 {
 	const float radius = diameter * 0.5f;
 	if (DI->ellipse_mode == CP_POSITION_CORNER)
@@ -248,7 +248,7 @@ CP_API void CP_Graphics_DrawArc(float x, float y, float diameter, float startDeg
 	// Just the curved line, like DrawLine: it has no fill
 	if (DI->stroke)
 	{
-		ArcPath(CORE, DI, x, y, diameter, startDegrees, sweepDegrees, FALSE);
+		ArcPath(CORE, DI, x, y, diameter, startDegrees, sweepDegrees, false);
 		nvgStroke(CORE->nvg);
 	}
 }
@@ -261,7 +261,7 @@ CP_API void CP_Graphics_DrawPie(float x, float y, float diameter, float startDeg
 	if (!CORE->nvg)
 		return; // no window yet: CP_Engine_Run hasn't started
 
-	ArcPath(CORE, DI, x, y, diameter, startDegrees, sweepDegrees, TRUE);
+	ArcPath(CORE, DI, x, y, diameter, startDegrees, sweepDegrees, true);
 	if (DI->fill)
 	{
 		CP_Settings_FillPath();
@@ -356,32 +356,32 @@ CP_API void CP_Graphics_BeginShape(void)
 	if (!CORE->nvg)
 		return; // no window yet: CP_Engine_Run hasn't started
 	nvgBeginPath(CORE->nvg);
-	inShape = TRUE;
-	inHole = FALSE;
-	firstVertex = TRUE;
-	outlineStarted = FALSE;
-	outlineFinished = FALSE;
+	inShape = true;
+	inHole = false;
+	firstVertex = true;
+	outlineStarted = false;
+	outlineFinished = false;
 }
 
 // Whether a point can be added now: only in a shape, and not to an outline
 // that a hole has already closed. A point there would be added to the hole
 // (NanoVG's last part), so it's left out, with a message the first time.
-static CP_BOOL CP_Graphics_CanAddPoint(const char* function)
+static bool CP_Graphics_CanAddPoint(const char* function)
 {
 	if (!GetCPCore()->nvg || !inShape)
 	{
-		return FALSE;
+		return false;
 	}
 	if (!inHole && outlineFinished)
 	{
 		if (!toldOutlineFirst)
 		{
 			printf("CProcessing: %s after a hole was ignored. Add the whole outline of a shape first, then its holes.\n", function);
-			toldOutlineFirst = TRUE;
+			toldOutlineFirst = true;
 		}
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 // The first point of the outline or of a hole starts a new part of the path
@@ -397,9 +397,9 @@ static void CP_Graphics_StartPart(float x, float y)
 	}
 	else
 	{
-		outlineStarted = TRUE;
+		outlineStarted = true;
 	}
-	firstVertex = FALSE;
+	firstVertex = false;
 }
 
 CP_API void CP_Graphics_AddVertex(float x, float y)
@@ -466,10 +466,10 @@ CP_API void CP_Graphics_BeginHole(void)
 	}
 	if (outlineStarted)
 	{
-		outlineFinished = TRUE;
+		outlineFinished = true;
 	}
-	inHole = TRUE;
-	firstVertex = TRUE;
+	inHole = true;
+	firstVertex = true;
 }
 
 CP_API void CP_Graphics_EndHole(void)
@@ -479,15 +479,15 @@ CP_API void CP_Graphics_EndHole(void)
 		return;
 
 	nvgClosePath(vg);
-	inHole = FALSE;
-	firstVertex = TRUE; // an outline after all the holes starts its own part
+	inHole = false;
+	firstVertex = true; // an outline after all the holes starts its own part
 }
 
 // Fill and outline the shape made since CP_Graphics_BeginShape. The outline
 // goes back to the first vertex unless open is set (an outline a hole came
 // after is closed already); the fill always covers the whole shape (an open
 // outline's fill is still closed). Holes are always closed.
-static void CP_Graphics_EndShapeInternal(CP_BOOL open)
+static void CP_Graphics_EndShapeInternal(bool open)
 {
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
@@ -503,8 +503,8 @@ static void CP_Graphics_EndShapeInternal(CP_BOOL open)
 	{
 		nvgClosePath(CORE->nvg); // the outline, still the part being added to
 	}
-	inShape = FALSE;
-	inHole = FALSE;
+	inShape = false;
+	inHole = false;
 	if (DI->fill)
 	{
 		CP_Settings_FillPath();
@@ -519,11 +519,11 @@ static void CP_Graphics_EndShapeInternal(CP_BOOL open)
 // (It used to be closed only when the fill was on.)
 CP_API void CP_Graphics_EndShape(void)
 {
-	CP_Graphics_EndShapeInternal(FALSE);
+	CP_Graphics_EndShapeInternal(false);
 }
 
 // The outline stops at the last vertex: a path, a zigzag, a graph line
 CP_API void CP_Graphics_EndShapeOpen(void)
 {
-	CP_Graphics_EndShapeInternal(TRUE);
+	CP_Graphics_EndShapeInternal(true);
 }

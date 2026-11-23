@@ -252,9 +252,9 @@ To build against a local copy of CProcessing instead of the download, add
   compiles unchanged on all three platforms. `cprocessing.h` includes no OS
   headers. Code that needs Windows APIs includes `<windows.h>` itself.
   `CP_System_GetWindowHandle` returns a `void*`; cast it to `HWND` on Windows.
-- **Console output.** `CP_System_ShowConsole(TRUE)` makes `printf` output
+- **Console output.** `CP_System_ShowConsole(true)` makes `printf` output
   visible. On Windows it uses the terminal the program was started from, or
-  else opens a console window, which `CP_System_ShowConsole(FALSE)` hides
+  else opens a console window, which `CP_System_ShowConsole(false)` hides
   again. On Linux and macOS, output goes to the terminal the program was
   started from, so run it from a terminal to see it. On every platform,
   showing the console also turns off output buffering, so each `printf`

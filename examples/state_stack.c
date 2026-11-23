@@ -114,7 +114,7 @@ void menu_update(void)
 CP_Vector player;
 CP_Vector balls[BALL_COUNT];
 CP_Vector ballVelocities[BALL_COUNT];
-CP_BOOL fastBalls = FALSE; // the options page turns it on and off
+bool fastBalls = false; // the options page turns it on and off
 
 void game_init(void)
 {

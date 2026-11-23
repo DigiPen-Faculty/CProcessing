@@ -67,7 +67,7 @@ CP_API void				CP_Engine_PushGameState				(CP_FunctionPtr init, CP_FunctionPtr u
 CP_API void				CP_Engine_PopGameState				(void);
 CP_API void				CP_Engine_SetGameStatePassThrough	(CP_PASSTHROUGH passThrough);
 CP_API int				CP_Engine_GetGameStateDepth			(void);
-CP_API CP_BOOL			CP_Engine_IsTopGameState			(void);
+CP_API bool				CP_Engine_IsTopGameState			(void);
 CP_API float			CP_Engine_GetGameStateTime			(void);	// Seconds since this state's init, not counting time frozen under another
 CP_API void				CP_Engine_SetPreUpdateFunction		(CP_FunctionPtr preUpdateFunction);
 CP_API void				CP_Engine_SetPostUpdateFunction		(CP_FunctionPtr postUpdateFunction);
@@ -80,7 +80,7 @@ CP_API void				CP_System_SetWindowSize				(int width, int height);
 CP_API void				CP_System_SetWindowPosition			(int x, int y);
 CP_API void				CP_System_Fullscreen				(void);
 CP_API void				CP_System_FullscreenAdvanced		(int targetWidth, int targetHeight);	// Switches the monitor to the closest size it has
-CP_API CP_BOOL			CP_System_IsFullscreen				(void);
+CP_API bool				CP_System_IsFullscreen				(void);
 CP_API int				CP_System_GetWindowWidth			(void);
 CP_API int				CP_System_GetWindowHeight			(void);
 CP_API int				CP_System_GetDisplayWidth			(void);
@@ -88,21 +88,21 @@ CP_API int				CP_System_GetDisplayHeight			(void);
 CP_API int				CP_System_GetDisplayRefreshRate		(void);
 CP_API CP_WindowHandle	CP_System_GetWindowHandle			(void);
 CP_API void				CP_System_SetWindowTitle			(const char* title);
-CP_API CP_BOOL			CP_System_GetWindowFocus			(void);
-CP_API void				CP_System_SetWindowResizable		(CP_BOOL resizable);
-CP_API CP_BOOL			CP_System_GetWindowResizable		(void);
-CP_API void				CP_System_ShowCursor				(CP_BOOL show);
-CP_API CP_BOOL			CP_System_GetCursorVisible			(void);
+CP_API bool				CP_System_GetWindowFocus			(void);
+CP_API void				CP_System_SetWindowResizable		(bool resizable);
+CP_API bool				CP_System_GetWindowResizable		(void);
+CP_API void				CP_System_ShowCursor				(bool show);
+CP_API bool				CP_System_GetCursorVisible			(void);
 CP_API void				CP_System_SetCursorMode				(CP_CURSOR_MODE mode);
 CP_API CP_CURSOR_MODE	CP_System_GetCursorMode				(void);
-CP_API void				CP_System_ShowConsole				(CP_BOOL show);
-CP_API CP_BOOL			CP_System_GetConsoleVisible			(void);
+CP_API void				CP_System_ShowConsole				(bool show);
+CP_API bool				CP_System_GetConsoleVisible			(void);
 CP_API unsigned 		CP_System_GetFrameCount				(void);
 CP_API float			CP_System_GetFrameRate				(void);
 CP_API void				CP_System_SetFrameRate				(float fps);	// 0 for no limit
 CP_API float			CP_System_GetTargetFrameRate		(void);
-CP_API void				CP_System_SetVSync					(CP_BOOL vsync);
-CP_API CP_BOOL			CP_System_GetVSync					(void);
+CP_API void				CP_System_SetVSync					(bool vsync);
+CP_API bool				CP_System_GetVSync					(void);
 CP_API float			CP_System_GetDt						(void);	// Seconds since the last frame, at most 0.1
 CP_API float			CP_System_GetMillis					(void);	// Since the program started
 CP_API float			CP_System_GetSeconds				(void);	// Since the program started
@@ -125,7 +125,7 @@ CP_API void				CP_Settings_StrokeWeight			(float weight);
 CP_API float			CP_Settings_GetStrokeWeight			(void);
 CP_API void				CP_Settings_Tint					(CP_Color c);	// Multiplies the colors of everything drawn; its alpha is how strong
 CP_API void				CP_Settings_NoTint					(void);
-CP_API void				CP_Settings_AntiAlias				(CP_BOOL antiAlias);
+CP_API void				CP_Settings_AntiAlias				(bool antiAlias);
 CP_API void				CP_Settings_LineCapMode				(CP_LINE_CAP_MODE capMode);
 CP_API void				CP_Settings_LineJointMode			(CP_LINE_JOINT_MODE jointMode);
 CP_API void				CP_Settings_RectMode				(CP_POSITION_MODE mode);
@@ -209,7 +209,7 @@ CP_API void				CP_Image_EndDrawing					(void);
 CP_API CP_Image			CP_Image_Screenshot					(int x, int y, int w, int h);
 CP_API void				CP_Image_GetPixelData				(CP_Image img, CP_Color* pixelDataOutput);		// Fills an array of width * height colors that you made
 CP_API void				CP_Image_UpdatePixelData			(CP_Image img, const CP_Color* pixelDataInput);	// width * height colors
-CP_API CP_BOOL			CP_Image_Save						(CP_Image img, const char* filepath);			// As a PNG file (the name must end in .png); TRUE if it was saved
+CP_API bool				CP_Image_Save						(CP_Image img, const char* filepath);			// As a PNG file (the name must end in .png); true if it was saved
 
 
 //---------------------------------------------------------
@@ -220,8 +220,8 @@ CP_API CP_Sound			CP_Sound_Load						(const char* filepath);
 CP_API CP_Sound			CP_Sound_LoadStream					(const char* filepath);	// For long music: plays from the file instead of memory
 CP_API void				CP_Sound_Free						(CP_Sound* sound);
 CP_API CP_SoundInstance	CP_Sound_Play						(CP_Sound sound);	// Loaded: once, in SFX; streamed: looping, in MUSIC
-CP_API CP_SoundInstance	CP_Sound_PlayAdvanced				(CP_Sound sound, float volume, float pitch, CP_BOOL looping, CP_SOUND_GROUP group);
-CP_API CP_BOOL			CP_Sound_IsPlaying					(CP_SoundInstance instance);
+CP_API CP_SoundInstance	CP_Sound_PlayAdvanced				(CP_Sound sound, float volume, float pitch, bool looping, CP_SOUND_GROUP group);
+CP_API bool				CP_Sound_IsPlaying					(CP_SoundInstance instance);
 CP_API void				CP_Sound_Stop						(CP_SoundInstance instance);
 CP_API void				CP_Sound_Pause						(CP_SoundInstance instance);
 CP_API void				CP_Sound_Resume						(CP_SoundInstance instance);
@@ -260,17 +260,17 @@ CP_API CP_Vector		CP_Font_GetTextBoxSize				(const char* text, float rowWidth);
 //		Triggered: pressed this frame; Down: held down; Released: let go this frame
 //		Gamepad sticks go from -1 to 1, with y positive up; triggers go from 0 to 1
 //		The Advanced gamepad functions take a gamepad index from 0 to 3
-CP_API CP_BOOL			CP_Input_KeyTriggered				(CP_KEY keyCode);
+CP_API bool				CP_Input_KeyTriggered				(CP_KEY keyCode);
 CP_API CP_KEY			CP_Input_GetKeyTriggered			(void);
-CP_API CP_BOOL			CP_Input_KeyReleased				(CP_KEY keyCode);
-CP_API CP_BOOL			CP_Input_KeyDown					(CP_KEY keyCode);
-CP_API CP_BOOL			CP_Input_MouseTriggered				(CP_MOUSE button);
-CP_API CP_BOOL			CP_Input_MouseReleased				(CP_MOUSE button);
-CP_API CP_BOOL			CP_Input_MouseDown					(CP_MOUSE button);
-CP_API CP_BOOL			CP_Input_MouseMoved					(void);
-CP_API CP_BOOL			CP_Input_MouseClicked				(void);	// The left button was let go this frame
-CP_API CP_BOOL			CP_Input_MouseDoubleClicked			(void);
-CP_API CP_BOOL			CP_Input_MouseDragged				(CP_MOUSE button);
+CP_API bool				CP_Input_KeyReleased				(CP_KEY keyCode);
+CP_API bool				CP_Input_KeyDown					(CP_KEY keyCode);
+CP_API bool				CP_Input_MouseTriggered				(CP_MOUSE button);
+CP_API bool				CP_Input_MouseReleased				(CP_MOUSE button);
+CP_API bool				CP_Input_MouseDown					(CP_MOUSE button);
+CP_API bool				CP_Input_MouseMoved					(void);
+CP_API bool				CP_Input_MouseClicked				(void);	// The left button was let go this frame
+CP_API bool				CP_Input_MouseDoubleClicked			(void);
+CP_API bool				CP_Input_MouseDragged				(CP_MOUSE button);
 CP_API float			CP_Input_MouseWheel					(void);	// How far it turned this frame: positive away from you
 CP_API const char*		CP_Input_GetTypedText				(void);	// Typed in the last frame, as UTF-8; copy it to keep it
 CP_API float			CP_Input_GetMouseX					(void);
@@ -281,12 +281,12 @@ CP_API float			CP_Input_GetMouseDeltaX				(void);
 CP_API float			CP_Input_GetMouseDeltaY				(void);
 CP_API float			CP_Input_GetMouseWorldX				(void);
 CP_API float			CP_Input_GetMouseWorldY				(void);
-CP_API CP_BOOL			CP_Input_GamepadTriggered			(CP_GAMEPAD button);
-CP_API CP_BOOL			CP_Input_GamepadTriggeredAdvanced	(CP_GAMEPAD button, unsigned gamepadIndex);
-CP_API CP_BOOL			CP_Input_GamepadReleased			(CP_GAMEPAD button);
-CP_API CP_BOOL			CP_Input_GamepadReleasedAdvanced	(CP_GAMEPAD button, unsigned gamepadIndex);
-CP_API CP_BOOL			CP_Input_GamepadDown				(CP_GAMEPAD button);
-CP_API CP_BOOL			CP_Input_GamepadDownAdvanced		(CP_GAMEPAD button, unsigned gamepadIndex);
+CP_API bool				CP_Input_GamepadTriggered			(CP_GAMEPAD button);
+CP_API bool				CP_Input_GamepadTriggeredAdvanced	(CP_GAMEPAD button, unsigned gamepadIndex);
+CP_API bool				CP_Input_GamepadReleased			(CP_GAMEPAD button);
+CP_API bool				CP_Input_GamepadReleasedAdvanced	(CP_GAMEPAD button, unsigned gamepadIndex);
+CP_API bool				CP_Input_GamepadDown				(CP_GAMEPAD button);
+CP_API bool				CP_Input_GamepadDownAdvanced		(CP_GAMEPAD button, unsigned gamepadIndex);
 CP_API float			CP_Input_GamepadRightTrigger		(void);
 CP_API float			CP_Input_GamepadRightTriggerAdvanced(unsigned gamepadIndex);
 CP_API float			CP_Input_GamepadLeftTrigger			(void);
@@ -295,8 +295,8 @@ CP_API CP_Vector		CP_Input_GamepadRightStick			(void);
 CP_API CP_Vector		CP_Input_GamepadRightStickAdvanced	(unsigned gamepadIndex);
 CP_API CP_Vector		CP_Input_GamepadLeftStick			(void);
 CP_API CP_Vector		CP_Input_GamepadLeftStickAdvanced	(unsigned gamepadIndex);
-CP_API CP_BOOL			CP_Input_GamepadConnected			(void);
-CP_API CP_BOOL			CP_Input_GamepadConnectedAdvanced	(unsigned gamepadIndex);
+CP_API bool				CP_Input_GamepadConnected			(void);
+CP_API bool				CP_Input_GamepadConnectedAdvanced	(unsigned gamepadIndex);
 
 
 //---------------------------------------------------------
@@ -360,7 +360,7 @@ CP_API CP_Matrix		CP_Matrix_Multiply					(CP_Matrix a, CP_Matrix b);
 // RANDOM:
 //		RangeInt includes both bounds; GetFloat and RangeFloat never reach the upper one
 //		Noise has its own seed, so a new NoiseSeed doesn't change the other random numbers
-CP_API CP_BOOL			CP_Random_GetBool					(void);
+CP_API bool				CP_Random_GetBool					(void);
 CP_API unsigned int		CP_Random_GetInt					(void);
 CP_API int				CP_Random_RangeInt					(int lowerBound, int upperBound);
 CP_API float			CP_Random_GetFloat					(void);

@@ -108,7 +108,7 @@ float RowTop(int action)
 	return ROW_TOP + (float)action * (ROW_HEIGHT + ROW_GAP);
 }
 
-CP_BOOL MouseIsOverRow(int action)
+bool MouseIsOverRow(int action)
 {
 	const float mouseX = CP_Input_GetMouseX();
 	const float mouseY = CP_Input_GetMouseY();
