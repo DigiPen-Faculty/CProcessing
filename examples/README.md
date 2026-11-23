@@ -38,6 +38,7 @@ more than their title.
 | [collision.c](collision.c) | Checking whether points, circles and rectangles touch. |
 | [camera.c](camera.c) | A camera that moves and zooms around a world bigger than the window. |
 | [controls.c](controls.c) | Letting the player choose their own keys: an array of keys for the actions, CP_Input_GetKeyTriggered to find the key pressed, and each key's name on the screen. |
+| [mouse.c](mouse.c) | The mouse: a button to copy that clicks when it's pressed and let go over it, pressed, held and let go for each mouse button, click or double click, drag and drop into slots, the wheel, and how far and fast the mouse moved. |
 | [gamepad.c](gamepad.c) | Gamepads: every button, stick and trigger of up to 4 at once, which one the functions without Advanced read, gamepads connecting and disconnecting, and a player for each. |
 
 ## Pictures
@@ -89,10 +90,12 @@ Tricks that live inside an example about something bigger.
 
 | To make | Look in |
 |---|---|
-| A button that lights up under the mouse | [gradients.c](gradients.c) (`DrawButton`) |
-| A click on a button | [collision.c](collision.c) (a point in a box) |
+| A button that lights up under the mouse | [mouse.c](mouse.c) (`DoButton`), [gradients.c](gradients.c) (`DrawButton`, with a gradient) |
+| A click on a button | [mouse.c](mouse.c) (`DoButton`: pressed and let go over it), [collision.c](collision.c) (a point in a box) |
 | A slider the mouse drags (volume, options) | [color_picker.c](color_picker.c) (`DoSliders`) |
-| Dragging things with the mouse | [curves.c](curves.c) (handles), [clipping.c](clipping.c) (a list), [rotation.c](rotation.c) |
+| Dragging things with the mouse | [mouse.c](mouse.c) (drag and drop), [curves.c](curves.c) (handles), [clipping.c](clipping.c) (a list), [rotation.c](rotation.c) |
+| Dropping things into slots, like an inventory | [mouse.c](mouse.c) (`DoDragAndDrop`) |
+| Click to choose, double click to open | [mouse.c](mouse.c) |
 | A health bar | [gradients.c](gradients.c) (green to red as it empties) |
 | A cooldown icon that refills | [clipping.c](clipping.c) |
 | A minimap | [clipping.c](clipping.c) |
@@ -174,7 +177,7 @@ into the other:
 |---|---|
 | 2. Shapes and the coordinate system | [shapes.c](shapes.c) goes further: your own shapes |
 | 3. Color | [color_picker.c](color_picker.c) |
-| 4. Input | [controls.c](controls.c), [text_input.c](text_input.c), [gamepad.c](gamepad.c) |
+| 4. Input | [controls.c](controls.c), [mouse.c](mouse.c), [text_input.c](text_input.c), [gamepad.c](gamepad.c) |
 | 5. Moving with vectors and delta time | [movement.c](movement.c) |
 | 6. Collision | [collision.c](collision.c) |
 | 7. Images and animation | [sprite_animation.c](sprite_animation.c), and [easing.c](easing.c) for its easing step |
