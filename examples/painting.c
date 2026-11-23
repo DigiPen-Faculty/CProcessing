@@ -13,7 +13,7 @@
 //   CP_Image_Save, then CP_Image_Free
 // - number files with snprintf, so each screenshot gets its own name
 // - read the color of a pixel of an image with CP_Image_GetPixelData, for
-//   an eyedropper
+//   an eyedropper that chooses the swatch closest to it
 //
 // Where the files go: a name without a folder, like "painting.png", is
 // saved in the current folder. Running from Visual Studio, that's the
@@ -21,7 +21,7 @@
 // own, it's the folder the .exe is in. Saving over a file replaces it.
 //
 // Click a color to pick it, and paint with the left mouse button. A right
-// click on the painting takes the color under the mouse. The mouse wheel
+// click on the painting picks the color under the mouse. The mouse wheel
 // changes the brush size. S saves the painting, P saves a screenshot, and
 // C clears the canvas.
 //
@@ -115,7 +115,7 @@ void DrawToolbar(void)
 	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_RIGHT, CP_TEXT_ALIGN_V_MIDDLE);
 	CP_Font_DrawText("S: save   P: screenshot   C: clear", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f - 18);
 	CP_Font_DrawText("Mouse wheel: brush size", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f);
-	CP_Font_DrawText("Right click: take a color", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f + 18);
+	CP_Font_DrawText("Right click: pick the color there", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f + 18);
 }
 
 // Paints from where the mouse was to where it is now, into the canvas.
@@ -168,6 +168,29 @@ CP_Color CanvasColorAt(int x, int y)
 		free(pixels);
 	}
 	return color;
+}
+
+// The swatch whose color is closest to a color: the smallest distance
+// between them, counting red, green and blue like x, y and z. A pixel at
+// the edge of a stroke is a blend of the paint and what was under it, so
+// an exact match would often find nothing.
+int ClosestSwatch(CP_Color color)
+{
+	int closest = 0;
+	int closestDistance = -1;
+	for (int i = 0; i < COLOR_COUNT; ++i)
+	{
+		const int r = colors[i].r - color.r;
+		const int g = colors[i].g - color.g;
+		const int b = colors[i].b - color.b;
+		const int distance = r * r + g * g + b * b; // squared: only which is smallest matters
+		if (closestDistance < 0 || distance < closestDistance)
+		{
+			closest = i;
+			closestDistance = distance;
+		}
+	}
+	return closest;
 }
 
 //---------------------------------------------------------
@@ -258,11 +281,11 @@ void game_update(void)
 		Paint();
 	}
 
-	// The eyedropper: a right click on the canvas puts the color under the
-	// mouse into the chosen swatch
+	// The eyedropper: a right click on the canvas chooses the swatch for the
+	// color under the mouse, so you can carry on with a color already used
 	if (CP_Input_MouseTriggered(CP_MOUSE_RIGHT) && mouseY >= TOOLBAR_HEIGHT)
 	{
-		colors[colorIndex] = CanvasColorAt((int)mouseX, (int)(mouseY - TOOLBAR_HEIGHT));
+		colorIndex = ClosestSwatch(CanvasColorAt((int)mouseX, (int)(mouseY - TOOLBAR_HEIGHT)));
 	}
 
 	brushSize = CP_Math_ClampFloat(brushSize + CP_Input_MouseWheel() * 3.0f, 2.0f, 80.0f);

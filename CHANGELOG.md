@@ -340,7 +340,8 @@ Each change says what to do in an existing project.
     white copy of the sheet drawn over it, fading out, and colored with
     `CP_Settings_Tint` (a tint multiplies, so on the sprite itself it could
     only darken it).
-  - `painting.c`: an eyedropper (`CP_Image_GetPixelData`).
+  - `painting.c`: an eyedropper that picks the swatch closest to the color
+    under the mouse (`CP_Image_GetPixelData`).
   - `score_and_text.c`: a score that counts up (`CP_Math_LerpInt`).
   - `collision.c`: a circle check without a square root (`CP_Math_Square`).
   - `game_states.c`: F11 for fullscreen in every state

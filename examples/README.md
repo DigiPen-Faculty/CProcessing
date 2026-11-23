@@ -46,7 +46,7 @@ more than their title.
 | Example | What it shows |
 |---|---|
 | [sprite_animation.c](sprite_animation.c) | Animating a character from the frames of a sprite sheet, and flashing it white or red when it's hurt. |
-| [painting.c](painting.c) | A paint program: paint into an image with the mouse, save it as a PNG file and pick it up again the next time, save numbered screenshots, and take a color from the painting with a right click. |
+| [painting.c](painting.c) | A paint program: paint into an image with the mouse, save it as a PNG file and pick it up again the next time, save numbered screenshots, and pick a color from the painting with a right click. |
 | [tile_seams.c](tile_seams.c) | Tiles without seams: why thin lines show between tiles (a camera or zoom between pixels, a sprite sheet's neighbors, edges that fade), a key for each fix, and a magnifier that shows the pixels around the mouse. |
 
 ## Sound
