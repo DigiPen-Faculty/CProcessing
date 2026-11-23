@@ -14,7 +14,6 @@
 
 // demo headers
 #include "grid_wave_demo.h"
-#include "dancing_lines_demo.h"
 #include "gamepad_sound_demo.h"
 #include "screenshot_demo.h"
 
@@ -43,7 +42,6 @@ typedef struct Demo
 
 static const Demo demos[] = {
 	{ "Grid wave",         GridWaveDemoInit,     GridWaveDemoUpdate,     GridWaveDemoExit     },
-	{ "Dancing lines",     DancingLinesDemoInit, DancingLinesDemoUpdate, DancingLinesDemoExit },
 	{ "Gamepad and sound", GamepadSoundDemoInit, GamepadSoundDemoUpdate, GamepadSoundDemoExit },
 	{ "Screenshots",       ScreenshotDemoInit,   ScreenshotDemoUpdate,   ScreenshotDemoExit   },
 };

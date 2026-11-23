@@ -215,7 +215,6 @@ if(CPROCESSING_BUILD_DEMOS)
     set(DEMO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/demos")
     add_executable(CProcessing_Demos
         "${DEMO_DIR}/main.c"
-        "${DEMO_DIR}/dancing_lines_demo.c"
         "${DEMO_DIR}/demo_manager.c"
         "${DEMO_DIR}/gamepad_sound_demo.c"
         "${DEMO_DIR}/grid_wave_demo.c"

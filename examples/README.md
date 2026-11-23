@@ -56,7 +56,7 @@ more than their title.
 | Example | What it shows |
 |---|---|
 | [game_states.c](game_states.c) | A menu, play, pause and game over, each a game state of its own. The pause goes on top of the frozen game. |
-| [state_stack.c](state_stack.c) | Going further with game states: menus on top of menus, a hint over a game that keeps running, a HUD, and a trail drawn into an image. |
+| [state_stack.c](state_stack.c) | Going further with game states: menus on top of menus, a hint over a game that keeps running, a HUD, and an options page that changes the game under it. |
 | [transitions.c](transitions.c) | Animated changes between game states: a fade, a crossfade, slides and one you draw, with a small helper to copy into your own game. |
 | [state_effects.c](state_effects.c) | Easing into slow motion under a level-up box, and a pause that turns the music down and blurs the game behind it, with a few lines of your own code. |
 
@@ -72,6 +72,7 @@ more than their title.
 | Example | What it shows |
 |---|---|
 | [easing.c](easing.c) | Twelve easing functions drawn side by side, each with its code to copy: make movement start slow, arrive gently, overshoot or bounce. |
+| [particles.c](particles.c) | Fireworks, a campfire with smoke and sparks, a trail drawn into an image next to one made of particles, and dots joined by lines when they come close, with a glow you can switch on and off. |
 
 ## Window
 
@@ -117,7 +118,7 @@ Tricks that live inside an example about something bigger.
 | Rebinding keys, showing a key's name | [controls.c](controls.c) |
 | Movement that's the same speed diagonally | [movement.c](movement.c) |
 | A sprite sheet animation | [sprite_animation.c](sprite_animation.c) |
-| Drawing that stays from frame to frame | [painting.c](painting.c), [state_stack.c](state_stack.c) (a fading trail) |
+| Drawing that stays from frame to frame | [painting.c](painting.c), [particles.c](particles.c) (a trail that fades) |
 | Saving a picture or screenshot; loading it next time | [painting.c](painting.c) |
 | Numbered file names (`screenshot_1.png`...) | [painting.c](painting.c) (`snprintf`) |
 | Music that loops; effects with their own volume | [music_and_sounds.c](music_and_sounds.c) |
@@ -135,6 +136,12 @@ Tricks that live inside an example about something bigger.
 | A critical hit chance; rare and common loot | [random.c](random.c) (`PickWeighted`) |
 | Bullet spread, aim that wobbles | [random.c](random.c) (`CP_Random_Gaussian`) |
 | The same level every time, from a seed | [random.c](random.c) (`MakeWorld`), [noise.c](noise.c) (an island), [tiled_fill.c](tiled_fill.c) |
+| Explosions, sparks, fire and smoke | [particles.c](particles.c) |
+| A trail behind something that moves | [particles.c](particles.c) (drawn into an image, or made of particles) |
+| A glow where lights overlap | [particles.c](particles.c) (`CP_BLEND_ADD`) |
+| Lots of things that come and go (bullets, sparks, enemies) without malloc | [particles.c](particles.c) (`AddParticle`, `UpdateParticles`) |
+| Spawning a number each second, at any frame rate | [particles.c](particles.c) (`SpawnCount`) |
+| Lines between things that come close | [particles.c](particles.c) |
 | Things that pop in, bounce or overshoot | [easing.c](easing.c) |
 | A color's code, or the colors between two colors | [color_picker.c](color_picker.c) |
 | Fullscreen, a resizable window, the frame rate | [window_options.c](window_options.c) |

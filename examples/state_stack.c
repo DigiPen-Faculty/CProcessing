@@ -1,7 +1,7 @@
 //---------------------------------------------------------
 // file:	state_stack.c
 //
-// Example: game states on a stack, and drawing into an image.
+// Example: game states on a stack: menus on menus, a hint, a HUD.
 //
 // Think of game states as cards on a table. CP_Engine_SetNextGameState clears
 // the table and puts down a new card: use it for a new part of the game, like
@@ -18,8 +18,7 @@
 //   CP_Engine_SetGameStatePassThrough: CP_PASSTHROUGH_ALL for a hint over a
 //   game that keeps moving, CP_PASSTHROUGH_NONE for a full-screen options page
 // - draw a HUD with a function at the end of the game's update
-// - draw into an image (CP_Image_Create, CP_Image_BeginDrawing) for a trail
-//   that fades
+// - change the game from an options page while the game waits underneath
 //
 // Changes of state here happen at once. transitions.c shows how to animate
 // them: fades, crossfades, slides, and ones you draw yourself.
@@ -32,7 +31,8 @@
 // - Push a "level complete" state when the player reaches a corner.
 // - Add the transition helper from transitions.c, and slide the pause in.
 //
-// See also: game_states.c, for the basics; transitions.c; state_effects.c.
+// See also: game_states.c, for the basics; transitions.c; state_effects.c;
+// particles.c, for the trail that fades, drawn into an image.
 //
 // To run it, copy this file over the template's main.c.
 //
@@ -106,14 +106,13 @@ void menu_update(void)
 }
 
 //-------------------------
-// GAME: a square to move, balls that bounce, and a fading trail
+// GAME: a square to move, and balls that bounce
 
 #define BALL_COUNT 6
 CP_Vector player;
 CP_Vector balls[BALL_COUNT];
 CP_Vector ballVelocities[BALL_COUNT];
-CP_Image trail;           // drawn into every frame: the path the player took
-CP_BOOL showTrail = TRUE; // the options page turns it on and off
+CP_BOOL fastBalls = FALSE; // the options page turns it on and off
 
 void game_init(void)
 {
@@ -124,7 +123,6 @@ void game_init(void)
 		balls[i] = CP_Vector_Set(CP_Random_RangeFloat(50.0f, 750.0f), CP_Random_RangeFloat(50.0f, 550.0f));
 		ballVelocities[i] = CP_Vector_Scale(CP_Vector_FromAngle(CP_Random_RangeFloat(0.0f, 360.0f)), 150.0f);
 	}
-	trail = CP_Image_Create(CP_System_GetWindowWidth(), CP_System_GetWindowHeight());
 }
 
 // The HUD: drawn last, so it is on top of the game. It is a function, not a
@@ -173,32 +171,15 @@ void game_update(void)
 		player = CP_Vector_Add(player, CP_Vector_Scale(CP_Vector_Normalize(move), 250.0f * dt));
 	}
 
+	const float ballSpeed = fastBalls ? 2.0f : 1.0f;
 	for (int i = 0; i < BALL_COUNT; ++i)
 	{
-		balls[i] = CP_Vector_Add(balls[i], CP_Vector_Scale(ballVelocities[i], dt));
+		balls[i] = CP_Vector_Add(balls[i], CP_Vector_Scale(ballVelocities[i], ballSpeed * dt));
 		if (balls[i].x < 15.0f || balls[i].x > CP_System_GetWindowWidth() - 15.0f) ballVelocities[i].x = -ballVelocities[i].x;
 		if (balls[i].y < 15.0f || balls[i].y > CP_System_GetWindowHeight() - 15.0f) ballVelocities[i].y = -ballVelocities[i].y;
 	}
 
-	// The trail: each frame, the image fades a little (a nearly clear
-	// rectangle over it), and gets a dot where the player is
-	CP_Image_BeginDrawing(trail);
-	CP_Settings_NoStroke();
-	CP_Settings_RectMode(CP_POSITION_CORNER);
-	CP_Settings_BlendMode(CP_BLEND_SUBTRACT);
-	CP_Settings_Fill(CP_Color_Create(0, 0, 0, 6));
-	CP_Graphics_DrawRect(0.0f, 0.0f, (float)CP_Image_GetWidth(trail), (float)CP_Image_GetHeight(trail));
-	CP_Settings_BlendMode(CP_BLEND_ALPHA);
-	CP_Settings_Fill(CP_Color_Create(120, 220, 255, 255));
-	CP_Graphics_DrawCircle(player.x, player.y, 18.0f);
-	CP_Image_EndDrawing();
-
 	CP_Graphics_ClearBackground(CP_Color_Create(20, 40, 40, 255));
-	CP_Settings_ImageMode(CP_POSITION_CORNER);
-	if (showTrail)
-	{
-		CP_Image_Draw(trail, 0.0f, 0.0f, (float)CP_System_GetWindowWidth(), (float)CP_System_GetWindowHeight(), 255);
-	}
 	CP_Settings_NoStroke();
 	CP_Settings_Fill(CP_Color_Create(240, 90, 80, 255));
 	for (int i = 0; i < BALL_COUNT; ++i)
@@ -215,8 +196,8 @@ void game_update(void)
 void game_exit(void)
 {
 	// runs when the game really ends: going to the menu, or quitting, even
-	// from the pause
-	CP_Image_Free(&trail);
+	// from the pause. This game has nothing to free; a game that loads
+	// images or sounds frees them here.
 }
 
 //-------------------------
@@ -265,11 +246,11 @@ void options_init(void)
 
 void options_update(void)
 {
-	if (CP_Input_KeyTriggered(CP_KEY_T))
+	if (CP_Input_KeyTriggered(CP_KEY_F))
 	{
 		// the game is frozen and hidden under this page, so the change shows
 		// when the pause and this page have popped
-		showTrail = !showTrail;
+		fastBalls = !fastBalls;
 	}
 	if (CP_Input_KeyTriggered(CP_KEY_B))
 	{
@@ -279,7 +260,7 @@ void options_update(void)
 	CP_Graphics_ClearBackground(CP_Color_Create(50, 30, 60, 255));
 	DrawCenteredText("OPTIONS", 180.0f, 56.0f);
 	char text[80];
-	snprintf(text, sizeof(text), "T: the trail is %s", showTrail ? "on" : "off");
+	snprintf(text, sizeof(text), "F: the balls are %s", fastBalls ? "fast" : "slow");
 	DrawCenteredText(text, 280.0f, 24.0f);
 	DrawCenteredText("B: back", 340.0f, 24.0f);
 	DrawDepth();

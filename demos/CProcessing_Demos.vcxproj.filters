@@ -21,9 +21,6 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dancing_lines_demo.c">
-      <Filter>Demos</Filter>
-    </ClCompile>
     <ClCompile Include="demo_manager.c">
       <Filter>Demos</Filter>
     </ClCompile>
@@ -38,9 +35,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dancing_lines_demo.h">
-      <Filter>Demos</Filter>
-    </ClInclude>
     <ClInclude Include="demo_manager.h">
       <Filter>Demos</Filter>
     </ClInclude>
