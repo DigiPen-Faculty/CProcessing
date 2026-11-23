@@ -142,7 +142,7 @@ jobs:
       - name: Build the library
         run: |
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
-            -DCPROCESSING_BUILD_DEMOS=OFF -DCPROCESSING_BUILD_TESTS=OFF
+            -DCPROCESSING_BUILD_TESTS=OFF
           cmake --build build --parallel
 
       - name: Package the starter project
@@ -195,7 +195,7 @@ jobs:
         run: |
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
             "-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
-            -DCPROCESSING_BUILD_DEMOS=OFF -DCPROCESSING_BUILD_TESTS=OFF
+            -DCPROCESSING_BUILD_TESTS=OFF
           cmake --build build --parallel
           lipo -info build/bin/libCProcessing.dylib
           otool -L build/bin/libCProcessing.dylib

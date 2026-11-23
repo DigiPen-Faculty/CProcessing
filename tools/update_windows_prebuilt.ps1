@@ -62,7 +62,7 @@ foreach ($arch in @(@{ Name = "x64"; Cmake = "x64" }, @{ Name = "x86"; Cmake = "
     $build = Join-Path $BuildRoot $arch.Name
     Write-Host "`n=== $($arch.Name): configuring in $build"
     & $cmake -S $repo -B $build @genArgs -A $arch.Cmake `
-        -DCPROCESSING_BUILD_DEMOS=OFF -DCPROCESSING_BUILD_TESTS=OFF `
+        -DCPROCESSING_BUILD_TESTS=OFF `
         "-DCMAKE_C_FLAGS_DEBUG=/Od /RTC1" "-DCMAKE_CXX_FLAGS_DEBUG=/Od /RTC1"
     if ($LASTEXITCODE) { throw "configure failed ($($arch.Name))" }
 

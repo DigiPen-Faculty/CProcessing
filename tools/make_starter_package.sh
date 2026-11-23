@@ -39,7 +39,7 @@ cp -R "$repo/templates/vs/assets/." "$pkg/assets/"
 cp -R "$repo/examples" "$pkg/examples"
 cp "$repo"/CProcessing/inc/cprocessing*.h "$pkg/CProcessing/inc/"
 cp "$lib" "$pkg/CProcessing/lib/"
-cp "$repo/demos/assets/Exo2_license.txt" "$pkg/CProcessing/"
+cp "$repo/templates/vs/assets/Exo2_license.txt" "$pkg/CProcessing/"
 
 rm -f "$out"
 (cd "$stage" && cmake -E tar cf "$out" --format=zip CProcessingTemplate)

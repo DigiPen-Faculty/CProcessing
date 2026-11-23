@@ -1293,8 +1293,8 @@ static void Scn_SettingsSaveRestore(void)
 // solid-colored 2x2 quadrants (TL=red, TR=green, BL=blue, BR=yellow) --
 // see the Phase E commit message for how it was generated. A tiny
 // synthetic fixture with exact, known pixel values is more testable than
-// a photo, and keeps this project's test assets independent of the demo
-// app's assets folder.
+// a photo, and keeps this project's test assets independent of the
+// template's assets folder.
 
 // The quadrants image (top left red, top right green, bottom left blue,
 // bottom right yellow) turned 90 degrees clockwise about its center, which
@@ -2534,7 +2534,7 @@ static void Scn_ErrorPaths(void)
 // or a CI runner), and a console shared with a terminal is never hidden.
 // So: hiding then showing again must end where showing started, and printf
 // must keep working throughout. The visible behavior is checked by hand
-// (C in the demo program).
+// (C in examples/window_options.c).
 static void Scn_SystemWindowSettings(void)
 {
 	CP_Graphics_ClearBackground(WHITE);

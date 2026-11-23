@@ -74,10 +74,8 @@ Processing_Sample/
 CProcessingOutput/
 # Release packages are attached to GitHub Releases, not committed
 Releases/
-demos/Processi.14B654ED/
 templates/vs/MyGame.*/
 /Intermediate/
-demos/Intermediate/
 tests/tier1/Intermediate/
 tests/tier2/Intermediate/
 

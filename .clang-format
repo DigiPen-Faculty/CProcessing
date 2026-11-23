@@ -1,4 +1,4 @@
-# The house style of CProcessing's own code (the library, examples, demos,
+# The house style of CProcessing's own code (the library, examples,
 # templates and tests): tabs, braces on their own lines, `Type* name`.
 # CI checks it (the `format` job in .github/workflows/tests.yml), so a pull
 # request that isn't formatted fails; to format what you changed, run

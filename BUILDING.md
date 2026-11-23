@@ -5,8 +5,8 @@ to build it:
 
 - **Visual Studio solution (Windows):** the workflow students and faculty
   use, with Visual Studio 2026.
-- **CMake (Windows, Linux, macOS):** builds the library, the demos, the
-  examples and the tests from source on any platform.
+- **CMake (Windows, Linux, macOS):** builds the library, the examples
+  and the tests from source on any platform.
 
 Most students only need the
 [latest release](https://github.com/DigiPen-Faculty/CProcessing/releases)
@@ -21,8 +21,7 @@ rules for what goes in the library and how it is named.
 | `CProcessing/` | The library: `src/` (our code), the public headers in `inc/`, and `third_party/` (the bundled libraries: `glad/`, `glfw/`, `nanovg/`, `soloud/`, `vect/`). |
 | `CProcessing.sln` | The Visual Studio solution. |
 | `examples/` | Small complete programs, and `lessons/`, one program per lesson. |
-| `demos/` | The demo program, `CProcessing_Demos`, with its `assets/`. |
-| `templates/vs/`, `templates/cmake/` | The student templates for Visual Studio and for CMake (Linux, macOS, or Windows). |
+| `templates/vs/`, `templates/cmake/` | The student templates for Visual Studio and for CMake (Linux, macOS, or Windows). `templates/vs/assets/` is the assets folder every package and example uses. |
 | `tests/` | `tier1/` and `tier2/` (the two test programs) and `unity/` (the test framework they share). |
 | `docs/`, `tools/`, `cmake/` | The lessons, helper scripts (including `build_release_package.bat`), and CMake modules. |
 
@@ -37,8 +36,8 @@ One rule, checked in CI by `tools/check_layout.py`:
   `build_release_package.bat`. That includes `assets/` and `examples/` in the
   release packages, which are copies of repository folders.
 * **Product and project names keep their case:** `CProcessing` (the folder, the
-  solution and project files, the library), `CProcessing_Demos` and the other
-  `CProcessing_*` projects, `MyGame`.
+  solution and project files, the library), the `CProcessing_*` projects,
+  `MyGame`.
 * **A short list of fixed names is the exception** (each is a pattern in
   `tools/check_layout.py`, so adding one is visible in review):
   * documents with an ALL-CAPS name (`README.md`, `LICENSE`, `CHANGELOG.md`,
@@ -61,8 +60,9 @@ checks it in CI:
     SPDX-License-Identifier: MIT
     Copyright (c) <year, or first year-2026> DigiPen Institute of Technology and CProcessing contributors
 
-* The years start when the file was first committed (the demos and the
-  library say 2019, the year of the original code).
+* The years start when the file was first committed (the library and
+  the examples that grew from its old demos say 2019, the year of the
+  original code).
 * **Not covered:** the bundled libraries and Unity (their own licenses, see
   `DEPENDENCIES.md`), the templates (the student's files), and the embedded
   Exo 2 font data, which says `SPDX-License-Identifier: OFL-1.1`.
@@ -79,7 +79,6 @@ v145), as does the student template. The solution contains:
 | Project | Folder | What it is |
 |---|---|---|
 | `CProcessing` | `CProcessing/` | The library: `CProcessing.dll`, or `CProcessingd.dll` for Debug. |
-| `CProcessing_Demos` | `demos/` | The demo program. Press 1–2 to switch demos, F for fullscreen, M to change the mouse cursor mode, C to show or hide the console, H to hide the key bar at the bottom, Escape to quit. |
 | `CProcessing_Tests` | `tests/tier1/` | Tier 1 tests: pure functions, no window needed. |
 | `CProcessing_Tests_Tier2` | `tests/tier2/` | Tier 2 tests: drives the real engine and checks the rendered pixels. |
 
@@ -142,26 +141,33 @@ From the repository root:
 
 ```sh
 cmake -B build                       # configure (Release by default)
-cmake --build build                  # build library, demos and tests
+cmake --build build                  # build library, examples and tests
 ```
 
 On Windows add `--config Release` (or `Debug`) to the build command, because
 Visual Studio generators hold several configurations at once.
 
 Everything ends up in one folder: `build/bin`, or `build/bin/Release` with
-Visual Studio generators. That folder holds the CProcessing library, the
-`CProcessing_Demos` program, both test programs and an `assets` folder.
+Visual Studio generators. That folder holds the CProcessing library, one
+program for each example and lesson (`Example_movement`,
+`Lesson_04_input` and so on), both test programs and an `assets`
+folder.
 
-### Run the demos
+### Run the examples
 
 CProcessing looks for assets from the **current working directory**, and
-then next to the program, so the demos find their `assets` folder however
+then next to the program, so the examples find their `assets` folder however
 they're started. From a terminal:
 
 ```sh
 cd build/bin
-./CProcessing_Demos          # CProcessing_Demos.exe on Windows
+./Example_gamepad            # Example_gamepad.exe on Windows
 ```
+
+With a Visual Studio generator, each example is a project of its own in the
+CMake build's solution (`build/CProcessing.sln`), under Examples. The
+repository's own `CProcessing.sln` has no examples: copy one over a
+template's `main.c` to run it there.
 
 ### Run the tests
 
@@ -195,13 +201,12 @@ Pass options to the configure step with `-D`, for example
 |---|---|---|
 | `CMAKE_BUILD_TYPE` | `Release` | `Debug` or `Release`, for single-configuration generators. |
 | `CPROCESSING_BUILD_SHARED` | `ON` | Build a shared library (`.dll`/`.so`/`.dylib`). Set `OFF` for a static library. |
-| `CPROCESSING_BUILD_DEMOS` | `ON`* | Build `CProcessing_Demos`. |
 | `CPROCESSING_BUILD_EXAMPLES` | `ON`* | Build each program in `examples/`, as `Example_movement` and so on. |
 | `CPROCESSING_BUILD_TESTS` | `ON`* | Build the Tier 1 and Tier 2 tests. |
 | `CPROCESSING_WARNINGS_AS_ERRORS` | `OFF` | Treat warnings in CProcessing's own code as errors. CI turns this on. |
 
 \* Only when CProcessing is the top-level project. When it's added to another
-project with `add_subdirectory`, the demos, examples and tests are off by
+project with `add_subdirectory`, the examples and tests are off by
 default.
 
 ## Using CProcessing in your own CMake project
@@ -276,9 +281,9 @@ To build against a local copy of CProcessing instead of the download, add
   CProcessing library itself. A game needs only `CProcessing.dll`
   (`libCProcessing.so` / `libCProcessing.dylib`) next to it.
 - **macOS** is tested on Apple silicon (macOS 26): drawing, sound,
-  gamepads, screenshots, the demos and both test tiers. Intel Macs haven't
+  gamepads, screenshots, the examples and both test tiers. Intel Macs haven't
   been tested yet. CI builds it and runs Tier 1 only: Tier 2
-  and the demos need a GPU, which GitHub's hosted macOS runners don't have.
+  and the examples need a GPU, which GitHub's hosted macOS runners don't have.
   Please report anything that misbehaves there.
 
 ## Making a release
