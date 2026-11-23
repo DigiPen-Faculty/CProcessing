@@ -317,10 +317,11 @@ Each change says what to do in an existing project.
   it, and shots leave from the end of the gun (`CP_Vector_MatrixMultiply`),
   facing the way they fly (`CP_Matrix_FromVector`). The turret's matrix is on
   screen, with its columns drawn as arrows.
-- **Every function but two is now in an example or a lesson.** The ones
-  that weren't went where they fit. The two are `CP_System_GetWindowHandle`
-  and `CP_Matrix_Transpose` (which `matrices.c` mentions), and the wiki
-  covers both:
+- **Every function but three is now in an example or a lesson.** The ones
+  that weren't went where they fit. The three are left out on purpose, and
+  the wiki covers them: `CP_System_GetWindowHandle`, `CP_Matrix_Transpose`
+  (which `matrices.c` mentions), and `CP_System_FullscreenAdvanced` (see
+  `window_options.c` below):
   - `window_options.c`: the display's size and refresh rate, the window in
     the middle of the display, showing and hiding the cursor, the frame
     count and milliseconds, and reading the stroke back.
