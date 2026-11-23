@@ -160,7 +160,7 @@ void DrawMarkerLabels(void)
 	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
 	for (int i = 0; i < markerCount; ++i)
 	{
-		char number[8];
+		char number[12]; // room for any int, so no compiler warns it might not fit
 		snprintf(number, sizeof(number), "%d", i + 1);
 		const CP_Vector onScreen = markersOnScreen[i];
 
