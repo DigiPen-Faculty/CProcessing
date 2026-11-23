@@ -7,10 +7,13 @@
 // - load an image once, in init, and free it in exit
 // - draw one frame of a sprite sheet with CP_Image_DrawSubImage
 // - change frames at a steady speed with a timer and CP_System_GetDt
+// - flash the sprite red when it's hurt with CP_Settings_Tint, and stop
+//   with CP_Settings_NoTint so nothing drawn after it is tinted
 //
 // assets/SlimeSheet.png holds 8 frames in one row, each 64x64 pixels. The
 // whole sheet is drawn at the top, with a box around the frame being shown.
-// The Up and Down keys change the animation speed.
+// The Up and Down keys change the animation speed, and Space hurts the
+// slime.
 //
 // Try this:
 // - Move the slime with the arrow keys, and only animate while it moves.
@@ -38,6 +41,10 @@ int currentFrame = 0;
 float frameTimer = 0.0f;
 float framesPerSecond = 10.0f;
 
+// The hurt flash: how long is left of it, in seconds
+float hurtTimer = 0.0f;
+const float hurtDuration = 0.4f;
+
 void game_init(void)
 {
 	CP_System_SetWindowSize(800, 600);
@@ -57,6 +64,15 @@ void game_update(void)
 	if (CP_Input_KeyTriggered(CP_KEY_DOWN))
 	{
 		framesPerSecond = CP_Math_ClampFloat(framesPerSecond - 1.0f, 1.0f, 30.0f);
+	}
+
+	if (CP_Input_KeyTriggered(CP_KEY_SPACE))
+	{
+		hurtTimer = hurtDuration;
+	}
+	if (hurtTimer > 0.0f)
+	{
+		hurtTimer -= CP_System_GetDt();
 	}
 
 	// Each frame shows for 1 / framesPerSecond seconds. Add up the time
@@ -79,8 +95,22 @@ void game_update(void)
 	float frameRight = frameLeft + frameSize;
 	float frameBottom = frameSize;
 
+	// A tint multiplies the colors of everything drawn after it, and its
+	// alpha is how strong it is. Multiplying can only darken, so red at full
+	// strength takes the green and blue out, and leaves the red. (A tint
+	// can't flash a sprite white.) The strength falls to 0 as the flash
+	// ends, so it fades out.
+	if (hurtTimer > 0.0f)
+	{
+		int strength = (int)(255.0f * hurtTimer / hurtDuration);
+		CP_Settings_Tint(CP_Color_Create(255, 40, 40, strength));
+	}
+
 	// Draw that frame big, 4 times its size, in the middle of the window
 	CP_Image_DrawSubImage(slimeSheet, 400.0f, 340.0f, frameSize * 4.0f, frameSize * 4.0f, frameLeft, frameTop, frameRight, frameBottom, 255);
+
+	// Back to no tint, or the sheet and the text below would be red too
+	CP_Settings_NoTint();
 
 	// The whole sheet at the top, and a box around the current frame
 	float sheetLeft = 400.0f - frameCount * frameSize / 2.0f;
@@ -94,7 +124,7 @@ void game_update(void)
 	snprintf(text, sizeof(text), "Frame %d", currentFrame);
 	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
 	CP_Font_DrawText(text, 20.0f, 550.0f);
-	snprintf(text, sizeof(text), "(frames are numbered 0 to %d), %.0f frames per second (Up and Down to change)",
+	snprintf(text, sizeof(text), "(frames are numbered 0 to %d), %.0f frames per second (Up and Down to change), Space: hurt",
 		frameCount - 1, framesPerSecond);
 	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
 	CP_Font_DrawText(text, 20.0f, 570.0f);

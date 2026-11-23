@@ -10,11 +10,13 @@
 // - pause by pushing a state on top of the game (CP_Engine_PushGameState):
 //   the game freezes behind it, and CP_Engine_PopGameState lets it carry on
 // - keep values, such as the best score, across states
+// - give every state the same key, once, with CP_Engine_SetPreUpdateFunction
 //
 // examples/state_stack.c goes further: menus on top of menus, a state that
-// keeps running under another, transitions, and drawing into an image.
+// keeps running under another, and a HUD.
 //
 // The game: dodge the falling blocks with the mouse for as long as you can.
+// F11 switches between fullscreen and a window, in every state.
 //
 // Try this:
 // - Add a "How to play" state, reached from the menu with H.
@@ -246,6 +248,30 @@ void game_over_exit(void)
 }
 
 //-------------------------
+// EVERY STATE
+
+// CP_Engine_SetPreUpdateFunction runs a function every frame before the
+// state's update, whichever state it is. Keys that work everywhere go here
+// once, instead of in every state. It's for input like this, not drawing:
+// the state's update clears the window after it.
+// (CP_Engine_SetPostUpdateFunction runs one after the state's update, and
+// that one can draw over everything: transitions.c draws its fades there.)
+void EveryState(void)
+{
+	if (CP_Input_KeyTriggered(CP_KEY_F11))
+	{
+		if (CP_System_IsFullscreen())
+		{
+			CP_System_SetWindowSize(800, 600);
+		}
+		else
+		{
+			CP_System_Fullscreen();
+		}
+	}
+}
+
+//-------------------------
 
 int main(void)
 {
@@ -253,6 +279,8 @@ int main(void)
 	CP_System_SetWindowTitle("Game states");
 	background = CP_Color_Create(30, 30, 50, 255);
 	white = CP_Color_Create(255, 255, 255, 255);
+
+	CP_Engine_SetPreUpdateFunction(EveryState);
 
 	// The game starts at the menu
 	CP_Engine_SetNextGameState(menu_init, menu_update, menu_exit);

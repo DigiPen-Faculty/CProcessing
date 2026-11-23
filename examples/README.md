@@ -13,10 +13,10 @@ more than their title.
 
 | Example | What it shows |
 |---|---|
-| [shapes.c](shapes.c) | Your own shapes: stars and polygons from a loop, a speech bubble and a waving flag with curves, a heart, a blob through points, and an arched window and a donut with holes. Space shows the points and control points. |
+| [shapes.c](shapes.c) | Your own shapes: stars and polygons from a loop, a speech bubble and a waving flag with curves, a heart, a blob through points, and an arched window and a donut with holes. Space shows the points and control points, and J changes the star's corners. |
 | [curves.c](curves.c) | A pie chart, a loading ring, a Bezier curve with draggable handles, and a car that drives a winding road made of curves, facing the way it goes, at a steady speed. |
 | [rotation.c](rotation.c) | Turning shapes and sprites around any point: their middle, a corner, a pin anywhere, an orbit, joints, and aiming at the mouse, with helpers to copy. |
-| [gradients.c](gradients.c) | A sunset over the hills in gradients: a three-color sky, a glowing sun, a lit button, a health bar that turns red as it empties, and a flashlight. |
+| [gradients.c](gradients.c) | A sunset over the hills in gradients: a three-color sky, a glowing sun, a lit button, a health bar that turns red as it empties, bars that go from green to red through brown or through yellow, and a flashlight. |
 | [tiled_fill.c](tiled_fill.c) | Shapes filled with tiles of an image: hills of dirt, brick walls with windows, a moving platform, drifting clouds, water in a porthole, a striped loading bar and pixel art, with every tile drawn in code. |
 | [clipping.c](clipping.c) | Drawing kept inside a box: an inventory that scrolls in its panel, a minimap, ability icons that refill as their cooldowns run out, and a title that wipes in. |
 | [color_picker.c](color_picker.c) | The companion to lesson 3: mix a color from red, green and blue or from hue, saturation and lightness, make it see-through, see the colors between two, and get its code. The sliders are a recipe of their own. |
@@ -36,7 +36,7 @@ more than their title.
 |---|---|
 | [movement.c](movement.c) | Moving a player with WASD, the arrow keys or a gamepad stick, at the same speed at any frame rate. |
 | [collision.c](collision.c) | Checking whether points, circles and rectangles touch. |
-| [camera.c](camera.c) | A camera that moves and zooms around a world bigger than the window. |
+| [camera.c](camera.c) | A camera that moves and zooms around a world bigger than the window, with numbered markers, and arrows at the edge to the ones off the screen. |
 | [controls.c](controls.c) | Letting the player choose their own keys: an array of keys for the actions, CP_Input_GetKeyTriggered to find the key pressed, and each key's name on the screen. |
 | [mouse.c](mouse.c) | The mouse: a button to copy that clicks when it's pressed and let go over it, pressed, held and let go for each mouse button, click or double click, drag and drop into slots, the wheel, and how far and fast the mouse moved. |
 | [gamepad.c](gamepad.c) | Gamepads: every button, stick and trigger of up to 4 at once, which one the functions without Advanced read, gamepads connecting and disconnecting, and a player for each. |
@@ -45,8 +45,8 @@ more than their title.
 
 | Example | What it shows |
 |---|---|
-| [sprite_animation.c](sprite_animation.c) | Animating a character from the frames of a sprite sheet. |
-| [painting.c](painting.c) | A paint program: paint into an image with the mouse, save it as a PNG file and pick it up again the next time, and save numbered screenshots. |
+| [sprite_animation.c](sprite_animation.c) | Animating a character from the frames of a sprite sheet, and flashing it red when it's hurt. |
+| [painting.c](painting.c) | A paint program: paint into an image with the mouse, save it as a PNG file and pick it up again the next time, save numbered screenshots, and take a color from the painting with a right click. |
 | [tile_seams.c](tile_seams.c) | Tiles without seams: why thin lines show between tiles (a camera or zoom between pixels, a sprite sheet's neighbors, edges that fade), a key for each fix, and a magnifier that shows the pixels around the mouse. |
 
 ## Sound
@@ -60,7 +60,7 @@ more than their title.
 
 | Example | What it shows |
 |---|---|
-| [game_states.c](game_states.c) | A menu, play, pause and game over, each a game state of its own. The pause goes on top of the frozen game. |
+| [game_states.c](game_states.c) | A menu, play, pause and game over, each a game state of its own. The pause goes on top of the frozen game, and F11 works in every state. |
 | [state_stack.c](state_stack.c) | Going further with game states: menus on top of menus, a hint over a game that keeps running, a HUD, and an options page that changes the game under it. |
 | [transitions.c](transitions.c) | Animated changes between game states: a fade, a crossfade, slides and one you draw, with a small helper to copy into your own game. |
 | [state_effects.c](state_effects.c) | Easing into slow motion under a level-up box, and a pause that turns the music down and blurs the game behind it, with a few lines of your own code. |
@@ -83,13 +83,14 @@ more than their title.
 
 | Example | What it shows |
 |---|---|
+| [matrices.c](matrices.c) | Parts attached to parts: a tank drives, its turret turns on it toward the mouse, a drone circles it, and shots leave from the end of the gun. The turret's matrix is on screen. |
 | [vectors.c](vectors.c) | Vectors for games: a turret that turns toward its target the shorter way, a guard that sees the player only in front and close enough (the dot product), which side of a road a point is on (the cross product), and a creature that chases or runs away. |
 
 ## Window
 
 | Example | What it shows |
 |---|---|
-| [window_options.c](window_options.c) | Fullscreen, a resizable window, vsync, the frame rate limit, the mouse cursor modes and a console for printf, with keys to change them. |
+| [window_options.c](window_options.c) | Fullscreen (at the display's size or a lower one), a resizable window, the window in the middle of the display, vsync, the frame rate limit, the mouse cursor modes and a console for printf, with keys to change them. The display's size and refresh rate, and the frame count. |
 
 ## Looking for...
 
@@ -124,13 +125,21 @@ Tricks that live inside an example about something bigger.
 | A camera that doesn't blur pixel art | [tile_seams.c](tile_seams.c) (round where the world lands on the screen) |
 | A magnifier, or a zoomed-in view | [tile_seams.c](tile_seams.c) (`CP_Image_Screenshot`, drawn big with sharp pixels) |
 | Aiming at the mouse, an orbit, an arm with joints | [rotation.c](rotation.c) |
+| A part on a part: a turret on a tank, a drone that circles it | [matrices.c](matrices.c) (`CP_Matrix_Multiply`) |
+| Where the end of a gun is, after everything has moved and turned | [matrices.c](matrices.c) (`CP_Vector_MatrixMultiply`) |
+| The mouse over something turned or sized | [matrices.c](matrices.c) (`CP_Matrix_Inverse`) |
+| A shot that faces the way it flies | [matrices.c](matrices.c) (`CP_Matrix_FromVector`) |
 | A turret that turns at its own speed, the shorter way round | [vectors.c](vectors.c) (`CP_Vector_AngleCW`) |
 | An enemy's field of view: can it see the player? | [vectors.c](vectors.c) (`CP_Vector_DotProduct`) |
 | Which side of a line something is on | [vectors.c](vectors.c) (`CP_Vector_CrossProduct`) |
 | An enemy that chases or runs away, turning smoothly | [vectors.c](vectors.c) (`CP_Vector_Negate`, `CP_Vector_Lerp`) |
 | A camera that follows and zooms; clicking in a moved world | [camera.c](camera.c) |
 | Text that stays put while the world moves | [camera.c](camera.c) (`CP_Settings_ResetMatrix`) |
+| An arrow at the edge of the screen, pointing to something off it | [camera.c](camera.c) (`CP_Math_WorldToScreen`) |
+| The part of the world the window shows | [camera.c](camera.c) (`CP_Math_ScreenToWorld`) |
+| A circle check without a square root | [collision.c](collision.c) (`CP_Math_Square`) |
 | A score and a timer | [score_and_text.c](score_and_text.c) |
+| A score that counts up to its new value | [score_and_text.c](score_and_text.c) (`CP_Math_LerpInt`) |
 | Centered or right-aligned text, wrapped text | [score_and_text.c](score_and_text.c) |
 | A dialog box that fits its text | [text_effects.c](text_effects.c) |
 | A font of your own | [fonts.c](fonts.c) (`CP_Font_Load`) |
@@ -144,6 +153,8 @@ Tricks that live inside an example about something bigger.
 | Noticing a gamepad plugged in or unplugged | [gamepad.c](gamepad.c) |
 | A trigger that's pressed part way, like a throttle | [gamepad.c](gamepad.c) (faster players) |
 | A sprite sheet animation | [sprite_animation.c](sprite_animation.c) |
+| A sprite that flashes red when it's hurt | [sprite_animation.c](sprite_animation.c) (`CP_Settings_Tint`) |
+| An eyedropper: the color of a pixel | [painting.c](painting.c) (`CP_Image_GetPixelData`) |
 | Drawing that stays from frame to frame | [painting.c](painting.c), [particles.c](particles.c) (a trail that fades) |
 | Saving a picture or screenshot; loading it next time | [painting.c](painting.c) |
 | Numbered file names (`screenshot_1.png`...) | [painting.c](painting.c) (`snprintf`) |
@@ -156,6 +167,8 @@ Tricks that live inside an example about something bigger.
 | A pause menu | [game_states.c](game_states.c), [state_stack.c](state_stack.c) (with options and "really quit?") |
 | A HUD over the game | [state_stack.c](state_stack.c) |
 | Restarting a level; keeping the best score | [game_states.c](game_states.c) |
+| A key that works in every state | [game_states.c](game_states.c) (`CP_Engine_SetPreUpdateFunction`) |
+| Keys only for the state on top | [state_stack.c](state_stack.c) (`CP_Engine_IsTopGameState`) |
 | A fade or slide between screens | [transitions.c](transitions.c) |
 | Slow motion | [state_effects.c](state_effects.c) |
 | Music that goes quiet under a pause | [state_effects.c](state_effects.c) |
@@ -174,7 +187,10 @@ Tricks that live inside an example about something bigger.
 | Lines between things that come close | [particles.c](particles.c) |
 | Things that pop in, bounce or overshoot | [easing.c](easing.c) |
 | A color's code, or the colors between two colors | [color_picker.c](color_picker.c) |
+| A color that goes from green to red through yellow, not brown | [gradients.c](gradients.c) (`CP_ColorHSL_Lerp`) |
+| Sharp, cut-off or round corners on an outline | [shapes.c](shapes.c) (`CP_Settings_LineJointMode`) |
 | Fullscreen, a resizable window, the frame rate | [window_options.c](window_options.c) |
+| The window in the middle of the display; the display's size | [window_options.c](window_options.c) (`CP_System_SetWindowPosition`) |
 | Hiding the mouse cursor; mouse look | [window_options.c](window_options.c) (`CP_System_SetCursorMode`) |
 | A console window for printf | [window_options.c](window_options.c) (`CP_System_ShowConsole`) |
 

@@ -18,6 +18,8 @@
 //   CP_Engine_SetGameStatePassThrough: CP_PASSTHROUGH_ALL for a hint over a
 //   game that keeps moving, CP_PASSTHROUGH_NONE for a full-screen options page
 // - draw a HUD with a function at the end of the game's update
+// - tell whether a state is the one on top, which gets the keys, with
+//   CP_Engine_IsTopGameState
 // - change the game from an options page while the game waits underneath
 //
 // Changes of state here happen at once. transitions.c shows how to animate
@@ -141,8 +143,12 @@ void DrawHUD(void)
 	snprintf(text, sizeof(text), "Playing for %.1f seconds (not counting pauses)", CP_Engine_GetGameStateTime());
 	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BOTTOM);
 	CP_Font_DrawText(text, 10.0f, CP_System_GetWindowHeight() - 10.0f);
+
+	// Is the game the state on top? Only the top state gets the keys. Under
+	// the hint, the game keeps running, but it isn't on top.
+	const char* keys = CP_Engine_IsTopGameState() ? "P: pause   H: hint" : "The keys go to the hint";
 	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_RIGHT, CP_TEXT_ALIGN_V_BOTTOM);
-	CP_Font_DrawText("P: pause   H: hint", CP_System_GetWindowWidth() - 10.0f, CP_System_GetWindowHeight() - 10.0f);
+	CP_Font_DrawText(keys, CP_System_GetWindowWidth() - 10.0f, CP_System_GetWindowHeight() - 10.0f);
 	DrawDepth();
 	CP_Settings_Restore();
 }

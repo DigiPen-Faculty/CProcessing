@@ -11,6 +11,8 @@
 // - give a gradient more than two colors, with one shape for each pair
 // - fill a health bar with one gradient across its whole width, so it goes
 //   from green to red as it empties
+// - give a bar one color that goes from green to red, through yellow, with
+//   CP_ColorHSL_Lerp, and see why CP_Color_Lerp goes through brown
 //
 // A gradient is a fill, like CP_Settings_Fill: every shape after it uses it,
 // until the next fill. Its points are in the same coordinates as the shapes,
@@ -122,6 +124,37 @@ void DrawHealthBar(float left, float top, float width, float height)
 	CP_Font_DrawText("Health", left, top - 6);
 }
 
+// Two bars in one color each, green when full and red when empty.
+// CP_Color_Lerp blends the red, green and blue on their own, so halfway
+// it's a dull brown. CP_ColorHSL_Lerp turns the hue around the color wheel
+// instead (the shorter way), so halfway it's yellow, as bright as the ends.
+void DrawOneColorBars(float left, float top, float width)
+{
+	const CP_Color empty = CP_Color_Create(230, 40, 40, 255);
+	const CP_Color full = CP_Color_Create(60, 220, 90, 255);
+	const CP_Color straight = CP_Color_Lerp(empty, full, health);
+	const CP_ColorHSL around = CP_ColorHSL_Lerp(CP_ColorHSL_FromColor(empty), CP_ColorHSL_FromColor(full), health);
+
+	CP_Settings_NoStroke();
+	CP_Settings_RectMode(CP_POSITION_CORNER);
+	CP_Settings_Fill(CP_Color_Create(20, 20, 30, 200));
+	CP_Graphics_DrawRoundedRect(left, top, width, 12, 6);
+	CP_Graphics_DrawRoundedRect(left, top + 26, width, 12, 6);
+	if (health > 0.0f)
+	{
+		CP_Settings_Fill(straight);
+		CP_Graphics_DrawRoundedRect(left, top, width * health, 12, 6);
+		CP_Settings_Fill(CP_Color_FromColorHSL(around));
+		CP_Graphics_DrawRoundedRect(left, top + 26, width * health, 12, 6);
+	}
+
+	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
+	CP_Settings_TextSize(16.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_MIDDLE);
+	CP_Font_DrawText("CP_Color_Lerp", left + width + 10, top + 6);
+	CP_Font_DrawText("CP_ColorHSL_Lerp", left + width + 10, top + 32);
+}
+
 //---------------------------------------------------------
 // A button that looks lit from above: lighter at the top, darker at the
 // bottom. It lights up under the mouse, and the colors swap when pressed,
@@ -208,6 +241,7 @@ void game_update(void)
 		DrawFlashlight();
 	}
 	DrawHealthBar(30, 50, 260, 24);
+	DrawOneColorBars(30, 92, 260);
 
 	CP_Settings_Fill(CP_Color_Create(230, 230, 240, 255));
 	CP_Settings_TextSize(20.0f);

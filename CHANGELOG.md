@@ -312,6 +312,37 @@ Each change says what to do in an existing project.
   is on (`CP_Vector_CrossProduct`); and a creature that chases the mouse or
   runs away from it (`CP_Vector_Negate`), turning smoothly
   (`CP_Vector_Lerp`) at a top speed (`CP_Vector_Limit`).
+- **Matrices, `examples/matrices.c`:** parts attached to parts. A tank's
+  turret turns on it toward the mouse (`CP_Matrix_Inverse`), a drone circles
+  it, and shots leave from the end of the gun (`CP_Vector_MatrixMultiply`),
+  facing the way they fly (`CP_Matrix_FromVector`). The turret's matrix is on
+  screen, with its columns drawn as arrows.
+- **Every function but two is now in an example or a lesson.** The ones
+  that weren't went where they fit. The two are `CP_System_GetWindowHandle`
+  and `CP_Matrix_Transpose` (which `matrices.c` mentions), and the wiki
+  covers both:
+  - `window_options.c`: the display's size and refresh rate, fullscreen at a
+    lower resolution, the window in the middle of the display, showing and
+    hiding the cursor, the frame count and milliseconds, and reading the
+    stroke back.
+  - `camera.c`: numbered markers, with an arrow at the edge of the window
+    for each one off the screen (`CP_Math_WorldToScreen`), and the part of
+    the world the window shows (`CP_Math_ScreenToWorld`).
+  - `shapes.c`: sharp, cut-off or round corners (`CP_Settings_LineJointMode`),
+    and the points drawn with `CP_Graphics_DrawPoint`.
+  - `gradients.c`: bars that go from green to red through brown
+    (`CP_Color_Lerp`) and through yellow (`CP_ColorHSL_Lerp`).
+  - `sprite_animation.c`: a red flash when the slime is hurt
+    (`CP_Settings_Tint`).
+  - `painting.c`: an eyedropper (`CP_Image_GetPixelData`).
+  - `score_and_text.c`: a score that counts up (`CP_Math_LerpInt`).
+  - `collision.c`: a circle check without a square root (`CP_Math_Square`).
+  - `game_states.c`: F11 for fullscreen in every state
+    (`CP_Engine_SetPreUpdateFunction`).
+  - `state_stack.c`: the HUD knows when the keys go to the hint
+    (`CP_Engine_IsTopGameState`).
+  - `gamepad.c`: A on the default gamepad, counted with
+    `CP_Input_GamepadTriggered` and `CP_Input_GamepadReleased`.
 - **Control one sound while it plays:** `CP_Sound_Play` and
   `CP_Sound_PlayAdvanced` now return a `CP_SoundInstance`, one play of the
   sound (programs that ignore it work as before). `CP_Sound_Stop`,

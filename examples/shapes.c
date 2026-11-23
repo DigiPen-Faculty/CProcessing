@@ -10,6 +10,9 @@
 // - draw a smooth curve through a list of points (the AddSmoothVertices
 //   function below: copy it into your game)
 // - cut holes in a shape with CP_Graphics_BeginHole and CP_Graphics_EndHole
+// - choose how an outline turns its corners with CP_Settings_LineJointMode:
+//   sharp (miter), cut off (bevel, the default) or round
+// - draw a dot with CP_Graphics_DrawPoint
 //
 // A shape always goes in this order:
 //
@@ -27,7 +30,8 @@
 // other: where a hole pokes out, or two holes overlap, it's filled again.
 //
 // Press Space to see the points: the ones the shape goes through (filled)
-// and the control points the curves bend toward (hollow).
+// and the control points the curves bend toward (hollow). J changes the
+// star's corners.
 //
 // Try this:
 // - Give the star more points, or make its inner radius change with time.
@@ -52,11 +56,19 @@
 
 CP_BOOL showPoints = FALSE;
 
+// How the star's outline turns its corners (J changes it)
+#define JOINT_COUNT 3
+const CP_LINE_JOINT_MODE joints[JOINT_COUNT] = { CP_LINE_JOINT_MITER, CP_LINE_JOINT_BEVEL, CP_LINE_JOINT_ROUND };
+const char* jointNames[JOINT_COUNT] = { "J: sharp corners (miter)", "J: cut-off corners (bevel)", "J: round corners" };
+int jointIndex = 0;
+
 //---------------------------------------------------------
 // Showing the points (Space)
 
-// A point the shape goes through is white; a control point is a yellow
-// ring, with a thin line to the point it belongs to
+// A point the shape goes through is a white dot; a control point is a
+// yellow ring, with a thin line to the point it belongs to.
+// CP_Graphics_DrawPoint draws a dot in the stroke color, as wide as the
+// stroke weight: round with round line caps, square with the others.
 void DrawPointMarker(float x, float y)
 {
 	if (!showPoints)
@@ -64,10 +76,13 @@ void DrawPointMarker(float x, float y)
 		return;
 	}
 	CP_Settings_Save();
-	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
+	CP_Settings_LineCapMode(CP_LINE_CAP_ROUND);
 	CP_Settings_Stroke(CP_Color_Create(20, 20, 30, 255));
-	CP_Settings_StrokeWeight(2.0f);
-	CP_Graphics_DrawCircle(x, y, 9.0f);
+	CP_Settings_StrokeWeight(11.0f);
+	CP_Graphics_DrawPoint(x, y);
+	CP_Settings_Stroke(CP_Color_Create(255, 255, 255, 255));
+	CP_Settings_StrokeWeight(7.0f);
+	CP_Graphics_DrawPoint(x, y);
 	CP_Settings_Restore();
 }
 
@@ -418,6 +433,10 @@ void game_update(void)
 	{
 		showPoints = !showPoints;
 	}
+	if (CP_Input_KeyTriggered(CP_KEY_J))
+	{
+		jointIndex = (jointIndex + 1) % JOINT_COUNT;
+	}
 	const float seconds = CP_System_GetSeconds();
 
 	CP_Graphics_ClearBackground(CP_Color_Create(35, 35, 55, 255));
@@ -426,12 +445,22 @@ void game_update(void)
 	CP_Settings_Stroke(CP_Color_Create(120, 80, 0, 255));
 	CP_Settings_StrokeWeight(3.0f);
 	CP_Settings_Fill(CP_Color_Create(255, 210, 60, 255));
-	DrawStar(110.0f, 140.0f, 70.0f, 30.0f, 5, seconds * 30.0f);
+	// The star's thick outline shows its corners. The joint mode is a
+	// setting like the others: it stays until it's changed, so it's put
+	// back to the default after the star.
+	CP_Settings_StrokeWeight(7.0f);
+	CP_Settings_LineJointMode(joints[jointIndex]);
+	DrawStar(110.0f, 140.0f, 64.0f, 28.0f, 5, seconds * 30.0f);
+	CP_Settings_LineJointMode(CP_LINE_JOINT_BEVEL);
+	CP_Settings_StrokeWeight(3.0f);
 	CP_Settings_Fill(CP_Color_Create(100, 180, 255, 255));
 	DrawPolygon(205.0f, 100.0f, 32.0f, 6, 0.0f);
 	CP_Settings_Fill(CP_Color_Create(170, 120, 255, 255));
 	DrawPolygon(205.0f, 185.0f, 32.0f, 3, -seconds * 45.0f);
 	DrawLabel("A loop of AddVertex", 150.0f, 250.0f);
+	CP_Settings_Fill(CP_Color_Create(150, 150, 170, 255));
+	CP_Settings_TextSize(16.0f);
+	CP_Font_DrawText(jointNames[jointIndex], 150.0f, 274.0f);
 
 	DrawSpeechBubble(300.0f, 70.0f, 200.0f, 100.0f, "Hello!");
 	DrawLabel("AddQuadraticVertex", 400.0f, 250.0f);

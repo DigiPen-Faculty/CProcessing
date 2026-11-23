@@ -81,8 +81,12 @@ int lastPressed[CP_MAX_GAMEPADS];                // a button, or -1 for none yet
 int lastReleased[CP_MAX_GAMEPADS];
 CP_BOOL wasConnected[CP_MAX_GAMEPADS];
 
+// A on the default gamepad, counted with the functions without Advanced
+int defaultPresses = 0;
+int defaultReleases = 0;
+
 // Connected and disconnected messages, newest first
-#define LOG_SIZE 6
+#define LOG_SIZE 5
 char logLines[LOG_SIZE][64];
 int logCount = 0;
 
@@ -291,6 +295,17 @@ void UpdateGamepads(float dt)
 			}
 		}
 	}
+
+	// The functions without Advanced read the default gamepad, index 0. A
+	// game for one player can use them and never think about indexes.
+	if (CP_Input_GamepadTriggered(CP_GAMEPAD_A))
+	{
+		++defaultPresses;
+	}
+	if (CP_Input_GamepadReleased(CP_GAMEPAD_A))
+	{
+		++defaultReleases;
+	}
 }
 
 // Each gamepad moves its own player: the stick gives the direction, and
@@ -336,7 +351,7 @@ void DrawInfo(void)
 
 	const char* lines[] = {
 		"The functions without Advanced, like",
-		"CP_Input_GamepadDown(CP_GAMEPAD_A),",
+		"CP_Input_GamepadTriggered(CP_GAMEPAD_A),",
 		"read the default: the first gamepad.",
 		"Indexes have no gaps. Unplug gamepad 0",
 		"and gamepad 1 becomes gamepad 0.",
@@ -350,6 +365,10 @@ void DrawInfo(void)
 		CP_Font_DrawText(lines[i], x, y);
 		y += 20.0f;
 	}
+	snprintf(text, sizeof(text), "The default's A: pressed %d, let go %d", defaultPresses, defaultReleases);
+	CP_Settings_Fill(PlayerColor(0));
+	CP_Font_DrawText(text, x, y);
+	y += 20.0f;
 
 	y += 14.0f;
 	CP_Settings_Fill(CP_Color_Create(230, 230, 240, 255));

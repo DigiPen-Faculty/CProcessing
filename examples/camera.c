@@ -9,6 +9,10 @@
 //   CP_Settings_Scale
 // - find where the mouse is in the world with CP_Input_GetMouseWorldX/Y
 // - draw text that stays put on the screen, with CP_Settings_ResetMatrix
+// - find where a world position is in the window with CP_Math_WorldToScreen,
+//   to label it at a size that doesn't zoom, or point to it from the edge
+//   when it's off the screen
+// - find the part of the world the window shows with CP_Math_ScreenToWorld
 //
 // WASD or the arrow keys move the camera, the mouse wheel zooms, and a
 // click drops a marker where you clicked in the world.
@@ -16,6 +20,8 @@
 // Try this:
 // - Make the camera follow a player that moves with the keys.
 // - Stop the camera at the edges of the world.
+// - Skip drawing the landmarks outside the part of the world the window
+//   shows. With thousands of things in a world, that saves a lot.
 //
 // See also: movement.c, for a player for the camera to follow; clipping.c,
 // for a minimap of a world.
@@ -42,6 +48,9 @@ const float cameraSpeed = 500.0f; // screen pixels per second
 #define MAX_MARKERS 50
 CP_Vector markers[MAX_MARKERS];
 int markerCount = 0;
+
+// Where each marker is in the window, found while the camera is applied
+CP_Vector markersOnScreen[MAX_MARKERS];
 
 void game_init(void)
 {
@@ -139,6 +148,49 @@ void DrawWorld(void)
 	}
 }
 
+// A number for each marker, drawn after the camera is undone, so it's the
+// same size at any zoom. A marker off the screen gets an arrow at the edge
+// of the window instead, pointing the way to it.
+void DrawMarkerLabels(void)
+{
+	const float width = (float)CP_System_GetWindowWidth();
+	const float height = (float)CP_System_GetWindowHeight();
+	CP_Settings_Save(); // and Restore at the end, so the text after keeps its settings
+	CP_Settings_TextSize(18.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_CENTER, CP_TEXT_ALIGN_V_MIDDLE);
+	for (int i = 0; i < markerCount; ++i)
+	{
+		char number[8];
+		snprintf(number, sizeof(number), "%d", i + 1);
+		const CP_Vector onScreen = markersOnScreen[i];
+
+		if (onScreen.x >= 0.0f && onScreen.x <= width && onScreen.y >= 0.0f && onScreen.y <= height)
+		{
+			CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
+			CP_Font_DrawText(number, onScreen.x, onScreen.y - 24.0f);
+			continue;
+		}
+
+		// Off the screen: the same point kept inside the window, away from
+		// the text at the top and bottom, and an arrow from there toward
+		// the marker, with its number
+		CP_Vector edge;
+		edge.x = CP_Math_ClampFloat(onScreen.x, 30.0f, width - 30.0f);
+		edge.y = CP_Math_ClampFloat(onScreen.y, 75.0f, height - 50.0f);
+		const CP_Vector way = CP_Vector_Normalize(CP_Vector_Subtract(onScreen, edge));
+		const CP_Vector side = CP_Vector_Set(-way.y, way.x);
+		const CP_Vector tip = CP_Vector_Add(edge, CP_Vector_Scale(way, 14.0f));
+		const CP_Vector back = CP_Vector_Subtract(edge, CP_Vector_Scale(way, 8.0f));
+		CP_Settings_NoStroke();
+		CP_Settings_Fill(CP_Color_Create(230, 60, 60, 255));
+		CP_Graphics_DrawTriangle(tip.x, tip.y, back.x + side.x * 10.0f, back.y + side.y * 10.0f, back.x - side.x * 10.0f,
+			back.y - side.y * 10.0f);
+		CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
+		CP_Font_DrawText(number, edge.x - way.x * 22.0f, edge.y - way.y * 22.0f);
+	}
+	CP_Settings_Restore();
+}
+
 void game_update(void)
 {
 	UpdateCamera();
@@ -157,13 +209,29 @@ void game_update(void)
 	CP_Graphics_ClearBackground(CP_Color_Create(20, 20, 20, 255));
 	DrawWorld();
 
+	// While the camera is still applied, CP_Math_WorldToScreen gives where
+	// a world position is in the window...
+	for (int i = 0; i < markerCount; ++i)
+	{
+		CP_Math_WorldToScreen(markers[i].x, markers[i].y, &markersOnScreen[i].x, &markersOnScreen[i].y);
+	}
+	// ...and CP_Math_ScreenToWorld goes the other way: the window's top left
+	// and bottom right corners, in the world, are the part of it you see
+	float viewLeft, viewTop, viewRight, viewBottom;
+	CP_Math_ScreenToWorld(0.0f, 0.0f, &viewLeft, &viewTop);
+	CP_Math_ScreenToWorld((float)CP_System_GetWindowWidth(), (float)CP_System_GetWindowHeight(), &viewRight, &viewBottom);
+
 	// Text on the screen, not in the world: undo the camera first
 	CP_Settings_ResetMatrix();
+	DrawMarkerLabels();
 	char text[120];
 	snprintf(text, sizeof(text), "Camera at (%.0f, %.0f), zoom %.2fx    Mouse in the world: (%.0f, %.0f)",
 		cameraPosition.x, cameraPosition.y, cameraZoom, mouseWorldX, mouseWorldY);
 	CP_Settings_Fill(CP_Color_Create(255, 255, 255, 255));
 	CP_Font_DrawText(text, 20.0f, 30.0f);
+	snprintf(text, sizeof(text), "The window shows the world from (%.0f, %.0f) to (%.0f, %.0f)", viewLeft, viewTop,
+		viewRight, viewBottom);
+	CP_Font_DrawText(text, 20.0f, 52.0f);
 	CP_Font_DrawText("WASD or arrows: move    Mouse wheel: zoom    Click: drop a marker", 20.0f, 580.0f);
 }
 
