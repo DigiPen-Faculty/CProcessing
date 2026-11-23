@@ -312,6 +312,44 @@ Each change says what to do in an existing project.
   is on (`CP_Vector_CrossProduct`); and a creature that chases the mouse or
   runs away from it (`CP_Vector_Negate`), turning smoothly
   (`CP_Vector_Lerp`) at a top speed (`CP_Vector_Limit`).
+- **Matrices, `examples/matrices.c`:** parts attached to parts. A tank's
+  turret turns on it toward the mouse (`CP_Matrix_Inverse`), a drone circles
+  it, and shots leave from the end of the gun (`CP_Vector_MatrixMultiply`),
+  facing the way they fly (`CP_Matrix_FromVector`). The turret's matrix is on
+  screen, with its columns drawn as arrows.
+- **Every function but three is now in an example or a lesson.** The ones
+  that weren't went where they fit. The three are left out on purpose, and
+  the wiki covers them: `CP_System_GetWindowHandle`, `CP_Matrix_Transpose`
+  (which `matrices.c` mentions), and `CP_System_FullscreenAdvanced` (see
+  `window_options.c` below):
+  - `window_options.c`: the display's size and refresh rate, the window in
+    the middle of the display, showing and hiding the cursor, the frame
+    count and milliseconds, and reading the stroke back.
+    `CP_System_FullscreenAdvanced` is left out on purpose: switching the
+    monitor to another size is hard on the player. The wiki warns about it,
+    and shows instead how to draw a game at 1280x720 into an image and
+    stretch it over a fullscreen window.
+  - `camera.c`: numbered markers, with an arrow at the edge of the window
+    for each one off the screen (`CP_Math_WorldToScreen`), and the part of
+    the world the window shows (`CP_Math_ScreenToWorld`).
+  - `shapes.c`: sharp, cut-off or round corners (`CP_Settings_LineJointMode`),
+    and the points drawn with `CP_Graphics_DrawPoint`.
+  - `gradients.c`: bars that go from green to red through brown
+    (`CP_Color_Lerp`) and through yellow (`CP_ColorHSL_Lerp`).
+  - `sprite_animation.c`: a white or red flash when the slime is hurt: a
+    white copy of the sheet drawn over it, fading out, and colored with
+    `CP_Settings_Tint` (a tint multiplies, so on the sprite itself it could
+    only darken it).
+  - `painting.c`: an eyedropper that picks the swatch closest to the color
+    under the mouse (`CP_Image_GetPixelData`).
+  - `score_and_text.c`: a score that counts up (`CP_Math_LerpInt`).
+  - `collision.c`: a circle check without a square root (`CP_Math_Square`).
+  - `game_states.c`: F11 for fullscreen in every state
+    (`CP_Engine_SetPreUpdateFunction`).
+  - `state_stack.c`: the HUD knows when the keys go to the hint
+    (`CP_Engine_IsTopGameState`).
+  - `gamepad.c`: A on the default gamepad, counted with
+    `CP_Input_GamepadTriggered` and `CP_Input_GamepadReleased`.
 - **Control one sound while it plays:** `CP_Sound_Play` and
   `CP_Sound_PlayAdvanced` now return a `CP_SoundInstance`, one play of the
   sound (programs that ignore it work as before). `CP_Sound_Stop`,
@@ -620,9 +658,18 @@ Each change says what to do in an existing project.
   144 Hz monitor. It now uses the monitor's highest refresh rate for the
   size. The frame rate is still set by `CP_System_SetFrameRate` (60 by
   default).
-- Release builds of CProcessing no longer ask for an OpenGL debug context
-  or check for an OpenGL error after every drawing step, which could slow
-  drawing down on some graphics drivers. Debug builds still do both.
+- Release builds of CProcessing no longer check for an OpenGL error after
+  every drawing step, which could slow drawing down on some graphics
+  drivers. Debug builds still do.
+- **In Debug builds, fullscreen at another size usually went back to the
+  monitor's own size.** On Intel Iris Xe graphics,
+  `CP_System_FullscreenAdvanced(1280, 720)` switched the monitor, then
+  Windows switched it back to 2560 × 1600 by itself, with the window
+  stretched and frames stalling for seconds. The OpenGL debug context that
+  Debug builds asked for made this far more likely, and CProcessing never
+  used it (there was no debug message callback), so no build asks for one
+  now. It can still happen now and then on that hardware, in GLFW itself,
+  without CProcessing.
 - **`CP_Random_Noise` was wrong for negative coordinates:** it returned
   values far outside 0 to 1 and jumped at every negative whole number. It
   now gives the same smooth noise there as for positive coordinates.

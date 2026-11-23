@@ -12,15 +12,18 @@
 // - save a screenshot of the window: CP_Image_Screenshot, then
 //   CP_Image_Save, then CP_Image_Free
 // - number files with snprintf, so each screenshot gets its own name
+// - read the color of a pixel of an image with CP_Image_GetPixelData, for
+//   an eyedropper that chooses the swatch closest to it
 //
 // Where the files go: a name without a folder, like "painting.png", is
 // saved in the current folder. Running from Visual Studio, that's the
 // project folder (where the assets folder is); running the .exe on its
 // own, it's the folder the .exe is in. Saving over a file replaces it.
 //
-// Click a color to pick it, and paint with the left mouse button. The
-// mouse wheel changes the brush size. S saves the painting, P saves a
-// screenshot, and C clears the canvas.
+// Click a color to pick it, and paint with the left mouse button. A right
+// click on the painting picks the color under the mouse. The mouse wheel
+// changes the brush size. S saves the painting, P saves a screenshot, and
+// C clears the canvas.
 //
 // Try this:
 // - Add a key that loads painting.png again, to undo everything since the
@@ -29,7 +32,7 @@
 //   CP_Image_Load gives NULL (no such file yet), freeing the ones it finds.
 // - Save a picture of your game when the player wins, to show off later.
 //
-// See also: state_stack.c, for a trail drawn into an image; tiled_fill.c,
+// See also: particles.c, for a trail drawn into an image; tiled_fill.c,
 // for tiles drawn into images.
 //
 // To run it, copy this file over the template's main.c.
@@ -38,7 +41,8 @@
 // Copyright (c) 2026 DigiPen Institute of Technology and CProcessing contributors
 //---------------------------------------------------------
 
-#include <stdio.h> // for snprintf
+#include <stdio.h>  // for snprintf
+#include <stdlib.h> // for malloc and free
 #include "cprocessing.h"
 
 #define WINDOW_WIDTH   800.0f
@@ -107,10 +111,11 @@ void DrawToolbar(void)
 	}
 
 	CP_Settings_Fill(CP_Color_Create(220, 220, 235, 255));
-	CP_Settings_TextSize(18.0f);
+	CP_Settings_TextSize(16.0f);
 	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_RIGHT, CP_TEXT_ALIGN_V_MIDDLE);
-	CP_Font_DrawText("S: save   P: screenshot   C: clear", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f - 11);
-	CP_Font_DrawText("Mouse wheel: brush size", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f + 11);
+	CP_Font_DrawText("S: save   P: screenshot   C: clear", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f - 18);
+	CP_Font_DrawText("Mouse wheel: brush size", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f);
+	CP_Font_DrawText("Right click: pick the color there", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f + 18);
 }
 
 // Paints from where the mouse was to where it is now, into the canvas.
@@ -138,6 +143,54 @@ void Paint(void)
 
 	lastX = x;
 	lastY = y;
+}
+
+// The color of one pixel of the canvas, for an eyedropper.
+// CP_Image_GetPixelData copies every pixel into an array you make, width *
+// height colors, row by row from the top, so pixel (x, y) is at
+// y * width + x. It reads the whole image back from the graphics card, so
+// do it when something happens, like a click, not every frame.
+CP_Color CanvasColorAt(int x, int y)
+{
+	const int width = CP_Image_GetWidth(canvas);
+	const int height = CP_Image_GetHeight(canvas);
+	CP_Color color = colors[colorIndex]; // the color already chosen, if there's no pixel there
+	if (x < 0 || y < 0 || x >= width || y >= height)
+	{
+		return color;
+	}
+
+	CP_Color* pixels = (CP_Color*)malloc((size_t)width * (size_t)height * sizeof(CP_Color));
+	if (pixels)
+	{
+		CP_Image_GetPixelData(canvas, pixels);
+		color = pixels[y * width + x];
+		free(pixels);
+	}
+	return color;
+}
+
+// The swatch whose color is closest to a color: the smallest distance
+// between them, counting red, green and blue like x, y and z. A pixel at
+// the edge of a stroke is a blend of the paint and what was under it, so
+// an exact match would often find nothing.
+int ClosestSwatch(CP_Color color)
+{
+	int closest = 0;
+	int closestDistance = -1;
+	for (int i = 0; i < COLOR_COUNT; ++i)
+	{
+		const int r = colors[i].r - color.r;
+		const int g = colors[i].g - color.g;
+		const int b = colors[i].b - color.b;
+		const int distance = r * r + g * g + b * b; // squared: only which is smallest matters
+		if (closestDistance < 0 || distance < closestDistance)
+		{
+			closest = i;
+			closestDistance = distance;
+		}
+	}
+	return closest;
 }
 
 //---------------------------------------------------------
@@ -226,6 +279,13 @@ void game_update(void)
 	else if (CP_Input_MouseDown(CP_MOUSE_LEFT) && mouseY >= TOOLBAR_HEIGHT)
 	{
 		Paint();
+	}
+
+	// The eyedropper: a right click on the canvas chooses the swatch for the
+	// color under the mouse, so you can carry on with a color already used
+	if (CP_Input_MouseTriggered(CP_MOUSE_RIGHT) && mouseY >= TOOLBAR_HEIGHT)
+	{
+		colorIndex = ClosestSwatch(CanvasColorAt((int)mouseX, (int)(mouseY - TOOLBAR_HEIGHT)));
 	}
 
 	brushSize = CP_Math_ClampFloat(brushSize + CP_Input_MouseWheel() * 3.0f, 2.0f, 80.0f);

@@ -105,12 +105,19 @@ CP_BOOL BoxesTouch(Box a, Box b)
 // A circle touches a box when the box's closest point to the circle's
 // center is inside the circle. The closest point is the center, clamped to
 // the box's edges.
+//
+// This one compares squares: the distance squared with the radius squared.
+// It gives the same answer as comparing the distance with the radius, and
+// skips the square root a distance takes. A vector's dot product with
+// itself is its length squared. You'll see this in games that check
+// thousands of things a frame; for a few, either way is fine.
 CP_BOOL CircleTouchesBox(Circle circle, Box box)
 {
 	CP_Vector closest;
 	closest.x = CP_Math_ClampFloat(circle.center.x, box.center.x - box.width / 2.0f, box.center.x + box.width / 2.0f);
 	closest.y = CP_Math_ClampFloat(circle.center.y, box.center.y - box.height / 2.0f, box.center.y + box.height / 2.0f);
-	return CP_Vector_Distance(circle.center, closest) <= circle.radius;
+	CP_Vector toClosest = CP_Vector_Subtract(closest, circle.center);
+	return CP_Vector_DotProduct(toClosest, toClosest) <= CP_Math_Square(circle.radius);
 }
 
 //-------------------------
