@@ -17,8 +17,9 @@
 // - Give more points for a target clicked quickly.
 // - Show the best three scores instead of only the best.
 //
-// See also: text_effects.c, for glowing text and dialog boxes;
-// text_input.c, for typing.
+// See also: fonts.c, for loading a font and measuring text;
+// text_effects.c, for glowing text and dialog boxes; text_input.c, for
+// typing.
 //
 // To run it, copy this file over the template's main.c.
 //
