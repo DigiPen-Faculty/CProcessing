@@ -293,6 +293,11 @@ Each change says what to do in an existing project.
   several sizes, a button that fits its label, a name that shrinks to fit,
   and a wrapped box with a background that fits it. It loads
   `Exo2-LightItalic.ttf` from the templates' assets.
+- **The mouse, `examples/mouse.c`:** a button to copy (`DoButton`) that
+  clicks only when it's pressed and let go over it; pressed, held and let
+  go for the left, right and middle buttons; click to choose and double
+  click to open; drag and drop into slots; the wheel; and whether, how far
+  and how fast the mouse moved.
 - **Control one sound while it plays:** `CP_Sound_Play` and
   `CP_Sound_PlayAdvanced` now return a `CP_SoundInstance`, one play of the
   sound (programs that ignore it work as before). `CP_Sound_Stop`,

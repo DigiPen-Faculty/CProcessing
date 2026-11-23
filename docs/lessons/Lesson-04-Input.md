@@ -81,7 +81,7 @@ ballSize = CP_Math_ClampFloat(ballSize + CP_Input_MouseWheel() * 6.0f, 20.0f, 14
 
 `ClampFloat` keeps the size between 20 and 140, so you can't scroll it to nothing.
 
-A few more questions you can ask: `CP_Input_MouseMoved()`, `CP_Input_MouseDoubleClicked()`, `CP_Input_MouseDragged(CP_MOUSE_LEFT)`, and how far it moved since last frame with `CP_Input_GetMouseDeltaX()` and `GetMouseDeltaY()`. Lesson 2's painting program used the *previous* position, `CP_Input_GetMousePreviousX()`, to draw a line from where the mouse was to where it is.
+A few more questions you can ask: `CP_Input_MouseMoved()`, `CP_Input_MouseDoubleClicked()`, `CP_Input_MouseDragged(CP_MOUSE_LEFT)`, and how far it moved since last frame with `CP_Input_GetMouseDeltaX()` and `GetMouseDeltaY()`. Lesson 2's painting program used the *previous* position, `CP_Input_GetMousePreviousX()`, to draw a line from where the mouse was to where it is. [examples/mouse.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/mouse.c) uses them all, with a button, a double click and drag and drop.
 
 The ring uses what you know about frames. Each ring remembers its age, grows and fades as the age goes up (`CP_System_GetDt()` is how long the last frame took, in seconds), and is thrown away at half a second. [Moving with delta time](Moving-with-delta-time) explains `dt`.
 
