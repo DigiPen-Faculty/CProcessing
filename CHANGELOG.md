@@ -332,8 +332,10 @@ Each change says what to do in an existing project.
     and the points drawn with `CP_Graphics_DrawPoint`.
   - `gradients.c`: bars that go from green to red through brown
     (`CP_Color_Lerp`) and through yellow (`CP_ColorHSL_Lerp`).
-  - `sprite_animation.c`: a red flash when the slime is hurt
-    (`CP_Settings_Tint`).
+  - `sprite_animation.c`: a white or red flash when the slime is hurt: a
+    white copy of the sheet drawn over it, fading out, and colored with
+    `CP_Settings_Tint` (a tint multiplies, so on the sprite itself it could
+    only darken it).
   - `painting.c`: an eyedropper (`CP_Image_GetPixelData`).
   - `score_and_text.c`: a score that counts up (`CP_Math_LerpInt`).
   - `collision.c`: a circle check without a square root (`CP_Math_Square`).
