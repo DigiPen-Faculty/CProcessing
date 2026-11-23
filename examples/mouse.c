@@ -392,7 +392,7 @@ void DoWheel(void)
 {
 	float x = panelLeft[4] + 14.0f;
 	float y = panelTop[4];
-	DrawMousePanel(4, "The wheel", "Turn the wheel over this panel.");
+	DrawMousePanel(4, "The wheel", "Turn the wheel anywhere.");
 
 	// How far it turned this frame: positive away from you, 0 when it
 	// didn't. A touchpad gives small fractions; a wheel, whole steps.
@@ -401,10 +401,7 @@ void DoWheel(void)
 	{
 		lastWheel = wheel;
 	}
-	if (MouseIsOver(panelLeft[4], panelTop[4], PANEL_WIDTH, PANEL_HEIGHT))
-	{
-		wheelValue = CP_Math_ClampFloat(wheelValue + wheel * 5.0f, 10.0f, 150.0f);
-	}
+	wheelValue = CP_Math_ClampFloat(wheelValue + wheel * 5.0f, 10.0f, 150.0f);
 
 	CP_Settings_Fill(CP_Color_Create(200, 150, 255, 255));
 	CP_Graphics_DrawCircle(x + 280.0f, y + 175.0f, wheelValue);
@@ -421,9 +418,11 @@ void DoWheel(void)
 //---------------------------------------------------------
 // 6. Movement
 
+// The trail: where the mouse was on each of the last 30 frames it moved,
+// newest first, and whether it was over the panel then
 #define TRAIL_LENGTH 30
 CP_Vector trail[TRAIL_LENGTH];
-int trailCount = 0;
+CP_BOOL trailOverPanel[TRAIL_LENGTH];
 
 void DoMovement(float dt)
 {
@@ -437,26 +436,27 @@ void DoMovement(float dt)
 	float speed = dt > 0.0f ? CP_Vector_Length(CP_Vector_Set(dx, dy)) / dt : 0.0f;
 	CP_BOOL moved = CP_Input_MouseMoved();
 
-	// A trail of where it's been while over the panel: a point is added
-	// only on frames it moved
-	CP_Vector mouse = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
-	if (moved && MouseIsOver(panelLeft[5], panelTop[5] + 60.0f, PANEL_WIDTH, PANEL_HEIGHT - 60.0f))
+	// The trail moves on one point on every frame the mouse moves, wherever
+	// it is, so it fades as the mouse moves away and starts fresh when it
+	// comes back. Only the parts over the panel are drawn.
+	if (moved)
 	{
 		for (int i = TRAIL_LENGTH - 1; i > 0; --i)
 		{
 			trail[i] = trail[i - 1];
+			trailOverPanel[i] = trailOverPanel[i - 1];
 		}
-		trail[0] = mouse;
-		if (trailCount < TRAIL_LENGTH)
-		{
-			++trailCount;
-		}
+		trail[0] = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
+		trailOverPanel[0] = MouseIsOver(panelLeft[5], panelTop[5] + 60.0f, PANEL_WIDTH, PANEL_HEIGHT - 60.0f);
 	}
 	CP_Settings_StrokeWeight(4.0f);
-	for (int i = 1; i < trailCount; ++i)
+	for (int i = 1; i < TRAIL_LENGTH; ++i)
 	{
-		CP_Settings_Stroke(CP_Color_Create(120, 230, 160, 255 - i * 255 / TRAIL_LENGTH));
-		CP_Graphics_DrawLine(trail[i - 1].x, trail[i - 1].y, trail[i].x, trail[i].y);
+		if (trailOverPanel[i - 1] && trailOverPanel[i])
+		{
+			CP_Settings_Stroke(CP_Color_Create(120, 230, 160, 255 - i * 255 / TRAIL_LENGTH));
+			CP_Graphics_DrawLine(trail[i - 1].x, trail[i - 1].y, trail[i].x, trail[i].y);
+		}
 	}
 	CP_Settings_NoStroke();
 
