@@ -107,10 +107,6 @@ int main(int argc, char** argv)
 	const CP_KEY key = static_cast<CP_KEY>(CP_KEY_A + 1);
 	Check(key == CP_KEY_B, "a key from a number, with a cast");
 
-	// CP_BOOL takes a C++ bool
-	const CP_BOOL yes = (1 < 2);
-	Check(yes == TRUE, "CP_BOOL from a bool");
-
 	if (failures == 0)
 	{
 		std::printf("C++ check passed\n");

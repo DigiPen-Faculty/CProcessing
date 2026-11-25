@@ -43,7 +43,7 @@
 #define WINDOW_HEIGHT 600.0f
 
 float health = 0.7f; // 0 (empty) to 1 (full)
-CP_BOOL flashlight = FALSE;
+bool flashlight = false;
 
 //---------------------------------------------------------
 // The sky: three colors, so two rectangles, each blending one pair
@@ -166,7 +166,7 @@ void DrawButton(float x, float y, float width, float height, const char* text)
 	const float top = y - height / 2.0f;
 	const float mouseX = CP_Input_GetMouseX();
 	const float mouseY = CP_Input_GetMouseY();
-	const CP_BOOL over = mouseX >= left && mouseX < left + width && mouseY >= top && mouseY < top + height;
+	const bool over = mouseX >= left && mouseX < left + width && mouseY >= top && mouseY < top + height;
 
 	CP_Color light = CP_Color_Create(90, 140, 230, 255);
 	CP_Color dark = CP_Color_Create(40, 70, 150, 255);

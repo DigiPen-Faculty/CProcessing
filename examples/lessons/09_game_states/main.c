@@ -104,7 +104,7 @@ void DrawFadeIn(void)
 
 typedef struct Bubble
 {
-	CP_BOOL active;
+	bool active;
 	CP_Vector position;
 	float radius;
 } Bubble;
@@ -121,7 +121,7 @@ void SpawnBubble(void)
 	{
 		if (!bubbles[i].active)
 		{
-			bubbles[i].active = TRUE;
+			bubbles[i].active = true;
 			bubbles[i].position = CP_Vector_Set(CP_Random_RangeFloat(70.0f, 730.0f), CP_Random_RangeFloat(120.0f, 540.0f));
 			bubbles[i].radius = 6.0f;
 			return;
@@ -207,7 +207,7 @@ void play_init(void)
 	// was pushed on top of play, so play never ended.)
 	for (int i = 0; i < BUBBLE_COUNT; i++)
 	{
-		bubbles[i].active = FALSE;
+		bubbles[i].active = false;
 	}
 	score = 0;
 	lives = 3;
@@ -258,12 +258,12 @@ void play_update(void)
 		if (CP_Input_MouseTriggered(CP_MOUSE_LEFT) && CP_Vector_Distance(mouse, bubbles[i].position) <= bubbles[i].radius)
 		{
 			score += 1 + (int)(bubbles[i].radius / 10.0f);
-			bubbles[i].active = FALSE;
+			bubbles[i].active = false;
 		}
 		else if (bubbles[i].radius >= burstRadius)
 		{
 			// Burst: it cost a life
-			bubbles[i].active = FALSE;
+			bubbles[i].active = false;
 			lives--;
 		}
 	}
@@ -332,7 +332,7 @@ void pause_exit(void)
 //---------------------------------------------------------
 // GAME OVER STATE
 //---------------------------------------------------------
-CP_BOOL newBest;
+bool newBest;
 
 void over_init(void)
 {

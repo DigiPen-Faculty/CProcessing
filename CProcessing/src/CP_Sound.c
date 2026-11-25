@@ -81,7 +81,7 @@ static void CP_ApplyVoicePitch(void* user, const CP_SVL_Voice* voice)
 	Soloud_setRelativePlaySpeed(_soloud_system, voice->handle, CP_SVL_Combine(voice->pitch, voice_groups[voice->group].pitch));
 }
 
-static CP_BOOL CP_IsValidSoundGroup(CP_SOUND_GROUP group)
+static bool CP_IsValidSoundGroup(CP_SOUND_GROUP group)
 {
 	return group >= 0 && group < CP_SOUND_GROUP_MAX;
 }
@@ -193,7 +193,7 @@ void CP_Sound_Shutdown(void)
 	}
 }
 
-CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
+CP_Sound CP_Sound_LoadInternal(const char* filepath, bool streamFromDisc)
 {
 	if (!filepath || !_soloud_system || !sound_vector)
 		return NULL;
@@ -263,12 +263,12 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, CP_BOOL streamFromDisc)
 
 CP_API CP_Sound CP_Sound_Load(const char* filepath)
 {
-	return CP_Sound_LoadInternal(filepath, FALSE);
+	return CP_Sound_LoadInternal(filepath, false);
 }
 
 CP_API CP_Sound CP_Sound_LoadStream(const char* filepath)
 {
-	return CP_Sound_LoadInternal(filepath, TRUE);
+	return CP_Sound_LoadInternal(filepath, true);
 }
 
 CP_API void CP_Sound_Free(CP_Sound* sound)
@@ -314,12 +314,12 @@ CP_API CP_SoundInstance CP_Sound_Play(CP_Sound sound)
 
 	if (sound->type == SL_AUDIOSOURCE_STREAM)
 	{
-		return CP_Sound_PlayAdvanced(sound, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
+		return CP_Sound_PlayAdvanced(sound, 1.0f, 1.0f, true, CP_SOUND_GROUP_MUSIC);
 	}
-	return CP_Sound_PlayAdvanced(sound, 1.0f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
+	return CP_Sound_PlayAdvanced(sound, 1.0f, 1.0f, false, CP_SOUND_GROUP_SFX);
 }
 
-CP_API CP_SoundInstance CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, CP_BOOL looping, CP_SOUND_GROUP group)
+CP_API CP_SoundInstance CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, bool looping, CP_SOUND_GROUP group)
 {
 	if (!CP_IsValidSoundGroup(group) || sound == NULL || _soloud_system == NULL)
 	{
@@ -341,7 +341,7 @@ CP_API CP_SoundInstance CP_Sound_PlayAdvanced(CP_Sound sound, float volume, floa
 		volume = 0.0f;
 
 	// Start the sound paused so we can set parameters on it
-	unsigned int voice = Soloud_playEx(_soloud_system, sound->sound, CP_SVL_Combine(volume, voice_groups[group].volume), 0, TRUE, 0);
+	unsigned int voice = Soloud_playEx(_soloud_system, sound->sound, CP_SVL_Combine(volume, voice_groups[group].volume), 0, true, 0);
 	Soloud_addVoiceToGroup(_soloud_system, voice_groups[group].handle, voice);
 
 	// The voice plays at its own pitch times its group's pitch
@@ -362,21 +362,21 @@ CP_API CP_SoundInstance CP_Sound_PlayAdvanced(CP_Sound sound, float volume, floa
 	CP_SVL_Add(&voice_table, voice, (int)group, volume, pitch, CP_VoiceIsAlive, NULL);
 
 	// Resume playing the sound
-	Soloud_setPause(_soloud_system, voice, FALSE);
+	Soloud_setPause(_soloud_system, voice, false);
 	// TODO: handle error
 
 	return voice;
 }
 
-CP_API CP_BOOL CP_Sound_IsPlaying(CP_SoundInstance instance)
+CP_API bool CP_Sound_IsPlaying(CP_SoundInstance instance)
 {
 	// An instance stops being valid when its sound finishes or is stopped.
 	// A paused instance is still valid, so it still counts as playing.
 	if (_soloud_system == NULL || instance == 0)
 	{
-		return FALSE;
+		return false;
 	}
-	return Soloud_isValidVoiceHandle(_soloud_system, instance) ? TRUE : FALSE;
+	return Soloud_isValidVoiceHandle(_soloud_system, instance);
 }
 
 CP_API void CP_Sound_Stop(CP_SoundInstance instance)
@@ -392,7 +392,7 @@ CP_API void CP_Sound_Pause(CP_SoundInstance instance)
 {
 	if (_soloud_system && instance != 0)
 	{
-		Soloud_setPause(_soloud_system, instance, TRUE);
+		Soloud_setPause(_soloud_system, instance, true);
 	}
 }
 
@@ -400,7 +400,7 @@ CP_API void CP_Sound_Resume(CP_SoundInstance instance)
 {
 	if (_soloud_system && instance != 0)
 	{
-		Soloud_setPause(_soloud_system, instance, FALSE);
+		Soloud_setPause(_soloud_system, instance, false);
 	}
 }
 
@@ -444,7 +444,7 @@ CP_API void CP_Sound_PauseAll(void)
 {
 	if (_soloud_system)
 	{
-		Soloud_setPauseAll(_soloud_system, TRUE);
+		Soloud_setPauseAll(_soloud_system, true);
 	}
 }
 
@@ -452,7 +452,7 @@ CP_API void CP_Sound_PauseGroup(CP_SOUND_GROUP group)
 {
 	if (_soloud_system && CP_IsValidSoundGroup(group))
 	{
-		Soloud_setPause(_soloud_system, voice_groups[group].handle, TRUE);
+		Soloud_setPause(_soloud_system, voice_groups[group].handle, true);
 	}
 }
 
@@ -460,7 +460,7 @@ CP_API void CP_Sound_ResumeAll(void)
 {
 	if (_soloud_system)
 	{
-		Soloud_setPauseAll(_soloud_system, FALSE);
+		Soloud_setPauseAll(_soloud_system, false);
 	}
 }
 
@@ -468,7 +468,7 @@ CP_API void CP_Sound_ResumeGroup(CP_SOUND_GROUP group)
 {
 	if (_soloud_system && CP_IsValidSoundGroup(group))
 	{
-		Soloud_setPause(_soloud_system, voice_groups[group].handle, FALSE);
+		Soloud_setPause(_soloud_system, voice_groups[group].handle, false);
 	}
 }
 

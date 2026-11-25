@@ -52,13 +52,13 @@ void DrawPanel(const char* title, float cellX, float cellY, CP_Color color)
 }
 
 // Is the point (x, y) inside a panel? The mouse only does things in its panel.
-CP_BOOL IsInside(float x, float y, float cellX, float cellY)
+bool IsInside(float x, float y, float cellX, float cellY)
 {
 	return x >= cellX && x < cellX + cellWidth && y >= cellY && y < cellY + cellHeight;
 }
 
 // A round lamp with a label under it, bright when `lit`
-void DrawLamp(const char* label, float x, float y, CP_BOOL lit, CP_Color color)
+void DrawLamp(const char* label, float x, float y, bool lit, CP_Color color)
 {
 	CP_Settings_Stroke(CP_Color_Create(200, 200, 200, 255));
 	CP_Settings_StrokeWeight(2.0f);
@@ -129,7 +129,7 @@ void DoMouse(float cellX, float cellY)
 {
 	const float mouseX = CP_Input_GetMouseX();
 	const float mouseY = CP_Input_GetMouseY();
-	const CP_BOOL inPanel = IsInside(mouseX, mouseY, cellX, cellY);
+	const bool inPanel = IsInside(mouseX, mouseY, cellX, cellY);
 
 	if (inPanel)
 	{
@@ -260,7 +260,7 @@ void DrawStick(const char* label, CP_Vector stick, float x, float y)
 	DrawTextCenteredAt(label, x, y + stickRadius + 22.0f);
 }
 
-void DrawButton(const char* label, CP_BOOL down, float x, float y)
+void DrawButton(const char* label, bool down, float x, float y)
 {
 	DrawLamp(label, x, y, down, CP_Color_Create(90, 180, 250, 255));
 }

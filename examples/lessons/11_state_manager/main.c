@@ -274,7 +274,7 @@ void DrawPanel(float width, float height)
 
 typedef struct Star
 {
-	CP_BOOL active;
+	bool active;
 	CP_Vector position;
 	float speed;
 } Star;
@@ -289,7 +289,7 @@ void SpawnStar(void)
 	{
 		if (!stars[i].active)
 		{
-			stars[i].active = TRUE;
+			stars[i].active = true;
 			stars[i].position = CP_Vector_Set(CP_Random_RangeFloat(40.0f, 760.0f), -20.0f);
 			stars[i].speed = CP_Random_RangeFloat(120.0f, 220.0f) + score * 4.0f;
 			return;
@@ -331,7 +331,7 @@ void play_init(void)
 	// from the pause doesn't run it: the pause was pushed, not set.
 	for (int i = 0; i < STAR_COUNT; ++i)
 	{
-		stars[i].active = FALSE;
+		stars[i].active = false;
 	}
 	score = 0;
 	lives = 3;
@@ -367,15 +367,15 @@ void play_update(void)
 
 		const float y = stars[i].position.y;
 		const float across = stars[i].position.x - basketX;
-		const CP_BOOL inBasket = across > -(BASKET_WIDTH / 2.0f + 10.0f) && across < BASKET_WIDTH / 2.0f + 10.0f;
+		const bool inBasket = across > -(BASKET_WIDTH / 2.0f + 10.0f) && across < BASKET_WIDTH / 2.0f + 10.0f;
 		if (y > BASKET_Y - 20.0f && y < BASKET_Y + 10.0f && inBasket)
 		{
-			stars[i].active = FALSE;
+			stars[i].active = false;
 			++score;
 		}
 		else if (y > CP_System_GetWindowHeight() + 20.0f)
 		{
-			stars[i].active = FALSE;
+			stars[i].active = false;
 			--lives;
 		}
 	}

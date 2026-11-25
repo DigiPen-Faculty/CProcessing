@@ -44,7 +44,7 @@ CP_Sound jumpSound;
 CP_Sound hitSound;
 CP_SoundInstance musicInstance = 0; // this one play of the music
 
-CP_BOOL musicOn = TRUE;
+bool musicOn = true;
 float musicVolume = 0.6f; // the volume of each group, from 0 to 1
 float effectsVolume = 0.8f;
 float musicDip = 0.0f;      // 1 right after a hit, easing back to 0
@@ -60,7 +60,7 @@ float EaseOutQuad(float t)
 // same sound don't sound exactly alike
 void PlayEffect(CP_Sound sound)
 {
-	CP_Sound_PlayAdvanced(sound, 1.0f, CP_Random_RangeFloat(0.95f, 1.05f), FALSE, CP_SOUND_GROUP_SFX);
+	CP_Sound_PlayAdvanced(sound, 1.0f, CP_Random_RangeFloat(0.95f, 1.05f), false, CP_SOUND_GROUP_SFX);
 }
 
 //---------------------------------------------------------
@@ -70,8 +70,8 @@ void PlayEffect(CP_Sound sound)
 
 typedef struct Thing
 {
-	CP_BOOL active;
-	CP_BOOL isRock;
+	bool active;
+	bool isRock;
 	CP_Vector position;
 	float speed; // pixels per second, downward
 } Thing;
@@ -88,7 +88,7 @@ const float jumpSpeed = 700.0f;
 
 CP_Vector player;
 float playerVelocityY = 0.0f;
-CP_BOOL onGround = TRUE;
+bool onGround = true;
 
 int score = 0;
 int combo = 0; // coins caught in a row
@@ -101,7 +101,7 @@ void Spawn(void)
 	{
 		if (!things[i].active)
 		{
-			things[i].active = TRUE;
+			things[i].active = true;
 			things[i].isRock = CP_Random_RangeInt(0, 3) == 0; // about one in four
 			things[i].position = CP_Vector_Set(CP_Random_RangeFloat(40.0f, 760.0f), -20.0f);
 			things[i].speed = CP_Random_RangeFloat(170.0f, 260.0f);
@@ -125,7 +125,7 @@ void game_init(void)
 
 	// Start the music once, looping, in the music group. Keep the instance
 	// that comes back: it is this play of the music, to stop or pause later.
-	musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
+	musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, true, CP_SOUND_GROUP_MUSIC);
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, musicVolume);
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_SFX, effectsVolume);
 
@@ -196,7 +196,7 @@ void game_update(void)
 	if (onGround && CP_Input_KeyTriggered(CP_KEY_SPACE))
 	{
 		playerVelocityY = -jumpSpeed;
-		onGround = FALSE;
+		onGround = false;
 		PlayEffect(jumpSound); // at the moment of the jump, once
 	}
 	playerVelocityY += gravity * dt;
@@ -205,7 +205,7 @@ void game_update(void)
 	{
 		player.y = groundY - playerRadius;
 		playerVelocityY = 0.0f;
-		onGround = TRUE;
+		onGround = true;
 	}
 
 	//-----------------------------------------------------
@@ -228,7 +228,7 @@ void game_update(void)
 
 		if (CP_Vector_Distance(things[i].position, player) <= playerRadius + thingRadius)
 		{
-			things[i].active = FALSE;
+			things[i].active = false;
 			if (things[i].isRock)
 			{
 				hits++;
@@ -247,7 +247,7 @@ void game_update(void)
 				// Each coin in a row is a little higher: up a notch for
 				// every coin, until the tenth, so a combo sounds like a run
 				const float pitch = 1.0f + 0.07f * (float)((combo > 10 ? 10 : combo) - 1);
-				CP_Sound_PlayAdvanced(coinSound, 1.0f, pitch, FALSE, CP_SOUND_GROUP_SFX);
+				CP_Sound_PlayAdvanced(coinSound, 1.0f, pitch, false, CP_SOUND_GROUP_SFX);
 			}
 		}
 		else if (things[i].position.y > groundY + thingRadius)
@@ -257,7 +257,7 @@ void game_update(void)
 			{
 				combo = 0;
 			}
-			things[i].active = FALSE;
+			things[i].active = false;
 		}
 	}
 

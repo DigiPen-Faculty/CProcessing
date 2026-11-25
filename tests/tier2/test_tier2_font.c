@@ -8,7 +8,7 @@
 #include "unity.h"
 #include "tier2_capture.h"
 
-static CP_BOOL RegionHasInk(Tier2Scenario scenario, int x0, int y0, int x1, int y1)
+static bool RegionHasInk(Tier2Scenario scenario, int x0, int y0, int x1, int y1)
 {
 	for (int y = y0; y < y1; ++y)
 	{
@@ -17,11 +17,11 @@ static CP_BOOL RegionHasInk(Tier2Scenario scenario, int x0, int y0, int x1, int 
 			CP_Color c = tier2_SamplePixel(scenario, x, y);
 			if (c.r < 250 || c.g < 250 || c.b < 250)
 			{
-				return TRUE;
+				return true;
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 void test_tier2_font_drawtext_occupies_expected_region(void)
@@ -74,7 +74,7 @@ void test_tier2_font_text_animated_by_scale_draws_every_frame(void)
 	AssertSweepDrewEveryFrame(&tier2_scalars.textScaleSweep);
 }
 
-static CP_BOOL IsInk(CP_Color c)
+static bool IsInk(CP_Color c)
 {
 	return c.r < 128;
 }
@@ -162,8 +162,8 @@ static void CompareBand(int band, int* ink, int* mismatched)
 	{
 		for (int x = 0; x < TIER2_CANVAS_SIZE; ++x)
 		{
-			CP_BOOL plain = IsInk(tier2_SamplePixel(SCN_FONT_MIRRORED, x, y));
-			CP_BOOL other;
+			bool plain = IsInk(tier2_SamplePixel(SCN_FONT_MIRRORED, x, y));
+			bool other;
 			if (band == 1) // mirrored about x = 100, centered on y = 100
 				other = IsInk(tier2_SamplePixel(SCN_FONT_MIRRORED, 199 - x, y + 67));
 			else // flipped about y = 167

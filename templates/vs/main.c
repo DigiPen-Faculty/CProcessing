@@ -48,7 +48,7 @@ int main(void)
 {
 	// To see printf output, uncomment this line. On Windows it opens a
 	// console window. On Linux and macOS, run the game from a terminal.
-	// CP_System_ShowConsole(TRUE);
+	// CP_System_ShowConsole(true);
 
 	CP_Engine_SetNextGameState(game_init, game_update, game_exit);
 	CP_Engine_Run();

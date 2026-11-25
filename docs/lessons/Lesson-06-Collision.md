@@ -21,7 +21,7 @@ Your computer doesn't see circles and walls. It has numbers: a position and a si
 * **Detection:** are they touching? A function that answers yes or no.
 * **Response:** what do we do about it? Collect a coin, stop at a wall, lose a life.
 
-Games use simple shapes for this, circles and boxes (rectangles that don't turn), even when the picture is a fancy drawing. A circle around a character is a fine stand-in. This lesson has four checks. Each one is a short function that returns `CP_BOOL`.
+Games use simple shapes for this, circles and boxes (rectangles that don't turn), even when the picture is a fancy drawing. A circle around a character is a fine stand-in. This lesson has four checks. Each one is a short function that returns a `bool`: `true` or `false`.
 
 A **box** in the program is stored by its middle, which is how CProcessing draws a rectangle by default, along with its width and height:
 
@@ -39,7 +39,7 @@ typedef struct Box
 Is the mouse over the button? The point is inside the box when it is **between the left and right edges** *and* **between the top and bottom edges**. Four comparisons:
 
 ```C
-CP_BOOL PointInBox(CP_Vector point, Box box)
+bool PointInBox(CP_Vector point, Box box)
 {
 	const float left = box.center.x - box.width / 2.0f;
 	const float right = box.center.x + box.width / 2.0f;
@@ -58,7 +58,7 @@ The middle plus or minus half the size gives each edge. `&&` means "and": all fo
 Two circles touch when the distance between their centers is **no more than their two radii added together**:
 
 ```C
-CP_BOOL CirclesTouch(CP_Vector centerA, float radiusA, CP_Vector centerB, float radiusB)
+bool CirclesTouch(CP_Vector centerA, float radiusA, CP_Vector centerB, float radiusB)
 {
 	return CP_Vector_Distance(centerA, centerB) <= radiusA + radiusB;
 }
@@ -77,7 +77,7 @@ This is the one that surprises people, but the idea is neat. Find the **point of
 Finding the closest point is a clamp: take the circle's center and squeeze its x and y to be within the box's edges:
 
 ```C
-CP_BOOL CircleTouchesBox(CP_Vector center, float radius, Box box)
+bool CircleTouchesBox(CP_Vector center, float radius, Box box)
 {
 	CP_Vector closest;
 	closest.x = CP_Math_ClampFloat(center.x, box.center.x - box.width / 2.0f, box.center.x + box.width / 2.0f);
@@ -98,7 +98,7 @@ Now the response. A coin is taken when the player touches it. The program keeps 
 
 ```C
 CP_Vector coinPositions[COIN_COUNT];
-CP_BOOL coinTaken[COIN_COUNT];
+bool coinTaken[COIN_COUNT];
 ```
 
 Every frame, a loop checks each coin that hasn't been taken:
@@ -108,7 +108,7 @@ for (int i = 0; i < COIN_COUNT; i++)
 {
 	if (!coinTaken[i] && CirclesTouch(playerPosition, playerRadius, coinPositions[i], coinRadius))
 	{
-		coinTaken[i] = TRUE;
+		coinTaken[i] = true;
 		coinsTaken++;
 	}
 }

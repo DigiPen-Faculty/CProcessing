@@ -107,7 +107,7 @@ void DrawCenteredText(const char* text, float y, float size)
 
 // Draws frame number `frame` of the slime sheet, centered on a point. The
 // slime faces left when `faceLeft` is true. `alpha` is how solid it is.
-void DrawSlime(CP_Image sheet, CP_Vector position, int frame, CP_BOOL faceLeft, float size, int alpha)
+void DrawSlime(CP_Image sheet, CP_Vector position, int frame, bool faceLeft, float size, int alpha)
 {
 	const float frameLeft = frame * frameSize;
 	const float frameRight = frameLeft + frameSize;
@@ -142,7 +142,7 @@ void menu_update(void)
 	// The slime hops on the menu, its frame chosen from the time: 10 frames
 	// a second, round and round the 8 frames
 	const int frame = (int)(stateTime * 10.0f) % FRAME_COUNT;
-	DrawSlime(menuSheet, CP_Vector_Set(400.0f, 290.0f), frame, FALSE, 160.0f, 255);
+	DrawSlime(menuSheet, CP_Vector_Set(400.0f, 290.0f), frame, false, 160.0f, 255);
 
 	DrawCenteredText("Collect the coins. Keep away from the red balls.", 410.0f, 24.0f);
 	DrawCenteredText("WASD or the arrow keys move you, P pauses", 445.0f, 24.0f);
@@ -179,7 +179,7 @@ CP_SoundInstance musicInstance = 0;
 const float slimeRadius = 24.0f;
 const float slimeSpeed = 270.0f;
 CP_Vector slimePosition;
-CP_BOOL facingLeft;
+bool facingLeft;
 int currentFrame;
 float frameTimer;
 int lives;
@@ -244,13 +244,13 @@ void play_init(void)
 	music = CP_Sound_LoadStream("assets/Music.wav");
 	coinSound = CP_Sound_Load("assets/Coin.wav");
 	hitSound = CP_Sound_Load("assets/Hit.wav");
-	musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
+	musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, true, CP_SOUND_GROUP_MUSIC);
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, 0.5f);
 
 	// Start fresh. Every value the game changes is set here, so playing
 	// again, or restarting, always begins the same way.
 	slimePosition = CP_Vector_Set(400.0f, 360.0f);
-	facingLeft = FALSE;
+	facingLeft = false;
 	currentFrame = 0;
 	frameTimer = 0.0f;
 	lives = 3;
@@ -279,7 +279,7 @@ void CollectCoin(void)
 
 	// The chime rises with the combo, up to the tenth coin in a row
 	const float pitch = 1.0f + 0.07f * (float)((combo > 10 ? 10 : combo) - 1);
-	CP_Sound_PlayAdvanced(coinSound, 1.0f, pitch, FALSE, CP_SOUND_GROUP_SFX);
+	CP_Sound_PlayAdvanced(coinSound, 1.0f, pitch, false, CP_SOUND_GROUP_SFX);
 
 	// A new ball every 4 coins
 	if (coinsCollected % 4 == 0 && ballCount < MAX_BALLS)
@@ -394,7 +394,7 @@ void play_update(void)
 			safeTimer = safeTime;
 			combo = 0;
 			musicDip = 1.0f;
-			CP_Sound_PlayAdvanced(hitSound, 1.0f, CP_Random_RangeFloat(0.95f, 1.05f), FALSE, CP_SOUND_GROUP_SFX);
+			CP_Sound_PlayAdvanced(hitSound, 1.0f, CP_Random_RangeFloat(0.95f, 1.05f), false, CP_SOUND_GROUP_SFX);
 		}
 	}
 
@@ -497,7 +497,7 @@ void pause_exit(void)
 //---------------------------------------------------------
 // GAME OVER STATE
 //---------------------------------------------------------
-CP_BOOL newBest;
+bool newBest;
 
 void over_init(void)
 {

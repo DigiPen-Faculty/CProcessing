@@ -79,7 +79,7 @@ const char* buttonNames[BUTTON_COUNT] = {
 float ringTimers[CP_MAX_GAMEPADS][BUTTON_COUNT]; // 1 when pressed, down to 0
 int lastPressed[CP_MAX_GAMEPADS];                // a button, or -1 for none yet
 int lastReleased[CP_MAX_GAMEPADS];
-CP_BOOL wasConnected[CP_MAX_GAMEPADS];
+bool wasConnected[CP_MAX_GAMEPADS];
 
 // A on the default gamepad, counted with the functions without Advanced
 int defaultPresses = 0;
@@ -188,7 +188,7 @@ void DrawGamepad(int pad)
 {
 	float left = panelLeft[pad];
 	float top = panelTop[pad];
-	CP_BOOL connected = CP_Input_GamepadConnectedAdvanced(pad);
+	bool connected = CP_Input_GamepadConnectedAdvanced(pad);
 
 	CP_Settings_NoStroke();
 	CP_Settings_Fill(CP_Color_Create(40, 44, 60, 255));
@@ -266,7 +266,7 @@ void UpdateGamepads(float dt)
 	for (int pad = 0; pad < CP_MAX_GAMEPADS; ++pad)
 	{
 		// Connected or disconnected since the last frame
-		CP_BOOL connected = CP_Input_GamepadConnectedAdvanced(pad);
+		bool connected = CP_Input_GamepadConnectedAdvanced(pad);
 		if (connected != wasConnected[pad])
 		{
 			char text[64];
@@ -394,14 +394,14 @@ void DrawPlayers(void)
 	CP_Settings_TextSize(15.0f);
 	CP_Font_DrawText("Left stick: move.  Right trigger: faster.", ARENA_LEFT + 12.0f, ARENA_TOP + 43.0f);
 
-	CP_BOOL anyone = FALSE;
+	bool anyone = false;
 	for (int pad = 0; pad < CP_MAX_GAMEPADS; ++pad)
 	{
 		if (!CP_Input_GamepadConnectedAdvanced(pad))
 		{
 			continue;
 		}
-		anyone = TRUE;
+		anyone = true;
 		CP_Settings_Fill(PlayerColor(pad));
 		CP_Graphics_DrawCircle(players[pad].x, players[pad].y, playerSize);
 
@@ -434,7 +434,7 @@ void game_init(void)
 	{
 		lastPressed[pad] = -1;
 		lastReleased[pad] = -1;
-		wasConnected[pad] = FALSE;
+		wasConnected[pad] = false;
 		players[pad] = CP_Vector_Set(ARENA_LEFT + 80.0f + pad * 80.0f, ARENA_TOP + 190.0f);
 	}
 }

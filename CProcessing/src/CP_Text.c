@@ -85,13 +85,13 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 		return NULL;
 	}
 
-	new_font->load_error = FALSE;
+	new_font->load_error = false;
 	new_font->handle = -1;
 	CP_StringCopy(new_font->filepath, CP_PATH_MAX, filepath);
 
 	if (!CORE || !CORE->nvg)
 	{
-		new_font->load_error = TRUE;
+		new_font->load_error = true;
 		free(new_font);
 		return NULL;
 	}
@@ -109,12 +109,12 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 
 	if (new_font->handle == FONT_LOAD_ERROR)
 	{
-		new_font->load_error = TRUE;
+		new_font->load_error = true;
 		free(new_font);
 		return NULL;
 	}
 
-	new_font->load_error = FALSE;
+	new_font->load_error = false;
 
 	// Store a pointer to the font
 	CP_Font_AddHandle(new_font);

@@ -9,6 +9,11 @@
 
 #pragma once
 
+// bool, true and false (C++ has them built in)
+#ifndef __cplusplus
+	#include <stdbool.h>
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -46,23 +51,15 @@ extern "C"
 //---------------------------------------------------------
 // DEFINES:
 //		Pi, for C's sinf and cosf, which take radians (CProcessing's angles are degrees)
-//		TRUE and FALSE, for CP_BOOL
 #define CP_PI			3.14159265358979323846f
 #define CP_TWO_PI		6.28318530717958647692f
 #define CP_HALF_PI		1.57079632679489661923f
-
-#ifndef TRUE
-	#define TRUE 1
-#endif
-#ifndef FALSE
-	#define FALSE 0
-#endif
 
 
 //---------------------------------------------------------
 // TYPES:
 //		Images, sounds and fonts are handles: NULL means none
-typedef unsigned int	CP_BOOL;
+//		Yes-or-no values are C's bool (true or false), from <stdbool.h>
 typedef struct			CP_Image_Struct* CP_Image;
 typedef struct			CP_Sound_Struct* CP_Sound;
 typedef unsigned int	CP_SoundInstance;	// One playing sound: 0 means none

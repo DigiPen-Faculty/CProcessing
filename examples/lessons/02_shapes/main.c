@@ -32,8 +32,8 @@ CP_Color brushColors[4];
 int brushColor = 0;
 float brushSize = 20.0f;
 
-// TRUE when the scene needs to be drawn: at the start, and after C
-CP_BOOL needsScene = TRUE;
+// true when the scene needs to be drawn: at the start, and after C
+bool needsScene = true;
 
 // A cloud is three overlapping ellipses. (x, y) is the middle of the middle one.
 void DrawCloud(float x, float y)
@@ -194,11 +194,11 @@ void game_update(void)
 	if (needsScene)
 	{
 		DrawScene();
-		needsScene = FALSE;
+		needsScene = false;
 	}
 	if (CP_Input_KeyTriggered(CP_KEY_C))
 	{
-		needsScene = TRUE;
+		needsScene = true;
 	}
 
 	// Keys 1 to 4 choose the brush color. CP_KEY_1 + 1 is CP_KEY_2, and so on.

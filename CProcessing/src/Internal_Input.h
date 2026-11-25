@@ -36,17 +36,17 @@ void CP_Input_CharCallback(GLFWwindow* window, unsigned int codepoint);
 void CP_Input_TextUpdate(void);
 void CP_Input_Init(void);
 // While a game state runs under another one, it gets no input (CP_System.c)
-void CP_Input_SetMuted(CP_BOOL muted, CP_Vector mouse, CP_Vector worldMouse);
-CP_BOOL CP_Input_IsMuted(void);
+void CP_Input_SetMuted(bool muted, CP_Vector mouse, CP_Vector worldMouse);
+bool CP_Input_IsMuted(void);
 void CP_Input_Update(void);
 void CP_Input_KeyboardUpdate(void);
 void CP_Input_MouseUpdate(void);
 void CP_Input_GamepadUpdate(void);
 void CP_Input_WorldMouseUpdate(void);
 void CP_Input_SetWorldMouseDirty(void);
-CP_BOOL CP_Input_IsValidKey(CP_KEY key);
-CP_BOOL CP_Input_IsValidMouse(CP_MOUSE button);
-CP_BOOL CP_Input_IsValidGamepad(CP_GAMEPAD button);
+bool CP_Input_IsValidKey(CP_KEY key);
+bool CP_Input_IsValidMouse(CP_MOUSE button);
+bool CP_Input_IsValidGamepad(CP_GAMEPAD button);
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus

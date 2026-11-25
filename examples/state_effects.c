@@ -142,7 +142,7 @@ void game_init(void)
 	music = CP_Sound_LoadStream("assets/Music.wav");
 	coinSound = CP_Sound_Load("assets/Coin.wav");
 	levelSound = CP_Sound_Load("assets/Jump.wav");
-	CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
+	CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, true, CP_SOUND_GROUP_MUSIC);
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, 1.0f);
 }
 
@@ -189,7 +189,7 @@ void game_update(void)
 		{
 			PlaceCoin(i);
 			++coinsCollected;
-			CP_Sound_PlayAdvanced(coinSound, 0.6f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
+			CP_Sound_PlayAdvanced(coinSound, 0.6f, 1.0f, false, CP_SOUND_GROUP_SFX);
 			if (coinsCollected % 5 == 0)
 			{
 				CP_Engine_PushGameState(level_up_init, level_up_update, NULL);
@@ -224,8 +224,8 @@ void game_exit(void)
 // PAUSE: the game freezes behind it (the default), the music gets quieter,
 // and the game shows through frosted glass
 
-CP_Image frosted;  // the frozen game, small: made once, when the pause starts
-CP_BOOL pixelated; // B: stretch it back up blocky instead of smooth
+CP_Image frosted; // the frozen game, small: made once, when the pause starts
+bool pixelated;   // B: stretch it back up blocky instead of smooth
 
 // A copy of an image at half the size. With the linear filter, each pixel of
 // the copy is the average of the 2 x 2 pixels it covers. (Halving a few times
@@ -255,7 +255,7 @@ void pause_init(void)
 		CP_Image_Free(&frosted);
 		frosted = half;
 	}
-	pixelated = FALSE;
+	pixelated = false;
 }
 
 void pause_update(void)
@@ -305,17 +305,17 @@ void pause_exit(void)
 // LEVEL UP: the game keeps running under it, in slow motion. When the
 // player picks an upgrade, time speeds back up, and then the box goes.
 
-CP_BOOL levelUpClosing;
+bool levelUpClosing;
 float levelUpClosedAt; // the box's time when the upgrade was picked
 
 void level_up_init(void)
 {
 	// The game under this box keeps running and drawing (without input)
 	CP_Engine_SetGameStatePassThrough(CP_PASSTHROUGH_ALL);
-	levelUpClosing = FALSE;
+	levelUpClosing = false;
 	levelUpClosedAt = 0.0f;
 	++level;
-	CP_Sound_PlayAdvanced(levelSound, 0.8f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
+	CP_Sound_PlayAdvanced(levelSound, 0.8f, 1.0f, false, CP_SOUND_GROUP_SFX);
 }
 
 void level_up_update(void)
@@ -330,12 +330,12 @@ void level_up_update(void)
 		if (CP_Input_KeyTriggered(CP_KEY_1))
 		{
 			playerSpeed += 60.0f;
-			levelUpClosing = TRUE;
+			levelUpClosing = true;
 		}
 		if (CP_Input_KeyTriggered(CP_KEY_2))
 		{
 			reach += 12.0f;
-			levelUpClosing = TRUE;
+			levelUpClosing = true;
 		}
 		if (levelUpClosing)
 		{

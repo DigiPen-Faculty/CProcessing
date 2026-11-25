@@ -77,7 +77,7 @@ void play_init(void)
 {
 	for (int i = 0; i < BUBBLE_COUNT; i++)
 	{
-		bubbles[i].active = FALSE;
+		bubbles[i].active = false;
 	}
 	score = 0;
 	lives = 3;
@@ -139,7 +139,7 @@ So: **SetNextGameState for a new part of the game, PushGameState when the game s
 
 > **Try it:** change the push to `CP_Engine_SetNextGameState(pause_init, pause_update, pause_exit)`, and the pop to `CP_Engine_SetNextGameState(play_init, play_update, play_exit)`. Pause in the middle of a game, and unpause. What happened to the bubbles and the score, and why? (Which functions ran?) Then put it back.
 
-**Another way: a flag.** Before CProcessing had `PushGameState`, games often paused with a variable: `paused`, a TRUE or FALSE that `play_update` checks, so that it still draws the game but skips moving it. That works too, and you will see it in other code. A pushed state keeps the pause's code out of the game's, and is easier when the pause becomes a whole screen of its own, with buttons and an options menu.
+**Another way: a flag.** Before CProcessing had `PushGameState`, games often paused with a variable: `paused`, a true or false that `play_update` checks, so that it still draws the game but skips moving it. That works too, and you will see it in other code. A pushed state keeps the pause's code out of the game's, and is easier when the pause becomes a whole screen of its own, with buttons and an options menu.
 
 ## Step 7: Restart
 

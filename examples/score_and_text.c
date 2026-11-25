@@ -39,7 +39,7 @@ const int targetPoints = 100;
 int score = 0;
 int bestScore = 0;
 float timeLeft = 0.0f;
-CP_BOOL playing = FALSE;
+bool playing = false;
 CP_Vector target;
 
 // The score shown rolls up to the real one in 0.4 seconds after a hit
@@ -70,7 +70,7 @@ void StartRound(void)
 	score = 0;
 	rollFrom = 0;
 	timeLeft = roundLength;
-	playing = TRUE;
+	playing = true;
 	MoveTarget();
 }
 
@@ -83,7 +83,7 @@ void game_init(void)
 void game_update(void)
 {
 	float dt = CP_System_GetDt();
-	CP_BOOL clicked = CP_Input_MouseTriggered(CP_MOUSE_LEFT);
+	bool clicked = CP_Input_MouseTriggered(CP_MOUSE_LEFT);
 	CP_Vector mouse = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
 
 	if (playing)
@@ -92,7 +92,7 @@ void game_update(void)
 		if (timeLeft <= 0.0f)
 		{
 			timeLeft = 0.0f;
-			playing = FALSE;
+			playing = false;
 			if (score > bestScore)
 			{
 				bestScore = score;

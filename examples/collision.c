@@ -66,7 +66,7 @@ Circle MakeCircle(float x, float y, float radius)
 
 // Is the point inside the box? Inside means between the left and right
 // edges, and between the top and bottom edges.
-CP_BOOL PointInBox(CP_Vector point, Box box)
+bool PointInBox(CP_Vector point, Box box)
 {
 	float left = box.center.x - box.width / 2.0f;
 	float right = box.center.x + box.width / 2.0f;
@@ -77,7 +77,7 @@ CP_BOOL PointInBox(CP_Vector point, Box box)
 
 // Two circles touch when their centers are closer than their two radii
 // added together.
-CP_BOOL CirclesTouch(Circle a, Circle b)
+bool CirclesTouch(Circle a, Circle b)
 {
 	return CP_Vector_Distance(a.center, b.center) <= a.radius + b.radius;
 }
@@ -85,7 +85,7 @@ CP_BOOL CirclesTouch(Circle a, Circle b)
 // Two boxes touch when they overlap both across (x) and down (y). They
 // overlap across when the distance between their centers is less than half
 // their widths added together; the same for down.
-CP_BOOL BoxesTouch(Box a, Box b)
+bool BoxesTouch(Box a, Box b)
 {
 	float distanceX = a.center.x - b.center.x;
 	float distanceY = a.center.y - b.center.y;
@@ -111,7 +111,7 @@ CP_BOOL BoxesTouch(Box a, Box b)
 // skips the square root a distance takes. A vector's dot product with
 // itself is its length squared. You'll see this in games that check
 // thousands of things a frame; for a few, either way is fine.
-CP_BOOL CircleTouchesBox(Circle circle, Box box)
+bool CircleTouchesBox(Circle circle, Box box)
 {
 	CP_Vector closest;
 	closest.x = CP_Math_ClampFloat(circle.center.x, box.center.x - box.width / 2.0f, box.center.x + box.width / 2.0f);
@@ -131,7 +131,7 @@ Circle circles[CIRCLE_COUNT];
 Box button;
 
 // The player is a circle or a box, at the mouse
-CP_BOOL playerIsCircle = TRUE;
+bool playerIsCircle = true;
 Circle playerCircle;
 Box playerBox;
 
@@ -164,7 +164,7 @@ void game_update(void)
 	CP_Vector mouse = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
 
 	// Point in a box: is the mouse over the button when it's clicked?
-	CP_BOOL mouseOverButton = PointInBox(mouse, button);
+	bool mouseOverButton = PointInBox(mouse, button);
 	if ((mouseOverButton && CP_Input_MouseTriggered(CP_MOUSE_LEFT)) || CP_Input_KeyTriggered(CP_KEY_SPACE))
 	{
 		playerIsCircle = !playerIsCircle;
@@ -181,13 +181,13 @@ void game_update(void)
 	// on the two shapes.
 	for (int i = 0; i < BOX_COUNT; ++i)
 	{
-		CP_BOOL touching = playerIsCircle ? CircleTouchesBox(playerCircle, boxes[i]) : BoxesTouch(playerBox, boxes[i]);
+		bool touching = playerIsCircle ? CircleTouchesBox(playerCircle, boxes[i]) : BoxesTouch(playerBox, boxes[i]);
 		CP_Settings_Fill(touching ? red : grey);
 		CP_Graphics_DrawRect(boxes[i].center.x, boxes[i].center.y, boxes[i].width, boxes[i].height);
 	}
 	for (int i = 0; i < CIRCLE_COUNT; ++i)
 	{
-		CP_BOOL touching = playerIsCircle ? CirclesTouch(playerCircle, circles[i]) : CircleTouchesBox(circles[i], playerBox);
+		bool touching = playerIsCircle ? CirclesTouch(playerCircle, circles[i]) : CircleTouchesBox(circles[i], playerBox);
 		CP_Settings_Fill(touching ? red : grey);
 		CP_Graphics_DrawCircle(circles[i].center.x, circles[i].center.y, circles[i].radius * 2.0f); // DrawCircle takes the diameter
 	}

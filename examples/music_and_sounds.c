@@ -45,7 +45,7 @@ CP_Sound hitSound;
 // instance: that one play, which you can pause, resume or stop on its own.
 // (0 means "no instance".)
 CP_SoundInstance musicInstance = 0;
-CP_BOOL musicPaused = FALSE;
+bool musicPaused = false;
 const char* lastEffect = "none yet";
 float lastPitch = 1.0f;
 
@@ -55,7 +55,7 @@ void PlayEffect(CP_Sound sound, const char* name)
 {
 	lastPitch = CP_Random_RangeFloat(0.9f, 1.1f);
 	lastEffect = name;
-	CP_Sound_PlayAdvanced(sound, 1.0f, lastPitch, FALSE, CP_SOUND_GROUP_SFX);
+	CP_Sound_PlayAdvanced(sound, 1.0f, lastPitch, false, CP_SOUND_GROUP_SFX);
 }
 
 void game_init(void)
@@ -72,7 +72,7 @@ void game_init(void)
 	hitSound = CP_Sound_Load("assets/Hit.wav");
 
 	// Start the music, looping, in the music group
-	musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
+	musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, true, CP_SOUND_GROUP_MUSIC);
 	CP_Sound_SetGroupVolume(CP_SOUND_GROUP_MUSIC, 0.6f);
 }
 
@@ -114,9 +114,9 @@ void game_update(void)
 		}
 		else
 		{
-			musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, TRUE, CP_SOUND_GROUP_MUSIC);
+			musicInstance = CP_Sound_PlayAdvanced(music, 1.0f, 1.0f, true, CP_SOUND_GROUP_MUSIC);
 		}
-		musicPaused = FALSE;
+		musicPaused = false;
 	}
 
 	// Each group's volume, from 0 (silent) to 1 (full), in steps of 0.1

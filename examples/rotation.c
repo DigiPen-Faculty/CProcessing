@@ -93,9 +93,9 @@ void DrawRectRotated(float x, float y, float w, float h, float degrees, float pi
 #define BOX_HEIGHT 320.0f
 #define MARGIN     18.0f
 
-float turnTime = 0.0f;          // seconds of turning, forward or back
-CP_BOOL turningOnItsOwn = TRUE; // Space switches it
-const float turnSpeed = 45.0f;  // degrees per second
+float turnTime = 0.0f;         // seconds of turning, forward or back
+bool turningOnItsOwn = true;   // Space switches it
+const float turnSpeed = 45.0f; // degrees per second
 
 CP_Image slimeSheet; // 8 frames in a row, each 64x64
 const float frameSize = 64.0f;
@@ -106,7 +106,7 @@ const float chooseWidth = 64.0f;
 const float chooseHeight = 40.0f;
 float choosePivotX = 16.0f;
 float choosePivotY = 10.0f;
-CP_BOOL dragging = FALSE;
+bool dragging = false;
 
 CP_Color shapeColor;
 CP_Color pivotColor;
@@ -225,7 +225,7 @@ void DrawChosenPivot(float left, float top, float angle)
 	}
 	if (!CP_Input_MouseDown(CP_MOUSE_LEFT))
 	{
-		dragging = FALSE;
+		dragging = false;
 	}
 	if (dragging)
 	{

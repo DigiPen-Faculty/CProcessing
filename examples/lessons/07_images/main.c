@@ -43,7 +43,7 @@ CP_Image slimeSheet;
 
 CP_Vector slimePosition;
 const float slimeSpeed = 220.0f; // pixels per second
-CP_BOOL facingLeft = FALSE;
+bool facingLeft = false;
 
 // The animation: which frame shows now, and how long it has shown
 int currentFrame = 0;
@@ -124,8 +124,8 @@ float ApplyEasing(int which, float progress)
 }
 
 const float tripTime = 1.4f;
-CP_BOOL orbFlying = FALSE;
-CP_BOOL orbLaunched = FALSE; // has an orb been sent yet? (it stays where it landed)
+bool orbFlying = false;
+bool orbLaunched = false; // has an orb been sent yet? (it stays where it landed)
 CP_Vector orbStart;
 CP_Vector orbEnd;
 float orbTimer = 0.0f;
@@ -173,7 +173,7 @@ void game_update(void)
 	{
 		direction.y += 1.0f;
 	}
-	const CP_BOOL walking = direction.x != 0.0f || direction.y != 0.0f;
+	const bool walking = direction.x != 0.0f || direction.y != 0.0f;
 	if (walking)
 	{
 		direction = CP_Vector_Normalize(direction);
@@ -231,8 +231,8 @@ void game_update(void)
 		orbEnd = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
 		orbTimer = 0.0f;
 		orbEasing = easing;
-		orbFlying = TRUE;
-		orbLaunched = TRUE;
+		orbFlying = true;
+		orbLaunched = true;
 	}
 
 	float progress = 1.0f;
@@ -242,7 +242,7 @@ void game_update(void)
 		progress = CP_Math_ClampFloat(orbTimer / tripTime, 0.0f, 1.0f);
 		if (progress >= 1.0f)
 		{
-			orbFlying = FALSE;
+			orbFlying = false;
 		}
 	}
 

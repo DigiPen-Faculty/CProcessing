@@ -85,7 +85,7 @@ void DrawFrame(float width, float height, CP_Color color)
 	CP_Settings_StrokeWeight(weightBefore);
 }
 
-const char* OnOff(CP_BOOL value)
+const char* OnOff(bool value)
 {
 	return value ? "on" : "off";
 }

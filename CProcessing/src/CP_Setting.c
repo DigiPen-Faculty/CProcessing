@@ -31,9 +31,9 @@
 // Private Functions:
 //------------------------------------------------------------------------------
 
-static CP_BOOL isValidPositionMode(CP_POSITION_MODE mode)
+static bool isValidPositionMode(CP_POSITION_MODE mode)
 {
-	return (mode == CP_POSITION_CENTER || mode == CP_POSITION_CORNER) ? TRUE : FALSE;
+	return (mode == CP_POSITION_CENTER || mode == CP_POSITION_CORNER);
 }
 
 static NVGcolor CP_ToNVGColor(CP_Color c)
@@ -70,8 +70,8 @@ void CP_Settings_InitDefaults(CP_DrawInfoPtr DI)
 	DI->rect_mode = CP_POSITION_CENTER;
 	DI->ellipse_mode = CP_POSITION_CENTER;
 	DI->image_mode = CP_POSITION_CENTER;
-	DI->fill = TRUE;
-	DI->stroke = TRUE;
+	DI->fill = true;
+	DI->stroke = true;
 	DI->camera = CP_Matrix_Identity();
 	DI->fill_color = CP_Color_Create(200, 200, 200, 255);
 	DI->stroke_color = CP_Color_Create(0, 0, 0, 255);
@@ -79,7 +79,7 @@ void CP_Settings_InitDefaults(CP_DrawInfoPtr DI)
 	DI->line_cap = CP_LINE_CAP_BUTT;
 	DI->line_joint = CP_LINE_JOINT_BEVEL;
 	DI->tint = CP_Color_Create(255, 255, 255, 255); // no tint
-	DI->anti_alias = TRUE;
+	DI->anti_alias = true;
 	DI->blend_mode = CP_BLEND_ALPHA;
 	DI->filter_mode = CP_IMAGE_FILTER_LINEAR;
 	DI->wrap_mode = CP_IMAGE_WRAP_CLAMP_EDGE; // solid edges when drawn bigger
@@ -186,7 +186,7 @@ CP_API void CP_Settings_Fill(CP_Color c)
 {
 	CP_DrawInfoPtr DI = GetDrawInfo();
 	DI->fill_color = c;
-	DI->fill = TRUE;
+	DI->fill = true;
 	DI->fill_kind = CP_FILL_COLOR;
 }
 
@@ -196,7 +196,7 @@ CP_API void CP_Settings_Fill(CP_Color c)
 static void CP_Settings_FillPoints(CP_FILL_KIND kind, float a, float b, float c, float d)
 {
 	CP_DrawInfoPtr DI = GetDrawInfo();
-	DI->fill = TRUE;
+	DI->fill = true;
 	DI->fill_kind = kind;
 	DI->fill_points[0] = a;
 	DI->fill_points[1] = b;
@@ -235,7 +235,7 @@ CP_API void CP_Settings_FillImage(CP_Image img, float x, float y, float w, float
 
 CP_API void CP_Settings_NoFill(void)
 {
-	GetDrawInfo()->fill = FALSE;
+	GetDrawInfo()->fill = false;
 }
 
 CP_API void CP_Settings_Stroke(CP_Color c)
@@ -243,14 +243,14 @@ CP_API void CP_Settings_Stroke(CP_Color c)
 	CP_DrawInfoPtr DI = GetDrawInfo();
 	NVGcontext* vg = GetCPCore()->nvg;
 	DI->stroke_color = c;
-	DI->stroke = TRUE;
+	DI->stroke = true;
 	if (vg)
 		nvgStrokeColor(vg, CP_ToNVGColor(c));
 }
 
 CP_API void CP_Settings_NoStroke(void)
 {
-	GetDrawInfo()->stroke = FALSE;
+	GetDrawInfo()->stroke = false;
 }
 
 CP_API void CP_Settings_StrokeWeight(float weight)
@@ -274,10 +274,10 @@ CP_API void CP_Settings_NoTint(void)
 	CP_Settings_Tint(CP_Color_Create(255, 255, 255, 255));
 }
 
-CP_API void CP_Settings_AntiAlias(CP_BOOL antiAlias)
+CP_API void CP_Settings_AntiAlias(bool antiAlias)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
-	GetDrawInfo()->anti_alias = antiAlias ? TRUE : FALSE;
+	GetDrawInfo()->anti_alias = antiAlias;
 	if (vg)
 		nvgShapeAntiAlias(vg, antiAlias ? 1 : 0);
 }

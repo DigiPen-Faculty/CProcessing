@@ -137,8 +137,8 @@ static void Scn_SystemGetters(void)
 	tier2_scalars.vsyncInRun = CP_System_GetVSync();
 	tier2_scalars.resizableInRun = CP_System_GetWindowResizable();
 	tier2_scalars.fullscreenInRun = CP_System_IsFullscreen();
-	CP_System_SetVSync(FALSE);
-	CP_System_SetWindowResizable(FALSE);
+	CP_System_SetVSync(false);
+	CP_System_SetWindowResizable(false);
 	tier2_scalars.vsyncSetOff = !CP_System_GetVSync();
 	tier2_scalars.resizableSetOff = !CP_System_GetWindowResizable();
 
@@ -1919,8 +1919,8 @@ static void Scn_SoundRoundTrip(void)
 
 	// One playing sound, by its instance: two looping copies, stop one
 	tier2_scalars.soundLoaded = sound != NULL;
-	CP_SoundInstance first = CP_Sound_PlayAdvanced(sound, 0.0f, 1.0f, TRUE, CP_SOUND_GROUP_SFX);
-	CP_SoundInstance second = CP_Sound_PlayAdvanced(sound, 0.0f, 1.0f, TRUE, CP_SOUND_GROUP_SFX);
+	CP_SoundInstance first = CP_Sound_PlayAdvanced(sound, 0.0f, 1.0f, true, CP_SOUND_GROUP_SFX);
+	CP_SoundInstance second = CP_Sound_PlayAdvanced(sound, 0.0f, 1.0f, true, CP_SOUND_GROUP_SFX);
 	tier2_scalars.instanceGiven = first != 0 && second != 0 && first != second;
 	tier2_scalars.playingAfterPlay = CP_Sound_IsPlaying(first);
 	CP_Sound_Pause(first);
@@ -1940,7 +1940,7 @@ static void Scn_SoundRoundTrip(void)
 	CP_Sound_SetPitch(0, 1.0f);
 	tier2_scalars.noInstanceIsNotPlaying = !CP_Sound_IsPlaying(0);
 
-	CP_Sound_PlayAdvanced(sound, 0.1f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
+	CP_Sound_PlayAdvanced(sound, 0.1f, 1.0f, false, CP_SOUND_GROUP_SFX);
 	CP_Sound_PauseGroup(CP_SOUND_GROUP_SFX);
 	CP_Sound_ResumeGroup(CP_SOUND_GROUP_SFX);
 	CP_Sound_PauseAll();
@@ -2038,12 +2038,12 @@ static void StackA_Update(void)
 	{
 		// running under B
 		++tier2_scalars.stackUpdatesWhileRunningBelow;
-		tier2_scalars.stackRunningBelowIsNotTop = TRUE;
+		tier2_scalars.stackRunningBelowIsNotTop = true;
 		tier2_scalars.stackRunningBelowKeyMuted = !CP_Input_KeyDown(CP_KEY_ANY) && !CP_Input_MouseDown(CP_MOUSE_LEFT);
 		tier2_scalars.stackRunningBelowMouseX = CP_Input_GetMouseX();
 		if (tier2_scalars.stackRunningBelowMouseX != tier2_scalars.stackMouseXWhenCovered)
 		{
-			tier2_scalars.stackRunningBelowMouseMoved = TRUE;
+			tier2_scalars.stackRunningBelowMouseMoved = true;
 		}
 		if (stackAFrame == 1)
 		{
@@ -2247,19 +2247,19 @@ static void Scn_ImageDrawInto(void)
 
 	CP_Image loaded = CP_Image_Load("assets/quadrants16.png");
 	CP_Image_BeginDrawing(loaded); // refused, with a message
-	tier2_scalars.drawIntoLoadedRefused = TRUE;
+	tier2_scalars.drawIntoLoadedRefused = true;
 	CP_Image_EndDrawing(); // nothing to end: harmless
 	CP_Image_Free(&loaded);
 }
 
 // CP_Image_Save, into the folder the tests run in, and each file loaded back
 // and compared pixel by pixel. The files are deleted at the end.
-static CP_BOOL SameColor4(CP_Color a, CP_Color b)
+static bool SameColor4(CP_Color a, CP_Color b)
 {
 	return a.r == b.r && a.g == b.g && a.b == b.b && a.a == b.a;
 }
 
-static CP_BOOL FileExists(const char* path)
+static bool FileExists(const char* path)
 {
 	FILE* file = fopen(path, "rb");
 	if (file)
@@ -2270,23 +2270,23 @@ static CP_BOOL FileExists(const char* path)
 }
 
 // Saves the image, loads the file back, and compares every pixel
-static CP_BOOL SavesAndLoadsBack(CP_Image image, const char* path)
+static bool SavesAndLoadsBack(CP_Image image, const char* path)
 {
 	const int w = CP_Image_GetWidth(image);
 	const int h = CP_Image_GetHeight(image);
 	if (!CP_Image_Save(image, path))
 	{
-		return FALSE;
+		return false;
 	}
 	CP_Image loaded = CP_Image_Load(path);
 	if (!loaded || CP_Image_GetWidth(loaded) != w || CP_Image_GetHeight(loaded) != h)
 	{
 		CP_Image_Free(&loaded);
-		return FALSE;
+		return false;
 	}
 	CP_Color* before = (CP_Color*)malloc(sizeof(CP_Color) * (size_t)w * (size_t)h);
 	CP_Color* after = (CP_Color*)malloc(sizeof(CP_Color) * (size_t)w * (size_t)h);
-	CP_BOOL same = before != NULL && after != NULL;
+	bool same = before != NULL && after != NULL;
 	if (same)
 	{
 		CP_Image_GetPixelData(image, before);
@@ -2389,7 +2389,7 @@ static void Scn_ImageSave(void)
 // pushed with no init, so it says what it lets through in its update: the
 // harness under it misses one frame, then keeps running
 static void ShutdownProbe_Update(void) { CP_Engine_SetGameStatePassThrough(CP_PASSTHROUGH_ALL); }
-static void ShutdownProbe_Exit(void) { tier2_scalars.stackShutdownExitRan = TRUE; }
+static void ShutdownProbe_Exit(void) { tier2_scalars.stackShutdownExitRan = true; }
 
 static void Scn_InputQuiescentDefaults(void)
 {
@@ -2400,12 +2400,12 @@ static void Scn_InputQuiescentDefaults(void)
 	// and an index past the last is never connected
 	tier2_scalars.gamepadConnected = CP_Input_GamepadConnected();
 	tier2_scalars.gamepad0ConnectedAdvanced = CP_Input_GamepadConnectedAdvanced(0);
-	tier2_scalars.gamepadIndexesHaveNoGaps = TRUE;
+	tier2_scalars.gamepadIndexesHaveNoGaps = true;
 	for (unsigned i = 1; i < CP_MAX_GAMEPADS; ++i)
 	{
 		if (CP_Input_GamepadConnectedAdvanced(i) && !CP_Input_GamepadConnectedAdvanced(i - 1))
 		{
-			tier2_scalars.gamepadIndexesHaveNoGaps = FALSE;
+			tier2_scalars.gamepadIndexesHaveNoGaps = false;
 		}
 	}
 	tier2_scalars.gamepadPastLastConnected = CP_Input_GamepadConnectedAdvanced(CP_MAX_GAMEPADS);
@@ -2514,13 +2514,13 @@ static void Scn_ErrorPaths(void)
 	CP_Image_Free(NULL);
 	CP_Image_Free(&nullImage);
 	CP_Sound_Play(NULL);
-	CP_Sound_PlayAdvanced(NULL, 1.0f, 1.0f, FALSE, CP_SOUND_GROUP_SFX);
+	CP_Sound_PlayAdvanced(NULL, 1.0f, 1.0f, false, CP_SOUND_GROUP_SFX);
 	CP_Sound_Free(NULL);
 	CP_Sound_Free(&nullSound);
 	CP_Font_Set(NULL);
 	CP_Font_Free(NULL);
 	CP_Font_Free(&nullFont);
-	tier2_scalars.survivedNullCalls = TRUE;
+	tier2_scalars.survivedNullCalls = true;
 }
 
 // ---- Cursor and console (v3) ----
@@ -2539,10 +2539,10 @@ static void Scn_SystemWindowSettings(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 
-	CP_System_ShowCursor(TRUE);
+	CP_System_ShowCursor(true);
 	tier2_scalars.cursorVisibleAfterShow = CP_System_GetCursorVisible();
-	CP_System_ShowCursor(FALSE);
-	CP_System_ShowCursor(FALSE); // repeating a call is harmless
+	CP_System_ShowCursor(false);
+	CP_System_ShowCursor(false); // repeating a call is harmless
 	tier2_scalars.cursorVisibleAfterHide = CP_System_GetCursorVisible();
 
 	CP_System_SetCursorMode(CP_CURSOR_DISABLED);
@@ -2553,14 +2553,14 @@ static void Scn_SystemWindowSettings(void)
 	tier2_scalars.cursorVisibleWhileCaptured = CP_System_GetCursorVisible();
 	CP_System_SetCursorMode((CP_CURSOR_MODE)99); // not a mode: ignored
 	tier2_scalars.cursorModeAfterInvalid = CP_System_GetCursorMode();
-	CP_System_ShowCursor(TRUE);
+	CP_System_ShowCursor(true);
 	tier2_scalars.cursorModeAfterShow = CP_System_GetCursorMode();
 
-	CP_System_ShowConsole(FALSE);
-	CP_System_ShowConsole(FALSE);
+	CP_System_ShowConsole(false);
+	CP_System_ShowConsole(false);
 	tier2_scalars.consoleVisibleAfterHide = CP_System_GetConsoleVisible();
 	tier2_scalars.printfAfterHideConsole = printf("Tier 2: printf while the console is hidden\n");
-	CP_System_ShowConsole(TRUE); // leave it visible for the test results
+	CP_System_ShowConsole(true); // leave it visible for the test results
 	tier2_scalars.consoleVisibleAfterReshow = CP_System_GetConsoleVisible();
 }
 
@@ -2849,21 +2849,21 @@ void tier2_RunCaptureOnce(void)
 	// Before the window exists: settings are stored for later, queries
 	// return "nothing yet", and none of it may crash
 	// Vsync and a resizable window, chosen before the window exists
-	CP_System_SetVSync(TRUE);
-	CP_System_SetWindowResizable(TRUE);
+	CP_System_SetVSync(true);
+	CP_System_SetWindowResizable(true);
 	tier2_scalars.vsyncBeforeRun = CP_System_GetVSync();
 	tier2_scalars.resizableBeforeRun = CP_System_GetWindowResizable();
 	tier2_scalars.fullscreenBeforeRun = CP_System_IsFullscreen();
-	CP_System_ShowCursor(FALSE);
+	CP_System_ShowCursor(false);
 	tier2_scalars.cursorVisibleBeforeRun = CP_System_GetCursorVisible();
 	tier2_scalars.cursorModeBeforeRun = CP_System_GetCursorMode();
 	CP_System_SetWindowTitle("CProcessing Tier 2 Test Capture");
 	tier2_scalars.windowFocusBeforeRun = CP_System_GetWindowFocus();
 	tier2_scalars.displayRefreshRateBeforeRun = CP_System_GetDisplayRefreshRate();
 	CP_Engine_Terminate(); // nothing to terminate yet: must not stop the run below
-	CP_System_ShowConsole(TRUE);
-	CP_System_ShowConsole(FALSE);
-	CP_System_ShowConsole(TRUE);
+	CP_System_ShowConsole(true);
+	CP_System_ShowConsole(false);
+	CP_System_ShowConsole(true);
 	tier2_scalars.consoleVisibleBeforeRun = CP_System_GetConsoleVisible();
 	tier2_scalars.printfAfterShowConsole = printf("Tier 2: capturing scenarios\n");
 

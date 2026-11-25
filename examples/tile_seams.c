@@ -16,7 +16,7 @@
 // - fix them: round the camera to whole pixels (the final screen position,
 //   so movement stays smooth), zoom in whole steps, sharp pixels
 //   (CP_IMAGE_FILTER_NEAREST), a sheet with each tile's edge pixels repeated
-//   around it, CP_Settings_AntiAlias(FALSE), drawing each tile a pixel
+//   around it, CP_Settings_AntiAlias(false), drawing each tile a pixel
 //   bigger, a solid shape behind the tiles, or one image fill for a whole
 //   area (CP_Settings_FillImage)
 // - make a magnifier: a small screenshot drawn big with sharp pixels
@@ -193,19 +193,19 @@ typedef enum TileSource
 
 const float zooms[3] = { 1.3f, 2.0f, 1.0f };
 int zoomIndex = 0;
-CP_BOOL sharpPixels = FALSE;    // F: CP_IMAGE_FILTER_NEAREST
-CP_BOOL clampToNothing = FALSE; // W: CP_IMAGE_WRAP_CLAMP instead of the default CLAMP_EDGE
-CP_BOOL antiAlias = TRUE;       // A
-CP_BOOL roundCamera = FALSE;    // R
+bool sharpPixels = false;       // F: CP_IMAGE_FILTER_NEAREST
+bool clampToNothing = false;    // W: CP_IMAGE_WRAP_CLAMP instead of the default CLAMP_EDGE
+bool antiAlias = true;          // A
+bool roundCamera = false;       // R
 TileSource source = FROM_SHEET; // T
-CP_BOOL overdraw = FALSE;       // O
-CP_BOOL backing = FALSE;        // B
-CP_BOOL groundFill = FALSE;     // G: one image fill for the dirt
-CP_BOOL calmSky = FALSE;        // C
+bool overdraw = false;          // O
+bool backing = false;           // B
+bool groundFill = false;        // G: one image fill for the dirt
+bool calmSky = false;           // C
 
 float cameraX = 0.0f;
 float cameraSpeed = 14.0f; // world units a second: slow, so it's between pixels most frames
-CP_BOOL paused = FALSE;
+bool paused = false;
 
 void DrawTile(int type, float x, float y, float size)
 {
@@ -308,7 +308,7 @@ void DrawWorld(void)
 //---------------------------------------------------------
 // The panel: the keys, and the magnifier
 
-void DrawKeyLine(const char* key, const char* text, CP_BOOL fixed, float y)
+void DrawKeyLine(const char* key, const char* text, bool fixed, float y)
 {
 	float x = SCENE_WIDTH + 20.0f;
 	CP_Settings_Fill(CP_Color_Create(150, 200, 255, 255));
@@ -332,7 +332,7 @@ void DrawSidePanel(CP_Image lens, float lensX, float lensY)
 
 	char text[80];
 	float zoom = zooms[zoomIndex];
-	CP_BOOL wholeZoom = zoom == floorf(zoom);
+	bool wholeZoom = zoom == floorf(zoom);
 	CP_Settings_TextSize(16.0f);
 	float y = 92.0f;
 	const float step = 22.0f;

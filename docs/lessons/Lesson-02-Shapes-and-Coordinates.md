@@ -155,7 +155,7 @@ void game_update(void)
 	if (needsScene)
 	{
 		DrawScene();			// draws everything, starting with ClearBackground
-		needsScene = FALSE;
+		needsScene = false;
 	}
 	...
 }

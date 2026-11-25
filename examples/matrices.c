@@ -75,13 +75,13 @@ const float barrelLength = 52.0f;
 CP_Matrix bodyMatrix;
 CP_Matrix turretMatrix;
 CP_Matrix droneMatrix;
-CP_BOOL mouseOverTank = FALSE;
+bool mouseOverTank = false;
 
 // The shots, in the world
 #define MAX_SHOTS 40
 CP_Vector shotPositions[MAX_SHOTS];
 CP_Vector shotVelocities[MAX_SHOTS];
-CP_BOOL shotFlying[MAX_SHOTS];
+bool shotFlying[MAX_SHOTS];
 const float shotSpeed = 600.0f;
 
 //---------------------------------------------------------
@@ -178,7 +178,7 @@ void Fire(void)
 	{
 		if (!shotFlying[i])
 		{
-			shotFlying[i] = TRUE;
+			shotFlying[i] = true;
 			shotPositions[i] = tip;
 			shotVelocities[i] = CP_Vector_Scale(direction, shotSpeed);
 			return;
@@ -198,7 +198,7 @@ void MoveShots(float dt)
 		CP_Vector p = shotPositions[i];
 		if (p.x < -20.0f || p.x > WINDOW_WIDTH + 20.0f || p.y < -20.0f || p.y > WINDOW_HEIGHT + 20.0f)
 		{
-			shotFlying[i] = FALSE;
+			shotFlying[i] = false;
 		}
 	}
 }

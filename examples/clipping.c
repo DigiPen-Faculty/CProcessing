@@ -99,7 +99,7 @@ float wipeTime = 0.0f;
 //---------------------------------------------------------
 // The inventory: 20 rows in a panel with room for 10
 
-CP_BOOL MouseInPanel(void)
+bool MouseInPanel(void)
 {
 	const float x = CP_Input_GetMouseX();
 	const float y = CP_Input_GetMouseY();

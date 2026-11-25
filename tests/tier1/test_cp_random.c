@@ -29,18 +29,18 @@
 
 void test_random_getbool_produces_both_values_over_many_samples(void)
 {
-	CP_BOOL sawTrue = FALSE;
-	CP_BOOL sawFalse = FALSE;
+	bool sawTrue = false;
+	bool sawFalse = false;
 	CP_Random_Seed(1);
 	for (int i = 0; i < 100; ++i)
 	{
 		if (CP_Random_GetBool())
 		{
-			sawTrue = TRUE;
+			sawTrue = true;
 		}
 		else
 		{
-			sawFalse = TRUE;
+			sawFalse = true;
 		}
 	}
 	TEST_ASSERT_TRUE(sawTrue);
@@ -64,14 +64,14 @@ void test_random_rangeint_can_reach_both_boundaries(void)
 {
 	// A narrow range makes it overwhelmingly likely 10000 samples hit both
 	// ends if (and only if) both bounds are truly inclusive.
-	CP_BOOL sawLower = FALSE;
-	CP_BOOL sawUpper = FALSE;
+	bool sawLower = false;
+	bool sawUpper = false;
 	CP_Random_Seed(3);
 	for (int i = 0; i < SAMPLE_COUNT; ++i)
 	{
 		int v = CP_Random_RangeInt(0, 1);
-		if (v == 0) sawLower = TRUE;
-		if (v == 1) sawUpper = TRUE;
+		if (v == 0) sawLower = true;
+		if (v == 1) sawUpper = true;
 	}
 	TEST_ASSERT_TRUE(sawLower);
 	TEST_ASSERT_TRUE(sawUpper);
