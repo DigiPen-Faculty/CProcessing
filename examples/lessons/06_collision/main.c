@@ -204,9 +204,11 @@ void game_update(void)
 	const float dt = CP_System_GetDt();
 	const CP_Vector mouse = CP_Vector_Set(CP_Input_GetMouseX(), CP_Input_GetMouseY());
 
-	// Point in a box: is the mouse over the button when it is clicked?
+	// Point in a box: is the mouse over the button when it is clicked? A
+	// click is the left button let go (MouseClicked), as buttons do everywhere,
+	// so pressing, changing your mind and sliding off doesn't count.
 	const bool overButton = PointInBox(mouse, resetButton);
-	if ((overButton && CP_Input_MouseTriggered(CP_MOUSE_LEFT)) || CP_Input_KeyTriggered(CP_KEY_R))
+	if ((overButton && CP_Input_MouseClicked()) || CP_Input_KeyTriggered(CP_KEY_R))
 	{
 		ResetGame();
 	}

@@ -51,7 +51,9 @@ bool PointInBox(CP_Vector point, Box box)
 
 The middle plus or minus half the size gives each edge. `&&` means "and": all four must be true. The program uses this for the "Start again" button, which lights up while the mouse is over it and works when you click on it.
 
-> **Try it:** draw a button in the middle of the window that changes color when the mouse is over it.
+A button counts a click when the mouse is over it **and** the click happens: `PointInBox(mouse, button) && CP_Input_MouseClicked()`. `CP_Input_MouseClicked()` is true on the frame the left button is *let go*, which is when buttons in the programs you use act. If you press, change your mind and slide off, nothing happens. (Lesson 1 used `MouseTriggered`, the frame the button goes *down*, which suits a click that should act at once, like popping a bubble.)
+
+> **Try it:** draw a button in the middle of the window that changes color when the mouse is over it, and counts a click only when the mouse is over it. Then press on it, slide off while holding, and let go: does it count? Swap `MouseClicked()` for `MouseTriggered(CP_MOUSE_LEFT)` and try again.
 
 ## Step 3: Circle and circle
 
