@@ -18,8 +18,9 @@
 // - Count how many shapes the player touches and show the number.
 //
 // See also: movement.c, to move the player with the keys; mouse.c, for a
-// button that clicks when it's pressed and let go over it; lesson 6,
-// which builds collecting, blocking and bouncing.
+// button that clicks when it's pressed and let go over it; debug_draw.c,
+// to see the hitboxes these checks use; lesson 6, which builds collecting,
+// blocking and bouncing.
 //
 // To run it, copy this file over the template's main.c.
 //

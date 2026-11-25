@@ -86,6 +86,12 @@ more than their title.
 | [matrices.c](matrices.c) | Parts attached to parts: a tank drives, its turret turns on it toward the mouse, a drone circles it, and shots leave from the end of the gun. The turret's matrix is on screen. |
 | [vectors.c](vectors.c) | Vectors for games: a turret that turns toward its target the shorter way, a guard that sees the player only in front and close enough (the dot product), which side of a road a point is on (the cross product), and a creature that chases or runs away. |
 
+## Finding bugs
+
+| Example | What it shows |
+|---|---|
+| [debug_draw.c](debug_draw.c) | A debug view you turn on with a key: hitboxes that turn red when they touch, velocity arrows, numbers next to things, a mark where the last bounce happened, a grid and the mouse position. A planted bug shows how it finds problems by looking. |
+
 ## Window
 
 | Example | What it shows |
@@ -138,6 +144,8 @@ Tricks that live inside an example about something bigger.
 | An arrow at the edge of the screen, pointing to something off it | [camera.c](camera.c) (`CP_Math_WorldToScreen`) |
 | The part of the world the window shows | [camera.c](camera.c) (`CP_Math_ScreenToWorld`) |
 | A circle check without a square root | [collision.c](collision.c) (`CP_Math_Square`) |
+| An arrow for a direction or a velocity | [debug_draw.c](debug_draw.c) (`DrawArrow`) |
+| A grid with coordinates, to read positions off the screen | [debug_draw.c](debug_draw.c) (`DrawGrid`) |
 | A score and a timer | [score_and_text.c](score_and_text.c) |
 | A score that counts up to its new value | [score_and_text.c](score_and_text.c) (`CP_Math_LerpInt`) |
 | Centered or right-aligned text, wrapped text | [score_and_text.c](score_and_text.c) |

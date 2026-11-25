@@ -343,6 +343,13 @@ Each change says what to do in an existing project.
   is on (`CP_Vector_CrossProduct`); and a creature that chases the mouse or
   runs away from it (`CP_Vector_Negate`), turning smoothly
   (`CP_Vector_Lerp`) at a top speed (`CP_Vector_Limit`).
+- **Debug drawing, `examples/debug_draw.c`:** a debug view turned on and off
+  with a key, drawn last and between `CP_Settings_Save` and
+  `CP_Settings_Restore`: hitboxes that turn red while they touch, velocity
+  arrows, the speed next to each ball, a ring where the last bounce
+  happened, a grid with coordinates and the mouse position. B plants a bug
+  (a hitbox placed by its corner) to find by looking. The wiki's Debugging
+  page has a section on it, "Seeing what the game sees" (issue #78).
 - **Matrices, `examples/matrices.c`:** parts attached to parts. A tank's
   turret turns on it toward the mouse (`CP_Matrix_Inverse`), a drone circles
   it, and shots leave from the end of the gun (`CP_Vector_MatrixMultiply`),
