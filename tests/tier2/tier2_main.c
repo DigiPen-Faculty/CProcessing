@@ -241,6 +241,10 @@ int main(void)
 	RUN_TEST(test_tier2_screenshot_subregion_is_not_flipped);
 	RUN_TEST(test_tier2_missing_files_load_as_null);
 	RUN_TEST(test_tier2_null_handles_are_ignored);
+	RUN_TEST(test_tier2_loads_before_run_say_so);
+	RUN_TEST(test_tier2_failed_loads_say_why_once_per_file);
+	RUN_TEST(test_tier2_null_handles_say_so_once);
+	RUN_TEST(test_tier2_a_file_loaded_1000_times_says_so);
 	RUN_TEST(test_tier2_window_handle_is_available);
 	RUN_TEST(test_tier2_assets_load_from_next_to_the_program);
 

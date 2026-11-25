@@ -1480,7 +1480,9 @@ static void Scn_SharedAssets(void)
 	// Images made from data have no path, so an empty path can't find them
 	CP_Color pixels[4] = { RED, RED, RED, RED };
 	CP_Image fromData = CP_Image_CreateFromData(2, 2, pixels);
+	BeginMessages();
 	tier2_scalars.emptyPathLoadIsNull = CP_Image_Load("") == NULL;
+	EndMessages(tier2_scalars.messageEmptyPath, sizeof(tier2_scalars.messageEmptyPath));
 	CP_Image_Free(&fromData);
 	CP_Image_Free(&second);
 	CP_Image_Free(&third);
@@ -2547,14 +2549,22 @@ static void Scn_ScreenshotSubregion(void)
 }
 
 // ---- Error paths (cross-platform work) ----
-// Missing files and NULL handles must fail quietly (NULL / no-op) rather
-// than crash -- including when there is no audio device at all, which is
-// the normal case on CI runners.
+// Missing files and NULL handles must give NULL or do nothing rather than
+// crash -- including when there is no audio device at all, which is the
+// normal case on CI runners -- and each says why, once (DESIGN.md,
+// "Messages"; the image load's empty path was said in Scn_SharedAssets).
 
 static void Scn_ErrorPaths(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 
+	// CI runners may have no audio device, and then no sound loads at all,
+	// and no sound message is printed here (one was, as the program started)
+	CP_Sound probe = CP_Sound_Load("assets/beep.wav");
+	tier2_scalars.errorPathsSoundAvailable = probe != NULL;
+	CP_Sound_Free(&probe);
+
+	BeginMessages();
 	CP_Image missingImage = CP_Image_Load("assets/this_file_does_not_exist.png");
 	tier2_scalars.missingImageIsNull = missingImage == NULL;
 	CP_Font missingFont = CP_Font_Load("assets/this_file_does_not_exist.ttf");
@@ -2581,6 +2591,34 @@ static void Scn_ErrorPaths(void)
 	CP_Font_Free(NULL);
 	CP_Font_Free(&nullFont);
 	tier2_scalars.survivedNullCalls = true;
+
+	// Said once: the same missing file, and the same NULL call, again
+	CP_Image missingAgain = CP_Image_Load("assets/this_file_does_not_exist.png");
+	CP_Image_Draw(NULL, 10, 10, 10, 10, 255);
+	CP_Font_Set(NULL);
+	CP_Sound_Play(NULL);
+	tier2_scalars.missingImageIsNull = tier2_scalars.missingImageIsNull && missingAgain == NULL;
+
+	// Files that are there, but aren't the kind asked for
+	CP_Image notAnImage = CP_Image_Load("assets/beep.wav");
+	CP_Font notAFont = CP_Font_Load("assets/quadrants.png");
+	CP_Sound notASound = CP_Sound_Load("assets/quadrants.png");
+	tier2_scalars.unreadableFilesAreNull = notAnImage == NULL && notAFont == NULL && notASound == NULL;
+	EndMessages(tier2_scalars.messageErrorPaths, sizeof(tier2_scalars.messageErrorPaths));
+
+	// A file loaded 1000 times without a free is probably loaded on every
+	// frame: said once, on the 1000th load
+	BeginMessages();
+	static CP_Image loads[1001];
+	for (int i = 0; i < 1001; ++i)
+	{
+		loads[i] = CP_Image_Load("assets/quadrants.png");
+	}
+	for (int i = 0; i < 1001; ++i)
+	{
+		CP_Image_Free(&loads[i]);
+	}
+	EndMessages(tier2_scalars.messageLoadedOften, sizeof(tier2_scalars.messageLoadedOften));
 }
 
 // ---- Cursor and console (v3) ----
@@ -2870,10 +2908,13 @@ static int savedStderr = -1;
 
 static void LeaveAssetsLoadedForTheExitReport(void)
 {
-	CP_Image_Load("assets/quadrants16.png");
-	CP_Image_Load("assets/quadrants16.png");
+	// (kept in statics only because the loads' results must be kept: they
+	// are never freed, on purpose)
+	static CP_Image unfreed[3];
+	unfreed[0] = CP_Image_Load("assets/quadrants16.png");
+	unfreed[1] = CP_Image_Load("assets/quadrants16.png");
 	CP_Color pixels[4] = { RED, RED, RED, RED };
-	CP_Image_CreateFromData(2, 2, pixels);
+	unfreed[2] = CP_Image_CreateFromData(2, 2, pixels);
 
 	fflush(stderr);
 	exitReportFile = fopen("tier2_exit_report.txt", "w+");
@@ -2944,6 +2985,17 @@ void tier2_RunCaptureOnce(void)
 	CP_Graphics_AddVertex(0.0f, 0.0f);
 	CP_Graphics_AddVertex(10.0f, 0.0f);
 	CP_Graphics_EndShape();
+
+	// Loading before the window exists loads nothing, and says so once for
+	// each function
+	BeginMessages();
+	CP_Image image = CP_Image_Load("assets/quadrants.png");
+	CP_Image imageAgain = CP_Image_Load("assets/quadrants.png");
+	CP_Sound sound = CP_Sound_Load("assets/beep.wav");
+	CP_Sound stream = CP_Sound_LoadStream("assets/beep.wav");
+	CP_Font font = CP_Font_Load("assets/Exo2-Regular.ttf");
+	EndMessages(tier2_scalars.messageLoadBeforeRun, sizeof(tier2_scalars.messageLoadBeforeRun));
+	tier2_scalars.loadsBeforeRunAreNull = image == NULL && imageAgain == NULL && sound == NULL && stream == NULL && font == NULL;
 
 	CP_Engine_SetNextGameState(HarnessInit, HarnessUpdate, NULL);
 	CP_Engine_Run();

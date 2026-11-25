@@ -168,7 +168,7 @@ Pick two or more.
 * **A sound is a buzz or a stutter.** It's played every frame, not once when the event starts.
 * **The volume setting doesn't work.** The sound was played in a different group from the one you set. Use the group on the play, and the same group for the volume.
 * **There is a pause in the game every time a sound plays.** A long sound was loaded in `game_update`. Load in init.
-* **No sound at all.** Check the path (see lesson 7), your speakers, the group volume and the pitch (0 is silent). A sound that is stopped can't be paused or resumed: its instance is finished, so play it again.
+* **No sound at all.** Check the path (CProcessing prints a message when a file isn't found: [Messages from CProcessing](Debugging#messages-from-cprocessing)), your speakers, the group volume and the pitch (0 is silent). A sound that is stopped can't be paused or resumed: its instance is finished, so play it again.
 * **The music is playing twice.** It was started in `game_update`, or in an init that ran again (see lesson 9). Keep the instance, and check `CP_Sound_IsPlaying` before starting it.
 
 **Next:** [Lesson 9: Game states](Lesson-09-Game-States).

@@ -740,6 +740,11 @@ bool CP_Canvas_IsPremultiplied(void)
 	return _drawLayerPremultiplied;
 }
 
+bool CP_Engine_IsStarted(void)
+{
+	return _isInitialized;
+}
+
 CP_CorePtr GetCPCore(void)
 {
 	return &_CORE;

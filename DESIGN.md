@@ -131,7 +131,9 @@ doing nothing. A student can't fix what they can't see.
 
 * **Catch it at compile time when the compiler can.** A wrong type, a missing
   argument or a misspelled name is an error with the line pointed at, which
-  beats any message at run time. The templates build with warnings as errors.
+  beats any message at run time. The templates build with warnings as errors,
+  and the functions that load or make something are marked `CP_NODISCARD`, so
+  GCC and Clang stop at a result that isn't kept.
 * **At run time, the call does what it already did** (it ignores the request,
   or gives back `NULL` or `false`) **and prints a message.** A message never
   stops the program, and a program that makes no mistakes prints nothing.
@@ -140,7 +142,8 @@ doing nothing. A student can't fix what they can't see.
   One line, in plain words.
 * **How often:** once per run from each place in the library that prints one
   (`CP_WARN_ONCE`), so a mistake made on every frame prints one line, not sixty
-  a second. Fix it and run again to see whether it's gone.
+  a second. Fix it and run again to see whether it's gone. A load that fails
+  prints once per file instead, so every missing file is named in one run.
 * **Where it goes:** stderr (the terminal, or the console that
   `CP_System_ShowConsole` opens) and, on Windows, Visual Studio's Output
   window. The same in Debug and Release. CProcessing never opens the console by

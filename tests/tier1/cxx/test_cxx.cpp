@@ -76,7 +76,8 @@ int main(int argc, char** argv)
 	if (argc > 1000)
 	{
 		CP_Image_UpdatePixelData(nullptr, pixels);
-		CP_Image_CreateFromData(2, 2, pixels);
+		CP_Image image = CP_Image_CreateFromData(2, 2, pixels);
+		CP_Image_Free(&image);
 	}
 
 	// Colors

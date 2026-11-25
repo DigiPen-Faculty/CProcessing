@@ -184,6 +184,9 @@ bool CP_Canvas_IsDrawingIntoImage(void);
 // Start NanoVG's frame again for whatever is being drawn into (after a
 // screenshot finished it)
 void CP_Canvas_ResumeFrame(void);
+// Has CP_Engine_Run opened the window? Images, sounds and fonts can only be
+// loaded after it has. (CP_System.c)
+bool CP_Engine_IsStarted(void);
 // Forget a freed font in every game state's saved settings (CP_Text.c)
 void CP_GameStates_ForgetFont(CP_Font font);
 void CP_ApplyWindowSizeChosenInInit(void);

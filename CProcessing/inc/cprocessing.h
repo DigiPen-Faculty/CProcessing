@@ -196,17 +196,17 @@ CP_API void				CP_Graphics_EndShapeOpen			(void);
 // IMAGE:
 //		Positions follow ImageMode (CENTER by default), and alpha is 0-255
 //		An image stays until CP_Image_Free, or until the program ends
-CP_API CP_Image			CP_Image_Load						(const char* filepath);
+CP_API CP_Image			CP_Image_Load						(const char* filepath) CP_NODISCARD;
 CP_API void				CP_Image_Free						(CP_Image* img);
 CP_API int				CP_Image_GetWidth					(CP_Image img);
 CP_API int				CP_Image_GetHeight					(CP_Image img);
 CP_API void				CP_Image_Draw						(CP_Image img, float x, float y, float w, float h, int alpha);
 CP_API void				CP_Image_DrawSubImage				(CP_Image img, float x, float y, float w, float h, float left, float top, float right, float bottom, int alpha);	// Left to bottom: the part of the image to draw, in its pixels
-CP_API CP_Image			CP_Image_CreateFromData				(int width, int height, const CP_Color* pixelDataInput);	// width * height colors, row by row from the top left, copied
-CP_API CP_Image			CP_Image_Create						(int width, int height);
+CP_API CP_Image			CP_Image_CreateFromData				(int width, int height, const CP_Color* pixelDataInput) CP_NODISCARD;	// width * height colors, row by row from the top left, copied
+CP_API CP_Image			CP_Image_Create						(int width, int height) CP_NODISCARD;
 CP_API void				CP_Image_BeginDrawing				(CP_Image img);	// Draw into the image until EndDrawing (an image from CP_Image_Create)
 CP_API void				CP_Image_EndDrawing					(void);
-CP_API CP_Image			CP_Image_Screenshot					(int x, int y, int w, int h);
+CP_API CP_Image			CP_Image_Screenshot					(int x, int y, int w, int h) CP_NODISCARD;
 CP_API void				CP_Image_GetPixelData				(CP_Image img, CP_Color* pixelDataOutput);		// Fills an array of width * height colors that you made
 CP_API void				CP_Image_UpdatePixelData			(CP_Image img, const CP_Color* pixelDataInput);	// width * height colors
 CP_API bool				CP_Image_Save						(CP_Image img, const char* filepath);			// As a PNG file (the name must end in .png); true if it was saved
@@ -216,8 +216,8 @@ CP_API bool				CP_Image_Save						(CP_Image img, const char* filepath);			// As 
 // SOUND:
 //		Volume: 0 is silent and 1 is normal; pitch: 1 is normal and 2 an octave up
 //		A playing sound's volume and pitch multiply its group's
-CP_API CP_Sound			CP_Sound_Load						(const char* filepath);
-CP_API CP_Sound			CP_Sound_LoadStream					(const char* filepath);	// For long music: plays from the file instead of memory
+CP_API CP_Sound			CP_Sound_Load						(const char* filepath) CP_NODISCARD;
+CP_API CP_Sound			CP_Sound_LoadStream					(const char* filepath) CP_NODISCARD;	// For long music: plays from the file instead of memory
 CP_API void				CP_Sound_Free						(CP_Sound* sound);
 CP_API CP_SoundInstance	CP_Sound_Play						(CP_Sound sound);	// Loaded: once, in SFX; streamed: looping, in MUSIC
 CP_API CP_SoundInstance	CP_Sound_PlayAdvanced				(CP_Sound sound, float volume, float pitch, bool looping, CP_SOUND_GROUP group);
@@ -244,7 +244,7 @@ CP_API float			CP_Sound_GetGroupPitch				(CP_SOUND_GROUP group);
 //		Text uses the fill color and the CP_Settings_Text settings
 //		By default x is the left end of the text and y the line the letters sit on
 CP_API CP_Font			CP_Font_GetDefault					(void);
-CP_API CP_Font			CP_Font_Load						(const char* filepath);
+CP_API CP_Font			CP_Font_Load						(const char* filepath) CP_NODISCARD;
 CP_API void				CP_Font_Free						(CP_Font* font);
 CP_API void				CP_Font_Set							(CP_Font font);
 CP_API CP_Font			CP_Font_GetCurrent					(void);

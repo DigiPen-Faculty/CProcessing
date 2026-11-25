@@ -47,6 +47,40 @@ void CP_Warn(const char* format, ...)
 	CP_Message_Write(text);
 }
 
+bool CP_Message_FirstTimeFor(const char* what, const char* name)
+{
+	// Each pair is kept as a 64-bit FNV-1a hash of what, a separator and
+	// name. After this many pairs, further ones aren't printed: a program
+	// with that many missing files has one problem, not hundreds.
+	static unsigned long long seen[256];
+	static int count = 0;
+
+	unsigned long long hash = 14695981039346656037ULL;
+	for (const char* c = what ? what : ""; *c; ++c)
+	{
+		hash = (hash ^ (unsigned char)*c) * 1099511628211ULL;
+	}
+	hash = (hash ^ 0xFFu) * 1099511628211ULL;
+	for (const char* c = name ? name : ""; *c; ++c)
+	{
+		hash = (hash ^ (unsigned char)*c) * 1099511628211ULL;
+	}
+
+	for (int i = 0; i < count; ++i)
+	{
+		if (seen[i] == hash)
+		{
+			return false;
+		}
+	}
+	if (count == (int)(sizeof(seen) / sizeof(seen[0])))
+	{
+		return false;
+	}
+	seen[count++] = hash;
+	return true;
+}
+
 void CP_Message_ShowIfDebugging(const char* title, const char* text)
 {
 #if defined(_WIN32) && !defined(NDEBUG)
