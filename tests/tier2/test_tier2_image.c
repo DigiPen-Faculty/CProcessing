@@ -23,6 +23,9 @@ void test_tier2_shared_image_survives_freeing_one_load(void)
 	TEST_ASSERT_TRUE(tier2_scalars.sharedImageFirstCleared);
 	TEST_ASSERT_TRUE(tier2_scalars.sharedImageReloadSame);
 	TEST_ASSERT_TRUE(tier2_scalars.emptyPathLoadIsNull);
+	const char* message = tier2_scalars.messageEmptyPath;
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, tier2_CountText(message, "CProcessing: CP_Image_Load was given no file name"), message);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, tier2_CountText(message, "CProcessing: "), message);
 	// The image was drawn over the whole canvas after the first free: red
 	// top left quadrant, yellow bottom right
 	assertColorWithin(2, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_SHARED_ASSETS, 50, 50));

@@ -26,6 +26,10 @@
 
 #define CP_INITIAL_IMAGE_COUNT 12
 
+// A NULL image is ignored, with a message once per function (DESIGN.md,
+// "Messages"): usually a load that failed, which printed why
+#define CP_WARN_NO_IMAGE(function) CP_WARN_ONCE(function " was given no image (NULL). Was it loaded? If its load failed, a message above says why.")
+
 VECT_GENERATE_TYPE(CP_Image)
 
 static vect_CP_Image* image_vector = NULL;
@@ -142,11 +146,6 @@ void CP_Image_Shutdown(void)
 
 static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float h, float s0, float t0, float s1, float t1, int alpha)
 {
-	if (!img)
-	{
-		return;
-	}
-
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
@@ -195,10 +194,19 @@ static void CP_Image_DrawInternal(CP_Image img, float x, float y, float w, float
 // Library Functions:
 //------------------------------------------------------------------------------
 
+// What CP_Image_Load reads, for its messages
+#define CP_IMAGE_FORMATS "PNG, JPEG, BMP and TGA files"
+
 CP_API CP_Image CP_Image_Load(const char* filepath)
 {
-	if (!filepath)
+	if (!CP_Engine_IsStarted())
 	{
+		CP_WARN_ONCE("CP_Image_Load was called before CP_Engine_Run, so it loaded nothing. Load images in a game state's init function.");
+		return NULL;
+	}
+	if (!filepath || filepath[0] == '\0')
+	{
+		file_warnLoadFailed("CP_Image_Load", filepath, "an image", CP_IMAGE_FORMATS);
 		return NULL;
 	}
 
@@ -218,6 +226,7 @@ CP_API CP_Image CP_Image_Load(const char* filepath)
 		{
 			++img->ref_count;
 		}
+		file_warnLoadedOften("CP_Image_Load", "CP_Image_Free", filepath, img->ref_count);
 		return img;
 	}
 
@@ -236,10 +245,8 @@ CP_API CP_Image CP_Image_Load(const char* filepath)
 
 	if (img->handle == 0)
 	{
-		if (img)
-		{
-			free(img);
-		}
+		free(img);
+		file_warnLoadFailed("CP_Image_Load", filepath, "an image", CP_IMAGE_FORMATS);
 		return NULL;
 	}
 
@@ -287,6 +294,7 @@ CP_API int CP_Image_GetWidth(CP_Image img)
 {
 	if (!img)
 	{
+		CP_WARN_NO_IMAGE("CP_Image_GetWidth");
 		return 0;
 	}
 	return img->w;
@@ -296,6 +304,7 @@ CP_API int CP_Image_GetHeight(CP_Image img)
 {
 	if (!img)
 	{
+		CP_WARN_NO_IMAGE("CP_Image_GetHeight");
 		return 0;
 	}
 	return img->h;
@@ -303,11 +312,21 @@ CP_API int CP_Image_GetHeight(CP_Image img)
 
 CP_API void CP_Image_Draw(CP_Image img, float x, float y, float w, float h, int alpha)
 {
+	if (!img)
+	{
+		CP_WARN_NO_IMAGE("CP_Image_Draw");
+		return;
+	}
 	CP_Image_DrawInternal(img, x, y, w, h, 0, 0, 0, 0, alpha);
 }
 
 CP_API void CP_Image_DrawSubImage(CP_Image img, float x, float y, float w, float h, float left, float top, float right, float bottom, int alpha)
 {
+	if (!img)
+	{
+		CP_WARN_NO_IMAGE("CP_Image_DrawSubImage");
+		return;
+	}
 	CP_Image_DrawInternal(img, x, y, w, h, left, top, right, bottom, alpha);
 }
 
@@ -401,7 +420,12 @@ static CP_Image _drawingInto = NULL;
 CP_API void CP_Image_BeginDrawing(CP_Image img)
 {
 	CP_CorePtr CORE = GetCPCore();
-	if (!img || !CORE || !CORE->nvg)
+	if (!img)
+	{
+		CP_WARN_NO_IMAGE("CP_Image_BeginDrawing");
+		return;
+	}
+	if (!CORE || !CORE->nvg)
 	{
 		return;
 	}
@@ -612,7 +636,11 @@ CP_API bool CP_Image_Save(CP_Image img, const char* filepath)
 
 CP_API void CP_Image_GetPixelData(CP_Image img, CP_Color* pixelDataOutput)
 {
-	if (!img) return;
+	if (!img)
+	{
+		CP_WARN_NO_IMAGE("CP_Image_GetPixelData");
+		return;
+	}
 
 	CP_CorePtr CORE = GetCPCore();
 	if (!CORE || !CORE->nvg)
@@ -667,7 +695,11 @@ CP_API void CP_Image_GetPixelData(CP_Image img, CP_Color* pixelDataOutput)
 
 CP_API void CP_Image_UpdatePixelData(CP_Image img, const CP_Color* pixelDataInput)
 {
-	if (!img) return;
+	if (!img)
+	{
+		CP_WARN_NO_IMAGE("CP_Image_UpdatePixelData");
+		return;
+	}
 
 	CP_CorePtr CORE = GetCPCore();
 	if (!CORE || !CORE->nvg)

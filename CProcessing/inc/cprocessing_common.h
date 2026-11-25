@@ -47,6 +47,15 @@ extern "C"
 	#define CP_API
 #endif
 
+//		CP_NODISCARD - after a function that loads or makes something: GCC and
+//		Clang warn when its result isn't kept, as in CP_Image_Load("x.png");
+//		without "image = " in front (nothing could draw or free it)
+#if defined(__GNUC__) || defined(__clang__)
+	#define CP_NODISCARD __attribute__((warn_unused_result))
+#else
+	#define CP_NODISCARD
+#endif
+
 
 //---------------------------------------------------------
 // DEFINES:

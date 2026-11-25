@@ -101,8 +101,9 @@ void DrawLoading(void)
 	DrawInFont(italic, 24.0f, "Exo 2 Light Italic: CP_Font_Load(\"assets/...\")", x, y + 130.0f);
 
 	// A font that didn't load is NULL. CP_Font_Set(NULL) changes nothing,
-	// so text would quietly stay in the font chosen before: check, and say
-	// so on the screen, where it's easy to see
+	// so text would stay in the font chosen before. CProcessing prints a
+	// message about it, but in the console: check, and say so on the screen
+	// too, where it's easy to see
 	CP_Settings_TextSize(18.0f);
 	if (italic == NULL)
 	{

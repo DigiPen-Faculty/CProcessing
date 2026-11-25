@@ -208,6 +208,15 @@ Each change says what to do in an existing project.
 
 ### Added
 
+- **Messages when an image, sound or font doesn't load.** A load that fails
+  still gives `NULL`, and now says why, once for each file: the file isn't
+  there (with the folders it looked in), it is there but isn't a kind
+  CProcessing reads, it was given no name, or it was loaded before
+  `CP_Engine_Run`. Drawing, playing or choosing a `NULL` image, sound or font
+  says so too, once, and so does a file loaded a thousand times without a
+  free (a load in an update function). With GCC and Clang, a load or create
+  whose result isn't kept (`CP_Image_Load("x.png");` on its own line) is a
+  warning, and an error in the CMake starter (`CP_NODISCARD` in the headers).
 - **A stack of game states, for pause menus and more:** think of states as
   cards on a table. `CP_Engine_SetNextGameState` clears the table and puts
   down a new card, as it always has: use it for a new part of the game.
@@ -457,7 +466,7 @@ Each change says what to do in an existing project.
   name that doesn't end in `.png`, a folder that isn't there) it says why
   and returns `false`. A name without a folder goes in the current folder.
   `examples/painting.c` is a paint program that saves your painting,
-  loads it back the next time it starts, and saves numbered screenshots.
+  loads it back with L, and saves numbered screenshots.
   The PNG writing is stb_image_write, from the same stb commit as the
   image loading.
 - **Examples:** eight small, complete programs, each showing one thing

@@ -72,7 +72,7 @@ api = {}
 for header in ("cprocessing.h", "cprocessing_common.h"):
     text = (inc / header).read_text(encoding="latin-1")
     header_text += text
-    for m in re.finditer(r"^CP_API\s+([^;]+?\))\s*;", text, re.M):
+    for m in re.finditer(r"^CP_API\s+([^;]+?\))\s*(?:CP_NODISCARD\s*)?;", text, re.M):
         decl = re.sub(r"\s+", " ", m.group(1)).strip()
         api[re.search(r"(\w+)\s*\(", decl).group(1)] = decl + ";"
 

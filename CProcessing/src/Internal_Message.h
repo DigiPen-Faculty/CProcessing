@@ -47,6 +47,11 @@ void CP_Warn(const char* format, ...) CP_PRINTF_FORMAT(1, 2);
 		}                               \
 	} while (0)
 
+// True the first time it's asked about this pair in this run, false after:
+// for a message printed once per file instead of once per place (a load that
+// failed names each file that couldn't be loaded, once)
+bool CP_Message_FirstTimeFor(const char* what, const char* name);
+
 // Writes text that is already a whole message (with its "CProcessing: " and
 // its line breaks) where CP_Warn writes
 void CP_Message_Write(const char* text);

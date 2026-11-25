@@ -22,14 +22,12 @@
 //
 // Click a color to pick it, and paint with the left mouse button. A right
 // click on the painting picks the color under the mouse. The mouse wheel
-// changes the brush size. S saves the painting, P saves a screenshot, and
-// C clears the canvas.
+// changes the brush size. S saves the painting, L loads it back, P saves a
+// screenshot, and C clears the canvas.
 //
 // Try this:
-// - Add a key that loads painting.png again, to undo everything since the
-//   last save.
-// - Keep the screenshot numbers going between runs: try names until
-//   CP_Image_Load gives NULL (no such file yet), freeing the ones it finds.
+// - Save into three slots, painting_1.png to painting_3.png, with the keys
+//   1 to 3, and load them with Shift and the same key.
 // - Save a picture of your game when the player wins, to show off later.
 //
 // See also: particles.c, for a trail drawn into an image; tiled_fill.c,
@@ -113,7 +111,7 @@ void DrawToolbar(void)
 	CP_Settings_Fill(CP_Color_Create(220, 220, 235, 255));
 	CP_Settings_TextSize(16.0f);
 	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_RIGHT, CP_TEXT_ALIGN_V_MIDDLE);
-	CP_Font_DrawText("S: save   P: screenshot   C: clear", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f - 18);
+	CP_Font_DrawText("S: save   L: load   P: screenshot   C: clear", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f - 18);
 	CP_Font_DrawText("Mouse wheel: brush size", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f);
 	CP_Font_DrawText("Right click: pick the color there", WINDOW_WIDTH - 16, TOOLBAR_HEIGHT / 2.0f + 18);
 }
@@ -208,6 +206,27 @@ void SavePainting(void)
 	}
 }
 
+// The painting saved last, back on the canvas: everything since the last
+// save is undone. CP_Image_Load gives NULL if there's no painting.png yet
+// (and prints a message saying where it looked). The loaded image is drawn
+// into the canvas, then freed, because the canvas is what gets painted on
+// and saved.
+void LoadPainting(void)
+{
+	CP_Image saved = CP_Image_Load("painting.png");
+	if (saved == NULL)
+	{
+		ShowMessage("No painting.png yet: press S to save one");
+		return;
+	}
+	CP_Image_BeginDrawing(canvas);
+	CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Image_Draw(saved, 0, 0, (float)CP_Image_GetWidth(saved), (float)CP_Image_GetHeight(saved), 255);
+	CP_Image_EndDrawing();
+	CP_Image_Free(&saved);
+	ShowMessage("Loaded painting.png");
+}
+
 // What's on the screen now, saved as screenshot_1.png, screenshot_2.png...
 // The screenshot is an image of its own, so it's freed once it's saved.
 void SaveScreenshot(void)
@@ -243,20 +262,6 @@ void game_init(void)
 
 	canvas = CP_Image_Create((int)WINDOW_WIDTH, (int)(WINDOW_HEIGHT - TOOLBAR_HEIGHT));
 	ClearCanvas();
-
-	// The painting from last time, if there is one: CP_Image_Load gives
-	// NULL when the file isn't there yet. It's drawn into the canvas, then
-	// freed, because the canvas is what gets painted on and saved.
-	CP_Image saved = CP_Image_Load("painting.png");
-	if (saved)
-	{
-		CP_Image_BeginDrawing(canvas);
-		CP_Settings_ImageMode(CP_POSITION_CORNER);
-		CP_Image_Draw(saved, 0, 0, (float)CP_Image_GetWidth(saved), (float)CP_Image_GetHeight(saved), 255);
-		CP_Image_EndDrawing();
-		CP_Image_Free(&saved);
-		ShowMessage("Loaded painting.png");
-	}
 }
 
 void game_update(void)
@@ -292,6 +297,10 @@ void game_update(void)
 	if (CP_Input_KeyTriggered(CP_KEY_C))
 	{
 		ClearCanvas();
+	}
+	if (CP_Input_KeyTriggered(CP_KEY_L))
+	{
+		LoadPainting();
 	}
 
 	CP_Graphics_ClearBackground(CP_Color_Create(40, 40, 55, 255));

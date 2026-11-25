@@ -72,6 +72,67 @@ void test_tier2_null_handles_are_ignored(void)
 	TEST_ASSERT_TRUE(tier2_scalars.survivedNullCalls);
 }
 
+// The messages (DESIGN.md, "Messages") are checked by their start, which
+// names the function and the file, and by how many there are
+#define ASSERT_SAID(times, messages, start) TEST_ASSERT_EQUAL_INT_MESSAGE(times, tier2_CountText(messages, start), messages)
+
+void test_tier2_loads_before_run_say_so(void)
+{
+	const char* messages = tier2_scalars.messageLoadBeforeRun;
+	TEST_ASSERT_TRUE(tier2_scalars.loadsBeforeRunAreNull);
+	ASSERT_SAID(1, messages, "CProcessing: CP_Image_Load was called before CP_Engine_Run");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Sound_Load was called before CP_Engine_Run");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Sound_LoadStream was called before CP_Engine_Run");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Font_Load was called before CP_Engine_Run");
+	ASSERT_SAID(4, messages, "CProcessing: ");
+}
+
+void test_tier2_failed_loads_say_why_once_per_file(void)
+{
+	const char* messages = tier2_scalars.messageErrorPaths;
+	const int sound = tier2_scalars.errorPathsSoundAvailable ? 1 : 0;
+	TEST_ASSERT_TRUE(tier2_scalars.unreadableFilesAreNull);
+
+	// Not there: the image was loaded twice, and is named once
+	ASSERT_SAID(1, messages, "CProcessing: CP_Image_Load couldn't find \"assets/this_file_does_not_exist.png\"");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Font_Load couldn't find \"assets/this_file_does_not_exist.ttf\"");
+	ASSERT_SAID(sound, messages, "CProcessing: CP_Sound_Load couldn't find \"assets/this_file_does_not_exist.wav\"");
+	ASSERT_SAID(2 + sound, messages, "Check the spelling, upper and lower case included");
+
+	// No name (the image's was said in its own scenario, for "")
+	ASSERT_SAID(1, messages, "CProcessing: CP_Font_Load was given no file name");
+	ASSERT_SAID(sound, messages, "CProcessing: CP_Sound_Load was given no file name");
+	ASSERT_SAID(sound, messages, "CProcessing: CP_Sound_LoadStream was given no file name");
+	ASSERT_SAID(0, messages, "CProcessing: CP_Image_Load was given no file name");
+
+	// There, but not the kind asked for
+	ASSERT_SAID(1, messages, "CProcessing: CP_Image_Load found \"assets/beep.wav\" but couldn't read it as an image");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Font_Load found \"assets/quadrants.png\" but couldn't read it as a font");
+	ASSERT_SAID(sound, messages, "CProcessing: CP_Sound_Load found \"assets/quadrants.png\" but couldn't read it as a sound");
+}
+
+void test_tier2_null_handles_say_so_once(void)
+{
+	const char* messages = tier2_scalars.messageErrorPaths;
+	const int sound = tier2_scalars.errorPathsSoundAvailable ? 1 : 0;
+	ASSERT_SAID(1, messages, "CProcessing: CP_Image_Draw was given no image (NULL)");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Font_Set was given no font (NULL)");
+	ASSERT_SAID(sound, messages, "CProcessing: CP_Sound_Play was given no sound (NULL)");
+	ASSERT_SAID(sound, messages, "CProcessing: CP_Sound_PlayAdvanced was given no sound (NULL)");
+
+	// Freeing NULL is fine (a Free sets the variable to NULL, so freeing
+	// twice is too): every message in the scenario is one of those above
+	ASSERT_SAID(1, messages, "CProcessing: CP_Font_Load was given no file name");
+	ASSERT_SAID(7 + sound * 6, messages, "CProcessing: ");
+}
+
+void test_tier2_a_file_loaded_1000_times_says_so(void)
+{
+	const char* messages = tier2_scalars.messageLoadedOften;
+	ASSERT_SAID(1, messages, "CProcessing: CP_Image_Load has loaded \"assets/quadrants.png\" 1000 times without a CP_Image_Free");
+	ASSERT_SAID(1, messages, "CProcessing: ");
+}
+
 void test_tier2_assets_load_from_next_to_the_program(void)
 {
 	// See Scn_AssetsNextToProgram: relative paths, from an empty folder

@@ -46,7 +46,7 @@ more than their title.
 | Example | What it shows |
 |---|---|
 | [sprite_animation.c](sprite_animation.c) | Animating a character from the frames of a sprite sheet, and flashing it white or red when it's hurt. |
-| [painting.c](painting.c) | A paint program: paint into an image with the mouse, save it as a PNG file and pick it up again the next time, save numbered screenshots, and pick a color from the painting with a right click. |
+| [painting.c](painting.c) | A paint program: paint into an image with the mouse, save it as a PNG file and load it back with a key, save numbered screenshots, and pick a color from the painting with a right click. |
 | [tile_seams.c](tile_seams.c) | Tiles without seams: why thin lines show between tiles (a camera or zoom between pixels, a sprite sheet's neighbors, edges that fade), a key for each fix, and a magnifier that shows the pixels around the mouse. |
 
 ## Sound
@@ -156,7 +156,7 @@ Tricks that live inside an example about something bigger.
 | A sprite that flashes white, or any color, when it's hurt | [sprite_animation.c](sprite_animation.c) (`MakeSilhouette`, `CP_Settings_Tint`) |
 | An eyedropper: the color of a pixel | [painting.c](painting.c) (`CP_Image_GetPixelData`) |
 | Drawing that stays from frame to frame | [painting.c](painting.c), [particles.c](particles.c) (a trail that fades) |
-| Saving a picture or screenshot; loading it next time | [painting.c](painting.c) |
+| Saving a picture or screenshot, and loading it back | [painting.c](painting.c) |
 | Numbered file names (`screenshot_1.png`...) | [painting.c](painting.c) (`snprintf`) |
 | Music that loops; effects with their own volume | [music_and_sounds.c](music_and_sounds.c) |
 | A sound that sounds different each time | [music_and_sounds.c](music_and_sounds.c) (pitch) |

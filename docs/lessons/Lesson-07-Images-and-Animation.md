@@ -38,7 +38,7 @@ void game_exit(void)
 
 The rule is the same for every file you load: **whoever loads it, frees it.**
 
-> **Try it:** change the path to `assets/Nothing.png` and run. What happens? (Nothing is drawn, and that's the sign: the file wasn't found. Check the spelling and the folder before you check anything else.)
+> **Try it:** change the path to `assets/Nothing.png` and run. What happens? (Nothing is drawn. CProcessing also prints a message naming the file it couldn't find and the folder it looked in: run with F5 and look in Visual Studio's *Output* window, or see [Messages from CProcessing](Debugging#messages-from-cprocessing). Check the spelling and the folder before you check anything else.)
 
 ## Step 2: Drawing a picture
 
@@ -180,8 +180,8 @@ Pick two or more.
 
 ## Common mistakes
 
-* **Nothing is drawn.** The path is wrong, or the working folder isn't the one with `assets` in it. Test with the file the lesson uses.
-* **The game runs slower and slower, or stutters.** `CP_Image_Load` is in `game_update`.
+* **Nothing is drawn.** The path is wrong, or the working folder isn't the one with `assets` in it. CProcessing's message says which file it couldn't find and where it looked ([Messages from CProcessing](Debugging#messages-from-cprocessing)). Test with the file the lesson uses.
+* **The game runs slower and slower, or stutters.** `CP_Image_Load` is in `game_update`. (After a thousand loads of the same file, CProcessing prints a message saying so.)
 * **The animation runs at a different speed on each computer.** It changes the frame every frame, instead of by time.
 * **The slime shows two frames at once.** The corners are in the wrong units. They are pixels of the **sheet**, not of the window.
 * **A frame is the wrong width.** `frameRight` is `frameLeft` plus the width of one frame. Check `frameSize`.

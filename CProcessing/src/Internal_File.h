@@ -73,6 +73,18 @@ extern "C" {
 // buffer, if the file is there. Unchanged if it's in neither place.
 const char* file_resolveAssetPath(const char* filepath, char* buffer, size_t bufferSize);
 
+// Says why a load gave NULL (DESIGN.md, "Messages"), once per file: no file
+// name, a file that isn't there (and the folders it was looked for in), or
+// one that is there but can't be read. function is the public function
+// ("CP_Image_Load"), kind what it reads ("an image"), formats the kinds of
+// file it reads ("PNG, JPEG, BMP and TGA files").
+void file_warnLoadFailed(const char* function, const char* filepath, const char* kind, const char* formats);
+
+// A file loaded this many times without being freed is probably loaded on
+// every frame. file_warnLoadedOften says so when loads reaches it.
+#define CP_LOADS_BEFORE_MESSAGE 1000
+void file_warnLoadedOften(const char* function, const char* freeFunction, const char* filepath, int loads);
+
 #ifdef __cplusplus
 }
 #endif

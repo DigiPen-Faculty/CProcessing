@@ -56,13 +56,21 @@ static void CP_Font_AddHandle(CP_Font font)
 	vect_push_CP_Font(font_vector, font);
 }
 
+// What CP_Font_Load reads, for its messages
+#define CP_FONT_FORMATS "TrueType (.ttf) and OpenType (.otf) files"
+
 static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsigned char* data, int ndata, int freeData)
 {
 	CP_Font new_font = NULL;
 	CP_CorePtr CORE = GetCPCore();
 
-	if (!filepath || !font_vector)
+	if (!font_vector)
 	{
+		return NULL;
+	}
+	if (!filepath || filepath[0] == '\0')
+	{
+		file_warnLoadFailed("CP_Font_Load", filepath, "a font", CP_FONT_FORMATS);
 		return NULL;
 	}
 
@@ -75,6 +83,7 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 		{
 			++new_font->ref_count;
 		}
+		file_warnLoadedOften("CP_Font_Load", "CP_Font_Free", filepath, new_font->ref_count);
 		return new_font;
 	}
 
@@ -111,6 +120,7 @@ static CP_Font CP_Font_LoadInternal(const char* filepath, bool fromMemory, unsig
 	{
 		new_font->load_error = true;
 		free(new_font);
+		file_warnLoadFailed("CP_Font_Load", filepath, "a font", CP_FONT_FORMATS);
 		return NULL;
 	}
 
@@ -179,6 +189,11 @@ CP_API CP_Font CP_Font_GetDefault(void)
 
 CP_API CP_Font CP_Font_Load(const char* filepath)
 {
+	if (!CP_Engine_IsStarted())
+	{
+		CP_WARN_ONCE("CP_Font_Load was called before CP_Engine_Run, so it loaded nothing. Load fonts in a game state's init function.");
+		return NULL;
+	}
 	return CP_Font_LoadInternal(filepath, false, NULL, 0, 0);
 }
 
@@ -241,7 +256,12 @@ CP_API void CP_Font_Set(CP_Font font)
 {
 	CP_CorePtr CORE = GetCPCore();
 
-	if (font == NULL || !CORE || !CORE->nvg)
+	if (font == NULL)
+	{
+		CP_WARN_ONCE("CP_Font_Set was given no font (NULL), so text keeps the font it had. Was it loaded? If its load failed, a message above says why.");
+		return;
+	}
+	if (!CORE || !CORE->nvg)
 	{
 		return;
 	}

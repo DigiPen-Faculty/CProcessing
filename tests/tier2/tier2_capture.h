@@ -419,6 +419,13 @@ typedef struct
 	char messagePopLast[512];        // CP_Engine_PopGameState twice, with one state
 	char messageDrawIntoLoaded[512]; // CP_Image_BeginDrawing on a loaded image
 	char messageSaveRefusals[2048];  // the 5 saves that must fail
+	char messageEmptyPath[512];      // CP_Image_Load("")
+	char messageLoadBeforeRun[1024]; // loads in tier2_RunCaptureOnce, before CP_Engine_Run
+	char messageErrorPaths[4096];    // Scn_ErrorPaths: missing and unreadable files, NULL handles
+	char messageLoadedOften[1024];   // Scn_ErrorPaths: one image loaded 1001 times
+	bool loadsBeforeRunAreNull;
+	bool unreadableFilesAreNull;
+	bool errorPathsSoundAvailable;
 } Tier2Scalars;
 
 extern Tier2Scalars tier2_scalars;

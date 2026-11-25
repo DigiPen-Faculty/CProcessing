@@ -15,6 +15,7 @@
 #include <errno.h>
 #include "Internal_Platform.h" // <windows.h>, CP_PATH_MAX, CP_StringCopy
 #include "Internal_File.h"
+#include "Internal_Message.h"
 
 #include <sys/stat.h> // stat
 
@@ -42,6 +43,7 @@
 	#endif
 
 	#define access            _access
+	#define getcwd            _getcwd
 	#define CP_MAKE_DIR(path) _mkdir(path)
 #else
 	#include <unistd.h> // access
@@ -172,4 +174,80 @@ const char* file_resolveAssetPath(const char* filepath, char* buffer, size_t buf
 	}
 	snprintf(buffer, bufferSize, "%s%s", folder, filepath);
 	return file_exists(buffer) == CP_OK ? buffer : filepath;
+}
+
+//------------------------------------------------------------------------------
+// Messages about loading (DESIGN.md, "Messages"):
+//		each names the file, once per file, so a program with three
+//		misspelled names hears about all three in one run.
+
+// The current folder, ending with a separator ("" if unknown)
+static void file_currentFolder(char* buffer, int bufferSize)
+{
+	if (getcwd(buffer, bufferSize - 1) == NULL)
+	{
+		buffer[0] = '\0';
+		return;
+	}
+	size_t length = strlen(buffer);
+#if defined(_WIN32)
+	const char separator = '\\';
+#else
+	const char separator = '/';
+#endif
+	if (length > 0 && buffer[length - 1] != '/' && buffer[length - 1] != separator)
+	{
+		buffer[length] = separator;
+		buffer[length + 1] = '\0';
+	}
+}
+
+void file_warnLoadFailed(const char* function, const char* filepath, const char* kind, const char* formats)
+{
+	if (filepath == NULL || filepath[0] == '\0')
+	{
+		if (CP_Message_FirstTimeFor(function, ""))
+		{
+			CP_Warn("%s was given no file name, so it loaded nothing. Give it a path such as \"assets/name\".", function);
+		}
+		return;
+	}
+	if (!CP_Message_FirstTimeFor(function, filepath))
+	{
+		return;
+	}
+
+	char resolved[CP_PATH_MAX];
+	const char* path = file_resolveAssetPath(filepath, resolved, sizeof(resolved));
+	if (file_exists(path) == CP_OK)
+	{
+		CP_Warn("%s found \"%s\" but couldn't read it as %s. It reads %s: check that the file is one of those (renaming a file doesn't change what's inside).", function, filepath, kind, formats);
+		return;
+	}
+
+	const char* advice = "Check the spelling, upper and lower case included (Linux and macOS care), and that the file is there.";
+	if (file_isAbsolute(filepath))
+	{
+		CP_Warn("%s couldn't find \"%s\". %s", function, filepath, advice);
+		return;
+	}
+	char current[CP_PATH_MAX];
+	file_currentFolder(current, (int)sizeof(current));
+	const char* program = file_programFolder();
+	if (program[0] == '\0' || strcmp(current, program) == 0)
+	{
+		CP_Warn("%s couldn't find \"%s\" in %s. %s", function, filepath, current, advice);
+	}
+	else
+	{
+		CP_Warn("%s couldn't find \"%s\" in the current folder (%s) or next to the program (%s). %s", function, filepath, current, program, advice);
+	}
+}
+
+void file_warnLoadedOften(const char* function, const char* freeFunction, const char* filepath, int loads)
+{
+	if (loads == CP_LOADS_BEFORE_MESSAGE)
+	{
+		CP_Warn("%s has loaded \"%s\" %d times without a %s. Is it loaded in an update function? Load it once, in an init function, and free it in the exit function.", function, filepath, loads, freeFunction);
+	}
 }

@@ -193,10 +193,30 @@ void CP_Sound_Shutdown(void)
 	}
 }
 
+// What CP_Sound_Load reads, for its messages
+#define CP_SOUND_FORMATS "WAV, OGG, MP3 and FLAC files"
+
 CP_Sound CP_Sound_LoadInternal(const char* filepath, bool streamFromDisc)
 {
-	if (!filepath || !_soloud_system || !sound_vector)
+	const char* function = streamFromDisc ? "CP_Sound_LoadStream" : "CP_Sound_Load";
+	if (!CP_Engine_IsStarted())
+	{
+		if (CP_Message_FirstTimeFor("before CP_Engine_Run", function))
+		{
+			CP_Warn("%s was called before CP_Engine_Run, so it loaded nothing. Load sounds in a game state's init function.", function);
+		}
 		return NULL;
+	}
+	// With no sound device, nothing loads (a message said so as the program started)
+	if (!_soloud_system || !sound_vector)
+	{
+		return NULL;
+	}
+	if (!filepath || filepath[0] == '\0')
+	{
+		file_warnLoadFailed(function, filepath, "a sound", CP_SOUND_FORMATS);
+		return NULL;
+	}
 
 	CP_Sound sound = NULL;
 
@@ -209,6 +229,7 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, bool streamFromDisc)
 		{
 			++sound->ref_count;
 		}
+		file_warnLoadedOften(function, "CP_Sound_Free", filepath, sound->ref_count);
 		return sound;
 	}
 
@@ -244,6 +265,7 @@ CP_Sound CP_Sound_LoadInternal(const char* filepath, bool streamFromDisc)
 		// release the SoLoud object as well as our struct (file missing or unreadable)
 		SL_Sound_Release(sound);
 		free(sound);
+		file_warnLoadFailed(function, filepath, "a sound", CP_SOUND_FORMATS);
 		return NULL;
 	}
 
@@ -305,10 +327,17 @@ CP_API void CP_Sound_Free(CP_Sound* sound)
 	// TODO: handle error - we reached the end of the list without finding the sound
 }
 
+// A NULL sound is ignored, with a message once per function (DESIGN.md,
+// "Messages"): usually a load that failed, which printed why. Without a sound
+// device every load gives NULL, and that was said as the program started.
 CP_API CP_SoundInstance CP_Sound_Play(CP_Sound sound)
 {
 	if (sound == NULL)
 	{
+		if (_soloud_system)
+		{
+			CP_WARN_ONCE("CP_Sound_Play was given no sound (NULL). Was it loaded? If its load failed, a message above says why.");
+		}
 		return 0;
 	}
 
@@ -321,7 +350,15 @@ CP_API CP_SoundInstance CP_Sound_Play(CP_Sound sound)
 
 CP_API CP_SoundInstance CP_Sound_PlayAdvanced(CP_Sound sound, float volume, float pitch, bool looping, CP_SOUND_GROUP group)
 {
-	if (!CP_IsValidSoundGroup(group) || sound == NULL || _soloud_system == NULL)
+	if (sound == NULL)
+	{
+		if (_soloud_system)
+		{
+			CP_WARN_ONCE("CP_Sound_PlayAdvanced was given no sound (NULL). Was it loaded? If its load failed, a message above says why.");
+		}
+		return 0;
+	}
+	if (!CP_IsValidSoundGroup(group) || _soloud_system == NULL)
 	{
 		return 0;
 	}
