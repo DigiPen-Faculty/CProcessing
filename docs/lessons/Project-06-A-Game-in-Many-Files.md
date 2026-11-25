@@ -443,5 +443,5 @@ Pick two or more.
 * **The header and the code disagree.** If `gamestate_menu.h` says `void gamestate_menu_update(void);` the .c file has to match exactly, including the `(void)`.
 * **Putting code in a header.** A header lists names (prototypes). Functions with bodies go in the .c file, or the program has two copies of them.
 * **The new state doesn't start.** `CP_Engine_SetNextGameState` needs all three names, with the right spelling: `init`, `update`, `exit`, and `NULL` for one that isn't needed.
-* **A shared variable that is a plain global.** Any file can change it, so a wrong score could come from anywhere, and two files that each write `int score;` either fail to build or quietly share one variable, depending on the compiler. Keep it in one file and share a getter and setter.
+* **A shared variable that is a plain global.** Any file can change it, so when the score is wrong, the bug could be in any file. Keep it `static` in one file, and share a getter and a setter.
 * **Escape does nothing.** `CP_Engine_SetPreUpdateFunction(PreUpdate);` is missing from `main`, or it was written after `CP_Engine_Run()`, which never returns until the program ends.
