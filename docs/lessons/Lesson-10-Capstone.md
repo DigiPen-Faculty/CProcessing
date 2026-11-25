@@ -8,7 +8,7 @@
 
 **Time:** about 90 minutes to read and play with, and as long as you like to make it your own.
 
-**You need:** [Lessons 1 to 9](README). This lesson doesn't teach anything new. It uses everything.
+**You need:** [Lessons 1 to 9](Home#lessons). This lesson doesn't teach anything new. It uses everything.
 
 The finished program is in the repository as [examples/lessons/10_capstone/main.c](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/lessons/10_capstone/main.c). It is about 500 lines, and **you have seen every kind of line in it before**. Run it first, play it for a minute, and then read this page with the code open next to it.
 

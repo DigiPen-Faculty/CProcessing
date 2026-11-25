@@ -215,6 +215,19 @@ into the other:
 | 9. Game states | [game_states.c](game_states.c) |
 | 11. Your own state manager | [state_stack.c](state_stack.c) is the engine's own stack, to compare |
 
+The projects (in the `projects` folder, `01_splash_screen` to
+`06_many_files`) are shorter step-by-step builds that each start from the
+template alone, with a page on the wiki for each. Their examples:
+
+| Project | Example |
+|---|---|
+| 1. A splash screen | [easing.c](easing.c) for gentler slides, [transitions.c](transitions.c) for a fade between states |
+| 2. Text and numbers | [score_and_text.c](score_and_text.c) |
+| 3. Turning and rounding shapes | [rotation.c](rotation.c) |
+| 4. Drawing with functions | [shapes.c](shapes.c), whose shapes are each drawn by a function |
+| 5. Buttons and restart | [mouse.c](mouse.c) (`DoButton`, a stricter button) |
+| 6. A game in many files | [game_states.c](game_states.c), the same states in one file |
+
 ## Game states: what the engine does, and what you write
 
 Think of game states as cards on a table. `CP_Engine_SetNextGameState`
@@ -244,8 +257,9 @@ in your own games.
 ## In the CProcessing repository
 
 The CMake build builds every example, as `Example_movement`,
-`Example_collision` and so on, and each lesson, as `Lesson_01_first_window`
-and so on, into `build/bin`. The examples are in the
+`Example_collision` and so on, each lesson, as `Lesson_01_first_window`
+and so on, and each project, as `Project_01_splash_screen` and so on (from
+every `.c` file in its folder), into `build/bin`. The examples are in the
 release packages, in an `examples` folder next to `main.c`.
 
 The assets are made by

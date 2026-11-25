@@ -15,7 +15,9 @@ exits with status 1 for:
   - parameter bullets ("* name (type) - ...") that don't match the signature's
     parameter names
   - links to a page or heading that doesn't exist, and table-of-contents
-    entries missing or out of order
+    entries missing or out of order. The lesson and project pages in
+    docs/lessons become wiki pages with a release, so the wiki may link to
+    them, and their own links are checked too.
   - links to an example program (examples/*.c on GitHub) that the repository
     doesn't have, and an Examples page that doesn't list every example
   - Windows-only calls in examples (sprintf_s, _countof, ...)
@@ -76,9 +78,13 @@ for header in ("cprocessing.h", "cprocessing_common.h"):
 
 # The wiki: pages, heading anchors, entries
 pages = {p.stem: p.read_text(encoding="utf-8") for p in sorted(wiki.glob("*.md"))}
+# The lessons and projects are written in the repository (docs/lessons) and
+# become wiki pages with a release, so the wiki may link to them already.
+# They are link targets here, not checked as wiki pages.
+lesson_pages = {p.stem: p.read_text(encoding="utf-8") for p in sorted((repo / "docs/lessons").glob("*-[0-9][0-9]-*.md"))}
 anchors = {}
 entries = {}  # name -> list of (page, entry text)
-for page, text in pages.items():
+for page, text in {**lesson_pages, **pages}.items():
     anchors[page] = set()
     in_code = False
     for line in text.splitlines():
@@ -88,6 +94,8 @@ for page, text in pages.items():
             h = re.match(r"^#+\s+(.*?)\s*$", line)
             if h:
                 anchors[page].add(re.sub(r"[^\w\- ]", "", h.group(1)).strip().lower().replace(" ", "-"))
+    if page not in pages:
+        continue
     for part in re.split(r"(?m)^(?=# CP_\w+(?:\(\))?\s*$)", text):
         h = re.match(r"# (CP_\w+?)(?:\(\))?\s*\n", part)
         if h:
@@ -124,15 +132,15 @@ for name, found in sorted(entries.items()):
                 if re.search(r"\b(sprintf_s|strcpy_s|strcat_s|fopen_s|scanf_s|_countof|HWND|windows\.h)\b", line):
                     problems.append(f"{name} ({page}): Windows-only code: {line.strip()}")
 
-for page, text in pages.items():
+for page, text in {**pages, **lesson_pages}.items():
     prose = re.sub(r"```.*?```", "", text, flags=re.S)
     for m in re.finditer(r"\]\(([^)\s]+)\)", prose):
         target = m.group(1)
-        if target.startswith(("http://", "https://", "mailto:")):
+        if target.startswith(("http://", "https://", "mailto:")) or (page in lesson_pages and target.startswith("images/")):
             continue
         path, _, fragment = target.partition("#")
         target_page = path.rstrip("/") or page
-        if target_page not in pages:
+        if target_page not in pages and target_page not in lesson_pages:
             problems.append(f"{page}: link to a missing page: {target}")
         elif fragment and fragment.lower() not in anchors[target_page]:
             problems.append(f"{page}: link to a missing heading: {target}")

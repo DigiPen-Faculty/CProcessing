@@ -37,7 +37,7 @@ FILE_PATTERNS = [
 # Names that mirror the API: CP_Color.c holds CP_Color_* (see check_api_names.py).
 SOURCE_PREFIXES = re.compile(r"^(CP_[A-Za-z0-9]+\.c|Internal_[A-Za-z0-9]+\.h)$")
 
-LESSON_PAGE = re.compile(r"^Lesson-\d\d-[A-Za-z0-9-]+\.md$")  # becomes a wiki page name
+LESSON_PAGE = re.compile(r"^(Lesson|Project)-\d\d-[A-Za-z0-9-]+\.md$")  # becomes a wiki page name
 
 
 def tracked(rev):

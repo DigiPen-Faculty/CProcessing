@@ -16,7 +16,18 @@ A learn-by-building path for CProcessing, for self-study or alongside a class. E
 | 10. Capstone: Slime Snacks | [Lesson-10-Capstone.md](Lesson-10-Capstone.md) | [examples/lessons/10_capstone](../../examples/lessons/10_capstone/main.c) |
 | 11. Your own state manager (an extra) | [Lesson-11-Your-Own-State-Manager.md](Lesson-11-Your-Own-State-Manager.md) | [examples/lessons/11_state_manager](../../examples/lessons/11_state_manager/main.c) |
 
-Lessons 2 and 4 to 11 were written before lessons 1 and 3 had been tried with students, and use the same format, so notes from the pilot may change all of them.
+And six **projects**: shorter builds, each starting from the template alone, of things a first game needs early.
+
+| Project | Page (a wiki page when released) | Program |
+|---|---|---|
+| 1. A splash screen | [Project-01-Splash-Screen.md](Project-01-Splash-Screen.md) | [examples/projects/01_splash_screen](../../examples/projects/01_splash_screen/main.c) |
+| 2. Text and numbers | [Project-02-Text-and-Numbers.md](Project-02-Text-and-Numbers.md) | [examples/projects/02_text_and_numbers](../../examples/projects/02_text_and_numbers/main.c) |
+| 3. Turning and rounding shapes | [Project-03-Turning-and-Rounding-Shapes.md](Project-03-Turning-and-Rounding-Shapes.md) | [examples/projects/03_turning_shapes](../../examples/projects/03_turning_shapes/main.c) |
+| 4. Drawing with functions | [Project-04-Drawing-with-Functions.md](Project-04-Drawing-with-Functions.md) | [examples/projects/04_drawing_functions](../../examples/projects/04_drawing_functions/main.c) |
+| 5. Buttons and restart | [Project-05-Buttons-and-Restart.md](Project-05-Buttons-and-Restart.md) | [examples/projects/05_buttons_and_restart](../../examples/projects/05_buttons_and_restart/main.c) |
+| 6. A game in many files | [Project-06-A-Game-in-Many-Files.md](Project-06-A-Game-in-Many-Files.md) | [examples/projects/06_many_files](../../examples/projects/06_many_files) (nine files) |
+
+Lessons 2 and 4 to 11, and the projects, were written before lessons 1 and 3 had been tried with students, and use the same format, so notes from the pilot may change all of them.
 
 ## Decisions
 
@@ -27,6 +38,8 @@ Lessons 2 and 4 to 11 were written before lessons 1 and 3 had been tried with st
 * **Pause in lesson 9 and the capstone.** Both push the pause on top of the game with `CP_Engine_PushGameState` and take it off with `CP_Engine_PopGameState`, as `game_states.c` does. The lesson teaches states as cards on a table: `SetNextGameState` clears the table for a new part of the game, and `PushGameState` puts a card on top when the game stays where it is. A plain push needs no extra calls (the game underneath is frozen and visible by default), so it's no harder than a flag, and it avoids the `resuming` flag that pausing with `SetNextGameState` needed. The flag version stays in the lesson as a short "another way", because students will see it in other code.
 * **Lesson 11 is an extra, after the capstone.** It builds the stack of lesson 9 from arrays and structs, on the single-state API (`SetNextGameState` once, and a manager that hands each frame to a stack of screens). It teaches what a push is, why a change is asked for and made at the start of the next frame, and why only the top state gets input. It shows the cost of not having the engine's layers: the screens have a separate draw function, called every frame, since their pictures aren't kept. It uses no assets, so it runs from the template as it is. The sound-ownership, per-state time scale and input-claiming ideas on the roadmap are left to the "Make it yours" list.
 * **The assets in the later lessons.** Lessons 7 to 10 use only the template's `assets` (`SlimeSheet.png`, `Music.wav`, `Coin.wav`, `Jump.wav`, `Hit.wav`). In the capstone each state frees what it loads (the play state owns the sprite sheet and the sounds), because the engine runs the exit of every state on the stack when the program ends, and a state can't tell a switch from a shutdown. That keeps the "whoever loads it frees it" rule from lesson 7 without a global load step.
+* **Projects next to the lessons.** The lessons are one path that ends in a capstone; each builds on the one before. A project is a smaller build that needs only the template (and, for 4 to 6, the projects before it), for the things students want early, often for their first assignments: a splash screen, a score on the screen, a shape that turns, a drawing in a function, a button, and a game split into files. A project uses the same format, the same methods and the same helpers as the lessons and examples, and links to the ones that go further. Its finished program is in `examples/projects/NN_name/`, built by CMake as `Project_NN_name` from every `.c` file in the folder, so a project can be several files (project 6 is nine). Projects go wrong on purpose more than lessons do: each wrong turn shows the real message from the compiler or the screen, so students learn to read it.
+* **The simple button is `Button`.** Projects 5 and 6 build a button positioned by its middle that acts when the mouse button is let go over it (`Button`, with `MouseIsInside`). The mouse example's `DoButton` is stricter (the press and the release must both be on it) and positioned by its corner. They have different names because they are different code: a helper repeated in several programs keeps one name for one piece of code ([DESIGN.md](../../DESIGN.md)).
 * **Format of a lesson.** What you'll make (a picture), what you'll learn, time and prerequisites; small steps, each with a "Try it"; make-it-yours challenges; check-yourself questions; common mistakes. Reference pages are linked, not repeated.
 
 ## Trying the pilot with students

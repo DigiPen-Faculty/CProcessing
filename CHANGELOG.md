@@ -472,6 +472,16 @@ Each change says what to do in an existing project.
   step-by-step teaching with a finished program in `examples/lessons`, and
   challenges and check-yourself questions. The pages are in `docs/lessons`
   until they are published to the wiki.
+- **Projects 1 to 6 (A splash screen, Text and numbers, Turning and rounding
+  shapes, Drawing with functions, Buttons and restart, A game in many
+  files):** shorter step-by-step builds that each start from the template
+  alone, in the order a first game needs them: a logo that fades in, a
+  score with `snprintf`, a shape turned around its middle, a drawing in a
+  function of your own, a button that restarts the game, and a game split
+  into a `.c` and `.h` file for each state. Each has a finished program in
+  `examples/projects` (the last one is nine files), and goes wrong on
+  purpose along the way, with the real error message, so you learn to read
+  it. The pages are in `docs/lessons`, next to the lessons.
 - **A color picker, `examples/color_picker.c`**, the companion to lesson 3:
   drag red, green, blue, hue, saturation, lightness and alpha sliders and
   watch the color, its code (including the eight-digit number for
@@ -494,8 +504,8 @@ Each change says what to do in an existing project.
   each part of a game: the way to split a game into files. They are not in
   the Visual Studio project (add a copy with **Add > Existing Item**), and
   the CMake starter doesn't build `gamestate_template.c` itself; a renamed
-  copy is built like any other `.c` file. The wiki's "A game in many files"
-  page walks through it.
+  copy is built like any other `.c` file. Project 6, "A game in many files",
+  walks through it.
 
 ### Changed
 
