@@ -176,7 +176,7 @@ Pick two or more.
 1. **How to play.** Add a state reached from the menu with H. It needs three functions, a declaration at the top, and a way back. Should it be a new card, or a card on top of the menu?
 2. **Faster over time.** Make the bubbles grow faster the longer the game lasts. (Keep a timer in `play_init`, and add to it with `dt`.)
 3. **Bubble types.** Make some bubbles gold: rarer, small, worth ten times as much.
-4. **Pick a mode.** Put two buttons on the menu, "Easy" and "Hard" (lesson 6's point in a box), that change `growSpeed` and the lives.
+4. **Pick a mode.** Put two buttons on the menu, "Easy" and "Hard" (lesson 6's point in a box, and its `CP_Input_MouseClicked()`), that change `growSpeed` and the lives.
 5. **A countdown.** After the menu, the game starts with 3, 2, 1. Is it a new state, or part of play? What would each cost?
 
 ## Check yourself

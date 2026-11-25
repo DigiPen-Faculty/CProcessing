@@ -595,6 +595,12 @@ Each change says what to do in an existing project.
   is one commit that only moved whitespace and braces, listed in
   `.git-blame-ignore-revs` so `git blame` skips it. The test projects' 4-space
   indent is now tabs, like everything else.
+- **The buttons in the collision lesson (lesson 6) and the collision example
+  count a click when the mouse button is let go** (`CP_Input_MouseClicked()`),
+  not when it goes down. That is how buttons work in the programs students
+  use: press, change your mind, slide off and let go, and nothing happens.
+  Lesson 6 now explains the difference from `CP_Input_MouseTriggered`, which
+  stays the right choice when a click should act at once (popping a bubble).
 
 ### Fixed
 
