@@ -46,6 +46,16 @@ if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:C>:/std:c11>)
 endif()
 
+# Warnings, as errors, the same as the Visual Studio template: the build
+# stops at mistakes the compiler can see, such as a function used before it
+# is declared, a variable used before it is set, or a number of the wrong
+# kind given to printf. (An unused function parameter is allowed.)
+if(MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX /sdl /wd4100)
+else()
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Werror -Wno-unused-parameter)
+endif()
+
 set(CPROCESSING_DIR "${CMAKE_CURRENT_SOURCE_DIR}/CProcessing")
 if(EXISTS "${CPROCESSING_DIR}/inc/cprocessing.h")
     # Prebuilt CProcessing from a release package

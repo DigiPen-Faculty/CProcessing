@@ -143,6 +143,7 @@ set(CPROCESSING_SOURCES
     "${CP_DIR}/src/CP_Image.c"
     "${CP_DIR}/src/CP_Input.c"
     "${CP_DIR}/src/CP_Math.c"
+    "${CP_DIR}/src/CP_Message.c"
     "${CP_DIR}/src/CP_Noise.c"
     "${CP_DIR}/src/CP_Random.c"
     "${CP_DIR}/src/CP_Setting.c"

@@ -198,6 +198,13 @@ Each change says what to do in an existing project.
   script that uses the old paths needs them changed. `git blame` and
   `git log --follow` follow files across the move. Old tags and releases keep
   the old layout.
+- **The CMake starter builds with warnings as errors, like the Visual Studio
+  template** (`/W4 /WX` with Visual Studio's compiler, `-Wall -Wextra
+  -Werror` with GCC and Clang; an unused function parameter is allowed).
+  The build stops at mistakes the compiler can see, such as a function used
+  before it is declared, or a variable used before it is set. A program that
+  built before may now stop at a warning: fix what it points at. To build an
+  older project the old way, copy its `CMakeLists.txt` over the new one.
 
 ### Added
 
@@ -509,6 +516,16 @@ Each change says what to do in an existing project.
 
 ### Changed
 
+- **CProcessing's messages go to stderr and Visual Studio's Output window,
+  once each.** They went to stdout with `printf`, where a Windows program
+  usually has nowhere to show them, and a mistake made every frame printed
+  sixty a second. Now each starts with `CProcessing: `, says what to do,
+  and is printed once per run from where it comes from. To see them, look
+  at Visual Studio's Output window, or call `CP_System_ShowConsole(true)` and
+  run again; the wiki's Debugging page explains. When the window can't
+  open at all, the message says what to try, and from Visual Studio's
+  debugger it also appears in a message box. The rules for messages are in
+  `DESIGN.md`, "Messages".
 - **The headers explain what the names can't.** Hover over a function in
   Visual Studio to see its note: a range (`CP_Vector_Angle` is 0 to 180), a
   hidden rule (`CP_Color_CreateHex` needs all 8 digits, `0xRRGGBBAA`), or a

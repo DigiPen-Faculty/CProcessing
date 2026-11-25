@@ -20,6 +20,10 @@ void test_tier2_gamestate_push_and_pop_run_inits_and_exits_in_order(void)
 	// no exit for the harness when A is pushed, no init again when A pops;
 	// A popping from under F takes F off first
 	TEST_ASSERT_EQUAL_STRING("A.init B.init B.exit C.init C.exit F.init F.exit A.exit", tier2_scalars.stackLog);
+	// Popping the only state, twice: one message
+	const char* message = tier2_scalars.messagePopLast;
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, tier2_CountText(message, "CProcessing: CP_Engine_PopGameState was called with only one game state"), message);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, tier2_CountText(message, "CProcessing: "), message);
 	TEST_ASSERT_EQUAL_INT(2, tier2_scalars.stackDepthInPushedInit);
 	TEST_ASSERT_EQUAL_INT(1, tier2_scalars.stackHarnessDepthAfter);
 }
@@ -112,4 +116,7 @@ void test_tier2_image_drawn_into_reads_back_top_row_first_with_plain_alpha(void)
 	TEST_ASSERT_UINT8_WITHIN(2, 128, tier2_scalars.drawIntoBottomRight.a);
 	assertColorWithin(2, CP_Color_Create(10, 200, 30, 255), tier2_scalars.drawIntoAfterUpdate);
 	TEST_ASSERT_TRUE(tier2_scalars.drawIntoLoadedRefused);
+	const char* message = tier2_scalars.messageDrawIntoLoaded;
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, tier2_CountText(message, "CProcessing: CP_Image_BeginDrawing was ignored: only an image made with CP_Image_Create"), message);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, tier2_CountText(message, "CProcessing: "), message);
 }

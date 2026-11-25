@@ -325,4 +325,13 @@ void test_tier2_image_save_refuses_what_it_cannot_save(void)
 	// No image, no name, an empty name, a .jpg name, a folder that isn't there
 	TEST_ASSERT_EQUAL_INT(5, tier2_scalars.saveRefusals);
 	TEST_ASSERT_TRUE(tier2_scalars.saveRefusedLeftNoFile);
+
+	// Each says why, once: no name and an empty name share a message
+	const char* messages = tier2_scalars.messageSaveRefusals;
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, tier2_CountText(messages, "CProcessing: CP_Image_Save was given no image (NULL)"), messages);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, tier2_CountText(messages, "CProcessing: CP_Image_Save needs a file name"), messages);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, tier2_CountText(messages, "must end in .png: tier2_saved.jpg was not saved"), messages);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(1, tier2_CountText(messages, "CProcessing: couldn't save tier2_no_such_folder/saved.png"), messages);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(4, tier2_CountText(messages, "CProcessing: "), messages);
+	TEST_ASSERT_EQUAL_INT_MESSAGE(4, tier2_CountText(messages, "\n"), messages);
 }

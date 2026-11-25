@@ -224,6 +224,7 @@
     <ClInclude Include="src\Internal_Random.h" />
     <ClInclude Include="src\Internal_Sound.h" />
     <ClInclude Include="src\Internal_Text.h" />
+    <ClInclude Include="src\Internal_Message.h" />
     <ClInclude Include="src\Internal_Resources.h" />
     <ClInclude Include="third_party\vect\vect.h" />
   </ItemGroup>
@@ -248,6 +249,7 @@
     <ClCompile Include="src\CP_Image.c" />
     <ClCompile Include="src\CP_Input.c" />
     <ClCompile Include="src\CP_Math.c" />
+    <ClCompile Include="src\CP_Message.c" />
     <ClCompile Include="src\CP_Noise.c" />
     <ClCompile Include="src\CP_Random.c" />
     <ClCompile Include="src\CP_Setting.c" />

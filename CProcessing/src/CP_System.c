@@ -107,9 +107,26 @@ static bool _windowResizable = false;
 // Frames since the start of the program
 static unsigned int _frameCount;
 
+// Once for each kind of error: GLFW's error codes are 0x00010001 and up
 static void error_callback_glfw(int error, const char* desc)
 {
-	printf("GLFW error %d: %s\n", error, desc);
+	static uint32_t reported = 0;
+	const uint32_t bit = 1u << ((unsigned)error & 31u);
+	if (!(reported & bit))
+	{
+		reported |= bit;
+		CP_Warn("the window system (GLFW) reported error 0x%X: %s", (unsigned)error, desc);
+	}
+}
+
+// The program can't open its window, so it ends with nothing on the screen:
+// from Visual Studio's debugger, a message box says why
+static void CP_TellStartupFailed(const char* reason)
+{
+	CP_Warn("%s", reason);
+	char text[512];
+	snprintf(text, sizeof(text), "CProcessing: %s", reason);
+	CP_Message_ShowIfDebugging("CProcessing couldn't start", text);
 }
 
 // Wayland does not let applications position their own windows (the
@@ -342,7 +359,7 @@ static bool CP_Layer_CreateGL(CP_Layer* layer, int width, int height)
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		printf("CProcessing: could not create a %d x %d drawing canvas.\n", width, height);
+		CP_WARN_ONCE("couldn't make a %d x %d drawing canvas: the graphics driver refused it.", width, height);
 		glDeleteFramebuffers(1, &framebuffer);
 		glDeleteTextures(1, &color);
 		return false;
@@ -411,7 +428,7 @@ static int CP_Layer_Acquire(float r, float g, float b, float a)
 	}
 	if (found < 0)
 	{
-		printf("CProcessing: too many drawing layers in use.\n");
+		CP_WARN_ONCE("too many drawing layers in use.");
 		return -1;
 	}
 
@@ -908,17 +925,17 @@ static void CP_GameStates_Warn(CP_GSL_Result result)
 	switch (result)
 	{
 	case CP_GSL_NO_UPDATE:
-		printf("CProcessing: a game state needs an update function; this one was ignored.\n");
+		CP_WARN_ONCE("a game state needs an update function; this one was ignored.");
 		break;
 	case CP_GSL_POP_LAST:
-		printf("CProcessing: CP_Engine_PopGameState was called with only one game state, so it was ignored.\n"
-			   "Use CP_Engine_SetNextGameState to go to another state, or CP_Engine_Terminate to quit.\n");
+		CP_WARN_ONCE("CP_Engine_PopGameState was called with only one game state, so it was ignored. "
+					 "Use CP_Engine_SetNextGameState to go to another state, or CP_Engine_Terminate to quit.");
 		break;
 	case CP_GSL_STACK_FULL:
-		printf("CProcessing: CP_Engine_PushGameState was ignored: there are already %d game states.\n", CP_MAX_GAME_STATES);
+		CP_WARN_ONCE("CP_Engine_PushGameState was ignored: there are already %d game states.", CP_MAX_GAME_STATES);
 		break;
 	case CP_GSL_QUEUE_FULL:
-		printf("CProcessing: more than %d game state changes in one frame; the extra ones were ignored.\n", CP_MAX_GAME_STATE_REQUESTS);
+		CP_WARN_ONCE("more than %d game state changes in one frame; the extra ones were ignored.", CP_MAX_GAME_STATE_REQUESTS);
 		break;
 	default:
 		break;
@@ -1581,7 +1598,7 @@ void CP_Initialize(void)
 	// Initialize GLFW
 	if (!glfwInit())
 	{
-		printf("Failed to init GLFW (is a display available?).\n");
+		CP_TellStartupFailed("couldn't start: no display was found to open a window on.");
 		return;
 	}
 
@@ -1589,7 +1606,7 @@ void CP_Initialize(void)
 	const GLFWvidmode* structure = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	if (!structure)
 	{
-		printf("Failed to query the primary monitor.\n");
+		CP_TellStartupFailed("couldn't start: no monitor was found to open a window on.");
 		CP_InitializeFailed();
 		return;
 	}
@@ -1631,7 +1648,7 @@ void CP_Initialize(void)
 
 	if (!_CORE.window)
 	{
-		printf("Failed to create the CProcessing window.\n");
+		CP_TellStartupFailed("couldn't open the window. Updating the graphics driver usually fixes this.");
 		CP_InitializeFailed();
 		return;
 	}
@@ -1643,7 +1660,7 @@ void CP_Initialize(void)
 	// API GLFW picked (WGL, GLX, EGL/Wayland, NSGL)
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		printf("Failed to load OpenGL functions.\n");
+		CP_TellStartupFailed("couldn't load OpenGL. Updating the graphics driver usually fixes this.");
 		CP_InitializeFailed();
 		return;
 	}
@@ -1656,7 +1673,7 @@ void CP_Initialize(void)
 #endif
 	if (_CORE.nvg == NULL)
 	{
-		printf("Could not init nanovg (OpenGL 3.2 or newer is required).\n");
+		CP_TellStartupFailed("couldn't start drawing: CProcessing needs OpenGL 3.2 or newer. Updating the graphics driver usually fixes this.");
 		CP_InitializeFailed();
 		return;
 	}
@@ -1822,20 +1839,9 @@ static void CP_ReportLoadedAssets(void)
 		"function: https://github.com/DigiPen-Faculty/CProcessing/wiki/Assets-and-paths\n",
 		report.text, report.truncated ? "  ...and more\n" : "");
 
-	fputs(message, stderr);
-	fflush(stderr);
-#if defined(_WIN32)
-	// Windows programs usually have no console: Visual Studio's Output window
-	OutputDebugStringA(message);
-	#if !defined(NDEBUG)
-	// Debug library, started from Visual Studio: make sure it's seen. Never
-	// otherwise, so a game someone double-clicks, or a test run, can't stop here.
-	if (IsDebuggerPresent())
-	{
-		MessageBoxA(NULL, message, "CProcessing: files still loaded", MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND);
-	}
-	#endif
-#endif
+	CP_Message_Write(message);
+	// From Visual Studio's debugger, make sure it's seen
+	CP_Message_ShowIfDebugging("CProcessing: files still loaded", message);
 }
 
 void CP_Shutdown(void)
@@ -1899,7 +1905,7 @@ void CP_FrameEnd(void)
 {
 	if (_drawingIntoImage)
 	{
-		printf("CProcessing: CP_Image_BeginDrawing had no CP_Image_EndDrawing before the end of the frame.\n");
+		CP_WARN_ONCE("CP_Image_BeginDrawing had no CP_Image_EndDrawing before the end of the frame, so CProcessing ended it. Call EndDrawing in the same frame.");
 		CP_Image_EndDrawing();
 	}
 	nvgEndFrame(_CORE.nvg);

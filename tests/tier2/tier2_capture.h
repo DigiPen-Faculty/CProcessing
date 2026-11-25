@@ -413,9 +413,18 @@ typedef struct
 	// What CProcessing printed on stderr while shutting down: the assets
 	// still loaded (see LeaveAssetsLoadedForTheExitReport)
 	char exitReport[4096];
+
+	// What CProcessing printed on stderr while calls that should print a
+	// message ran (BeginMessages and EndMessages in tier2_capture.c)
+	char messagePopLast[512];        // CP_Engine_PopGameState twice, with one state
+	char messageDrawIntoLoaded[512]; // CP_Image_BeginDrawing on a loaded image
+	char messageSaveRefusals[2048];  // the 5 saves that must fail
 } Tier2Scalars;
 
 extern Tier2Scalars tier2_scalars;
+
+// How many times part appears in text
+int tier2_CountText(const char* text, const char* part);
 
 // What a state letting CP_PASSTHROUGH_NONE through shows (see Scn_GameStateStack)
 extern CP_Color tier2_stackHiddenPixels[TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];

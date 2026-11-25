@@ -63,6 +63,9 @@
     <ClInclude Include="src\Internal_Text.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
+    <ClInclude Include="src\Internal_Message.h">
+      <Filter>Internal Headers</Filter>
+    </ClInclude>
     <ClInclude Include="src\Internal_Sound.h">
       <Filter>Internal Headers</Filter>
     </ClInclude>
@@ -135,6 +138,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\CP_Text.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CP_Message.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\CP_File.c">

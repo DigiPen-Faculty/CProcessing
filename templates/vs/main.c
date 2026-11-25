@@ -46,8 +46,10 @@ void game_exit(void)
 
 int main(void)
 {
-	// To see printf output, uncomment this line. On Windows it opens a
-	// console window. On Linux and macOS, run the game from a terminal.
+	// To see printf output, and CProcessing's messages when something goes
+	// wrong, uncomment this line. On Windows it opens a console window
+	// (Visual Studio's Output window shows the messages too). On Linux and
+	// macOS, run the game from a terminal.
 	// CP_System_ShowConsole(true);
 
 	CP_Engine_SetNextGameState(game_init, game_update, game_exit);

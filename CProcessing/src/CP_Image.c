@@ -407,12 +407,12 @@ CP_API void CP_Image_BeginDrawing(CP_Image img)
 	}
 	if (!img->drawable)
 	{
-		printf("CProcessing: only an image made with CP_Image_Create can be drawn into.\n");
+		CP_WARN_ONCE("CP_Image_BeginDrawing was ignored: only an image made with CP_Image_Create can be drawn into.");
 		return;
 	}
 	if (_drawingInto)
 	{
-		printf("CProcessing: CP_Image_BeginDrawing was called again before CP_Image_EndDrawing.\n");
+		CP_WARN_ONCE("CP_Image_BeginDrawing was called again before CP_Image_EndDrawing, so the second one was ignored. Each BeginDrawing needs an EndDrawing.");
 		return;
 	}
 
@@ -433,7 +433,7 @@ CP_API void CP_Image_BeginDrawing(CP_Image img)
 			glDeleteFramebuffers(1, &framebuffer);
 			glDeleteRenderbuffers(1, &depthStencil);
 			CP_Canvas_EndReading(); // back to where drawing was going
-			printf("CProcessing: could not draw into a %d x %d image.\n", img->w, img->h);
+			CP_WARN_ONCE("CP_Image_BeginDrawing couldn't draw into a %d x %d image: the graphics driver refused it.", img->w, img->h);
 			return;
 		}
 		glDisable(GL_SCISSOR_TEST);
@@ -568,17 +568,17 @@ CP_API bool CP_Image_Save(CP_Image img, const char* filepath)
 	CP_CorePtr CORE = GetCPCore();
 	if (!img)
 	{
-		printf("CProcessing: CP_Image_Save was given no image (NULL), so nothing was saved.\n");
+		CP_WARN_ONCE("CP_Image_Save was given no image (NULL), so nothing was saved.");
 		return false;
 	}
 	if (!filepath || filepath[0] == '\0')
 	{
-		printf("CProcessing: CP_Image_Save needs a file name, such as \"picture.png\".\n");
+		CP_WARN_ONCE("CP_Image_Save needs a file name, such as \"picture.png\".");
 		return false;
 	}
 	if (!CP_EndsInPNG(filepath))
 	{
-		printf("CProcessing: CP_Image_Save writes PNG files, so the name must end in .png: %s was not saved.\n", filepath);
+		CP_WARN_ONCE("CP_Image_Save writes PNG files, so the name must end in .png: %s was not saved.", filepath);
 		return false;
 	}
 
@@ -590,14 +590,14 @@ CP_API bool CP_Image_Save(CP_Image img, const char* filepath)
 	}
 	if (w <= 0 || h <= 0)
 	{
-		printf("CProcessing: CP_Image_Save was given an image that has been freed: %s was not saved.\n", filepath);
+		CP_WARN_ONCE("CP_Image_Save was given an image that has been freed: %s was not saved.", filepath);
 		return false;
 	}
 
 	CP_Color* pixels = (CP_Color*)malloc(sizeof(CP_Color) * (size_t)w * (size_t)h);
 	if (!pixels)
 	{
-		printf("CProcessing: not enough memory to save %s.\n", filepath);
+		CP_WARN_ONCE("not enough memory to save %s.", filepath);
 		return false;
 	}
 	CP_Image_GetPixelData(img, pixels);
@@ -605,7 +605,7 @@ CP_API bool CP_Image_Save(CP_Image img, const char* filepath)
 	free(pixels);
 	if (!saved)
 	{
-		printf("CProcessing: couldn't save %s. Check that its folder exists, and that the file isn't open in another program.\n", filepath);
+		CP_WARN_ONCE("couldn't save %s. Check that its folder exists, and that the file isn't open in another program.", filepath);
 	}
 	return saved;
 }
