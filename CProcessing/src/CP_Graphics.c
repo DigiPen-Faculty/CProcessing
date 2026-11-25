@@ -24,12 +24,11 @@
 // added to the part started last, so the whole outline comes first (or after
 // all the holes); BeginHole closes it, since NanoVG can only close the part
 // it's adding to.
-static bool inShape = false;          // between BeginShape and EndShape
-static bool inHole = false;           // between BeginHole and EndHole
-static bool firstVertex = false;      // the next point starts a part
-static bool outlineStarted = false;   // the outline has a point
-static bool outlineFinished = false;  // and a hole came after it
-static bool toldOutlineFirst = false; // the message below, once per run
+static bool inShape = false;         // between BeginShape and EndShape
+static bool inHole = false;          // between BeginHole and EndHole
+static bool firstVertex = false;     // the next point starts a part
+static bool outlineStarted = false;  // the outline has a point
+static bool outlineFinished = false; // and a hole came after it
 
 //------------------------------------------------------------------------------
 // Internal Functions:
@@ -374,11 +373,7 @@ static bool CP_Graphics_CanAddPoint(const char* function)
 	}
 	if (!inHole && outlineFinished)
 	{
-		if (!toldOutlineFirst)
-		{
-			printf("CProcessing: %s after a hole was ignored. Add the whole outline of a shape first, then its holes.\n", function);
-			toldOutlineFirst = true;
-		}
+		CP_WARN_ONCE("%s after a hole was ignored. Add the whole outline of a shape first, then its holes.", function);
 		return false;
 	}
 	return true;

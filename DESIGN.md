@@ -123,6 +123,36 @@ details; the headers say only what the names and types can't.
 * The planning notes record why a decision was made, so it isn't made again
   from scratch.
 
+## Messages
+
+When CProcessing can see that a program made a mistake (a file that isn't
+there, a call that can't do what it was asked), it says so, instead of quietly
+doing nothing. A student can't fix what they can't see.
+
+* **Catch it at compile time when the compiler can.** A wrong type, a missing
+  argument or a misspelled name is an error with the line pointed at, which
+  beats any message at run time. The templates build with warnings as errors.
+* **At run time, the call does what it already did** (it ignores the request,
+  or gives back `NULL` or `false`) **and prints a message.** A message never
+  stops the program, and a program that makes no mistakes prints nothing.
+* **What a message says:** it starts with `CProcessing: `, names the function
+  and the value that was wrong (the file name, the size), and says what to do.
+  One line, in plain words.
+* **How often:** once per run from each place in the library that prints one
+  (`CP_WARN_ONCE`), so a mistake made on every frame prints one line, not sixty
+  a second. Fix it and run again to see whether it's gone.
+* **Where it goes:** stderr (the terminal, or the console that
+  `CP_System_ShowConsole` opens) and, on Windows, Visual Studio's Output
+  window. The same in Debug and Release. CProcessing never opens the console by
+  itself; the wiki's Debugging page teaches students to open it and run again.
+* **Message boxes only when nobody would see the message otherwise:** when the
+  window can't open, and the list of files never freed when the program ends.
+  Even then, only from the Debug library started from Visual Studio's debugger,
+  so a game someone double-clicks, or a test run, can't stop at one.
+* **In the code,** every message goes through `CP_Warn` (in `CP_Message.c`).
+  Tier 2 checks that each message prints when it should, once
+  (`BeginMessages` and `EndMessages` in `tests/tier2/tier2_capture.c`).
+
 ## Examples and lessons
 
 Students look for an example when they want to make something: "a health

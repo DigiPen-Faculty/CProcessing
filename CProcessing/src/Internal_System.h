@@ -34,6 +34,7 @@ extern "C" {
 #include "Internal_Noise.h"
 #include "Internal_Sound.h"
 #include "Internal_Text.h"
+#include "Internal_Message.h"
 
 typedef struct GLFWwindow GLFWwindow;
 typedef struct NVGcontext NVGcontext;

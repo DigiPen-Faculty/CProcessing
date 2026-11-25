@@ -130,7 +130,7 @@ void CP_Sound_Init(void)
 		// No usable audio device (e.g. a headless machine or CI runner).
 		// Sound becomes a silent no-op rather than taking the program down:
 		// every CP_Sound function checks for a NULL system.
-		printf("CProcessing: audio unavailable (%s), sound is disabled.\n", Soloud_getErrorString(_soloud_system, result));
+		CP_Warn("no sound device could be opened (%s), so sound is off for this run.", Soloud_getErrorString(_soloud_system, result));
 		Soloud_destroy(_soloud_system);
 		_soloud_system = NULL;
 		return;

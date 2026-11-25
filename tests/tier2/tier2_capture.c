@@ -52,6 +52,56 @@
 CP_Color tier2_snapshots[SCN_COUNT][TIER2_CANVAS_SIZE * TIER2_CANVAS_SIZE];
 Tier2Scalars tier2_scalars = { 0 };
 
+// CProcessing's messages go to stderr (DESIGN.md, "Messages"). BeginMessages
+// sends stderr to a file while calls that should print a message run, and
+// EndMessages adds what they printed to text, puts stderr back, and shows it
+// in the log too. It adds rather than replaces, because a scenario can run on
+// more than one frame, and a message printed once is only there the first
+// time. (The library and the tests share the C runtime, so this catches the
+// library's stderr.)
+static FILE* messageFile = NULL;
+static int messageSavedStderr = -1;
+
+static void BeginMessages(void)
+{
+	fflush(stderr);
+	messageFile = fopen("tier2_messages.txt", "w+");
+	if (messageFile)
+	{
+		messageSavedStderr = tier2_dup(tier2_fileno(stderr));
+		tier2_dup2(tier2_fileno(messageFile), tier2_fileno(stderr));
+	}
+}
+
+static void EndMessages(char* text, size_t size)
+{
+	if (!messageFile)
+	{
+		return;
+	}
+	fflush(stderr);
+	tier2_dup2(messageSavedStderr, tier2_fileno(stderr));
+	tier2_close(messageSavedStderr);
+	rewind(messageFile);
+	const size_t start = strlen(text);
+	const size_t length = fread(text + start, 1, size - 1 - start, messageFile);
+	text[start + length] = '\0';
+	fclose(messageFile);
+	messageFile = NULL;
+	remove("tier2_messages.txt");
+	fputs(text + start, stderr);
+}
+
+int tier2_CountText(const char* text, const char* part)
+{
+	int count = 0;
+	for (const char* at = strstr(text, part); at; at = strstr(at + 1, part))
+	{
+		++count;
+	}
+	return count;
+}
+
 #define WHITE CP_Color_Create(255, 255, 255, 255)
 #define BLACK CP_Color_Create(0, 0, 0, 255)
 #define RED   CP_Color_Create(255, 0, 0, 255)
@@ -2059,6 +2109,8 @@ static void StackA_Update(void)
 	switch (stackAFrame++)
 	{
 	case 0:
+		// The pops before the push were refused as this frame began
+		EndMessages(tier2_scalars.messagePopLast, sizeof(tier2_scalars.messagePopLast));
 		CP_Graphics_ClearBackground(CP_Color_Create(0, 0, 0, 128));
 		CP_Settings_NoStroke();
 		CP_Settings_Fill(CP_Color_Create(0, 255, 0, 255));
@@ -2096,7 +2148,11 @@ static void Scn_GameStateStack(void)
 {
 	CP_Graphics_ClearBackground(RED);
 	CP_Settings_Fill(kStackHarnessFill);
-	CP_Engine_PopGameState(); // only one state: ignored, with a message
+	// Only one state: both pops are refused when they're applied, as the next
+	// frame begins, with one message (StackA_Update's first frame reads it)
+	BeginMessages();
+	CP_Engine_PopGameState();
+	CP_Engine_PopGameState();
 	CP_Engine_PushGameState(StackA_Init, StackA_Update, StackA_Exit);
 	stackAwaitingResume = true;
 }
@@ -2246,7 +2302,9 @@ static void Scn_ImageDrawInto(void)
 	CP_Image_Free(&image);
 
 	CP_Image loaded = CP_Image_Load("assets/quadrants16.png");
+	BeginMessages();
 	CP_Image_BeginDrawing(loaded); // refused, with a message
+	EndMessages(tier2_scalars.messageDrawIntoLoaded, sizeof(tier2_scalars.messageDrawIntoLoaded));
 	tier2_scalars.drawIntoLoadedRefused = true;
 	CP_Image_EndDrawing(); // nothing to end: harmless
 	CP_Image_Free(&loaded);
@@ -2337,11 +2395,13 @@ static void Scn_ImageSave(void)
 
 	// Saves that must fail, each with a message, and without making a file
 	int refusals = 0;
+	BeginMessages();
 	refusals += !CP_Image_Save(NULL, "tier2_saved_null.png");
 	refusals += !CP_Image_Save(image, NULL);
 	refusals += !CP_Image_Save(image, "");
 	refusals += !CP_Image_Save(image, "tier2_saved.jpg");
 	refusals += !CP_Image_Save(image, "tier2_no_such_folder/saved.png");
+	EndMessages(tier2_scalars.messageSaveRefusals, sizeof(tier2_scalars.messageSaveRefusals));
 	tier2_scalars.saveRefusals = refusals;
 	tier2_scalars.saveRefusedLeftNoFile = !FileExists("tier2_saved.jpg") && !FileExists("tier2_saved_null.png");
 	CP_Image_Free(&image);
