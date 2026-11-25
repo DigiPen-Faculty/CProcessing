@@ -161,7 +161,7 @@ GOTO :init
 		FOR %%i in (assets\ CProcessing\) do (
 			XCOPY ".\templates\vs\%%i" ".\Releases\CProcessingTemplate\%%i" /s /y /q
 		)
-		FOR %%i in (main.c MyGame.sln MyGame.vcxproj README.md .editorconfig) do (
+		FOR %%i in (main.c gamestate_template.c gamestate_template.h MyGame.sln MyGame.vcxproj README.md .editorconfig) do (
 			XCOPY ".\templates\vs\%%i" ".\Releases\CProcessingTemplate\" /s /y /q
 		)
 		REM the example programs, as source to read and copy from

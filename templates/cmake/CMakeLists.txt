@@ -24,9 +24,12 @@ cmake_minimum_required(VERSION 3.20)
 project(MyGame C)
 
 # The game is every .c and .cpp file in this folder, so new files are built
-# without changing this one. To write the game in C++, rename main.c to
-# main.cpp (C++ is only turned on when there is a .cpp file).
+# without changing this one. The exception is gamestate_template.c: it is a
+# blank to copy and rename for each game state, not part of the game. To
+# write the game in C++, rename main.c to main.cpp (C++ is only turned on
+# when there is a .cpp file).
 file(GLOB GAME_SOURCES CONFIGURE_DEPENDS *.c *.cpp)
+list(FILTER GAME_SOURCES EXCLUDE REGEX "/gamestate_template[.]c$")
 if(GAME_SOURCES MATCHES "[.]cpp")
     enable_language(CXX)
 endif()

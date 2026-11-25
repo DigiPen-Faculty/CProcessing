@@ -64,6 +64,10 @@ jobs:
 
           cmp templates/vs/main.c templates/cmake/main.c ||
             { echo "::error::the two templates' main.c files differ; they should be the same"; exit 1; }
+          for f in gamestate_template.c gamestate_template.h; do
+            cmp "templates/vs/$f" "templates/cmake/$f" ||
+              { echo "::error::the two templates' $f files differ; they should be the same"; exit 1; }
+          done
           grep -q "archive/refs/tags/v$version.tar.gz" templates/cmake/CMakeLists.txt ||
             { echo "::error::templates/cmake/CMakeLists.txt doesn't download v$version"; exit 1; }
           grep -Eq "^## ${version//./\\.}( |$)" CHANGELOG.md ||

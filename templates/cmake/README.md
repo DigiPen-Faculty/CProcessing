@@ -9,7 +9,8 @@ Studio template instead (`CProcessingTemplate.zip` on the
 
 | File | What it is |
 |---|---|
-| `main.c` | Your game. Every `.c` and `.cpp` file in this folder is built into it. |
+| `main.c` | Your game. Every `.c` and `.cpp` file in this folder is built into it, except `gamestate_template.c`. |
+| `gamestate_template.c` and `.h` | A blank game state to copy and rename, for a game with a menu, levels and so on. It is built once you rename the copy. See "A game in many files" in the documentation. |
 | `assets/` | Images, sounds and fonts. Each build copies it next to the game. |
 | `CMakeLists.txt` | The build. Change `MyGame` in `project(MyGame C)` to rename the game. |
 | `CProcessing/` | The CProcessing library, already built. Only in the Linux and macOS release packages. |

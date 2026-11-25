@@ -488,6 +488,14 @@ Each change says what to do in an existing project.
   Visual Studio's debugger, it also appears in a message box. A load in an
   update function shows up with thousands of loads: load once, in an init
   function, and free in the exit function.
+- **A blank game state in both templates:** `gamestate_template.c` and
+  `gamestate_template.h`, next to `main.c`, are an empty init, update and
+  exit to copy and rename (`gamestate_menu.c` and `gamestate_menu.h`) for
+  each part of a game: the way to split a game into files. They are not in
+  the Visual Studio project (add a copy with **Add > Existing Item**), and
+  the CMake starter doesn't build `gamestate_template.c` itself; a renamed
+  copy is built like any other `.c` file. The wiki's "A game in many files"
+  page walks through it.
 
 ### Changed
 
