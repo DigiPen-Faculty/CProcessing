@@ -7,7 +7,7 @@ A starting point for a CProcessing game on Windows, with Visual Studio.
 | File | What it is |
 |---|---|
 | `main.c` | Your game. It starts as a small complete program: a circle that follows the mouse. |
-| `gamestate_template.c` and `.h` | A blank game state to copy and rename, for a game with a menu, levels and so on. They are not part of the project until you add a copy (**Add > Existing Item**). See "A game in many files" in the documentation. |
+| `gamestate_template.c` and `.h` | A blank game state to copy and rename, for a game with a menu, levels and so on. They are not part of the project until you add a copy (**Add > Existing Item**). See Project 6, "A game in many files", in the documentation. |
 | `assets/` | Images, sounds and fonts. Each build copies it next to the game. |
 | `MyGame.sln` | The Visual Studio solution. Open this. |
 | `MyGame.vcxproj` | The project: how `main.c` is built and linked with CProcessing. |

@@ -13,7 +13,8 @@
 //   4. Start it with CP_Engine_SetNextGameState(gamestate_menu_init,
 //      gamestate_menu_update, gamestate_menu_exit), after
 //      #include "gamestate_menu.h".
-// "A game in many files" in the documentation explains it step by step.
+// Project 6, "A game in many files", in the documentation explains it step
+// by step.
 //---------------------------------------------------------
 
 #pragma once

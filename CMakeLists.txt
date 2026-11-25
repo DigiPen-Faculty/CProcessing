@@ -280,8 +280,10 @@ if(CPROCESSING_BUILD_TESTS)
 endif()
 
 #------------------------------------------------------------------------------
-# Examples: one program per file in examples/, named Example_<file>, and one
-# per folder in examples/lessons/<folder>/main.c, named Lesson_<folder>
+# Examples: one program per file in examples/, named Example_<file>, one per
+# folder in examples/lessons/<folder>/main.c, named Lesson_<folder>, and one
+# per folder in examples/projects/<folder>, named Project_<folder>, from every
+# .c file in that folder (a project can be a game in many files)
 #------------------------------------------------------------------------------
 if(CPROCESSING_BUILD_EXAMPLES)
     file(GLOB EXAMPLE_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/examples/*.c")
@@ -307,6 +309,27 @@ if(CPROCESSING_BUILD_EXAMPLES)
         list(APPEND example_targets ${target})
     endforeach()
 
+    file(GLOB PROJECT_DIRS LIST_DIRECTORIES true CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/examples/projects/*")
+    set(PROJECT_SOURCES "")
+    foreach(project_dir ${PROJECT_DIRS})
+        if(NOT IS_DIRECTORY "${project_dir}")
+            continue()
+        endif()
+        get_filename_component(project_name "${project_dir}" NAME)
+        file(GLOB sources CONFIGURE_DEPENDS "${project_dir}/*.c")
+        set(target "Project_${project_name}")
+        add_executable(${target} ${sources})
+        target_link_libraries(${target} PRIVATE CProcessing)
+        if(UNIX AND NOT APPLE)
+            target_link_libraries(${target} PRIVATE m)
+        endif()
+        cprocessing_set_warnings(${target})
+        cprocessing_set_rpath(${target})
+        set_target_properties(${target} PROPERTIES FOLDER Examples)
+        list(APPEND example_targets ${target})
+        list(APPEND PROJECT_SOURCES ${sources})
+    endforeach()
+
     # The examples load the templates' assets. One copy into bin/assets
     # serves them all; it waits for the tests' copy into the same folder,
     # which would otherwise collide in a parallel build.
@@ -326,11 +349,11 @@ if(CPROCESSING_BUILD_EXAMPLES)
     endforeach()
 
     # Students often write their game in C++, starting from these files. So
-    # each example and lesson and the templates' main.c are also
+    # each example, lesson and project and the templates' main.c are also
     # compiled as C++ (not linked: one small file each, in the build folder,
     # includes the real one). A C-only habit in any of them, such as malloc
     # without a cast, fails the build here.
-    set(cxx_check_sources ${EXAMPLE_SOURCES} ${LESSON_SOURCES}
+    set(cxx_check_sources ${EXAMPLE_SOURCES} ${LESSON_SOURCES} ${PROJECT_SOURCES}
         "${CMAKE_CURRENT_SOURCE_DIR}/templates/vs/main.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/templates/cmake/main.c")
     set(cxx_wrappers "")
