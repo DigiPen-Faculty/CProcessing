@@ -31,15 +31,27 @@ Lessons 2 and 4 to 11 were written before lessons 1 and 3 had been tried with st
 
 ## Trying the pilot with students
 
-Before writing the other lessons, run lessons 1 and 3 with a class, a TA or a few students, and watch rather than help. Notes to collect:
+All 11 lessons are written, but only as drafts: run them with a class, a TA or a few students, starting with lessons 1 and 3, and watch rather than help. Before a release, give them the template package (`tools\build_release_package.bat -r all -c -z`, from a Developer Command Prompt) and an offline build of the draft wiki plus these pages (`docs/offline/build.ps1 -WikiSource` on a copy of the wiki's draft branch with the lessons added). Notes to collect for each lesson:
 
 * **Time:** how long did each lesson take against the estimate?
 * **Where people got stuck:** which step, and what did they try?
+* **Errors:** every compiler error, warning and crash, with the exact text, and how they got past it.
+* **Silent failures:** times nothing happened and nothing said why (a blank window, a picture or sound that didn't appear). These are candidates for CProcessing's own warnings.
 * **The "Try it" prompts:** which were skipped, which were loved, which confused?
 * **Check-yourself questions:** could students answer them without scrolling back?
 * **Challenges:** which did they pick? Were any too big or too small?
-* **The color picker:** did it help with step 3, or did people play with it and skip the text?
+* **Words:** terms that needed more explanation (delta time, handle, `NULL`, `snprintf`, degrees and radians).
+* **"I wanted to..." moments:** things they tried that the lesson or the library didn't cover.
+* **Verdict:** keep, tweak or rework, and the one change that would help most.
+
+And once for the whole pilot:
+
+* **Setup:** from download to the first window, what went wrong and how long did it take?
+* **Getting around:** which other pages and examples did they open, and were the links from lessons to examples used?
+* **Reading:** did they read the explanations or skim to the code? Did they type the code or paste it?
+* **The color picker:** did it help with lesson 3, or did people play with it and skip the text?
 * **Tone and level:** right for high school? For first-semester college?
+* **From a TA or another expert:** their own snags, and where they expect a first-semester student would get stuck.
 
 Put what you learn here, under a heading with the date and the group, so the later lessons can use it.
 
