@@ -11,7 +11,8 @@
 #   tools/make_starter_package.sh build/bin/libCProcessing.so CProcessingTemplate-linux-x64.zip
 #
 # The zip holds one folder, CProcessingTemplate/:
-#   CMakeLists.txt, main.c, README.md, .vscode/   the starter project
+#   CMakeLists.txt, main.c, README.md, .vscode/,
+#   .editorconfig                                 the starter project
 #   assets/                                       the template's sample assets
 #   examples/                                     the example programs (source)
 #   CProcessing/inc/cprocessing*.h                the public headers

@@ -1,10 +1,12 @@
 # The house style, for any editor (Visual Studio, VS Code, CLion all read this).
-# It only says how to indent and which line endings a file uses; it doesn't
-# change a file by itself, and it doesn't touch the vendored code (NanoVG,
-# GLAD, SoLoud, GLFW, Unity), which keeps its upstream style.
+# It only says how to indent, which line endings a file uses and that C files
+# are UTF-8 (MSVC compiles with /utf-8); it doesn't change a file by itself,
+# and it doesn't touch the vendored code (NanoVG, GLAD, SoLoud, GLFW,
+# Unity), which keeps its upstream style.
 root = true
 
 [*.{c,h,cpp,hpp}]
+charset = utf-8
 indent_style = tab
 indent_size = 4
 tab_width = 4
