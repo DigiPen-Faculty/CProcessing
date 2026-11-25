@@ -31,9 +31,27 @@
 // Private Functions:
 //------------------------------------------------------------------------------
 
-static bool isValidPositionMode(CP_POSITION_MODE mode)
+// A value that isn't one of the function's modes (a number, or another
+// setting's name) is ignored, with a message once per function
+static bool isValidPositionMode(CP_POSITION_MODE mode, const char* function)
 {
-	return (mode == CP_POSITION_CENTER || mode == CP_POSITION_CORNER);
+	if (mode == CP_POSITION_CENTER || mode == CP_POSITION_CORNER)
+	{
+		return true;
+	}
+	if (CP_Message_FirstTimeFor("not a mode", function))
+	{
+		CP_Warn("%s was given %d, which isn't a position mode, so it was ignored. Use CP_POSITION_CENTER or CP_POSITION_CORNER.", function, (int)mode);
+	}
+	return false;
+}
+
+static void CP_Settings_WarnNotAMode(const char* function, int value, const char* modes)
+{
+	if (CP_Message_FirstTimeFor("not a mode", function))
+	{
+		CP_Warn("%s was given %d, which isn't one of its modes, so it was ignored. Use %s.", function, value, modes);
+	}
 }
 
 static NVGcolor CP_ToNVGColor(CP_Color c)
@@ -215,11 +233,15 @@ static void CP_Settings_FillGradient(CP_FILL_KIND kind, float a, float b, float 
 
 CP_API void CP_Settings_FillLinearGradient(float x1, float y1, CP_Color color1, float x2, float y2, CP_Color color2)
 {
+	if (!CP_CHECK_FINITE(x1, y1, x2, y2))
+		return;
 	CP_Settings_FillGradient(CP_FILL_LINEAR_GRADIENT, x1, y1, x2, y2, color1, color2);
 }
 
 CP_API void CP_Settings_FillRadialGradient(float x, float y, float innerDiameter, CP_Color innerColor, float outerDiameter, CP_Color outerColor)
 {
+	if (!CP_CHECK_FINITE(x, y, innerDiameter, outerDiameter))
+		return;
 	CP_Settings_FillGradient(CP_FILL_RADIAL_GRADIENT, x, y, innerDiameter, outerDiameter, innerColor, outerColor);
 }
 
@@ -227,6 +249,8 @@ CP_API void CP_Settings_FillRadialGradient(float x, float y, float innerDiameter
 // NULL image fills nothing, like CP_Image_Draw draws nothing.
 CP_API void CP_Settings_FillImage(CP_Image img, float x, float y, float w, float h, int alpha)
 {
+	if (!CP_CHECK_FINITE(x, y, w, h))
+		return;
 	CP_DrawInfoPtr DI = GetDrawInfo();
 	CP_Settings_FillPoints(CP_FILL_IMAGE, x, y, w, h);
 	DI->fill_image = img ? img->handle : 0;
@@ -256,6 +280,8 @@ CP_API void CP_Settings_NoStroke(void)
 CP_API void CP_Settings_StrokeWeight(float weight)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
+	if (!CP_CHECK_FINITE(weight))
+		return;
 	GetDrawInfo()->stroke_weight = weight;
 	if (vg)
 		nvgStrokeWidth(vg, weight);
@@ -293,6 +319,10 @@ CP_API void CP_Settings_LineCapMode(CP_LINE_CAP_MODE capMode)
 		if (vg)
 			nvgLineCap(vg, capMode);
 	}
+	else
+	{
+		CP_Settings_WarnNotAMode(__func__, (int)capMode, "CP_LINE_CAP_BUTT, CP_LINE_CAP_ROUND or CP_LINE_CAP_SQUARE");
+	}
 }
 
 CP_API void CP_Settings_LineJointMode(CP_LINE_JOINT_MODE jointMode)
@@ -306,23 +336,27 @@ CP_API void CP_Settings_LineJointMode(CP_LINE_JOINT_MODE jointMode)
 		if (vg)
 			nvgLineJoin(vg, jointMode);
 	}
+	else
+	{
+		CP_Settings_WarnNotAMode(__func__, (int)jointMode, "CP_LINE_JOINT_ROUND, CP_LINE_JOINT_BEVEL or CP_LINE_JOINT_MITER");
+	}
 }
 
 CP_API void CP_Settings_RectMode(CP_POSITION_MODE mode)
 {
-	if (isValidPositionMode(mode))
+	if (isValidPositionMode(mode, __func__))
 		GetDrawInfo()->rect_mode = mode;
 }
 
 CP_API void CP_Settings_EllipseMode(CP_POSITION_MODE mode)
 {
-	if (isValidPositionMode(mode))
+	if (isValidPositionMode(mode, __func__))
 		GetDrawInfo()->ellipse_mode = mode;
 }
 
 CP_API void CP_Settings_ImageMode(CP_POSITION_MODE mode)
 {
-	if (isValidPositionMode(mode))
+	if (isValidPositionMode(mode, __func__))
 		GetDrawInfo()->image_mode = mode;
 }
 
@@ -332,6 +366,10 @@ CP_API void CP_Settings_BlendMode(CP_BLEND_MODE blendMode)
 	const int nvgBlend = CP_ToNVGBlend(blendMode);
 
 	// An unknown mode means the usual alpha blending, as it always has
+	if (nvgBlend == NVG_BLEND_ALPHA && blendMode != CP_BLEND_ALPHA && CP_Message_FirstTimeFor("not a mode", __func__))
+	{
+		CP_Warn("%s was given %d, which isn't a blend mode, so CP_BLEND_ALPHA is used. Use one of the CP_BLEND_ names.", __func__, (int)blendMode);
+	}
 	GetDrawInfo()->blend_mode = nvgBlend == NVG_BLEND_ALPHA ? CP_BLEND_ALPHA : blendMode;
 	if (vg)
 		nvgGlobalCompositeOperation(vg, nvgBlend);
@@ -347,6 +385,10 @@ CP_API void CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_MODE filterMode)
 		if (vg)
 			nvgTextureFilter(vg, filterMode);
 	}
+	else
+	{
+		CP_Settings_WarnNotAMode(__func__, (int)filterMode, "CP_IMAGE_FILTER_NEAREST or CP_IMAGE_FILTER_LINEAR");
+	}
 }
 
 CP_API void CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_MODE wrapMode)
@@ -361,11 +403,17 @@ CP_API void CP_Settings_ImageWrapMode(CP_IMAGE_WRAP_MODE wrapMode)
 		if (vg)
 			nvgTextureWrap(vg, wrapMode);
 	}
+	else
+	{
+		CP_Settings_WarnNotAMode(__func__, (int)wrapMode, "CP_IMAGE_WRAP_CLAMP, CP_IMAGE_WRAP_CLAMP_EDGE, CP_IMAGE_WRAP_REPEAT or CP_IMAGE_WRAP_MIRROR");
+	}
 }
 
 CP_API void CP_Settings_TextSize(float size)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
+	if (!CP_CHECK_FINITE(size))
+		return;
 	GetDrawInfo()->text_size = size;
 	if (vg)
 		nvgFontSize(vg, size);
@@ -397,6 +445,8 @@ CP_API void CP_Settings_TextBlur(float blur)
 CP_API void CP_Settings_TextLetterSpacing(float spacing)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
+	if (!CP_CHECK_FINITE(spacing))
+		return;
 	GetDrawInfo()->text_letter_spacing = spacing;
 	if (vg)
 		nvgTextLetterSpacing(vg, spacing);
@@ -404,14 +454,17 @@ CP_API void CP_Settings_TextLetterSpacing(float spacing)
 
 CP_API void CP_Settings_TextLineSpacing(float spacing)
 {
+	if (!CP_CHECK_FINITE(spacing))
+		return;
 	GetDrawInfo()->text_line_spacing = spacing;
 }
 
 CP_API void CP_Settings_Scale(float xScale, float yScale)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
-	if (!vg)
-		return; // transforms are reset every frame; nothing to do yet
+	// transforms are reset every frame, so before CP_Engine_Run they do nothing
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(xScale, yScale))
+		return;
 
 	nvgScale(vg, xScale, yScale);
 
@@ -422,7 +475,7 @@ CP_API void CP_Settings_Scale(float xScale, float yScale)
 CP_API void CP_Settings_Rotate(float degrees)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
-	if (!vg)
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(degrees))
 		return;
 
 	nvgRotate(vg, CP_Math_Radians(degrees));
@@ -434,7 +487,7 @@ CP_API void CP_Settings_Rotate(float degrees)
 CP_API void CP_Settings_Translate(float x, float y)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
-	if (!vg)
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x, y))
 		return;
 
 	nvgTranslate(vg, x, y);
@@ -446,7 +499,7 @@ CP_API void CP_Settings_Translate(float x, float y)
 CP_API void CP_Settings_ApplyMatrix(CP_Matrix matrix)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
-	if (!vg)
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(matrix.m00, matrix.m01, matrix.m02, matrix.m10, matrix.m11, matrix.m12))
 		return;
 
 	nvgTransform(vg, matrix.m00, matrix.m10, matrix.m01, matrix.m11, matrix.m02, matrix.m12);
@@ -476,8 +529,9 @@ CP_API void CP_Settings_ResetMatrix(void)
 CP_API void CP_Settings_Clip(float x, float y, float w, float h)
 {
 	NVGcontext* vg = GetCPCore()->nvg;
-	if (!vg)
-		return; // no frame yet, and the clip would end with the first one
+	// no frame yet, and the clip would end with the first one
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x, y, w, h))
+		return;
 
 	if (GetDrawInfo()->rect_mode == CP_POSITION_CENTER)
 	{
@@ -553,10 +607,12 @@ CP_API void CP_Settings_Restore(void)
 	if (!CORE->nvg)
 		return;
 
-	nvgRestore(CORE->nvg);
-
 	// also restore the DrawInfo details
 	if (CORE->nstates <= 1)
+	{
+		CP_WARN_ONCE("CP_Settings_Restore was called without a CP_Settings_Save before it, so it was ignored. Each Restore goes with one Save, earlier in the same frame.");
 		return;
+	}
+	nvgRestore(CORE->nvg);
 	CORE->nstates--;
 }

@@ -153,6 +153,9 @@ typedef enum
 	SCN_PERSIST_NEXT_FRAME,
 	SCN_SCREENSHOT_SUBREGION,
 	SCN_ERROR_PATHS,
+	// these two must stay consecutive: the first leaves a Save open
+	SCN_DRAWING_MESSAGES,
+	SCN_DRAWING_MESSAGES_NEXT_FRAME,
 	SCN_SYSTEM_WINDOW_SETTINGS,
 	SCN_ASSETS_NEXT_TO_PROGRAM,
 	SCN_COUNT
@@ -424,6 +427,11 @@ typedef struct
 	char messageErrorPaths[4096];    // Scn_ErrorPaths: missing and unreadable files, NULL handles
 	char messageLoadedOften[1024];   // Scn_ErrorPaths: one image loaded 1001 times
 	bool loadsBeforeRunAreNull;
+	char messageDrawBeforeRun[2048]; // draws and a transform in tier2_RunCaptureOnce
+	char messageDrawing[4096];       // Scn_DrawingMessages
+	char messageSaveOpen[1024];      // the end of Scn_DrawingMessages's frame
+	bool drawingZeroSizeImageIsNull;
+	float drawingStrokeWeightKept;
 	bool unreadableFilesAreNull;
 	bool errorPathsSoundAvailable;
 } Tier2Scalars;

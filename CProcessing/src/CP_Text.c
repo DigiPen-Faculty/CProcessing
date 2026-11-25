@@ -280,8 +280,13 @@ CP_API void CP_Font_DrawText(const char* text, float x, float y)
 {
 	CP_CorePtr CORE = GetCPCore();
 
-	if (!CORE || !CORE->nvg)
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x, y))
 	{
+		return;
+	}
+	if (!text)
+	{
+		CP_WARN_ONCE("CP_Font_DrawText was given no text (NULL), so it drew nothing.");
 		return;
 	}
 
@@ -303,8 +308,13 @@ CP_API void CP_Font_DrawTextBox(const char* text, float x, float y, float rowWid
 {
 	CP_CorePtr CORE = GetCPCore();
 
-	if (!CORE || !CORE->nvg)
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x, y, rowWidth))
 	{
+		return;
+	}
+	if (!text)
+	{
+		CP_WARN_ONCE("CP_Font_DrawTextBox was given no text (NULL), so it drew nothing.");
 		return;
 	}
 

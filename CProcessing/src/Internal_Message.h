@@ -52,6 +52,15 @@ void CP_Warn(const char* format, ...) CP_PRINTF_FORMAT(1, 2);
 // failed names each file that couldn't be loaded, once)
 bool CP_Message_FirstTimeFor(const char* what, const char* name);
 
+// True if every number is finite. If one is NaN or infinite (usually from a
+// division by zero), says which, once per function, and gives false: the
+// call is then ignored, since NanoVG would draw nothing, or after a
+// transform, nothing more that frame. names is the numbers' names, with
+// commas between them, as CP_CHECK_FINITE writes them.
+bool CP_Message_CheckFinite(const char* function, const char* names, const float* values, int count);
+#define CP_CHECK_FINITE(...) \
+	CP_Message_CheckFinite(__func__, #__VA_ARGS__, (const float[]){ __VA_ARGS__ }, (int)(sizeof((const float[]){ __VA_ARGS__ }) / sizeof(float)))
+
 // Writes text that is already a whole message (with its "CProcessing: " and
 // its line breaks) where CP_Warn writes
 void CP_Message_Write(const char* text);

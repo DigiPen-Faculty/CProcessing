@@ -39,9 +39,6 @@ static void CP_Graphics_DrawRectInternal(float x, float y, float w, float h, flo
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
-
 	// make sure corner radius isn't negative
 	cornerRadius = cornerRadius < 0 ? 0 : cornerRadius;
 
@@ -86,8 +83,8 @@ CP_API void CP_Graphics_ClearBackground(CP_Color c)
 {
 	CP_CorePtr CORE = GetCPCore();
 
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
+	if (!CP_CAN_DRAW())
+		return;
 
 	// Set the background color
 	nvgCancelFrame(CORE->nvg); // also wipe any prior render calls this frame
@@ -110,8 +107,8 @@ CP_API void CP_Graphics_DrawPoint(float x, float y)
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x, y))
+		return;
 
 	// A point follows the line settings, like CP_Graphics_DrawLine: the
 	// stroke color, the stroke weight as its size, and the line cap as its
@@ -142,8 +139,8 @@ CP_API void CP_Graphics_DrawLine(float x1, float y1, float x2, float y2)
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x1, y1, x2, y2))
+		return;
 
 	// Line stroke
 	if (DI->stroke)
@@ -157,6 +154,8 @@ CP_API void CP_Graphics_DrawLine(float x1, float y1, float x2, float y2)
 
 CP_API void CP_Graphics_DrawRect(float x, float y, float w, float h)
 {
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x, y, w, h))
+		return;
 	CP_Graphics_DrawRectInternal(x, y, w, h, 0);
 }
 
@@ -164,11 +163,15 @@ CP_API void CP_Graphics_DrawRect(float x, float y, float w, float h)
 // radius is capped by NanoVG at half the shorter side (a circle's worth)
 CP_API void CP_Graphics_DrawRoundedRect(float x, float y, float w, float h, float cornerRadius)
 {
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x, y, w, h, cornerRadius))
+		return;
 	CP_Graphics_DrawRectInternal(x, y, w, h, cornerRadius);
 }
 
 CP_API void CP_Graphics_DrawCircle(float x, float y, float diameter)
 {
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x, y, diameter))
+		return;
 	CP_Graphics_DrawEllipse(x, y, diameter, diameter);
 }
 
@@ -177,8 +180,8 @@ CP_API void CP_Graphics_DrawEllipse(float x, float y, float w, float h)
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x, y, w, h))
+		return;
 
 	// nanoVG wants a radius
 	float rw = w * 0.5f;
@@ -241,8 +244,8 @@ CP_API void CP_Graphics_DrawArc(float x, float y, float diameter, float startDeg
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x, y, diameter, startDegrees, sweepDegrees))
+		return;
 
 	// Just the curved line, like DrawLine: it has no fill
 	if (DI->stroke)
@@ -257,8 +260,8 @@ CP_API void CP_Graphics_DrawPie(float x, float y, float diameter, float startDeg
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x, y, diameter, startDegrees, sweepDegrees))
+		return;
 
 	ArcPath(CORE, DI, x, y, diameter, startDegrees, sweepDegrees, true);
 	if (DI->fill)
@@ -276,8 +279,8 @@ CP_API void CP_Graphics_DrawBezier(float x1, float y1, float controlX1, float co
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x1, y1, controlX1, controlY1, controlX2, controlY2, x2, y2))
+		return;
 
 	// A curve is a line: stroke only, no fill
 	if (DI->stroke)
@@ -294,8 +297,8 @@ CP_API void CP_Graphics_DrawTriangle(float x1, float y1, float x2, float y2, flo
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x1, y1, x2, y2, x3, y3))
+		return;
 
 	// Triangle path
 	nvgBeginPath(CORE->nvg);
@@ -327,8 +330,8 @@ CP_API void CP_Graphics_DrawQuad(float x1, float y1, float x2, float y2, float x
 	CP_CorePtr CORE = GetCPCore();
 	CP_DrawInfoPtr DI = GetDrawInfo();
 
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
+	if (!CP_CAN_DRAW() || !CP_CHECK_FINITE(x1, y1, x2, y2, x3, y3, x4, y4))
+		return;
 
 	// Quad path
 	nvgBeginPath(CORE->nvg);
@@ -352,8 +355,8 @@ CP_API void CP_Graphics_BeginShape(void)
 {
 	CP_CorePtr CORE = GetCPCore();
 
-	if (!CORE->nvg)
-		return; // no window yet: CP_Engine_Run hasn't started
+	if (!CP_CAN_DRAW())
+		return;
 	nvgBeginPath(CORE->nvg);
 	inShape = true;
 	inHole = false;
@@ -399,7 +402,7 @@ static void CP_Graphics_StartPart(float x, float y)
 
 CP_API void CP_Graphics_AddVertex(float x, float y)
 {
-	if (!CP_Graphics_CanAddPoint("CP_Graphics_AddVertex"))
+	if (!CP_Graphics_CanAddPoint("CP_Graphics_AddVertex") || !CP_CHECK_FINITE(x, y))
 		return;
 
 	if (firstVertex)
@@ -416,7 +419,7 @@ CP_API void CP_Graphics_AddVertex(float x, float y)
 // As the first point of a part, there's no last point: it starts there.
 CP_API void CP_Graphics_AddQuadraticVertex(float controlX, float controlY, float x, float y)
 {
-	if (!CP_Graphics_CanAddPoint("CP_Graphics_AddQuadraticVertex"))
+	if (!CP_Graphics_CanAddPoint("CP_Graphics_AddQuadraticVertex") || !CP_CHECK_FINITE(controlX, controlY, x, y))
 		return;
 
 	if (firstVertex)
@@ -433,7 +436,7 @@ CP_API void CP_Graphics_AddQuadraticVertex(float controlX, float controlY, float
 // leaves toward the first control point and arrives from the second
 CP_API void CP_Graphics_AddBezierVertex(float controlX1, float controlY1, float controlX2, float controlY2, float x, float y)
 {
-	if (!CP_Graphics_CanAddPoint("CP_Graphics_AddBezierVertex"))
+	if (!CP_Graphics_CanAddPoint("CP_Graphics_AddBezierVertex") || !CP_CHECK_FINITE(controlX1, controlY1, controlX2, controlY2, x, y))
 		return;
 
 	if (firstVertex)

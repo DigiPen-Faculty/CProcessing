@@ -11,6 +11,7 @@
 
 #include "Internal_Message.h"
 #include "Internal_Platform.h"
+#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -78,6 +79,41 @@ bool CP_Message_FirstTimeFor(const char* what, const char* name)
 		return false;
 	}
 	seen[count++] = hash;
+	return true;
+}
+
+bool CP_Message_CheckFinite(const char* function, const char* names, const float* values, int count)
+{
+	for (int i = 0; i < count; ++i)
+	{
+		if (isfinite(values[i]))
+		{
+			continue;
+		}
+		if (CP_Message_FirstTimeFor("not finite", function))
+		{
+			// the i-th name in "x, y, w, h"
+			const char* name = names;
+			for (int skip = i; skip > 0 && name; --skip)
+			{
+				name = strchr(name, ',');
+				name = name ? name + 1 : NULL;
+			}
+			name = name ? name : "?";
+			while (*name == ' ')
+			{
+				++name;
+			}
+			int length = 0;
+			while (name[length] && name[length] != ',')
+			{
+				++length;
+			}
+			CP_Warn("%s's %.*s %s, so the call was ignored. That usually comes from a division by zero: print the numbers it's made from to find it.",
+				function, length, name, isnan(values[i]) ? "isn't a number (NaN)" : "is infinite");
+		}
+		return false;
+	}
 	return true;
 }
 

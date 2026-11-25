@@ -2702,6 +2702,52 @@ static void Scn_AssetsNextToProgram(void)
 	CP_Sound_Free(&sound);
 }
 
+// ---- Messages about drawing and settings (DESIGN.md, "Messages") ----
+// A NaN or infinite number is ignored and said once per function (a NaN
+// translate would otherwise stop everything after it from drawing), as are
+// a mode that isn't a mode, an image of size 0, a Restore without a Save and
+// text that is NULL. The square drawn last, after the NaN translate, must
+// still be in the middle. Last, a Save is left open, so the end of the frame
+// says so; the next scenario reads that and closes it.
+static void Scn_DrawingMessages(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+	volatile float zero = 0.0f; // volatile: worked out when the test runs
+	const float notANumber = zero / zero;
+	const float infinite = 1.0f / zero;
+
+	BeginMessages();
+	CP_Graphics_DrawRect(100, notANumber, 50, 50);
+	CP_Graphics_DrawRect(100, notANumber, 50, 50); // said once
+	CP_Graphics_DrawCircle(infinite, 100, 20);
+	CP_Settings_Translate(notANumber, 0.0f);
+	CP_Settings_StrokeWeight(notANumber);
+	CP_Settings_RectMode((CP_POSITION_MODE)7);
+	CP_Settings_LineCapMode((CP_LINE_CAP_MODE)99);
+	CP_Settings_BlendMode((CP_BLEND_MODE)99);
+	CP_Settings_BlendMode(CP_BLEND_ALPHA); // a real mode: nothing to say
+	CP_Image zeroSize = CP_Image_Create(0, 10);
+	CP_Settings_Restore(); // no Save before it
+	CP_Font_DrawText(NULL, 10, 10);
+	EndMessages(tier2_scalars.messageDrawing, sizeof(tier2_scalars.messageDrawing));
+
+	tier2_scalars.drawingZeroSizeImageIsNull = zeroSize == NULL;
+	tier2_scalars.drawingStrokeWeightKept = CP_Settings_GetStrokeWeight();
+	CP_Settings_NoStroke();
+	CP_Settings_Fill(BLUE);
+	CP_Graphics_DrawRect(100, 100, 40, 40); // CENTER, from ResetToBaseline
+
+	CP_Settings_Save(); // no Restore this frame
+	BeginMessages();
+}
+
+static void Scn_DrawingMessagesNextFrame(void)
+{
+	EndMessages(tier2_scalars.messageSaveOpen, sizeof(tier2_scalars.messageSaveOpen));
+	CP_Settings_Restore();
+	CP_Graphics_ClearBackground(WHITE);
+}
+
 typedef void (*ScenarioFunc)(void);
 
 static const ScenarioFunc kScenarios[SCN_COUNT] = {
@@ -2817,6 +2863,8 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
 	[SCN_PERSIST_NEXT_FRAME] = Scn_PersistNextFrame,
 	[SCN_SCREENSHOT_SUBREGION] = Scn_ScreenshotSubregion,
 	[SCN_ERROR_PATHS] = Scn_ErrorPaths,
+	[SCN_DRAWING_MESSAGES] = Scn_DrawingMessages,
+	[SCN_DRAWING_MESSAGES_NEXT_FRAME] = Scn_DrawingMessagesNextFrame,
 	[SCN_SYSTEM_WINDOW_SETTINGS] = Scn_SystemWindowSettings,
 	[SCN_ASSETS_NEXT_TO_PROGRAM] = Scn_AssetsNextToProgram,
 };
@@ -2974,6 +3022,8 @@ void tier2_RunCaptureOnce(void)
 	CP_Settings_Fill(CP_Color_Create(12, 200, 34, 255));
 	tier2_scalars.fillBeforeRun = CP_Settings_GetFill();
 	CP_Settings_RectMode(CP_POSITION_CORNER);
+	// (drawing and transforms say they did nothing, once each)
+	BeginMessages();
 	CP_Settings_Translate(30.0f, 30.0f);
 	CP_Settings_Rotate(45.0f);
 	CP_Settings_Save();
@@ -2985,6 +3035,7 @@ void tier2_RunCaptureOnce(void)
 	CP_Graphics_AddVertex(0.0f, 0.0f);
 	CP_Graphics_AddVertex(10.0f, 0.0f);
 	CP_Graphics_EndShape();
+	EndMessages(tier2_scalars.messageDrawBeforeRun, sizeof(tier2_scalars.messageDrawBeforeRun));
 
 	// Loading before the window exists loads nothing, and says so once for
 	// each function

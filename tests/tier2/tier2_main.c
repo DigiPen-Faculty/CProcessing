@@ -245,6 +245,10 @@ int main(void)
 	RUN_TEST(test_tier2_failed_loads_say_why_once_per_file);
 	RUN_TEST(test_tier2_null_handles_say_so_once);
 	RUN_TEST(test_tier2_a_file_loaded_1000_times_says_so);
+	RUN_TEST(test_tier2_drawing_before_run_says_so);
+	RUN_TEST(test_tier2_nan_numbers_are_ignored_and_said);
+	RUN_TEST(test_tier2_settings_mistakes_are_said);
+	RUN_TEST(test_tier2_a_save_left_open_is_said_at_the_end_of_the_frame);
 	RUN_TEST(test_tier2_window_handle_is_available);
 	RUN_TEST(test_tier2_assets_load_from_next_to_the_program);
 
