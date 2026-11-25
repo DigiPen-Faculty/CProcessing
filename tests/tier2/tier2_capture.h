@@ -156,6 +156,9 @@ typedef enum
 	// these two must stay consecutive: the first leaves a Save open
 	SCN_DRAWING_MESSAGES,
 	SCN_DRAWING_MESSAGES_NEXT_FRAME,
+	// and these: the first asks for the state already running
+	SCN_INPUT_MESSAGES,
+	SCN_INPUT_MESSAGES_NEXT_FRAME,
 	SCN_SYSTEM_WINDOW_SETTINGS,
 	SCN_ASSETS_NEXT_TO_PROGRAM,
 	SCN_COUNT
@@ -432,6 +435,11 @@ typedef struct
 	char messageSaveOpen[1024];      // the end of Scn_DrawingMessages's frame
 	bool drawingZeroSizeImageIsNull;
 	float drawingStrokeWeightKept;
+	char messageInput[2048];          // Scn_InputMessages: keys and buttons that aren't
+	char messageGamepadPastLast[512]; // GamepadConnectedAdvanced(CP_MAX_GAMEPADS)
+	char messageSameState[512];       // the harness asking for its own state
+	bool inputMistakesAllFalse;
+	bool sameStateAsked;
 	bool unreadableFilesAreNull;
 	bool errorPathsSoundAvailable;
 } Tier2Scalars;

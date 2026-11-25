@@ -258,7 +258,7 @@ Three things to try, each one a thing that goes wrong:
 
 > **Try it:** delete the `void game_exit(void);` line at the top and build. The message says `'game_exit': undeclared identifier`, because `game_update` names `game_exit` before the computer has seen it. That is the same problem as in [Project 4](Project-04-Drawing-with-Functions), and the prototype is one of the two ways out. What is the other one? Put the line back.
 >
-> Change `CP_Engine_SetNextGameStateForced` to `CP_Engine_SetNextGameState`. Click Restart. Nothing happens: asking for the state you are already in does nothing, and `Forced` is the one that leaves it and enters it again.
+> Change `CP_Engine_SetNextGameStateForced` to `CP_Engine_SetNextGameState`. Click Restart. Nothing happens: asking for the state you are already in does nothing, and `Forced` is the one that leaves it and enters it again. CProcessing also prints a message saying so ([Messages from CProcessing](Debugging#messages-from-cprocessing)).
 >
 > In `game_init`, delete the `score = 0;` line and give the variable its start up top instead: `int score = 0;`. Score a few points, then click Restart. The score stays. A start written where the variable is made happens **once**, when the program starts. A start written in `game_init` happens **every time the state starts**, which is what a restart needs. Put it back.
 

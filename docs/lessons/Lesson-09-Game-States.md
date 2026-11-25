@@ -149,7 +149,7 @@ R in the game starts over. You'd think this would work:
 CP_Engine_SetNextGameState(play_init, play_update, play_exit);
 ```
 
-but the state we want is the one **we're already in**, so CProcessing sees that nothing is changing and does nothing. The **Forced** version does it anyway, running `play_exit` and `play_init`:
+but the state we want is the one **we're already in**, so CProcessing sees that nothing is changing and does nothing (and prints a message pointing to the Forced version). The **Forced** version does it anyway, running `play_exit` and `play_init`:
 
 ```C
 CP_Engine_SetNextGameStateForced(play_init, play_update, play_exit);

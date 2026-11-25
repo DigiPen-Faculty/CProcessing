@@ -9,6 +9,7 @@
 
 #include "cprocessing.h"
 #include "Internal_Random.h"
+#include "Internal_Message.h"
 #include <stdint.h>
 #include <math.h>
 #include <time.h>
@@ -116,6 +117,12 @@ CP_API float CP_Random_RangeFloat(float lowerBound, float upperBound)
 
 CP_API void CP_Random_Seed(int seed)
 {
+	static CP_SeedWatch watch = CP_SEED_WATCH_START;
+	if (CP_Random_WatchSeed(&watch, (int)CP_System_GetFrameCount(), seed))
+	{
+		CP_Warn("CP_Random_Seed is called on every frame, with a seed that changes only now and then (the time?), so the random numbers are the same until it changes. Seed once, in an init function, or not at all: CProcessing seeds itself from the clock.");
+	}
+
 	// SplitMix64 turns the seed into the generator's state without the C
 	// runtime's srand and rand, whose numbers differ between compilers and
 	// operating systems (and which a program may be using for itself). The

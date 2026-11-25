@@ -195,5 +195,7 @@ void test_tier2_drawing_before_run_says_so(void);
 void test_tier2_nan_numbers_are_ignored_and_said(void);
 void test_tier2_settings_mistakes_are_said(void);
 void test_tier2_a_save_left_open_is_said_at_the_end_of_the_frame(void);
+void test_tier2_keys_and_buttons_that_arent_say_so(void);
+void test_tier2_setting_the_running_state_says_to_use_forced(void);
 void test_tier2_window_handle_is_available(void);
 void test_tier2_assets_load_from_next_to_the_program(void);

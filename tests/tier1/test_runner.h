@@ -194,6 +194,7 @@ void test_random_rangeint_across_zero_reaches_both_ends_and_both_signs(void);
 void test_random_rangeint_swaps_reversed_negative_bounds(void);
 void test_random_rangeint_the_extremes_return_the_value(void);
 void test_random_rangeint_full_signed_range_is_about_half_negative(void);
+void test_random_seed_watch_tells_time_seeds_every_frame_once(void);
 
 // test_internal_platform.c -- Tier 1: portability helpers (Internal_Platform.h).
 void test_platform_stringcopy_copies_short_string(void);

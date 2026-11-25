@@ -412,6 +412,68 @@ bool CP_Input_IsValidGamepadIndex(unsigned index)
 	return index < CP_MAX_GAMEPADS;
 }
 
+// A key, button or gamepad number that isn't one gives false (or nothing),
+// with a message once per function (DESIGN.md, "Messages")
+static bool CP_Input_KeyIsValidFor(CP_KEY key, const char* function)
+{
+	// CP_KEY_NONE is never down, so a key setting not chosen yet is fine
+	if (CP_Input_IsValidKey(key) || key == CP_KEY_NONE)
+	{
+		return CP_Input_IsValidKey(key);
+	}
+	if (CP_Message_FirstTimeFor("not a key", function))
+	{
+		if (key >= 'a' && key <= 'z')
+		{
+			CP_Warn("%s was given '%c' (%d), which isn't a key, so it gave false. A letter key is named by its capital: use CP_KEY_%c.", function, (char)key, (int)key, (char)(key - 'a' + 'A'));
+		}
+		else
+		{
+			CP_Warn("%s was given %d, which isn't a key, so it gave false. Use one of the CP_KEY_ names.", function, (int)key);
+		}
+	}
+	return false;
+}
+
+static bool CP_Input_MouseIsValidFor(CP_MOUSE button, const char* function)
+{
+	if (CP_Input_IsValidMouse(button))
+	{
+		return true;
+	}
+	if (CP_Message_FirstTimeFor("not a mouse button", function))
+	{
+		CP_Warn("%s was given %d, which isn't a mouse button, so it gave false. Use CP_MOUSE_LEFT, CP_MOUSE_RIGHT or CP_MOUSE_MIDDLE.", function, (int)button);
+	}
+	return false;
+}
+
+static bool CP_Input_GamepadIsValidFor(CP_GAMEPAD button, const char* function)
+{
+	if (CP_Input_IsValidGamepad(button))
+	{
+		return true;
+	}
+	if (CP_Message_FirstTimeFor("not a gamepad button", function))
+	{
+		CP_Warn("%s was given %d, which isn't a gamepad button, so it gave false. Use one of the CP_GAMEPAD_ names.", function, (int)button);
+	}
+	return false;
+}
+
+static bool CP_Input_GamepadIndexIsValidFor(unsigned index, const char* function)
+{
+	if (CP_Input_IsValidGamepadIndex(index))
+	{
+		return true;
+	}
+	if (CP_Message_FirstTimeFor("not a gamepad number", function))
+	{
+		CP_Warn("%s was given gamepad %d, but gamepads are numbered 0 to %d, so it gave nothing.", function, (int)index, CP_MAX_GAMEPADS - 1);
+	}
+	return false;
+}
+
 // A game state running under another one (CP_PASSTHROUGH_ALL) gets no input:
 // while it runs, keys and buttons read as up, the wheel and text are empty,
 // sticks and triggers rest, and the mouse stays where it was when the state
@@ -446,7 +508,7 @@ CP_API bool CP_Input_KeyTriggered(CP_KEY keyCode)
 	{
 		return key_any_triggered;
 	}
-	if (CP_Input_IsValidKey(keyCode))
+	if (CP_Input_KeyIsValidFor(keyCode, __func__))
 	{
 		// Wasn't pressed last frame and is pressed this frame
 		return CP_InputLogic_Triggered(key_states_current[keyCode], key_states_previous[keyCode]);
@@ -468,7 +530,7 @@ CP_API bool CP_Input_KeyReleased(CP_KEY keyCode)
 	{
 		return key_any_released;
 	}
-	if (CP_Input_IsValidKey(keyCode))
+	if (CP_Input_KeyIsValidFor(keyCode, __func__))
 	{
 		// Was pressed last frame and isn't pressed this frame
 		return CP_InputLogic_Released(key_states_current[keyCode], key_states_previous[keyCode]);
@@ -484,7 +546,7 @@ CP_API bool CP_Input_KeyDown(CP_KEY keyCode)
 	{
 		return key_any_down;
 	}
-	if (CP_Input_IsValidKey(keyCode))
+	if (CP_Input_KeyIsValidFor(keyCode, __func__))
 	{
 		// Is the key down?
 		return key_states_current[keyCode];
@@ -499,7 +561,7 @@ CP_API bool CP_Input_KeyDown(CP_KEY keyCode)
 CP_API bool CP_Input_MouseTriggered(CP_MOUSE button)
 {
 	if (_inputMuted) return false;
-	if (!CP_Input_IsValidMouse(button))
+	if (!CP_Input_MouseIsValidFor(button, __func__))
 	{
 		return false;
 	}
@@ -510,7 +572,7 @@ CP_API bool CP_Input_MouseTriggered(CP_MOUSE button)
 CP_API bool CP_Input_MouseReleased(CP_MOUSE button)
 {
 	if (_inputMuted) return false;
-	if (!CP_Input_IsValidMouse(button))
+	if (!CP_Input_MouseIsValidFor(button, __func__))
 	{
 		return false;
 	}
@@ -521,7 +583,7 @@ CP_API bool CP_Input_MouseReleased(CP_MOUSE button)
 CP_API bool CP_Input_MouseDown(CP_MOUSE button)
 {
 	if (_inputMuted) return false;
-	if (!CP_Input_IsValidMouse(button))
+	if (!CP_Input_MouseIsValidFor(button, __func__))
 	{
 		return false;
 	}
@@ -547,7 +609,7 @@ CP_API bool CP_Input_MouseDoubleClicked(void)
 
 CP_API bool CP_Input_MouseDragged(CP_MOUSE button)
 {
-	if (!CP_Input_IsValidMouse(button))
+	if (!CP_Input_MouseIsValidFor(button, __func__))
 	{
 		return false;
 	}
@@ -630,13 +692,13 @@ CP_API float CP_Input_GetMouseWorldY(void)
 
 CP_API bool CP_Input_GamepadTriggered(CP_GAMEPAD button)
 {
-	return CP_Input_GamepadTriggeredAdvanced(button, _defaultGamepadId);
+	return CP_Input_GamepadIsValidFor(button, __func__) && CP_Input_GamepadTriggeredAdvanced(button, _defaultGamepadId);
 }
 
 CP_API bool CP_Input_GamepadTriggeredAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
 {
 	if (_inputMuted) return false;
-	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
+	if (CP_Input_GamepadIsValidFor(button, __func__) && CP_Input_GamepadIndexIsValidFor(gamepadIndex, __func__))
 	{
 		// Wasn't pressed last frame and is pressed this frame
 		return CP_InputLogic_Triggered(
@@ -649,13 +711,13 @@ CP_API bool CP_Input_GamepadTriggeredAdvanced(CP_GAMEPAD button, unsigned gamepa
 
 CP_API bool CP_Input_GamepadReleased(CP_GAMEPAD button)
 {
-	return CP_Input_GamepadReleasedAdvanced(button, _defaultGamepadId);
+	return CP_Input_GamepadIsValidFor(button, __func__) && CP_Input_GamepadReleasedAdvanced(button, _defaultGamepadId);
 }
 
 CP_API bool CP_Input_GamepadReleasedAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
 {
 	if (_inputMuted) return false;
-	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
+	if (CP_Input_GamepadIsValidFor(button, __func__) && CP_Input_GamepadIndexIsValidFor(gamepadIndex, __func__))
 	{
 		// Was pressed last frame and isn't pressed this frame
 		return CP_InputLogic_Released(
@@ -668,13 +730,13 @@ CP_API bool CP_Input_GamepadReleasedAdvanced(CP_GAMEPAD button, unsigned gamepad
 
 CP_API bool CP_Input_GamepadDown(CP_GAMEPAD button)
 {
-	return CP_Input_GamepadDownAdvanced(button, _defaultGamepadId);
+	return CP_Input_GamepadIsValidFor(button, __func__) && CP_Input_GamepadDownAdvanced(button, _defaultGamepadId);
 }
 
 CP_API bool CP_Input_GamepadDownAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
 {
 	if (_inputMuted) return false;
-	if (CP_Input_IsValidGamepad(button) && CP_Input_IsValidGamepadIndex(gamepadIndex))
+	if (CP_Input_GamepadIsValidFor(button, __func__) && CP_Input_GamepadIndexIsValidFor(gamepadIndex, __func__))
 	{
 		// Is the button down?
 		return CP_InputLogic_GamepadButtonDown(gamepad_curr_buttons[gamepadIndex], button);
@@ -691,7 +753,7 @@ CP_API float CP_Input_GamepadRightTrigger(void)
 CP_API float CP_Input_GamepadRightTriggerAdvanced(unsigned gamepadIndex)
 {
 	if (_inputMuted) return 0.0f;
-	if (CP_Input_IsValidGamepadIndex(gamepadIndex))
+	if (CP_Input_GamepadIndexIsValidFor(gamepadIndex, __func__))
 	{
 		return gamepad_curr_analog_states[gamepadIndex].right_trigger;
 	}
@@ -707,7 +769,7 @@ CP_API float CP_Input_GamepadLeftTrigger(void)
 CP_API float CP_Input_GamepadLeftTriggerAdvanced(unsigned gamepadIndex)
 {
 	if (_inputMuted) return 0.0f;
-	if (CP_Input_IsValidGamepadIndex(gamepadIndex))
+	if (CP_Input_GamepadIndexIsValidFor(gamepadIndex, __func__))
 	{
 		return gamepad_curr_analog_states[gamepadIndex].left_trigger;
 	}
@@ -723,7 +785,7 @@ CP_API CP_Vector CP_Input_GamepadRightStick(void)
 CP_API CP_Vector CP_Input_GamepadRightStickAdvanced(unsigned gamepadIndex)
 {
 	if (_inputMuted) return CP_Vector_Zero();
-	if (CP_Input_IsValidGamepadIndex(gamepadIndex))
+	if (CP_Input_GamepadIndexIsValidFor(gamepadIndex, __func__))
 	{
 		return gamepad_curr_analog_states[gamepadIndex].right_stick;
 	}
@@ -739,7 +801,7 @@ CP_API CP_Vector CP_Input_GamepadLeftStick(void)
 CP_API CP_Vector CP_Input_GamepadLeftStickAdvanced(unsigned gamepadIndex)
 {
 	if (_inputMuted) return CP_Vector_Zero();
-	if (CP_Input_IsValidGamepadIndex(gamepadIndex))
+	if (CP_Input_GamepadIndexIsValidFor(gamepadIndex, __func__))
 	{
 		return gamepad_curr_analog_states[gamepadIndex].left_stick;
 	}
@@ -754,5 +816,5 @@ CP_API bool CP_Input_GamepadConnected(void)
 
 CP_API bool CP_Input_GamepadConnectedAdvanced(unsigned gamepadIndex)
 {
-	return CP_Input_IsValidGamepadIndex(gamepadIndex) && gamepad_connected[gamepadIndex];
+	return CP_Input_GamepadIndexIsValidFor(gamepadIndex, __func__) && gamepad_connected[gamepadIndex];
 }

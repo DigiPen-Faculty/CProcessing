@@ -226,6 +226,15 @@ Each change says what to do in an existing project.
   setting given a value that isn't one of its modes, an image size below
   1 x 1, a `CP_Settings_Restore` with no Save before it, a frame that ends
   with a Save still open, and `NULL` text each say so, once.
+- **Messages about input, game states and seeding.** A key, mouse button,
+  gamepad button or gamepad number that isn't one says so once (the input
+  function still gives false): `CP_Input_KeyDown('a')`, which is never true,
+  is told to use `CP_KEY_A`. `CP_KEY_NONE` stays quiet, so a key setting not
+  chosen yet is fine. `CP_Engine_SetNextGameState` with the state already
+  running says to use `CP_Engine_SetNextGameStateForced` to start it over.
+  `CP_Random_Seed` called on every frame with a seed that changes only now
+  and then (the time) says so; the same seed every frame doesn't, since
+  redrawing the same random picture that way is on purpose.
 - **A stack of game states, for pause menus and more:** think of states as
   cards on a table. `CP_Engine_SetNextGameState` clears the table and puts
   down a new card, as it always has: use it for a new part of the game.
