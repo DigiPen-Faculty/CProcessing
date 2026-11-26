@@ -217,6 +217,15 @@ Each change says what to do in an existing project.
   free (a load in an update function). With GCC and Clang, a load or create
   whose result isn't kept (`CP_Image_Load("x.png");` on its own line) is a
   warning, and an error in the CMake starter (`CP_NODISCARD` in the headers).
+- **Messages about drawing and settings.** A NaN or infinite number (from
+  a division by zero) given to a drawing function, a transform, the stroke
+  weight or the text settings is now ignored, with a message naming the
+  number: a NaN transform used to stop everything after it from being drawn
+  that frame. Drawing or a transform before `CP_Engine_Run` says it did
+  nothing (settings are still kept for when the window opens). A mode
+  setting given a value that isn't one of its modes, an image size below
+  1 x 1, a `CP_Settings_Restore` with no Save before it, a frame that ends
+  with a Save still open, and `NULL` text each say so, once.
 - **A stack of game states, for pause menus and more:** think of states as
   cards on a table. `CP_Engine_SetNextGameState` clears the table and puts
   down a new card, as it always has: use it for a new part of the game.

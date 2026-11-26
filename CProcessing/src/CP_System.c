@@ -745,6 +745,19 @@ bool CP_Engine_IsStarted(void)
 	return _isInitialized;
 }
 
+bool CP_Engine_CanDraw(const char* function)
+{
+	if (_CORE.nvg)
+	{
+		return true;
+	}
+	if (CP_Message_FirstTimeFor("before CP_Engine_Run", function))
+	{
+		CP_Warn("%s was called before CP_Engine_Run, so it did nothing: nothing can be drawn until the window opens. Call it in a game state's init or update function.", function);
+	}
+	return false;
+}
+
 CP_CorePtr GetCPCore(void)
 {
 	return &_CORE;
@@ -1912,6 +1925,10 @@ void CP_FrameEnd(void)
 	{
 		CP_WARN_ONCE("CP_Image_BeginDrawing had no CP_Image_EndDrawing before the end of the frame, so CProcessing ended it. Call EndDrawing in the same frame.");
 		CP_Image_EndDrawing();
+	}
+	if (_CORE.nstates > 1)
+	{
+		CP_WARN_ONCE("CP_Settings_Save had no CP_Settings_Restore by the end of the frame (%d Save%s open). Each Save needs a Restore in the same frame: otherwise the saved settings pile up, frame after frame.", _CORE.nstates - 1, _CORE.nstates == 2 ? "" : "s");
 	}
 	nvgEndFrame(_CORE.nvg);
 	_nvgFrameOpen = false;

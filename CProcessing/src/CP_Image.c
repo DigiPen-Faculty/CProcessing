@@ -312,9 +312,17 @@ CP_API int CP_Image_GetHeight(CP_Image img)
 
 CP_API void CP_Image_Draw(CP_Image img, float x, float y, float w, float h, int alpha)
 {
+	if (!CP_CAN_DRAW())
+	{
+		return;
+	}
 	if (!img)
 	{
 		CP_WARN_NO_IMAGE("CP_Image_Draw");
+		return;
+	}
+	if (!CP_CHECK_FINITE(x, y, w, h))
+	{
 		return;
 	}
 	CP_Image_DrawInternal(img, x, y, w, h, 0, 0, 0, 0, alpha);
@@ -322,18 +330,46 @@ CP_API void CP_Image_Draw(CP_Image img, float x, float y, float w, float h, int 
 
 CP_API void CP_Image_DrawSubImage(CP_Image img, float x, float y, float w, float h, float left, float top, float right, float bottom, int alpha)
 {
+	if (!CP_CAN_DRAW())
+	{
+		return;
+	}
 	if (!img)
 	{
 		CP_WARN_NO_IMAGE("CP_Image_DrawSubImage");
 		return;
 	}
+	if (!CP_CHECK_FINITE(x, y, w, h, left, top, right, bottom))
+	{
+		return;
+	}
 	CP_Image_DrawInternal(img, x, y, w, h, left, top, right, bottom, alpha);
+}
+
+// An image needs a width and a height of at least 1: a smaller one is made
+// as NULL, with a message once per function
+static bool CP_Image_SizeIsValid(int width, int height, const char* function)
+{
+	if (width > 0 && height > 0)
+	{
+		return true;
+	}
+	if (CP_Message_FirstTimeFor("image size", function))
+	{
+		CP_Warn("%s was given a size of %d x %d, so it made no image (NULL). An image is at least 1 x 1.", function, width, height);
+	}
+	return false;
 }
 
 CP_API CP_Image CP_Image_CreateFromData(int width, int height, const CP_Color* pixelDataInput)
 {
+	if (!CP_CAN_DRAW() || !CP_Image_SizeIsValid(width, height, __func__))
+	{
+		return NULL;
+	}
 	if (!pixelDataInput)
 	{
+		CP_WARN_ONCE("CP_Image_CreateFromData was given no pixels (NULL), so it made no image (NULL).");
 		return NULL;
 	}
 
@@ -382,7 +418,7 @@ CP_API CP_Image CP_Image_CreateFromData(int width, int height, const CP_Color* p
 CP_API CP_Image CP_Image_Create(int width, int height)
 {
 	CP_CorePtr CORE = GetCPCore();
-	if (!CORE || !CORE->nvg || width <= 0 || height <= 0)
+	if (!CP_CAN_DRAW() || !CP_Image_SizeIsValid(width, height, __func__))
 	{
 		return NULL;
 	}
@@ -488,7 +524,7 @@ CP_API void CP_Image_EndDrawing(void)
 CP_API CP_Image CP_Image_Screenshot(int x, int y, int w, int h)
 {
 	CP_CorePtr CORE = GetCPCore();
-	if (!CORE || !CORE->nvg || w <= 0 || h <= 0)
+	if (!CP_CAN_DRAW() || !CP_Image_SizeIsValid(w, h, __func__))
 	{
 		return NULL;
 	}

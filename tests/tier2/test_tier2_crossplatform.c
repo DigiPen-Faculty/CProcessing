@@ -126,6 +126,60 @@ void test_tier2_null_handles_say_so_once(void)
 	ASSERT_SAID(7 + sound * 6, messages, "CProcessing: ");
 }
 
+void test_tier2_drawing_before_run_says_so(void)
+{
+	const char* messages = tier2_scalars.messageDrawBeforeRun;
+	ASSERT_SAID(1, messages, "CProcessing: CP_Settings_Translate was called before CP_Engine_Run");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Settings_Rotate was called before CP_Engine_Run");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Graphics_ClearBackground was called before CP_Engine_Run");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Graphics_DrawRect was called before CP_Engine_Run");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Graphics_DrawCircle was called before CP_Engine_Run");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Graphics_BeginShape was called before CP_Engine_Run");
+	// the points and EndShape belong to the shape BeginShape already spoke
+	// for; Save and Restore before the window opens are harmless
+	ASSERT_SAID(6, messages, "CProcessing: ");
+}
+
+void test_tier2_nan_numbers_are_ignored_and_said(void)
+{
+	const char* messages = tier2_scalars.messageDrawing;
+	ASSERT_SAID(1, messages, "CProcessing: CP_Graphics_DrawRect's y isn't a number (NaN), so the call was ignored");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Graphics_DrawCircle's x is infinite, so the call was ignored");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Settings_Translate's x isn't a number (NaN)");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Settings_StrokeWeight's weight isn't a number (NaN)");
+	ASSERT_SAID(4, messages, "division by zero");
+
+	// The NaN stroke weight was ignored, and so was the NaN translate: the
+	// square drawn after it is still in the middle
+	TEST_ASSERT_EQUAL_FLOAT(3.0f, tier2_scalars.drawingStrokeWeightKept);
+	const CP_Color middle = tier2_SamplePixel(SCN_DRAWING_MESSAGES, 100, 100);
+	TEST_ASSERT_EQUAL_UINT8(0, middle.r);
+	TEST_ASSERT_EQUAL_UINT8(255, middle.b);
+	const CP_Color outside = tier2_SamplePixel(SCN_DRAWING_MESSAGES, 100, 60);
+	TEST_ASSERT_EQUAL_UINT8(255, outside.r);
+}
+
+void test_tier2_settings_mistakes_are_said(void)
+{
+	const char* messages = tier2_scalars.messageDrawing;
+	TEST_ASSERT_TRUE(tier2_scalars.drawingZeroSizeImageIsNull);
+	ASSERT_SAID(1, messages, "CProcessing: CP_Settings_RectMode was given 7, which isn't a position mode");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Settings_LineCapMode was given 99, which isn't one of its modes");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Settings_BlendMode was given 99, which isn't a blend mode");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Image_Create was given a size of 0 x 10, so it made no image (NULL)");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Settings_Restore was called without a CP_Settings_Save before it");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Font_DrawText was given no text (NULL)");
+	// with the 4 NaN messages, that's all of them
+	ASSERT_SAID(10, messages, "CProcessing: ");
+}
+
+void test_tier2_a_save_left_open_is_said_at_the_end_of_the_frame(void)
+{
+	const char* messages = tier2_scalars.messageSaveOpen;
+	ASSERT_SAID(1, messages, "CProcessing: CP_Settings_Save had no CP_Settings_Restore by the end of the frame (1 Save open)");
+	ASSERT_SAID(1, messages, "CProcessing: ");
+}
+
 void test_tier2_a_file_loaded_1000_times_says_so(void)
 {
 	const char* messages = tier2_scalars.messageLoadedOften;

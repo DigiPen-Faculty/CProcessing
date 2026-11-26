@@ -187,6 +187,10 @@ void CP_Canvas_ResumeFrame(void);
 // Has CP_Engine_Run opened the window? Images, sounds and fonts can only be
 // loaded after it has. (CP_System.c)
 bool CP_Engine_IsStarted(void);
+// True once there's a window to draw in. Before CP_Engine_Run, says so once
+// per function (a draw call or transform then does nothing) and gives false.
+bool CP_Engine_CanDraw(const char* function);
+#define CP_CAN_DRAW() CP_Engine_CanDraw(__func__)
 // Forget a freed font in every game state's saved settings (CP_Text.c)
 void CP_GameStates_ForgetFont(CP_Font font);
 void CP_ApplyWindowSizeChosenInInit(void);
