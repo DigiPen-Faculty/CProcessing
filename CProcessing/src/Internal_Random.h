@@ -12,6 +12,7 @@
 #pragma once
 
 #include <math.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -24,6 +25,51 @@ void CP_Random_Init(void);
 //---------------------------------------------------------
 // Pure helpers: no state, no window. They live here so that the Tier 1 tests
 // can reach their edge cases directly.
+
+// Watches CP_Random_Seed for the Debugging page's "seeding every frame":
+// seeded on frame after frame with a seed that stays the same for a while
+// and then changes (time(NULL), which changes once a second), so the
+// "random" numbers are the same until it changes. True once, when the seed
+// has changed twice that way. The same seed on every frame (to draw the same
+// random stars every frame) is a real technique, and a seed that changes
+// every frame gives new numbers every frame, so neither is the mistake. Only
+// the first seed of a frame counts.
+typedef struct CP_SeedWatch
+{
+	int lastFrame;
+	int lastSeed;
+	int sameRun; // frames in a row that repeated the seed before
+	int changes; // times the seed changed after repeating
+	bool told;
+} CP_SeedWatch;
+
+#define CP_SEED_WATCH_START { -2, 0, 0, 0, false }
+
+static inline bool CP_Random_WatchSeed(CP_SeedWatch* watch, int frame, int seed)
+{
+	if (watch->told || frame == watch->lastFrame)
+	{
+		return false;
+	}
+	if (frame != watch->lastFrame + 1)
+	{
+		watch->sameRun = 0;
+		watch->changes = 0;
+	}
+	else if (seed == watch->lastSeed)
+	{
+		++watch->sameRun;
+	}
+	else
+	{
+		watch->changes += watch->sameRun >= 2 ? 1 : 0;
+		watch->sameRun = 0;
+	}
+	watch->lastFrame = frame;
+	watch->lastSeed = seed;
+	watch->told = watch->changes >= 2;
+	return watch->told;
+}
 
 // SplitMix64 (Steele, Lea and Flood; this is Sebastiano Vigna's public-domain
 // version). Turns any 64-bit number, even 0 or a counter, into well-mixed

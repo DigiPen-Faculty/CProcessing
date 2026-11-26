@@ -208,6 +208,7 @@ int main(void)
 	RUN_TEST(test_random_rangeint_swaps_reversed_negative_bounds);
 	RUN_TEST(test_random_rangeint_the_extremes_return_the_value);
 	RUN_TEST(test_random_rangeint_full_signed_range_is_about_half_negative);
+	RUN_TEST(test_random_seed_watch_tells_time_seeds_every_frame_once);
 
 	// test_internal_platform.c
 	RUN_TEST(test_platform_stringcopy_copies_short_string);

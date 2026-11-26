@@ -2470,7 +2470,9 @@ static void Scn_InputQuiescentDefaults(void)
 			tier2_scalars.gamepadIndexesHaveNoGaps = false;
 		}
 	}
+	BeginMessages(); // an off-by-one gamepad number says so
 	tier2_scalars.gamepadPastLastConnected = CP_Input_GamepadConnectedAdvanced(CP_MAX_GAMEPADS);
+	EndMessages(tier2_scalars.messageGamepadPastLast, sizeof(tier2_scalars.messageGamepadPastLast));
 	tier2_scalars.mouseWheel = CP_Input_MouseWheel();
 	tier2_scalars.mouseDoubleClicked = CP_Input_MouseDoubleClicked();
 	tier2_scalars.keyADown = CP_Input_KeyDown(CP_KEY_A);
@@ -2748,6 +2750,40 @@ static void Scn_DrawingMessagesNextFrame(void)
 	CP_Graphics_ClearBackground(WHITE);
 }
 
+// ---- Messages about input and game states (DESIGN.md, "Messages") ----
+// A key, button or gamepad number that isn't one gives false, said once per
+// function; lowercase 'a' gets told to use CP_KEY_A. CP_KEY_NONE (a key
+// setting not chosen yet) stays quiet. Then the harness asks for the state it
+// is already in: nothing happens, and the message comes as the next frame
+// applies the request, so the next scenario reads it.
+static void HarnessInit(void);
+static void HarnessUpdate(void);
+
+static void Scn_InputMessages(void)
+{
+	CP_Graphics_ClearBackground(WHITE);
+
+	BeginMessages();
+	tier2_scalars.inputMistakesAllFalse = !CP_Input_KeyDown((CP_KEY)'a') && !CP_Input_KeyDown((CP_KEY)'a') && !CP_Input_KeyTriggered((CP_KEY)500) && !CP_Input_KeyDown(CP_KEY_NONE) && !CP_Input_MouseDown((CP_MOUSE)99) && !CP_Input_GamepadDown((CP_GAMEPAD)99) && !CP_Input_GamepadDownAdvanced(CP_GAMEPAD_A, 7);
+	EndMessages(tier2_scalars.messageInput, sizeof(tier2_scalars.messageInput));
+
+	tier2_scalars.sameStateAsked = CP_Engine_GetGameStateDepth() == 1;
+	if (tier2_scalars.sameStateAsked)
+	{
+		CP_Engine_SetNextGameState(HarnessInit, HarnessUpdate, NULL);
+		BeginMessages();
+	}
+}
+
+static void Scn_InputMessagesNextFrame(void)
+{
+	if (tier2_scalars.sameStateAsked)
+	{
+		EndMessages(tier2_scalars.messageSameState, sizeof(tier2_scalars.messageSameState));
+	}
+	CP_Graphics_ClearBackground(WHITE);
+}
+
 typedef void (*ScenarioFunc)(void);
 
 static const ScenarioFunc kScenarios[SCN_COUNT] = {
@@ -2865,6 +2901,8 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
 	[SCN_ERROR_PATHS] = Scn_ErrorPaths,
 	[SCN_DRAWING_MESSAGES] = Scn_DrawingMessages,
 	[SCN_DRAWING_MESSAGES_NEXT_FRAME] = Scn_DrawingMessagesNextFrame,
+	[SCN_INPUT_MESSAGES] = Scn_InputMessages,
+	[SCN_INPUT_MESSAGES_NEXT_FRAME] = Scn_InputMessagesNextFrame,
 	[SCN_SYSTEM_WINDOW_SETTINGS] = Scn_SystemWindowSettings,
 	[SCN_ASSETS_NEXT_TO_PROGRAM] = Scn_AssetsNextToProgram,
 };

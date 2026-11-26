@@ -647,3 +647,57 @@ void test_noise_octaves_keep_the_spread_of_one_layer(void)
 	TEST_ASSERT_LESS_THAN_FLOAT(0.15f, smallest);
 	TEST_ASSERT_GREATER_THAN_FLOAT(0.85f, largest);
 }
+
+// Seeds on frames 0 to frames - 1, seed = seedOf(frame); the frame where the
+// watch first said so, or -1
+static int FirstSeedWarning(int frames, int (*seedOf)(int))
+{
+	CP_SeedWatch watch = CP_SEED_WATCH_START;
+	int first = -1;
+	for (int frame = 0; frame < frames; ++frame)
+	{
+		if (CP_Random_WatchSeed(&watch, frame, seedOf(frame)) && first < 0)
+		{
+			first = frame;
+		}
+	}
+	return first;
+}
+
+static int SeedLikeTime(int frame) { return 1000 + frame / 60; } // time(NULL) at 60 frames a second
+static int SeedConstant(int frame)
+{
+	(void)frame;
+	return 42;
+}
+static int SeedEveryFrame(int frame) { return frame; }
+
+void test_random_seed_watch_tells_time_seeds_every_frame_once(void)
+{
+	// the second change of a time seed, at frame 120
+	TEST_ASSERT_EQUAL_INT(120, FirstSeedWarning(600, SeedLikeTime));
+
+	// the same seed every frame (to draw the same stars) and a new seed every
+	// frame are both on purpose
+	TEST_ASSERT_EQUAL_INT(-1, FirstSeedWarning(600, SeedConstant));
+	TEST_ASSERT_EQUAL_INT(-1, FirstSeedWarning(600, SeedEveryFrame));
+
+	// told once only, and only the first seed of a frame counts
+	CP_SeedWatch watch = CP_SEED_WATCH_START;
+	int told = 0;
+	for (int frame = 0; frame < 600; ++frame)
+	{
+		told += CP_Random_WatchSeed(&watch, frame, SeedLikeTime(frame));
+		told += CP_Random_WatchSeed(&watch, frame, 7); // a second seed in the frame
+	}
+	TEST_ASSERT_EQUAL_INT(1, told);
+
+	// seeding on some frames only (a key press each time) isn't every frame
+	CP_SeedWatch sometimes = CP_SEED_WATCH_START;
+	int toldSometimes = 0;
+	for (int frame = 0; frame < 600; frame += 2)
+	{
+		toldSometimes += CP_Random_WatchSeed(&sometimes, frame, SeedLikeTime(frame));
+	}
+	TEST_ASSERT_EQUAL_INT(0, toldSometimes);
+}

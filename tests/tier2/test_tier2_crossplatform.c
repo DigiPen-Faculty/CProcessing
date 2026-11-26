@@ -180,6 +180,32 @@ void test_tier2_a_save_left_open_is_said_at_the_end_of_the_frame(void)
 	ASSERT_SAID(1, messages, "CProcessing: ");
 }
 
+void test_tier2_keys_and_buttons_that_arent_say_so(void)
+{
+	const char* messages = tier2_scalars.messageInput;
+	TEST_ASSERT_TRUE(tier2_scalars.inputMistakesAllFalse);
+	ASSERT_SAID(1, messages, "CProcessing: CP_Input_KeyDown was given 'a' (97), which isn't a key, so it gave false. A letter key is named by its capital: use CP_KEY_A.");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Input_KeyTriggered was given 500, which isn't a key");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Input_MouseDown was given 99, which isn't a mouse button");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Input_GamepadDown was given 99, which isn't a gamepad button");
+	ASSERT_SAID(1, messages, "CProcessing: CP_Input_GamepadDownAdvanced was given gamepad 7, but gamepads are numbered 0 to 3");
+	// CP_KEY_NONE said nothing
+	ASSERT_SAID(5, messages, "CProcessing: ");
+
+	const char* pastLast = tier2_scalars.messageGamepadPastLast;
+	ASSERT_SAID(1, pastLast, "CProcessing: CP_Input_GamepadConnectedAdvanced was given gamepad 4, but gamepads are numbered 0 to 3");
+	ASSERT_SAID(1, pastLast, "CProcessing: ");
+}
+
+void test_tier2_setting_the_running_state_says_to_use_forced(void)
+{
+	TEST_ASSERT_TRUE_MESSAGE(tier2_scalars.sameStateAsked, "the harness wasn't the only state");
+	const char* messages = tier2_scalars.messageSameState;
+	ASSERT_SAID(1, messages, "CProcessing: CP_Engine_SetNextGameState was given the state that is already running, so nothing happened");
+	ASSERT_SAID(1, messages, "CP_Engine_SetNextGameStateForced");
+	ASSERT_SAID(1, messages, "CProcessing: ");
+}
+
 void test_tier2_a_file_loaded_1000_times_says_so(void)
 {
 	const char* messages = tier2_scalars.messageLoadedOften;

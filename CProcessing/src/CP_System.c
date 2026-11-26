@@ -945,6 +945,10 @@ static void CP_GameStates_Warn(CP_GSL_Result result)
 	case CP_GSL_NO_UPDATE:
 		CP_WARN_ONCE("a game state needs an update function; this one was ignored.");
 		break;
+	case CP_GSL_SAME_STATE:
+		CP_WARN_ONCE("CP_Engine_SetNextGameState was given the state that is already running, so nothing happened. "
+					 "To start it over (to restart a level), use CP_Engine_SetNextGameStateForced.");
+		break;
 	case CP_GSL_POP_LAST:
 		CP_WARN_ONCE("CP_Engine_PopGameState was called with only one game state, so it was ignored. "
 					 "Use CP_Engine_SetNextGameState to go to another state, or CP_Engine_Terminate to quit.");
