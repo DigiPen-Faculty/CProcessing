@@ -202,4 +202,6 @@ Pick two or more.
 * **A ball gets stuck inside a wall.** It was moved into the wall, and *then* checked. Check first, and only take steps that are allowed.
 * **Fast things go through walls.** Tunneling: see step 8.
 
+To tell which of these it is, draw the hitboxes on top of the game: [seeing what the game sees](Debugging#seeing-what-the-game-sees) shows how, and the [debug drawing example](https://github.com/DigiPen-Faculty/CProcessing/blob/main/examples/debug_draw.c) plants the half-a-box bug for you to find.
+
 **Next:** [Lesson 7: Images and animation](Lesson-07-Images-and-Animation).
