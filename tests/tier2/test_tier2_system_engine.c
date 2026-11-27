@@ -7,9 +7,17 @@
 #include "unity.h"
 #include "tier2_capture.h"
 
+// The window's width: the canvas, unless the window system won't make a
+// window that narrow (Windows at a high scaling, such as a laptop's own
+// screen at 250%: see NarrowestWindowWidth in tier2_capture.c)
+static int ExpectedWindowWidth(void)
+{
+	return tier2_scalars.windowNarrowestWidth > TIER2_CANVAS_SIZE ? tier2_scalars.windowNarrowestWidth : TIER2_CANVAS_SIZE;
+}
+
 void test_tier2_system_window_size_matches_what_was_set(void)
 {
-	TEST_ASSERT_EQUAL_INT(TIER2_CANVAS_SIZE, tier2_scalars.windowWidthAfterSet);
+	TEST_ASSERT_EQUAL_INT(ExpectedWindowWidth(), tier2_scalars.windowWidthAfterSet);
 	TEST_ASSERT_EQUAL_INT(TIER2_CANVAS_SIZE, tier2_scalars.windowHeightAfterSet);
 }
 
@@ -27,7 +35,7 @@ void test_tier2_system_frame_rate_zero_means_no_limit(void)
 void test_tier2_system_window_size_chosen_in_init_is_there_for_the_first_update(void)
 {
 #ifdef _WIN32
-	TEST_ASSERT_EQUAL_INT(TIER2_CANVAS_SIZE, tier2_scalars.windowWidthInFirstUpdate);
+	TEST_ASSERT_EQUAL_INT(ExpectedWindowWidth(), tier2_scalars.windowWidthInFirstUpdate);
 #else
 	TEST_PASS_MESSAGE("the window system may apply the size a moment later");
 #endif

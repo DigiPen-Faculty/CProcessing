@@ -33,6 +33,13 @@
 	#define tier2_fileno fileno
 #endif
 
+// For NarrowestWindowWidth
+#if defined(_WIN32)
+	#define WIN32_LEAN_AND_MEAN
+	#define NOMINMAX
+	#include <windows.h>
+#endif
+
 // For Scn_AssetsNextToProgram, which runs in another folder for a moment
 #if defined(_WIN32)
 	#include <direct.h>
@@ -1945,10 +1952,29 @@ static int postUpdateHookCount = 0;
 static void PreUpdateHook(void) { ++preUpdateHookCount; }
 static void PostUpdateHook(void) { ++postUpdateHookCount; }
 
+// Windows won't make a window narrower than its title bar needs for its
+// buttons, and that width grows with the display's scaling: at 250% (a
+// laptop's own screen) it's wider than the canvas, and Windows widens the
+// window. The narrowest inside width it allows for this window, at its
+// scaling; 0 elsewhere.
+static int NarrowestWindowWidth(void)
+{
+#if defined(_WIN32)
+	HWND hwnd = (HWND)CP_System_GetWindowHandle();
+	const UINT dpi = GetDpiForWindow(hwnd);
+	RECT frame = { 0, 0, 0, 0 };
+	AdjustWindowRectExForDpi(&frame, (DWORD)GetWindowLongW(hwnd, GWL_STYLE), FALSE, (DWORD)GetWindowLongW(hwnd, GWL_EXSTYLE), dpi);
+	return GetSystemMetricsForDpi(SM_CXMINTRACK, dpi) - (frame.right - frame.left);
+#else
+	return 0;
+#endif
+}
+
 static void Scn_SystemEngineState(void)
 {
 	CP_Graphics_ClearBackground(WHITE);
 
+	tier2_scalars.windowNarrowestWidth = NarrowestWindowWidth();
 	tier2_scalars.windowWidthAfterSet = CP_System_GetWindowWidth();
 	tier2_scalars.windowHeightAfterSet = CP_System_GetWindowHeight();
 	tier2_scalars.frameCountLater = CP_System_GetFrameCount();
