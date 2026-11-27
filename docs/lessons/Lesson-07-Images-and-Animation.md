@@ -167,7 +167,7 @@ Pick two or more.
 2. **Fade out.** Make the orb fade out as it arrives, by easing its alpha. You need a color with an alpha, from lesson 3.
 3. **A scene.** Draw a picture of your own behind the slime. Put a `.png` in `assets`, load it in init and free it in exit.
 4. **Jump.** When Space is pressed, make the slime hop up and come down over half a second, using `EaseOutQuad` for going up and `EaseInQuad` for coming down.
-5. **Tint.** Make the slime flash when you press a key, by changing the alpha you draw it with for a tenth of a second.
+5. **Flash.** Make the slime flash white for a fifth of a second when you press a key. Call `CP_Settings_Overlay` with white just before drawing the slime, and `CP_Settings_NoOverlay` just after, so nothing else flashes. Then fade the flash out, by lowering the overlay color's alpha as the time runs out.
 
 ## Check yourself
 

@@ -105,6 +105,7 @@ typedef enum
 	SCN_SETTINGS_BLENDMODE_ADD,
 	SCN_SETTINGS_BLEND_MODES,
 	SCN_SETTINGS_TINT,
+	SCN_SETTINGS_OVERLAY,
 	SCN_IMAGE_FILTER_MODES,
 	SCN_IMAGE_WRAP_MODES,
 	// These two must stay in this order: one frame, then the next

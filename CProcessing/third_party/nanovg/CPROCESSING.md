@@ -82,6 +82,7 @@ that isn't listed here.
 | Patch | Files | Used by | Why it can't live outside NanoVG |
 |---|---|---|---|
 | **Tint:** `nvgTintColor`, applied by `nvg__applyTint` in `nvgFill`, `nvgStroke` and text drawing | `nanovg.c`, `nanovg.h` | `CP_Settings_Tint`, `CP_Settings_NoTint` | It has to reach every paint NanoVG builds, including image patterns and text. |
+| **Overlay:** `nvgOverlayColor`, applied by `nvg__applyOverlay` next to the tint. Shapes, strokes and gradients mix their paint colors there. A paint with an image (an image pattern, or text's glyph atlas) carries the overlay in its `outerColor`, which upstream's two texture branches of the shader never read, and the shader mixes it in per pixel (one line in each branch). The uniform layout and `NVGpaint` are unchanged. NanoVG's global alpha would weaken the overlay on images, but CProcessing never sets it. | `nanovg.c`, `nanovg.h`, `nanovg_gl.h` | `CP_Settings_Overlay`, `CP_Settings_NoOverlay` | Like the tint, it has to reach every paint, and images and text need it per pixel, to keep each pixel's alpha. |
 | **Image filter per draw:** `nvgTextureFilter` (nearest or linear) | `nanovg.c`, `nanovg.h`, `nanovg_gl.h` | `CP_Settings_ImageFilterMode` | Upstream only has a per-image flag, set when the image is created (`NVG_IMAGE_NEAREST`). CProcessing, like Processing, makes it a drawing setting. |
 | **Image wrap per draw:** `nvgTextureWrap` (clamp to border, clamp to edge, repeat, mirror) | `nanovg.c`, `nanovg.h`, `nanovg_gl.h` | `CP_Settings_ImageWrapMode`, and `CP_Settings_FillImage` (always repeat) | Upstream only has repeat X/Y flags set at creation, and no mirror or clamp-to-border. |
 | **Blend modes:** blend equations (`NVGblendEquation`), the `NVG_BLEND_*` composite operations, `glBlendEquation` in the GL back end | `nanovg.c`, `nanovg.h`, `nanovg_gl.h` | `CP_Settings_BlendMode` | Subtract, min and max need a blend equation, which upstream's GL back end never sets. |
@@ -119,7 +120,7 @@ declarations only.
    `DEPENDENCIES.md`, then run `tools/nanovg_diff.sh` and check that
    everything it shows is listed above.
 4. Build with both build systems and run both test tiers. Tier 2 covers each
-   patch: tint, image filter and wrap, blend modes, fonts, text blur and
+   patch: tint, overlay, image filter and wrap, blend modes, fonts, text blur and
    letter spacing, and settings that last across frames and screenshots. It also covers the upstream fixes
    above, including the text size and large text, which only fails in a
    32-bit (x86) build, so run that one too.

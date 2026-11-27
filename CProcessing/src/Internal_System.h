@@ -71,6 +71,7 @@ typedef struct CP_DrawInfo
 	CP_LINE_CAP_MODE line_cap;
 	CP_LINE_JOINT_MODE line_joint;
 	CP_Color tint;
+	CP_Color overlay;
 	bool anti_alias;
 	CP_BLEND_MODE blend_mode;
 	CP_IMAGE_FILTER_MODE filter_mode;

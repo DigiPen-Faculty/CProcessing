@@ -97,6 +97,7 @@ void CP_Settings_InitDefaults(CP_DrawInfoPtr DI)
 	DI->line_cap = CP_LINE_CAP_BUTT;
 	DI->line_joint = CP_LINE_JOINT_BEVEL;
 	DI->tint = CP_Color_Create(255, 255, 255, 255); // no tint
+	DI->overlay = CP_Color_Create(0, 0, 0, 0);      // no overlay
 	DI->anti_alias = true;
 	DI->blend_mode = CP_BLEND_ALPHA;
 	DI->filter_mode = CP_IMAGE_FILTER_LINEAR;
@@ -126,6 +127,7 @@ void CP_Settings_ApplyAll(void)
 	nvgLineCap(vg, DI->line_cap);
 	nvgLineJoin(vg, DI->line_joint);
 	nvgTintColor(vg, CP_ToNVGColor(DI->tint));
+	nvgOverlayColor(vg, CP_ToNVGColor(DI->overlay));
 	nvgShapeAntiAlias(vg, DI->anti_alias);
 	nvgGlobalCompositeOperation(vg, CP_ToNVGBlend(DI->blend_mode));
 	nvgTextureFilter(vg, DI->filter_mode);
@@ -298,6 +300,22 @@ CP_API void CP_Settings_Tint(CP_Color c)
 CP_API void CP_Settings_NoTint(void)
 {
 	CP_Settings_Tint(CP_Color_Create(255, 255, 255, 255));
+}
+
+// The overlay is mixed in after the tint, so it can lighten: white at alpha 255
+// draws a sprite as a white silhouette, the usual hit flash. Mixed per pixel,
+// keeping each pixel's alpha, so an image's transparent parts stay transparent.
+CP_API void CP_Settings_Overlay(CP_Color c)
+{
+	NVGcontext* vg = GetCPCore()->nvg;
+	GetDrawInfo()->overlay = c;
+	if (vg)
+		nvgOverlayColor(vg, CP_ToNVGColor(c));
+}
+
+CP_API void CP_Settings_NoOverlay(void)
+{
+	CP_Settings_Overlay(CP_Color_Create(0, 0, 0, 0));
 }
 
 CP_API void CP_Settings_AntiAlias(bool antiAlias)

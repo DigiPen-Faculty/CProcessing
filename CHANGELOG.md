@@ -235,6 +235,15 @@ Each change says what to do in an existing project.
   `CP_Random_Seed` called on every frame with a seed that changes only now
   and then (the time) says so; the same seed every frame doesn't, since
   redrawing the same random picture that way is on purpose.
+- **`CP_Settings_Overlay` and `CP_Settings_NoOverlay`: a color mixed into
+  everything drawn**, by the overlay's alpha (255 is all the way, 0 is
+  none), after the tint. A tint multiplies, so it can only darken; white at
+  255 draws a sprite as a white silhouette, the usual hit flash, and lowering
+  the alpha fades it out. Each pixel keeps its own alpha, so an image's
+  see-through parts stay see-through. It applies to shapes, outlines,
+  gradients, images and text, like the tint. `sprite_animation.c` flashes
+  with it, instead of drawing a white copy of the sprite sheet over the
+  sprite (which also left a thin line of the sprite's color at its edges).
 - **A stack of game states, for pause menus and more:** think of states as
   cards on a table. `CP_Engine_SetNextGameState` clears the table and puts
   down a new card, as it always has: use it for a new part of the game.
