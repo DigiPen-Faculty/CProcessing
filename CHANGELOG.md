@@ -234,7 +234,8 @@ Each change says what to do in an existing project.
   running says to use `CP_Engine_SetNextGameStateForced` to start it over.
   `CP_Random_Seed` called on every frame with a seed that changes only now
   and then (the time) says so; the same seed every frame doesn't, since
-  redrawing the same random picture that way is on purpose.
+  redrawing the same random picture that way is on purpose. The gamepad
+  functions without "Advanced" stay quiet with no gamepad connected.
 - **A stack of game states, for pause menus and more:** think of states as
   cards on a table. `CP_Engine_SetNextGameState` clears the table and puts
   down a new card, as it always has: use it for a new part of the game.

@@ -189,7 +189,8 @@ void test_tier2_keys_and_buttons_that_arent_say_so(void)
 	ASSERT_SAID(1, messages, "CProcessing: CP_Input_MouseDown was given 99, which isn't a mouse button");
 	ASSERT_SAID(1, messages, "CProcessing: CP_Input_GamepadDown was given 99, which isn't a gamepad button");
 	ASSERT_SAID(1, messages, "CProcessing: CP_Input_GamepadDownAdvanced was given gamepad 7, but gamepads are numbered 0 to 3");
-	// CP_KEY_NONE said nothing
+	// CP_KEY_NONE said nothing, and nor did the gamepad functions without
+	// "Advanced" (no gamepad, or the first one)
 	ASSERT_SAID(5, messages, "CProcessing: ");
 
 	const char* pastLast = tier2_scalars.messageGamepadPastLast;
