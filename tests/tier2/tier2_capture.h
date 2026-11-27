@@ -199,6 +199,7 @@ typedef struct
 	int windowWidthInFirstUpdate; // the size chosen in init, already
 	int windowWidthAfterSet;
 	int windowHeightAfterSet;
+	int windowNarrowestWidth; // the narrowest the window system allows: see NarrowestWindowWidth
 	unsigned frameCountEarly;
 	unsigned frameCountLater;
 	float dtSample;
