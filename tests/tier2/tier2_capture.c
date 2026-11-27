@@ -842,6 +842,52 @@ static void Scn_SettingsTint(void)
 	CP_Settings_NoTint();
 }
 
+// The overlay mixes a color in after the tint, keeping each pixel's alpha:
+// shapes, an image with see-through pixels, a gradient and text
+static void Scn_SettingsOverlay(void)
+{
+	const CP_Color red = CP_Color_Create(255, 0, 0, 255);
+	CP_Settings_Save();
+	CP_Graphics_ClearBackground(BLACK);
+	CP_Settings_NoStroke();
+	CP_Settings_RectMode(CP_POSITION_CENTER);
+
+	// Row 1: red in white; red in half white; white tinted red, then half blue
+	CP_Settings_Fill(red);
+	CP_Settings_Overlay(WHITE);
+	CP_Graphics_DrawRect(30, 30, 40, 40);
+	CP_Settings_Overlay(CP_Color_Create(255, 255, 255, 128));
+	CP_Graphics_DrawRect(100, 30, 40, 40);
+	CP_Settings_Fill(WHITE);
+	CP_Settings_Tint(red);
+	CP_Settings_Overlay(CP_Color_Create(0, 0, 255, 128));
+	CP_Graphics_DrawRect(170, 30, 40, 40);
+	CP_Settings_NoTint();
+
+	// Row 2: an image (red, see-through / half see-through red, green) in
+	// white, at full alpha and at 128; a red to blue gradient in green
+	CP_Color pixels[4] = { red, CP_Color_Create(0, 0, 0, 0), CP_Color_Create(255, 0, 0, 128), CP_Color_Create(0, 255, 0, 255) };
+	CP_Image image = CP_Image_CreateFromData(2, 2, pixels);
+	CP_Settings_ImageFilterMode(CP_IMAGE_FILTER_NEAREST);
+	CP_Settings_Overlay(WHITE);
+	CP_Image_Draw(image, 30, 100, 40, 40, 255);
+	CP_Image_Draw(image, 100, 100, 40, 40, 128);
+	CP_Image_Free(&image);
+	CP_Settings_FillLinearGradient(150, 0, red, 190, 0, CP_Color_Create(0, 0, 255, 255));
+	CP_Settings_Overlay(CP_Color_Create(0, 255, 0, 255));
+	CP_Graphics_DrawRect(170, 100, 40, 40);
+
+	// Row 3: red text in white; then, with no overlay, a red square
+	CP_Settings_Fill(red);
+	CP_Settings_Overlay(WHITE);
+	CP_Settings_TextSize(60.0f);
+	CP_Settings_TextAlignment(CP_TEXT_ALIGN_H_LEFT, CP_TEXT_ALIGN_V_BASELINE);
+	CP_Font_DrawText("H", 10, 190);
+	CP_Settings_NoOverlay();
+	CP_Graphics_DrawRect(170, 170, 40, 40);
+	CP_Settings_Restore();
+}
+
 // A 2x2 image: red, green / blue, yellow
 static CP_Image CreateFourColorImage(void)
 {
@@ -2869,6 +2915,7 @@ static const ScenarioFunc kScenarios[SCN_COUNT] = {
 	[SCN_SETTINGS_BLENDMODE_ADD] = Scn_SettingsBlendModeAdd,
 	[SCN_SETTINGS_BLEND_MODES] = Scn_SettingsBlendModes,
 	[SCN_SETTINGS_TINT] = Scn_SettingsTint,
+	[SCN_SETTINGS_OVERLAY] = Scn_SettingsOverlay,
 	[SCN_IMAGE_FILTER_MODES] = Scn_ImageFilterModes,
 	[SCN_IMAGE_WRAP_MODES] = Scn_ImageWrapModes,
 	[SCN_SETTINGS_LAST_FRAME_SETS_TEXT_SIZE] = Scn_SettingsLastFrameSetsTextSize,

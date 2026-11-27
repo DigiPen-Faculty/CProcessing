@@ -125,6 +125,8 @@ CP_API void				CP_Settings_StrokeWeight			(float weight);
 CP_API float			CP_Settings_GetStrokeWeight			(void);
 CP_API void				CP_Settings_Tint					(CP_Color c);	// Multiplies the colors of everything drawn; its alpha is how strong
 CP_API void				CP_Settings_NoTint					(void);
+CP_API void				CP_Settings_Overlay					(CP_Color c);	// Mixes a color into everything drawn, after the tint; its alpha is how much (white is a hit flash)
+CP_API void				CP_Settings_NoOverlay				(void);
 CP_API void				CP_Settings_AntiAlias				(bool antiAlias);
 CP_API void				CP_Settings_LineCapMode				(CP_LINE_CAP_MODE capMode);
 CP_API void				CP_Settings_LineJointMode			(CP_LINE_JOINT_MODE jointMode);

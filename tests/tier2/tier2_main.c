@@ -115,6 +115,7 @@ int main(void)
 	RUN_TEST(test_tier2_settings_save_restore_round_trips_fill_and_transform);
 	RUN_TEST(test_tier2_settings_blend_modes_with_equations);
 	RUN_TEST(test_tier2_settings_tint_multiplies_shapes_and_images);
+	RUN_TEST(test_tier2_settings_overlay_mixes_in_after_the_tint);
 	RUN_TEST(test_tier2_settings_carry_over_to_the_next_frame);
 	RUN_TEST(test_tier2_settings_made_before_run_are_kept);
 	RUN_TEST(test_tier2_settings_default_wrap_mode_is_clamp_to_edge);

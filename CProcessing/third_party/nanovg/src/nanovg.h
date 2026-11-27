@@ -286,6 +286,9 @@ void nvgFillPaint(NVGcontext* ctx, NVGpaint paint);
 // CProcessing: tint, image filter and image wrap settings.
 // Sets current tint color which is applied to all draw calls.
 void nvgTintColor(NVGcontext* ctx, NVGcolor color);
+// CProcessing: sets current overlay color, mixed into all draw calls after the
+// tint; its alpha is how much (0 is none).
+void nvgOverlayColor(NVGcontext* ctx, NVGcolor color);
 
 // Sets current texture filter mode, which can be NVG_TEXTURE_FILTER_NEAREST or NVG_TEXTURE_FILTER_LINEAR.
 void nvgTextureFilter(NVGcontext* ctx, int filterMode);

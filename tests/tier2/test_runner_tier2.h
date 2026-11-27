@@ -61,6 +61,7 @@ void test_tier2_settings_blendmode_add_sums_overlapping_colors(void);
 void test_tier2_settings_save_restore_round_trips_fill_and_transform(void);
 void test_tier2_settings_blend_modes_with_equations(void);
 void test_tier2_settings_tint_multiplies_shapes_and_images(void);
+void test_tier2_settings_overlay_mixes_in_after_the_tint(void);
 void test_tier2_settings_carry_over_to_the_next_frame(void);
 void test_tier2_settings_made_before_run_are_kept(void);
 void test_tier2_settings_default_wrap_mode_is_clamp_to_edge(void);
