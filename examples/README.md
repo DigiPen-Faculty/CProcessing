@@ -161,7 +161,7 @@ Tricks that live inside an example about something bigger.
 | Noticing a gamepad plugged in or unplugged | [gamepad.c](gamepad.c) |
 | A trigger that's pressed part way, like a throttle | [gamepad.c](gamepad.c) (faster players) |
 | A sprite sheet animation | [sprite_animation.c](sprite_animation.c) |
-| A sprite that flashes white, or any color, when it's hurt | [sprite_animation.c](sprite_animation.c) (`MakeSilhouette`, `CP_Settings_Tint`) |
+| A sprite that flashes white, or any color, when it's hurt | [sprite_animation.c](sprite_animation.c) (`CP_Settings_Overlay`) |
 | An eyedropper: the color of a pixel | [painting.c](painting.c) (`CP_Image_GetPixelData`) |
 | Drawing that stays from frame to frame | [painting.c](painting.c), [particles.c](particles.c) (a trail that fades) |
 | Saving a picture or screenshot, and loading it back | [painting.c](painting.c) |

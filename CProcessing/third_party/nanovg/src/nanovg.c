@@ -77,6 +77,7 @@ struct NVGstate {
 	NVGpaint fill;
 	NVGpaint stroke;
 	NVGcolor tint;				// CProcessing: nvgTintColor
+	NVGcolor overlay;			// CProcessing: nvgOverlayColor
 	float strokeWidth;
 	float miterLimit;
 	int lineJoin;
@@ -172,6 +173,25 @@ static void nvg__applyTint(NVGpaint* paint, NVGcolor tint)
 	paint->outerColor.r *= r;
 	paint->outerColor.g *= g;
 	paint->outerColor.b *= b;
+}
+
+// CProcessing: mixes a paint's colors toward the overlay color set with
+// nvgOverlayColor, by the overlay's alpha (CP_Settings_Overlay), after the
+// tint. A paint with an image (an image pattern, or text's glyph atlas) is
+// mixed in the shader instead, per pixel: the overlay goes in its outerColor,
+// which upstream's image and text shader branches don't otherwise read.
+static void nvg__applyOverlay(NVGpaint* paint, NVGcolor overlay)
+{
+	if (paint->image != 0) {
+		paint->outerColor = overlay;
+		return;
+	}
+	paint->innerColor.r = nvg__lerpf(paint->innerColor.r, overlay.r, overlay.a);
+	paint->innerColor.g = nvg__lerpf(paint->innerColor.g, overlay.g, overlay.a);
+	paint->innerColor.b = nvg__lerpf(paint->innerColor.b, overlay.b, overlay.a);
+	paint->outerColor.r = nvg__lerpf(paint->outerColor.r, overlay.r, overlay.a);
+	paint->outerColor.g = nvg__lerpf(paint->outerColor.g, overlay.g, overlay.a);
+	paint->outerColor.b = nvg__lerpf(paint->outerColor.b, overlay.b, overlay.a);
 }
 
 static float nvg__normalize(float *x, float* y)
@@ -702,6 +722,7 @@ void nvgReset(NVGcontext* ctx)
 	nvg__setPaintColor(&state->fill, nvgRGBA(255,255,255,255));
 	nvg__setPaintColor(&state->stroke, nvgRGBA(0,0,0,255));
 	state->tint = nvgRGBA(255, 255, 255, 255);	// CProcessing: no tint
+	state->overlay = nvgRGBA(0, 0, 0, 0);	// CProcessing: no overlay
 	state->compositeOperation = nvg__compositeOperationState(NVG_SOURCE_OVER);
 	state->shapeAntiAlias = 1;
 	state->strokeWidth = 1.0f;
@@ -853,6 +874,12 @@ void nvgTintColor(NVGcontext* ctx, NVGcolor color)
 {
 	NVGstate* state = nvg__getState(ctx);
 	state->tint = color;
+}
+
+void nvgOverlayColor(NVGcontext* ctx, NVGcolor color)	// CProcessing: CP_Settings_Overlay
+{
+	NVGstate* state = nvg__getState(ctx);
+	state->overlay = color;
 }
 
 void nvgTextureFilter(NVGcontext* ctx, int filterMode)
@@ -2314,6 +2341,7 @@ void nvgFill(NVGcontext* ctx)
 		nvg__expandFill(ctx, 0.0f, NVG_MITER, 2.4f);
 
 	nvg__applyTint(&fillPaint, state->tint);	// CProcessing: nvgTintColor
+	nvg__applyOverlay(&fillPaint, state->overlay);	// CProcessing: nvgOverlayColor
 
 	// Apply global alpha
 	fillPaint.innerColor.a *= state->alpha;
@@ -2354,6 +2382,7 @@ void nvgStroke(NVGcontext* ctx)
 	}
 
 	nvg__applyTint(&strokePaint, state->tint);	// CProcessing: nvgTintColor
+	nvg__applyOverlay(&strokePaint, state->overlay);	// CProcessing: nvgOverlayColor
 
 	// Apply global alpha
 	strokePaint.innerColor.a *= state->alpha;
@@ -2537,6 +2566,7 @@ static void nvg__renderText(NVGcontext* ctx, NVGvertex* verts, int nverts)
 	paint.image = ctx->fontImages[ctx->fontImageIdx];
 
 	nvg__applyTint(&paint, state->tint);	// CProcessing: nvgTintColor
+	nvg__applyOverlay(&paint, state->overlay);	// CProcessing: nvgOverlayColor
 
 	// Apply global alpha
 	paint.innerColor.a *= state->alpha;

@@ -707,6 +707,7 @@ static int glnvg__renderCreate(void* uptr)
 		"		if (texType == 2) color = vec4(color.x);"
 		"		// Apply color tint and alpha.\n"
 		"		color *= innerCol;\n"
+		"		color.rgb = color.rgb * (1.0 - outerCol.a) + outerCol.rgb * color.a;\n" // CProcessing: nvgOverlayColor
 		"		// Combine alpha\n"
 		"		color *= strokeAlpha * scissor;\n"
 		"		result = color;\n"
@@ -722,6 +723,7 @@ static int glnvg__renderCreate(void* uptr)
 		"		if (texType == 2) color = vec4(color.x);"
 		"		color *= scissor;\n"
 		"		result = color * innerCol;\n"
+		"		result.rgb = result.rgb * (1.0 - outerCol.a) + outerCol.rgb * result.a;\n" // CProcessing: nvgOverlayColor
 		"	}\n"
 		"#ifdef NANOVG_GL3\n"
 		"	outColor = result;\n"

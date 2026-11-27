@@ -133,6 +133,42 @@ void test_tier2_settings_tint_multiplies_shapes_and_images(void)
 	assertColorWithin(3, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_SETTINGS_TINT, 100, 150));
 }
 
+void test_tier2_settings_overlay_mixes_in_after_the_tint(void)
+{
+	// See Scn_SettingsOverlay. Shapes: all the way, halfway, and after a tint
+	// (white tinted red is red; half blue mixed in is purple: the overlay
+	// comes second, or it would be dark red)
+	assertColorWithin(3, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_SETTINGS_OVERLAY, 30, 30));
+	assertColorWithin(3, CP_Color_Create(255, 128, 128, 255), tier2_SamplePixel(SCN_SETTINGS_OVERLAY, 100, 30));
+	assertColorWithin(3, CP_Color_Create(128, 0, 128, 255), tier2_SamplePixel(SCN_SETTINGS_OVERLAY, 170, 30));
+	// The image: opaque pixels white, the see-through one still see-through,
+	// the half see-through one half white over black
+	assertColorWithin(3, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_SETTINGS_OVERLAY, 20, 90));
+	assertColorWithin(3, CP_Color_Create(0, 0, 0, 255), tier2_SamplePixel(SCN_SETTINGS_OVERLAY, 40, 90));
+	assertColorWithin(3, CP_Color_Create(128, 128, 128, 255), tier2_SamplePixel(SCN_SETTINGS_OVERLAY, 20, 110));
+	assertColorWithin(3, CP_Color_Create(255, 255, 255, 255), tier2_SamplePixel(SCN_SETTINGS_OVERLAY, 40, 110));
+	// Drawn at alpha 128, it stays half see-through
+	assertColorWithin(3, CP_Color_Create(128, 128, 128, 255), tier2_SamplePixel(SCN_SETTINGS_OVERLAY, 90, 90));
+	// The gradient, all green
+	assertColorWithin(3, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_SETTINGS_OVERLAY, 160, 100));
+	assertColorWithin(3, CP_Color_Create(0, 255, 0, 255), tier2_SamplePixel(SCN_SETTINGS_OVERLAY, 180, 100));
+	// The text: white and grays at its edges, no red anywhere
+	int white = 0;
+	for (int y = 120; y < TIER2_CANVAS_SIZE; ++y)
+	{
+		for (int x = 0; x < 80; ++x)
+		{
+			CP_Color c = tier2_SamplePixel(SCN_SETTINGS_OVERLAY, x, y);
+			TEST_ASSERT_INT_WITHIN(4, c.r, c.g);
+			TEST_ASSERT_INT_WITHIN(4, c.r, c.b);
+			white += c.r > 250;
+		}
+	}
+	TEST_ASSERT_GREATER_THAN_INT(100, white);
+	// NoOverlay: red again
+	assertColorWithin(3, CP_Color_Create(255, 0, 0, 255), tier2_SamplePixel(SCN_SETTINGS_OVERLAY, 170, 170));
+}
+
 void test_tier2_settings_carry_over_to_the_next_frame(void)
 {
 	// See Scn_SettingsCarryToNextFrame: the text size set in the previous

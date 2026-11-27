@@ -7,9 +7,8 @@
 // - load an image once, in init, and free it in exit
 // - draw one frame of a sprite sheet with CP_Image_DrawSubImage
 // - change frames at a steady speed with a timer and CP_System_GetDt
-// - flash the sprite white, or any color, when it's hurt: a white copy of
-//   the sheet (MakeSilhouette below: copy it into your game) drawn over the
-//   sprite, fading out, and colored with CP_Settings_Tint
+// - flash the sprite white, or any color, when it's hurt, fading out, with
+//   CP_Settings_Overlay
 //
 // assets/SlimeSheet.png holds 8 frames in one row, each 64x64 pixels. The
 // whole sheet is drawn at the top, with a box around the frame being shown.
@@ -33,11 +32,9 @@
 
 #include "cprocessing.h"
 #include <stdio.h>
-#include <stdlib.h> // for malloc and free
 
 // The sprite sheet: 8 frames in a row, each 64x64 pixels
 CP_Image slimeSheet;
-CP_Image slimeWhite; // the same sheet, every pixel white, for the flash
 const int frameCount = 8;
 const float frameSize = 64.0f;
 
@@ -51,39 +48,6 @@ float hurtTimer = 0.0f;
 const float hurtDuration = 0.4f;
 CP_Color hurtColor;
 
-// A copy of an image with every pixel white, keeping how see-through each
-// one is: the sprite's shape, and nothing else. It's made once, when the
-// image is loaded, and freed with it.
-// Drawn over the sprite with an alpha, it moves every pixel's color that
-// far toward white. A tint colors it: a tint multiplies, and white times a
-// color is that color. (A tint on the sprite itself can only darken it, so
-// it can't flash it white, and red on a green slime only makes it dark.)
-CP_Image MakeSilhouette(CP_Image image)
-{
-	const int width = CP_Image_GetWidth(image);
-	const int height = CP_Image_GetHeight(image);
-	if (width == 0 || height == 0)
-	{
-		return NULL; // the image didn't load
-	}
-
-	CP_Color* pixels = (CP_Color*)malloc((size_t)width * (size_t)height * sizeof(CP_Color));
-	if (!pixels)
-	{
-		return NULL;
-	}
-	CP_Image_GetPixelData(image, pixels);
-	for (int i = 0; i < width * height; ++i)
-	{
-		pixels[i].r = 255;
-		pixels[i].g = 255;
-		pixels[i].b = 255;
-	}
-	CP_Image silhouette = CP_Image_CreateFromData(width, height, pixels); // it copies the pixels
-	free(pixels);
-	return silhouette;
-}
-
 void game_init(void)
 {
 	CP_System_SetWindowSize(800, 600);
@@ -91,7 +55,6 @@ void game_init(void)
 
 	// Load images once, here, not in game_update (which runs every frame)
 	slimeSheet = CP_Image_Load("assets/SlimeSheet.png");
-	slimeWhite = MakeSilhouette(slimeSheet);
 }
 
 void game_update(void)
@@ -141,20 +104,24 @@ void game_update(void)
 	float frameRight = frameLeft + frameSize;
 	float frameBottom = frameSize;
 
+	// The flash: while the slime is hurt, an overlay mixes the flash's color
+	// into every pixel of it. The overlay's alpha is how much: it falls from
+	// 255 to 0 as the flash ends, so the flash fades out. The see-through
+	// pixels around the slime stay see-through. (A tint can't flash white: it
+	// multiplies, so it can only darken, and red on a green slime is dark.)
+	if (hurtTimer > 0.0f)
+	{
+		CP_Color flash = hurtColor;
+		flash.a = (unsigned char)(255.0f * hurtTimer / hurtDuration);
+		CP_Settings_Overlay(flash);
+	}
+
 	// Draw that frame big, 4 times its size, in the middle of the window
 	CP_Image_DrawSubImage(slimeSheet, 400.0f, 340.0f, frameSize * 4.0f, frameSize * 4.0f, frameLeft, frameTop, frameRight, frameBottom, 255);
 
-	// The flash: the same frame of the white sheet, in the same place, over
-	// the sprite. Its alpha falls from 255 to 0 as the flash ends, so it
-	// fades out. The tint gives it the flash's color, and NoTint after it
-	// keeps the tint off everything drawn later.
-	if (hurtTimer > 0.0f)
-	{
-		int alpha = (int)(255.0f * hurtTimer / hurtDuration);
-		CP_Settings_Tint(hurtColor);
-		CP_Image_DrawSubImage(slimeWhite, 400.0f, 340.0f, frameSize * 4.0f, frameSize * 4.0f, frameLeft, frameTop, frameRight, frameBottom, alpha);
-		CP_Settings_NoTint();
-	}
+	// Like every setting, the overlay stays until it's changed: take it off,
+	// so it doesn't flash everything drawn after the slime too
+	CP_Settings_NoOverlay();
 
 	// The whole sheet at the top, and a box around the current frame
 	float sheetLeft = 400.0f - frameCount * frameSize / 2.0f;
@@ -178,7 +145,6 @@ void game_exit(void)
 {
 	// Free what init loaded
 	CP_Image_Free(&slimeSheet);
-	CP_Image_Free(&slimeWhite);
 }
 
 int main(void)
