@@ -690,9 +690,17 @@ CP_API float CP_Input_GetMouseWorldY(void)
 //-------------------------------------
 // Gamepad
 
+// The functions without "Advanced" read the first connected gamepad. With
+// none connected (_defaultGamepadId is -1) they give nothing, quietly: that
+// isn't a mistake, but the Advanced functions would say gamepad -1 is one.
+static bool CP_Input_HasDefaultGamepad(void)
+{
+	return _defaultGamepadId >= 0;
+}
+
 CP_API bool CP_Input_GamepadTriggered(CP_GAMEPAD button)
 {
-	return CP_Input_GamepadIsValidFor(button, __func__) && CP_Input_GamepadTriggeredAdvanced(button, _defaultGamepadId);
+	return CP_Input_GamepadIsValidFor(button, __func__) && CP_Input_HasDefaultGamepad() && CP_Input_GamepadTriggeredAdvanced(button, _defaultGamepadId);
 }
 
 CP_API bool CP_Input_GamepadTriggeredAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
@@ -711,7 +719,7 @@ CP_API bool CP_Input_GamepadTriggeredAdvanced(CP_GAMEPAD button, unsigned gamepa
 
 CP_API bool CP_Input_GamepadReleased(CP_GAMEPAD button)
 {
-	return CP_Input_GamepadIsValidFor(button, __func__) && CP_Input_GamepadReleasedAdvanced(button, _defaultGamepadId);
+	return CP_Input_GamepadIsValidFor(button, __func__) && CP_Input_HasDefaultGamepad() && CP_Input_GamepadReleasedAdvanced(button, _defaultGamepadId);
 }
 
 CP_API bool CP_Input_GamepadReleasedAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
@@ -730,7 +738,7 @@ CP_API bool CP_Input_GamepadReleasedAdvanced(CP_GAMEPAD button, unsigned gamepad
 
 CP_API bool CP_Input_GamepadDown(CP_GAMEPAD button)
 {
-	return CP_Input_GamepadIsValidFor(button, __func__) && CP_Input_GamepadDownAdvanced(button, _defaultGamepadId);
+	return CP_Input_GamepadIsValidFor(button, __func__) && CP_Input_HasDefaultGamepad() && CP_Input_GamepadDownAdvanced(button, _defaultGamepadId);
 }
 
 CP_API bool CP_Input_GamepadDownAdvanced(CP_GAMEPAD button, unsigned gamepadIndex)
@@ -747,7 +755,7 @@ CP_API bool CP_Input_GamepadDownAdvanced(CP_GAMEPAD button, unsigned gamepadInde
 
 CP_API float CP_Input_GamepadRightTrigger(void)
 {
-	return CP_Input_GamepadRightTriggerAdvanced(_defaultGamepadId);
+	return CP_Input_HasDefaultGamepad() ? CP_Input_GamepadRightTriggerAdvanced(_defaultGamepadId) : 0.0f;
 }
 
 CP_API float CP_Input_GamepadRightTriggerAdvanced(unsigned gamepadIndex)
@@ -763,7 +771,7 @@ CP_API float CP_Input_GamepadRightTriggerAdvanced(unsigned gamepadIndex)
 
 CP_API float CP_Input_GamepadLeftTrigger(void)
 {
-	return CP_Input_GamepadLeftTriggerAdvanced(_defaultGamepadId);
+	return CP_Input_HasDefaultGamepad() ? CP_Input_GamepadLeftTriggerAdvanced(_defaultGamepadId) : 0.0f;
 }
 
 CP_API float CP_Input_GamepadLeftTriggerAdvanced(unsigned gamepadIndex)
@@ -779,7 +787,7 @@ CP_API float CP_Input_GamepadLeftTriggerAdvanced(unsigned gamepadIndex)
 
 CP_API CP_Vector CP_Input_GamepadRightStick(void)
 {
-	return CP_Input_GamepadRightStickAdvanced(_defaultGamepadId);
+	return CP_Input_HasDefaultGamepad() ? CP_Input_GamepadRightStickAdvanced(_defaultGamepadId) : CP_Vector_Zero();
 }
 
 CP_API CP_Vector CP_Input_GamepadRightStickAdvanced(unsigned gamepadIndex)
@@ -795,7 +803,7 @@ CP_API CP_Vector CP_Input_GamepadRightStickAdvanced(unsigned gamepadIndex)
 
 CP_API CP_Vector CP_Input_GamepadLeftStick(void)
 {
-	return CP_Input_GamepadLeftStickAdvanced(_defaultGamepadId);
+	return CP_Input_HasDefaultGamepad() ? CP_Input_GamepadLeftStickAdvanced(_defaultGamepadId) : CP_Vector_Zero();
 }
 
 CP_API CP_Vector CP_Input_GamepadLeftStickAdvanced(unsigned gamepadIndex)
@@ -811,7 +819,7 @@ CP_API CP_Vector CP_Input_GamepadLeftStickAdvanced(unsigned gamepadIndex)
 
 CP_API bool CP_Input_GamepadConnected(void)
 {
-	return _defaultGamepadId >= 0;
+	return CP_Input_HasDefaultGamepad();
 }
 
 CP_API bool CP_Input_GamepadConnectedAdvanced(unsigned gamepadIndex)

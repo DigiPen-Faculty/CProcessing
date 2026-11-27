@@ -2811,6 +2811,16 @@ static void Scn_InputMessages(void)
 
 	BeginMessages();
 	tier2_scalars.inputMistakesAllFalse = !CP_Input_KeyDown((CP_KEY)'a') && !CP_Input_KeyDown((CP_KEY)'a') && !CP_Input_KeyTriggered((CP_KEY)500) && !CP_Input_KeyDown(CP_KEY_NONE) && !CP_Input_MouseDown((CP_MOUSE)99) && !CP_Input_GamepadDown((CP_GAMEPAD)99) && !CP_Input_GamepadDownAdvanced(CP_GAMEPAD_A, 7);
+	// Not mistakes: the functions without "Advanced" read the first connected
+	// gamepad, and with none connected (as in CI) they quietly give nothing
+	(void)CP_Input_GamepadDown(CP_GAMEPAD_A);
+	(void)CP_Input_GamepadTriggered(CP_GAMEPAD_A);
+	(void)CP_Input_GamepadReleased(CP_GAMEPAD_A);
+	(void)CP_Input_GamepadLeftStick();
+	(void)CP_Input_GamepadRightStick();
+	(void)CP_Input_GamepadLeftTrigger();
+	(void)CP_Input_GamepadRightTrigger();
+	(void)CP_Input_GamepadConnected();
 	EndMessages(tier2_scalars.messageInput, sizeof(tier2_scalars.messageInput));
 
 	tier2_scalars.sameStateAsked = CP_Engine_GetGameStateDepth() == 1;

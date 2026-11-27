@@ -234,7 +234,8 @@ Each change says what to do in an existing project.
   running says to use `CP_Engine_SetNextGameStateForced` to start it over.
   `CP_Random_Seed` called on every frame with a seed that changes only now
   and then (the time) says so; the same seed every frame doesn't, since
-  redrawing the same random picture that way is on purpose.
+  redrawing the same random picture that way is on purpose. The gamepad
+  functions without "Advanced" stay quiet with no gamepad connected.
 - **`CP_Settings_Overlay` and `CP_Settings_NoOverlay`: a color mixed into
   everything drawn**, by the overlay's alpha (255 is all the way, 0 is
   none), after the tint. A tint multiplies, so it can only darken; white at
